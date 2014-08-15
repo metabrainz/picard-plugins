@@ -67,19 +67,13 @@ class GenerateTestCase(unittest.TestCase):
         with open(plugin_file, "r") as in_file:
             plugin_json = json.load(in_file)["plugins"]
 
-        # Python 3 FTW!
-        if sys.version_info >= (3,0,0):
-            unicode_or_str = str
-        else:
-            unicode_or_str = unicode
-
         # All plugins should contain all required fields
         for module_name, data in plugin_json.items():
-            assert(isinstance(data['name'], unicode_or_str))
-            assert(isinstance(data['api_version'], unicode_or_str))
-            assert(isinstance(data['author'], unicode_or_str))
-            assert(isinstance(data['downloads'], int))
-            assert(isinstance(data['description'], unicode_or_str))
+            self.assertIsInstance(data['name'], basestring)
+            self.assertIsInstance(data['api_version'], basestring)
+            self.assertIsInstance(data['author'], basestring)
+            self.assertIsInstance(data['downloads'], int)
+            self.assertIsInstance(data['description'], basestring)
 
 if __name__ == '__main__':
     unittest.main()
