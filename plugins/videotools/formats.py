@@ -26,13 +26,19 @@ from picard.metadata import Metadata
 
 
 class EnzymeFile(File):
+
     def _load(self, filename):
         log.debug("Loading file %r", filename)
         metadata = Metadata()
         self._add_path_to_metadata(metadata)
-        parser = enzyme.parse(filename)
-        print parser
-        self._convertMetadata(parser, metadata)
+
+        try:
+            parser = enzyme.parse(filename)
+            log.debug("Metadata for %s:\n%s", filename, unicode(parser))
+            self._convertMetadata(parser, metadata)
+        except Exception, err:
+            log.error("Could not parse file %r: %r", filename, err)
+
         return metadata
 
     def _convertMetadata(self, parser, metadata):
