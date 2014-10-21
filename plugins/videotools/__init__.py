@@ -19,27 +19,26 @@
 
 PLUGIN_NAME = 'Video tools'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
-PLUGIN_DESCRIPTION = 'Improves the video support in Picard by adding support for Matroska, AVI, QuickTime and MPEG files (renaming and fingerprinting only, no tagging) and providing $is_audio() and $is_video() scripting functions. Requires the hachoir Python module for full functionality.'
+PLUGIN_DESCRIPTION = 'Improves the video support in Picard by adding support for Matroska, AVI, QuickTime and MPEG files (renaming and fingerprinting only, no tagging) and providing $is_audio() and $is_video() scripting functions.'
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["1.0.0"]
 
 from picard.formats import register_format
 from picard.script import register_script_function
-from picard.plugins.videotools.hachoir import AviFile, MatroskaFile, QuickTimeFile
-from picard.plugins.videotools.mpeg import MpegFile
+from picard.plugins.videotools.formats import MatroskaFile, MpegFile, QuickTimeFile, RiffFile
 from picard.plugins.videotools.script import is_audio, is_video
 
 
 # Now this is kind of a hack, but Picard won't process registered objects that
 # are in a submodule of a plugin. I still want the code to be in separate files.
-AviFile.__module__ = MatroskaFile.__module__ = MpegFile.__module__ = \
-    QuickTimeFile.__module__ = is_audio.__module__ = is_video.__module__ = \
+MatroskaFile.__module__ = MpegFile.__module__ = QuickTimeFile.__module__ = \
+    RiffFile.__module__ = is_audio.__module__ = is_video.__module__ = \
     __name__
 
-register_format(AviFile)
 register_format(MatroskaFile)
 register_format(MpegFile)
 register_format(QuickTimeFile)
+register_format(RiffFile)
 
 register_script_function(is_audio)
 register_script_function(is_video)
