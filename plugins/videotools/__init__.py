@@ -30,6 +30,12 @@ from picard.plugins.videotools.mpeg import MpegFile
 from picard.plugins.videotools.script import is_audio, is_video
 
 
+# Now this is kind of a hack, but Picard won't process registered objects that
+# are in a submodule of a plugin. I still want the code to be in separate files.
+AviFile.__module__ = MatroskaFile.__module__ = MpegFile.__module__ = \
+    QuickTimeFile.__module__ = is_audio.__module__ = is_video.__module__ = \
+    __name__
+
 register_format(AviFile)
 register_format(MatroskaFile)
 register_format(MpegFile)
