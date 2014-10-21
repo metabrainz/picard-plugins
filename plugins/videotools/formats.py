@@ -84,7 +84,7 @@ class EnzymeFile(File):
 
 
 class MatroskaFile(EnzymeFile):
-    EXTENSIONS = [".mkv"]
+    EXTENSIONS = [".mka", ".mkv", ".webm"]
     NAME = "Matroska"
 
 

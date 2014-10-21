@@ -19,7 +19,7 @@
 
 PLUGIN_NAME = 'Video tools'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
-PLUGIN_DESCRIPTION = 'Improves the video support in Picard by adding support for Matroska, AVI, QuickTime and MPEG files (renaming and fingerprinting only, no tagging) and providing $is_audio() and $is_video() scripting functions.'
+PLUGIN_DESCRIPTION = 'Improves the video support in Picard by adding support for Matroska, WebM, AVI, QuickTime and MPEG files (renaming and fingerprinting only, no tagging) and providing $is_audio() and $is_video() scripting functions.'
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["1.0.0"]
 
