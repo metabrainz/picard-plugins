@@ -61,6 +61,7 @@ class EnzymeFile(File):
 
         if parser.video[0]:
             video = parser.video[0]
+            metadata["~video"] = True
 
         if parser.audio[0]:
             audio = parser.audio[0]

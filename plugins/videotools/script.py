@@ -17,10 +17,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+VIDEO_EXTENSIONS = ['m4v', 'wmv', 'ogv', 'oggtheora']
 
 def is_video(parser):
     """Returns true, if the file processed is a video file."""
-    if parser.context['~extension'] in ['m4v', 'wmv', 'ogv', 'oggtheora', 'mpg', 'mpeg', 'mkv', 'webm', 'mov', 'avi']:
+    if parser.context['~video'] or parser.context['~extension'] in VIDEO_EXTENSIONS:
         return "1"
     else:
         return ""
