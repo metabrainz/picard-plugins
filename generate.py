@@ -40,7 +40,7 @@ def get_data(filepath):
             if 'author' not in data:
                 author = re.match(re_author, line)
                 if author:
-                    data['author'] = author.group(2)
+                    data['author'] = re.sub(r'([^,])[ ]', r'\1&nbsp;', author.group(2))
 
             if 'description' not in data:
                 if re.match(re_desc_start, line):
