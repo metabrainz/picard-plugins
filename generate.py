@@ -47,7 +47,7 @@ def get_data(filepath):
                     desc_flag = True
                 elif re.match(re_desc_end, line):
                     desc_flag = False
-                    desc = re.match(re_desc, re.sub(r'[\\\n]', '', "".join(desc_lines)))
+                    desc = re.match(re_desc, re.sub(r'[\\\n]', '', "\r".join(map(lambda s: s.strip(), desc_lines))))
                     if desc:
                         data['description'] = desc.group(2)
 
