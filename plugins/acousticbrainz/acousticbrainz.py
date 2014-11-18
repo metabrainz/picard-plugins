@@ -26,7 +26,7 @@ def result(album, metadata, release, track, data, reply, error):
             if k.startswith("mood_") and not v["value"].startswith("not_"):
                 moods.append(v["value"])
         metadata["genre"] = genres
-        metadata["moods"] = moods
+        metadata["mood"] = moods
     finally:
         album._requests -= 1
         album._finalize_loading(None)
