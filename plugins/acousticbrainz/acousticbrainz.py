@@ -27,6 +27,8 @@ def result(album, metadata, release, track, data, reply, error):
                 moods.append(v["value"])
         metadata["genre"] = genres
         metadata["mood"] = moods
+    except:
+        pass
     finally:
         album._requests -= 1
         album._finalize_loading(None)
