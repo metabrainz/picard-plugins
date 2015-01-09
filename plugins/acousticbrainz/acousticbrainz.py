@@ -2,7 +2,9 @@
 
 PLUGIN_NAME = u'AcousticBrainz'
 PLUGIN_AUTHOR = u'Andrew Cook'
-PLUGIN_DESCRIPTION = u'''Uses AcousticBrainz for mood and genre.'''
+PLUGIN_DESCRIPTION = u'''Uses AcousticBrainz for mood and genre.
+
+WARNING: Experimental plugin. All guarantees voided by use.'''
 PLUGIN_VERSION = "0.0"
 PLUGIN_API_VERSIONS = ["0.15"]
 
