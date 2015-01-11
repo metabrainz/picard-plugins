@@ -1,6 +1,6 @@
 # MusicBrainz Picard Plugins
 
-This repository hosts plugins for [MusicBrainz Picard](http://picard.mbsandbox.org/). If you're a plugin author and would like to include your plugin here, simply open a pull request.
+This repository hosts plugins for [MusicBrainz Picard](https://picard.musicbrainz.org/). If you're a plugin author and would like to include your plugin here, simply open a pull request.
 
 ## Development Notes
 
