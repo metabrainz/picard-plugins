@@ -20,12 +20,13 @@
 PLUGIN_NAME = u'fanart.tv cover art'
 PLUGIN_AUTHOR = u'Philipp Wolfer'
 PLUGIN_DESCRIPTION = u'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
-PLUGIN_VERSION = "0.1"
+PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["1.3.0"]
 
 import json
 import traceback
 from PyQt4.QtCore import QUrl
+from PyQt4.QtNetwork import QNetworkReply
 from picard import config, log
 from picard.coverart.providers import CoverArtProvider, register_cover_art_provider
 from picard.coverart.image import CoverArtImage
@@ -82,37 +83,38 @@ class CoverArtProviderFanartTv(CoverArtProvider):
         self.album._requests -= 1
 
         if error:
-            log.error("Problem requesting metadata in fanart.tv plugin: %s", error)
-            return
+            if error != QNetworkReply.ContentNotFoundError:
+                error_level = log.error
+            else:
+                error_level = log.debug
+            error_level("Problem requesting metadata in fanart.tv plugin: %s", error)
+        else:
+            try:
+                response = json.loads(data)
+                release = response["albums"][releaseGroupId]
 
-        try:
-            response = json.loads(data)
-            release = response["albums"][releaseGroupId]
+                # FIXME: Select between different available artworks instead
+                # of using the first one. Maybe select the one with the highest votes
+                if "albumcover" in release:
+                    types = ["front"]
+                    url = release["albumcover"][0]["url"]
+                    log.debug("CoverArtProviderFanartTv found artwork %s" % url)
+                    self.queue_put(FanartTvCoverArtImage(url, types=types))
 
-            # FIXME: Select between different available artworks instead
-            # of using the first one. Maybe select the one with the highest votes
-            if "albumcover" in release:
-                types = ["front"]
-                url = release["albumcover"][0]["url"]
-                log.debug("CoverArtProviderFanartTv found artwork %s" % url)
-                self.queue_put(FanartTvCoverArtImage(url, types=types))
+                if "cdart" in release and \
+                    (config.setting["fanarttv_use_cdart"] == OPTION_CDART_ALWAYS
+                        or (config.setting["fanarttv_use_cdart"] == OPTION_CDART_NOALBUMART
+                            and "albumcover" not in release)):
+                    types = ["medium"]
+                    if not "albumcover" in release:
+                        types.append("front")
+                    url = release["cdart"][0]["url"]
+                    log.debug("CoverArtProviderFanartTv found artwork %s" % url)
+                    self.queue_put(FanartTvCoverArtImage(url, types=types))
+            except:
+                log.error("Problem processing downloaded metadata in fanart.tv plugin: %s", traceback.format_exc())
 
-            if "cdart" in release and \
-                (config.setting["fanarttv_use_cdart"] == OPTION_CDART_ALWAYS
-                    or (config.setting["fanarttv_use_cdart"] == OPTION_CDART_NOALBUMART
-                        and "albumcover" not in release)):
-                types = ["medium"]
-                if not "albumcover" in release:
-                    types.append("front")
-                url = release["cdart"][0]["url"]
-                log.debug("CoverArtProviderFanartTv found artwork %s" % url)
-                self.queue_put(FanartTvCoverArtImage(url, types=types))
-
-        except:
-            log.error("Problem processing downloaded metadata in fanart.tv plugin: %s", traceback.format_exc())
-            raise
-        finally:
-            self.next_in_queue()
+        self.next_in_queue()
 
 class FanartTvOptionsPage(OptionsPage):
 
