@@ -61,15 +61,15 @@ class CoverArtProviderFanartTv(CoverArtProvider):
             not self.coverart.front_image_found
 
     def queue_downloads(self):
-        releaseGroupId = self.metadata["musicbrainz_releasegroupid"]
+        release_group_id = self.metadata["musicbrainz_releasegroupid"]
         path = "/v3/music/albums/%s?api_key=%s&client_key=%s" % \
-            (releaseGroupId, str(QUrl.toPercentEncoding(API_KEY)), str(QUrl.toPercentEncoding(self._client_key)))
+            (release_group_id, str(QUrl.toPercentEncoding(API_KEY)), str(QUrl.toPercentEncoding(self._client_key)))
         log.debug("CoverArtProviderFanartTv.queue_downloads: %s" % path)
         self.album.tagger.xmlws.download(
             FANART_HOST,
             FANART_PORT,
             path,
-            partial(self._json_downloaded, releaseGroupId),
+            partial(self._json_downloaded, release_group_id),
             priority=True,
             important=False)
         self.album._requests += 1
@@ -79,7 +79,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
     def _client_key(self):
         return config.setting["fanarttv_client_key"]
 
-    def _json_downloaded(self, releaseGroupId, data, reply, error):
+    def _json_downloaded(self, release_group_id, data, reply, error):
         self.album._requests -= 1
 
         if error:
@@ -91,7 +91,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
         else:
             try:
                 response = json.loads(data)
-                release = response["albums"][releaseGroupId]
+                release = response["albums"][release_group_id]
 
                 # FIXME: Select between different available artworks instead
                 # of using the first one. Maybe select the one with the highest votes
