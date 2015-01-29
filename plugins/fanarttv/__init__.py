@@ -43,8 +43,16 @@ OPTION_CDART_ALWAYS = "always"
 OPTION_CDART_NEVER = "never"
 OPTION_CDART_NOALBUMART = "noalbumart"
 
-class FanartTvCoverArtImage(CoverArtImage):
 
+def cover_sort_key(cover):
+    """For sorting a list of cover arts by likes."""
+    try:
+        return int(cover["likes"]) if "likes" in cover else 0
+    except ValueError:
+        return 0
+
+
+class FanartTvCoverArtImage(CoverArtImage):
     """Image from Cover Art Archive"""
 
     support_types = True
@@ -93,28 +101,31 @@ class CoverArtProviderFanartTv(CoverArtProvider):
                 response = json.loads(data)
                 release = response["albums"][release_group_id]
 
-                # FIXME: Select between different available artworks instead
-                # of using the first one. Maybe select the one with the highest votes
                 if "albumcover" in release:
+                    covers = release["albumcover"]
                     types = ["front"]
-                    url = release["albumcover"][0]["url"]
-                    log.debug("CoverArtProviderFanartTv found artwork %s" % url)
-                    self.queue_put(FanartTvCoverArtImage(url, types=types))
+                    self._select_and_add_cover_art(covers, types)
 
                 if "cdart" in release and \
                     (config.setting["fanarttv_use_cdart"] == OPTION_CDART_ALWAYS
                         or (config.setting["fanarttv_use_cdart"] == OPTION_CDART_NOALBUMART
                             and "albumcover" not in release)):
+                    covers = release["cdart"]
                     types = ["medium"]
                     if not "albumcover" in release:
                         types.append("front")
-                    url = release["cdart"][0]["url"]
-                    log.debug("CoverArtProviderFanartTv found artwork %s" % url)
-                    self.queue_put(FanartTvCoverArtImage(url, types=types))
+                    self._select_and_add_cover_art(covers, types)
             except:
                 log.error("Problem processing downloaded metadata in fanart.tv plugin: %s", traceback.format_exc())
 
         self.next_in_queue()
+
+    def _select_and_add_cover_art(self, covers, types):
+        covers = sorted(covers, key=cover_sort_key, reverse=True)
+        url = covers[0]["url"]
+        log.debug("CoverArtProviderFanartTv found artwork %s" % url)
+        self.queue_put(FanartTvCoverArtImage(url, types=types))
+
 
 class FanartTvOptionsPage(OptionsPage):
 
