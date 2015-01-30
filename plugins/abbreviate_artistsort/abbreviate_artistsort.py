@@ -22,6 +22,8 @@ This is particularly useful for classical albums that can have a long list of ar
 %albumartistsort% is abbreviated into %_albumartistsort_abbrev%.'''
 PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["1.0"]
+PLUGIN_LICENSE = "GNU General Public License v3"
+PLUGIN_LICENSE_URL = "http://www.gnu.org/licenses/gpl.html"
 
 
 from picard import log
