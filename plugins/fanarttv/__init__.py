@@ -22,6 +22,8 @@ PLUGIN_AUTHOR = u'Philipp Wolfer'
 PLUGIN_DESCRIPTION = u'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
 PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["1.3.0"]
+PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 import json
 import traceback
