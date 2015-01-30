@@ -18,6 +18,8 @@ PLUGIN_AUTHOR = u"Sophist"
 PLUGIN_DESCRIPTION = u'Sort Multi-Value Tags e.g. Release Type, Lyrics alphabetically.'
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["0.15"]
+PLUGIN_LICENSE = "GNU General Public License v3"
+PLUGIN_LICENSE_URL = "http://www.gnu.org/licenses/gpl.html"
 
 from picard.metadata import register_track_metadata_processor
 
