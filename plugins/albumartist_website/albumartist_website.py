@@ -6,8 +6,8 @@ PLUGIN_DESCRIPTION = u'''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
 PLUGIN_VERSION = '0.3'
 PLUGIN_API_VERSIONS = ["0.15.0", "0.15.1", "0.16.0", "1.0.0", "1.1.0", "1.2.0", "1.3.0"]
-PLUGIN_LICENSE = "GNU General Public License v3"
-PLUGIN_LICENSE_URL = "http://www.gnu.org/licenses/gpl.html"
+PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from picard import config, log
 from picard.util import LockableObject
