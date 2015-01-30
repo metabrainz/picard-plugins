@@ -5,8 +5,8 @@ PLUGIN_AUTHOR = u'Sophist'
 PLUGIN_DESCRIPTION = u'''Display a dialog box listing the metadata variables for the track / file.'''
 PLUGIN_VERSION = '0.5'
 PLUGIN_API_VERSIONS = ['1.0']
-PLUGIN_LICENSE = "GNU General Public License v3"
-PLUGIN_LICENSE_URL = "http://www.gnu.org/licenses/gpl.html"
+PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from PyQt4 import QtGui, QtCore
 try:
