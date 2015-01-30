@@ -8,6 +8,8 @@ PLUGIN_AUTHOR = u"Philipp Wolfer"
 PLUGIN_DESCRIPTION = """Calculate ReplayGain for selected files and albums."""
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]
+PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 
 from collections import defaultdict
