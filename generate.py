@@ -15,6 +15,8 @@ re_name = re.compile(r'PLUGIN_NAME = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*)\1'
 re_author = re.compile(r'PLUGIN_AUTHOR = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*)\1')
 re_ver = re.compile(r'PLUGIN_VERSION = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*?)\1')
 re_api = re.compile(r'PLUGIN_API_VERSIONS = \[((?:\"\"\"|\'\'\'|\"|\'))(.*?)\1\]')
+re_license = re.compile(r'PLUGIN_LICENSE = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*)\1')
+re_license_url = re.compile(r'PLUGIN_LICENSE_URL = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*)\1')
 
 # Descriptions are spread out in multiple lines so these will be handled separately
 re_desc_start = re.compile(r'PLUGIN_DESCRIPTION = (?:_\(u|u|)(.*)')
@@ -63,6 +65,16 @@ def get_data(filepath):
                 apiver = re.match(re_api, line)
                 if apiver:
                     data['api_version'] = apiver.group(2)
+
+            if 'license' not in data:
+                license = re.match(re_license, line)
+                if license:
+                    data['license'] = license.group(2)
+
+            if 'license_url' not in data:
+                license_url = re.match(re_license_url, line)
+                if license_url:
+                    data['license_url'] = license_url.group(2)
 
     return data
 
