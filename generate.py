@@ -19,12 +19,7 @@ def build_json():
     Traverse the plugins directory to generate json data.
     """
 
-    # Read the existing data
-    if os.path.isfile(plugin_file):
-        with open(plugin_file, "r") as in_file:
-            plugins = json.load(in_file)["plugins"]
-    else:
-        plugins = {}
+    plugins = {}
 
     # All top level directories in plugin_dir are plugins
     for dirname in next(os.walk(plugin_dir))[1]:
@@ -49,13 +44,7 @@ def build_json():
                     if ext in ['.py'] and not data:
                         data = get_plugin_data(os.path.join(plugin_dir, dirname, filename))
 
-        if dirname in plugins:
-            print("Updated: " + dirname)
-            if data:
-                for key, value in data.items():
-                    plugins[dirname][key] = value
-            plugins[dirname]["files"] = files
-        else:
+        if files and data:
             print("Added: " + dirname)
             data['files'] = files
             plugins[dirname] = data
