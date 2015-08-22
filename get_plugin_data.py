@@ -30,8 +30,6 @@ def get_plugin_data(filepath):
                     and isinstance(target.ctx, ast.Store)
                     and target.id in known_data):
                     name = target.id.replace('PLUGIN_', '', 1).lower()
-                    if name == 'api_versions':  # wtf
-                        name = 'api_version'
                     if name not in data:
                         try:
                             data[name] = ast.literal_eval(node.value)

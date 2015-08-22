@@ -70,7 +70,7 @@ class GenerateTestCase(unittest.TestCase):
         # All plugins should contain all required fields
         for module_name, data in plugin_json.items():
             self.assertIsInstance(data['name'], basestring)
-            self.assertIsInstance(data['api_version'], basestring)
+            self.assertIsInstance(data['api_versions'], basestring)
             self.assertIsInstance(data['author'], basestring)
             self.assertIsInstance(data['description'], basestring)
 
