@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = _(u'Standardise Performers')
+PLUGIN_NAME = u'Standardise Performers'
 PLUGIN_AUTHOR = u'Sophist'
 PLUGIN_DESCRIPTION = u'''Splits multi-instrument performer tags into single
 instruments and combines names so e.g. (from 10cc by 10cc track 1):
