@@ -33,8 +33,6 @@ def get_plugin_data(filepath):
                     if name not in data:
                         try:
                             data[name] = ast.literal_eval(node.value)
-                            if isinstance(data[name], list):
-                                data[name] = ", ".join(data[name])
                         except ValueError as e:
                             print filepath + ':' + ast.dump(node)
                             pass
