@@ -140,11 +140,26 @@ def zip_files():
         archive = zipfile.ZipFile(archive_path + ".zip", "w")
 
         dirpath = os.path.join(plugin_dir, dirname)
+        plugin_files = []
+
         for root, dirs, filenames in os.walk(dirpath):
             for filename in filenames:
                 file_path = os.path.join(root, filename)
-                archive.write(file_path,
-                              file_path.split(os.path.join(dirpath, ''))[1],
+                plugin_files.append(file_path)
+
+        if len(plugin_files) == 1:
+            # There's only one file, put it directly into the zipfile
+            archive.write(plugin_files[0],
+                          os.path.basename(plugin_files[0]),
+                          compress_type=zipfile.ZIP_DEFLATED)
+        else:
+            for filename in plugin_files:
+                # Preserve the folder structure relative to plugin_dir
+                # in the zip file
+                name_in_zip = os.path.join(os.path.relpath(filename,
+                                                           plugin_dir))
+                archive.write(filename,
+                              name_in_zip,
                               compress_type=zipfile.ZIP_DEFLATED)
 
         print("Created: " + dirname + ".zip")
