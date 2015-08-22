@@ -11,72 +11,7 @@ import zlib
 from hashlib import md5
 from subprocess import call
 
-re_name = re.compile(r'PLUGIN_NAME = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*)\1')
-re_author = re.compile(r'PLUGIN_AUTHOR = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*)\1')
-re_ver = re.compile(r'PLUGIN_VERSION = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*?)\1')
-re_api = re.compile(r'PLUGIN_API_VERSIONS = \[((?:\"\"\"|\'\'\'|\"|\'))(.*?)\1\]')
-re_license = re.compile(r'PLUGIN_LICENSE = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*)\1')
-re_license_url = re.compile(r'PLUGIN_LICENSE_URL = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*)\1')
-
-# Descriptions are spread out in multiple lines so these will be handled separately
-re_desc_start = re.compile(r'PLUGIN_DESCRIPTION = (?:_\(u|u|)(.*)')
-re_desc_end = re.compile(r'PLUGIN_(.*)')
-re_desc = re.compile(r'PLUGIN_DESCRIPTION = (?:_\(u|u|)((?:\"\"\"|\'\'\'|\"|\'))(.*?)\1', re.DOTALL)
-
-
-def get_data(filepath):
-    """
-    Extract usable information from plugin files.
-    """
-    data = {}
-    desc_lines = []
-    desc_flag = False
-
-    with open(filepath) as f:
-        for line in f:
-            if 'name' not in data:
-                name = re.match(re_name, line)
-                if name:
-                    data['name'] = name.group(2)
-
-            if 'author' not in data:
-                author = re.match(re_author, line)
-                if author:
-                    data['author'] = author.group(2)
-
-            if 'description' not in data:
-                if re.match(re_desc_start, line):
-                    desc_flag = True
-                elif re.match(re_desc_end, line):
-                    desc_flag = False
-                    desc = re.match(re_desc, re.sub(r'[\\\n]', '', "\r".join(map(lambda s: s.strip(), desc_lines))))
-                    if desc:
-                        data['description'] = desc.group(2)
-
-                if desc_flag:
-                    desc_lines.append(line)
-
-            if 'version' not in data:
-                ver = re.match(re_ver, line)
-                if ver:
-                    data['version'] = ver.group(2)
-
-            if 'api_version' not in data:
-                apiver = re.match(re_api, line)
-                if apiver:
-                    data['api_version'] = apiver.group(2)
-
-            if 'license' not in data:
-                license = re.match(re_license, line)
-                if license:
-                    data['license'] = license.group(2)
-
-            if 'license_url' not in data:
-                license_url = re.match(re_license_url, line)
-                if license_url:
-                    data['license_url'] = license_url.group(2)
-
-    return data
+from get_plugin_data import get_plugin_data
 
 
 def build_json():
@@ -111,8 +46,8 @@ def build_json():
                         md5Hash = md5(md5file.read()).hexdigest()
                     files[file_path.split(os.path.join(dirpath, ''))[1]] = md5Hash
 
-                if not data:
-                    data = get_data(os.path.join(plugin_dir, dirname, filename))
+                    if ext in ['.py'] and not data:
+                        data = get_plugin_data(os.path.join(plugin_dir, dirname, filename))
 
         if dirname in plugins:
             print("Updated: " + dirname)
