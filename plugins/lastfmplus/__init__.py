@@ -719,7 +719,7 @@ class LastfmOptionsPage(OptionsPage):
                 tmp2[0]=tmp2[0].strip()
                 tmp2[1]=tmp2[1].strip()
                 if len(tmp2[0]) < 1 or len(tmp2[1]) < 1: continue
-                if tmp2[0] in trans and trans[tmp2[0]] <> tmp2[1]: del trans[tmp2[0]]
+                if tmp2[0] in trans and trans[tmp2[0]] != tmp2[1]: del trans[tmp2[0]]
                 elif not tmp2[0] in trans: trans[tmp2[0]] = tmp2[1]
 
         tmp3 = trans.items()

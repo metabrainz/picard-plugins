@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import ast
 
 known_data = [
@@ -21,7 +22,7 @@ def get_plugin_data(filepath):
         try:
             root = ast.parse(source, filepath)
         except Exception as e:
-            print "Cannot parse " + filepath
+            print("Cannot parse " + filepath)
             raise e
         for node in ast.iter_child_nodes(root):
             if isinstance(node, ast.Assign) and len(node.targets) == 1:
@@ -34,6 +35,6 @@ def get_plugin_data(filepath):
                         try:
                             data[name] = ast.literal_eval(node.value)
                         except ValueError as e:
-                            print filepath + ':' + ast.dump(node)
+                            print(filepath + ':' + ast.dump(node))
                             pass
         return data
