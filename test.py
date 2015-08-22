@@ -72,7 +72,6 @@ class GenerateTestCase(unittest.TestCase):
             self.assertIsInstance(data['name'], basestring)
             self.assertIsInstance(data['api_version'], basestring)
             self.assertIsInstance(data['author'], basestring)
-            self.assertIsInstance(data['downloads'], int)
             self.assertIsInstance(data['description'], basestring)
 
 if __name__ == '__main__':

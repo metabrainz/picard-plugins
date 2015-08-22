@@ -58,7 +58,6 @@ def build_json():
         else:
             print("Added: " + dirname)
             data['files'] = files
-            data['downloads'] = 0
             plugins[dirname] = data
 
     with open(plugin_file, "w") as out_file:
