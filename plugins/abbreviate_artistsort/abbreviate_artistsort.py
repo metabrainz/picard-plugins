@@ -73,10 +73,11 @@ _debug_level = 0
 _abbreviate_tags = [
     ('albumartistsort', 'albumartist', '~albumartistsort_abbrev'),
     ('artistsort', 'artist', '~artistsort_abbrev'),
-    ]
+]
 _prefixes = [u"A", u"The"]
 _split = u", "
 _abbreviate_cache = {}
+
 
 def abbreviate_artistsort(tagger, metadata, track, release):
 
@@ -86,7 +87,7 @@ def abbreviate_artistsort(tagger, metadata, track, release):
 
         sorts = list(metadata.getall(sortTag))
         unsorts = list(metadata.getall(unsortTag))
-        for i in range(0,min(len(sorts),len(unsorts))):
+        for i in range(0, min(len(sorts), len(unsorts))):
             sort = sorts[i]
             if _debug_level > 1:
                 print "%s: Trying to abbreviate '%s'." % (PLUGIN_NAME, sort)
@@ -109,7 +110,7 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                     sort = unsort = u""
                     continue
 
-                surname, rest = sort.split(_split,1)
+                surname, rest = sort.split(_split, 1)
                 if rest == u"":
                     if _debug_level > 3:
                         print "  Ending with separator '%s' - moving '%s'." % (_split, surname)
@@ -139,8 +140,8 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                 # Unsorted: Stuff; Forename(s) Surname...
                 # Move matching words plus white-space one by one
                 if unsort.find(' ' + surname) == -1:
-                    while surname.split(None,1)[0] == unsort.split(None,1)[0]:
-                        x = unsort.split(None,1)[0]
+                    while surname.split(None, 1)[0] == unsort.split(None, 1)[0]:
+                        x = unsort.split(None, 1)[0]
                         if _debug_level > 3:
                             print "  Moving matching word '%s'." % (x)
                         new_sort += x
@@ -155,13 +156,14 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                 # If we still can't find surname then we are up a creek...
                 pos = unsort.find(' ' + surname)
                 if pos == -1:
-                    log.debug(_("%s: Track %s: Unable to abbreviate surname '%s' - not matched in unsorted %s: '%s'."),
-                                PLUGIN_NAME,
-                                metadata['tracknumber'],
-                                surname,
-                                unsortTag,
-                                unsort[i],
-                                )
+                    log.debug(
+                        _("%s: Track %s: Unable to abbreviate surname '%s' - not matched in unsorted %s: '%s'."),
+                        PLUGIN_NAME,
+                        metadata['tracknumber'],
+                        surname,
+                        unsortTag,
+                        unsort[i],
+                    )
                     if _debug_level > 0:
                         print "  Could not match surname (%s) in remaining unsorted:" % (surname, unsort)
                     break
@@ -170,14 +172,15 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                 # Unsorted: Forename(s) Surname...
                 forename = unsort[:pos]
                 if rest[:len(forename)] != forename:
-                    log.debug(_("%s: Track %s: Unable to abbreviate surname (%s) - forename (%s) not matched in unsorted %s: '%s'."),
-                                PLUGIN_NAME,
-                                metadata['tracknumber'],
-                                surname,
-                                forename,
-                                unsortTag,
-                                unsort[i],
-                                )
+                    log.debug(
+                        _("%s: Track %s: Unable to abbreviate surname (%s) - forename (%s) not matched in unsorted %s: '%s'."),
+                        PLUGIN_NAME,
+                        metadata['tracknumber'],
+                        surname,
+                        forename,
+                        unsortTag,
+                        unsort[i],
+                    )
                     if _debug_level > 0:
                         print "  Could not match forename (%s) for surname (%s) in remaining unsorted (%s):" % (forename, surname, unsort)
                     break
@@ -203,25 +206,27 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                 unsort = unsort[1:].lstrip()
 
                 if forename != inits:
-                    log.debug(_("%s: Abbreviated surname (%s, %s) to (%s, %s) in '%s'."),
-                                PLUGIN_NAME,
-                                surname,
-                                forename,
-                                surname,
-                                inits,
-                                sortTag,
-                                )
+                    log.debug(
+                        _("%s: Abbreviated surname (%s, %s) to (%s, %s) in '%s'."),
+                        PLUGIN_NAME,
+                        surname,
+                        forename,
+                        surname,
+                        inits,
+                        sortTag,
+                    )
                     if _debug_level > 2:
                         print "Abbreviated (%s, %s) to (%s, %s)." % (surname, forename, surname, inits)
-            else: # while loop ended without a break i.e. no errors
+            else:  # while loop ended without a break i.e. no errors
                 if unsorts[i] != new_unsort:
-                    log.error(_("%s: Track %s: Logic error - mangled %s from '%s' to '%s'."),
-                                PLUGIN_NAME,
-                                metadata['tracknumber'],
-                                unsortTag,
-                                unsorts[i],
-                                new_unsort,
-                                )
+                    log.error(
+                        _("%s: Track %s: Logic error - mangled %s from '%s' to '%s'."),
+                        PLUGIN_NAME,
+                        metadata['tracknumber'],
+                        unsortTag,
+                        unsorts[i],
+                        new_unsort,
+                    )
                     if _debug_level > 0:
                         print
                         print "Error: Unsorted text for %s has changed from '%s' to '%s'!" % (unsortTag, unsorts[i], new_unsort)
@@ -231,10 +236,10 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                     print "  Abbreviated and cached (%s) as (%s)." % (sorts[i], new_sort)
                 if sorts[i] != new_sort:
                     log.debug(_("%s: Abbreviated tag '%s' to '%s'."),
-                                PLUGIN_NAME,
-                                sorts[i],
-                                new_sort,
-                                )
+                              PLUGIN_NAME,
+                              sorts[i],
+                              new_sort,
+                              )
                     sorts[i] = new_sort
         metadata[sortTagNew] = sorts
 
