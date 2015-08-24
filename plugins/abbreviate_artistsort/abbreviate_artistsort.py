@@ -25,7 +25,7 @@ PLUGIN_API_VERSIONS = ["1.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
-
+from __future__ import printfunction
 from picard import log
 from picard.metadata import register_track_metadata_processor
 
@@ -89,10 +89,11 @@ def abbreviate_artistsort(tagger, metadata, track, release):
         for i in range(0,min(len(sorts),len(unsorts))):
             sort = sorts[i]
             if _debug_level > 1:
-                print "%s: Trying to abbreviate '%s'." % (PLUGIN_NAME, sort)
+                print("%s: Trying to abbreviate '%s'." % (PLUGIN_NAME, sort))
             if sort in _abbreviate_cache:
                 if _debug_level > 3:
-                    print "  Using abbreviation found in cache: '%s'." % (_abbreviate_cache[sort])
+                    print("  Using abbreviation found in cache: '%s'." %
+                          (_abbreviate_cache[sort]))
                 sorts[i] = _abbreviate_cache[sort]
                 continue
             unsort = unsorts[i]
@@ -103,7 +104,8 @@ def abbreviate_artistsort(tagger, metadata, track, release):
 
                 if not _split in sort:
                     if _debug_level > 3:
-                        print "  Ending without separator '%s' - moving '%s'." % (_split, sort)
+                        print("  Ending without separator '%s' - moving '%s'." %
+                              (_split, sort))
                     new_sort += sort
                     new_unsort += unsort
                     sort = unsort = u""
@@ -112,7 +114,8 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                 surname, rest = sort.split(_split,1)
                 if rest == u"":
                     if _debug_level > 3:
-                        print "  Ending with separator '%s' - moving '%s'." % (_split, surname)
+                        print("  Ending with separator '%s' - moving '%s'." %
+                              (_split, surname))
                     new_sort += sort
                     new_unsort += unsort
                     sort = unsort = u""
@@ -128,7 +131,7 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                 l = len(temp)
                 if unsort[:l] == temp:
                     if _debug_level > 3:
-                        print "  No forename - moving '%s'." % (surname)
+                        print("  No forename - moving '%s'." % (surname))
                     new_sort += temp
                     new_unsort += temp
                     sort = sort[l:]
@@ -142,7 +145,7 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                     while surname.split(None,1)[0] == unsort.split(None,1)[0]:
                         x = unsort.split(None,1)[0]
                         if _debug_level > 3:
-                            print "  Moving matching word '%s'." % (x)
+                            print("  Moving matching word '%s'." % (x))
                         new_sort += x
                         new_unsort += x
                         surname = surname[len(x):]
@@ -163,7 +166,8 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                                 unsort[i],
                                 )
                     if _debug_level > 0:
-                        print "  Could not match surname (%s) in remaining unsorted:" % (surname, unsort)
+                        print("  Could not match surname (%s) in remaining unsorted:"
+                              % (surname, unsort))
                     break
 
                 # Sorted:   Surname, Forename(s)...
@@ -179,7 +183,8 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                                 unsort[i],
                                 )
                     if _debug_level > 0:
-                        print "  Could not match forename (%s) for surname (%s) in remaining unsorted (%s):" % (forename, surname, unsort)
+                        print("  Could not match forename (%s) for surname (%s) in remaining unsorted (%s):"
+                              % (forename, surname, unsort))
                     break
 
                 inits = ' '.join([x[0] + '.' for x in forename.split()])
@@ -212,7 +217,10 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                                 sortTag,
                                 )
                     if _debug_level > 2:
-                        print "Abbreviated (%s, %s) to (%s, %s)." % (surname, forename, surname, inits)
+                        print("Abbreviated (%s, %s) to (%s, %s)." % (surname,
+                                                                     forename,
+                                                                     surname,
+                                                                     inits))
             else: # while loop ended without a break i.e. no errors
                 if unsorts[i] != new_unsort:
                     log.error(_("%s: Track %s: Logic error - mangled %s from '%s' to '%s'."),
@@ -223,12 +231,14 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                                 new_unsort,
                                 )
                     if _debug_level > 0:
-                        print
-                        print "Error: Unsorted text for %s has changed from '%s' to '%s'!" % (unsortTag, unsorts[i], new_unsort)
-                        print
+                        print()
+                        print("Error: Unsorted text for %s has changed from '%s' to '%s'!"
+                              % (unsortTag, unsorts[i], new_unsort))
+                        print()
                 _abbreviate_cache[sorts[i]] = new_sort
                 if _debug_level > 1:
-                    print "  Abbreviated and cached (%s) as (%s)." % (sorts[i], new_sort)
+                    print("  Abbreviated and cached (%s) as (%s)." % (sorts[i],
+                                                                      new_sort))
                 if sorts[i] != new_sort:
                     log.debug(_("%s: Abbreviated tag '%s' to '%s'."),
                                 PLUGIN_NAME,
