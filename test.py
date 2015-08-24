@@ -20,6 +20,7 @@ if sys.version_info[:2] == (2, 6):
 
 
 class GenerateTestCase(unittest.TestCase):
+
     """Run tests"""
 
     def test_generate_json(self):
@@ -54,7 +55,7 @@ class GenerateTestCase(unittest.TestCase):
         zip_files()
 
         # All zip files in plugin_dir
-        plugin_zips = glob.glob(os.path.join(plugin_dir,"*.zip"))
+        plugin_zips = glob.glob(os.path.join(plugin_dir, "*.zip"))
 
         # All top level directories in plugin_dir
         plugin_folders = next(os.walk(plugin_dir))[1]
