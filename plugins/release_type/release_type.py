@@ -16,21 +16,21 @@ _EP = " EP"
 
 def add_release_type(tagger, metadata, release):
 
-  # make sure "EP" (or "single", ...) is not already a word in the name
-  words = metadata["album"].lower().split(" ")
-  for word in ["ep", "e.p.", "single", "(single)"]:
-    if word in words:
-      return
+    # make sure "EP" (or "single", ...) is not already a word in the name
+    words = metadata["album"].lower().split(" ")
+    for word in ["ep", "e.p.", "single", "(single)"]:
+        if word in words:
+            return
 
-  # check release type
-  if metadata["releasetype"] == "ep":
-    rs = _EP
-  elif metadata["releasetype"] == "single":
-    rs = _SINGLE
-  else:
-    rs = ""
+    # check release type
+    if metadata["releasetype"] == "ep":
+        rs = _EP
+    elif metadata["releasetype"] == "single":
+        rs = _SINGLE
+    else:
+        rs = ""
 
-  # append title
-  metadata["album"] = metadata["album"] + rs
+    # append title
+    metadata["album"] = metadata["album"] + rs
 
 register_album_metadata_processor(add_release_type)
