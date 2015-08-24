@@ -73,6 +73,7 @@ class GenerateTestCase(unittest.TestCase):
             self.assertIsInstance(data['api_versions'], list)
             self.assertIsInstance(data['author'], basestring)
             self.assertIsInstance(data['description'], basestring)
+            self.assertIsInstance(data['version'], basestring)
 
 if __name__ == '__main__':
     unittest.main()
