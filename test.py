@@ -1,5 +1,6 @@
 import os
 import glob
+import sys
 import unittest
 
 from generate import *
@@ -9,6 +10,14 @@ plugin_file = "plugins.json"
 
 # The directory which contains plugin files
 plugin_dir = "plugins"
+
+if sys.version_info[:2] == (2, 6):
+    def assertIsInstance(self, obj, cls, msg=None):
+        if not isinstance(obj, cls):
+            self.fail('%s is not an instance of %r' % (repr(obj), cls))
+
+    unittest.TestCase.assertIsInstance = assertIsInstance
+
 
 class GenerateTestCase(unittest.TestCase):
     """Run tests"""
