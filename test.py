@@ -4,6 +4,12 @@ import glob
 import sys
 import unittest
 
+# python 2 & 3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
+
 from generate import *
 
 # The file that contains json data
