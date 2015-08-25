@@ -18,11 +18,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with enzyme.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
 import re
 import logging
-import fourcc
-import language
-from strutils import str_to_unicode, unicode_to_str
+from . import fourcc
+from . import language
+from .strutils import str_to_unicode, unicode_to_str
 
 UNPRINTABLE_KEYS = ['thumbnail', 'url', 'codec_private']
 MEDIACORE = ['title', 'caption', 'comment', 'size', 'type', 'subtype', 'timestamp',

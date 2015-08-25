@@ -17,7 +17,27 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-import enzyme
+from __future__ import absolute_import
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2014 Philipp Wolfer
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
+from . import enzyme
 from picard import log
 from picard.file import File
 from picard.formats import register_format
@@ -36,7 +56,7 @@ class EnzymeFile(File):
             parser = enzyme.parse(filename)
             log.debug("Metadata for %s:\n%s", filename, unicode(parser))
             self._convertMetadata(parser, metadata)
-        except Exception, err:
+        except Exception as err:
             log.error("Could not parse file %r: %r", filename, err)
 
         return metadata

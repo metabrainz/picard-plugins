@@ -18,14 +18,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with enzyme.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
 __all__ = ['Parser']
 
 import os
 import struct
 import logging
 import stat
-from exceptions import ParseError
-import core
+from .exceptions import ParseError
+from . import core
 
 # get logging object
 log = logging.getLogger(__name__)
