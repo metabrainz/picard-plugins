@@ -9,6 +9,7 @@ PLUGIN_DESCRIPTION = "Adds a plugin context menu option to clusters and single\
 PLUGIN_VERSION = "0.6"
 PLUGIN_API_VERSIONS = ["1.0.0"]
 
+from picard import config
 from picard.cluster import Cluster
 from picard.file import File
 from picard.util import webbrowser2
@@ -35,10 +36,22 @@ HTML_ATTR_ESCAPE = {
 }
 
 
+def mbserver_url(path):
+    host = config.setting["server_host"]
+    port = config.setting["server_port"]
+    if port == 443:
+        urlstring = "https://%s%s" % (host, path)
+    elif port is None or port == 80:
+        urlstring = "http://%s%s" % (host, path)
+    else:
+        urlstring = "http://%s:%d%s" % (host, port, path)
+    return urlstring
+
+
 class AddObjectAsEntity(BaseAction):
     NAME = "Add Object As Entity..."
     objtype = None
-    submit_url = 'http://musicbrainz.org/'
+    submit_path = '/'
 
     def __init__(self):
         super(AddObjectAsEntity, self).__init__()
@@ -75,7 +88,7 @@ class AddObjectAsEntity(BaseAction):
         def nv(n, v):
             f.write(HTML_INPUT % (esc(n), esc(v)))
 
-        f.write(HTML_HEAD % (self.NAME, self.submit_url))
+        f.write(HTML_HEAD % (self.NAME, mbserver_url(self.submit_path)))
 
         for key in form_values:
             nv(key, form_values[key])
@@ -101,7 +114,7 @@ class AddObjectAsEntity(BaseAction):
 class AddClusterAsRelease(AddObjectAsEntity):
     NAME = "Add Cluster As Release..."
     objtype = Cluster
-    submit_url = 'http://musicbrainz.org/release/add'
+    submit_path = '/release/add'
 
     def set_form_values(self, cluster):
         nv = self.add_form_value
@@ -149,7 +162,7 @@ class AddClusterAsRelease(AddObjectAsEntity):
 class AddFileAsRecording(AddObjectAsEntity):
     NAME = "Add File As Standalone Recording..."
     objtype = File
-    submit_url = 'http://musicbrainz.org/recording/create'
+    submit_path = '/recording/create'
 
     def set_form_values(self, track):
         nv = self.add_form_value
@@ -161,7 +174,7 @@ class AddFileAsRecording(AddObjectAsEntity):
 class AddFileAsRelease(AddObjectAsEntity):
     NAME = "Add File As Release..."
     objtype = File
-    submit_url = 'http://musicbrainz.org/release/add'
+    submit_path = '/release/add'
 
     def set_form_values(self, track):
         nv = self.add_form_value
