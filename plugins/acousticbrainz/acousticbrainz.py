@@ -1,10 +1,28 @@
 # -*- coding: utf-8 -*-
+# Acousticbrainz plugin for Picard
+# Copyright (C) 2015  Andrew Cook
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
 
 PLUGIN_NAME = u'AcousticBrainz'
 PLUGIN_AUTHOR = u'Andrew Cook'
 PLUGIN_DESCRIPTION = u'''Uses AcousticBrainz for mood and genre.
 
 WARNING: Experimental plugin. All guarantees voided by use.'''
+PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 PLUGIN_VERSION = "0.0"
 PLUGIN_API_VERSIONS = ["0.15"]
 
