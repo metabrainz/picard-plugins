@@ -6,89 +6,174 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>339</width>
-    <height>349</height>
+    <width>465</width>
+    <height>279</height>
    </rect>
   </property>
-  <layout class="QVBoxLayout">
-   <property name="spacing">
-    <number>6</number>
-   </property>
-   <property name="margin">
-    <number>9</number>
-   </property>
-   <item>
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
     <widget class="QGroupBox" name="bpm_options">
      <property name="title">
       <string>BPM Analyze Parameters:</string>
      </property>
-     <layout class="QVBoxLayout">
-      <property name="spacing">
-       <number>2</number>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>8</x>
+        <y>219</y>
+        <width>69</width>
+        <height>19</height>
+       </rect>
       </property>
-      <property name="margin">
-       <number>9</number>
+      <property name="text">
+       <string>samplerate:</string>
       </property>
-      <item>
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>win_s:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="win_s_parameter"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>hop_s:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="hop_s_parameter"/>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_3">
-        <property name="text">
-         <string>samplerate:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="samplerate_parameter"/>
-      </item>
-     </layout>
+     </widget>
+     <widget class="QLineEdit" name="samplerate_parameter">
+      <property name="geometry">
+       <rect>
+        <x>297</x>
+        <y>219</y>
+        <width>135</width>
+        <height>33</height>
+       </rect>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>8</x>
+        <y>141</y>
+        <width>81</width>
+        <height>19</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Length of FFT:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="win_s_parameter">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>297</x>
+        <y>141</y>
+        <width>135</width>
+        <height>33</height>
+       </rect>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>8</x>
+        <y>180</y>
+        <width>283</width>
+        <height>19</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Number of frames between two consecutive runs:</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="hop_s_parameter">
+      <property name="geometry">
+       <rect>
+        <x>297</x>
+        <y>180</y>
+        <width>135</width>
+        <height>33</height>
+       </rect>
+      </property>
+      <property name="readOnly">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>8</x>
+        <y>80</y>
+        <width>43</width>
+        <height>19</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string extracomment="Most accurate"/>
+      </property>
+      <property name="text">
+       <string>Default</string>
+      </property>
+     </widget>
+     <widget class="QSlider" name="slider_parameter">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>51</y>
+        <width>391</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <number>3</number>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksBelow</enum>
+      </property>
+      <property name="tickInterval">
+       <number>1</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>370</x>
+        <y>80</y>
+        <width>61</width>
+        <height>19</height>
+       </rect>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="text">
+       <string>Super Fast</string>
+      </property>
+     </widget>
+     <widget class="Line" name="line">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>120</y>
+        <width>471</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
     </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_4">
-     <property name="text">
-      <string>        # super fast
-        samplerate, win_s, hop_s = 4000, 128, 64 
-        # fast
-        samplerate, win_s, hop_s = 8000, 512, 128
-        # default:
-        samplerate, win_s, hop_s = 44100, 1024, 512</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <spacer>
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>263</width>
-       <height>21</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>

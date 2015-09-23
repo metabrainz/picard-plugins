@@ -41,9 +41,20 @@ def get_file_bpm(self, path):
         samplerate  sampling rate of the signal to analyze
     """
 
-    samplerate = int(float(BPMOptionsPage.config.setting["bpm_samplerate_parameter"]))
-    buf_size = int(float(BPMOptionsPage.config.setting["bpm_win_s_parameter"]))
-    hop_size = int(float(BPMOptionsPage.config.setting["bpm_hop_s_parameter"]))
+    if BPMOptionsPage.config.setting["bpm_slider_parameter"] == 1:
+        samplerate = 44100
+        buf_size = 1024
+        hop_size = 512
+
+    elif BPMOptionsPage.config.setting["bpm_slider_parameter"] == 2:
+        samplerate = 8000
+        buf_size = 512
+        hop_size = 128
+
+    elif BPMOptionsPage.config.setting["bpm_slider_parameter"] == 3:
+        samplerate = 4000
+        buf_size = 128
+        hop_size = 64
 
     mediasource = source(path, samplerate, hop_size)
     samplerate = mediasource.samplerate
@@ -113,11 +124,10 @@ class BPMOptionsPage(OptionsPage):
     NAME = "bpm"
     TITLE = "BPM"
     PARENT = "plugins"
+    ACTIVE = True
 
     options = [
-        TextOption("setting", "bpm_win_s_parameter", "1024"),
-        TextOption("setting", "bpm_hop_s_parameter", "512"),
-        TextOption("setting", "bpm_samplerate_parameter", "44100"),
+        IntOption("setting", "bpm_slider_parameter", 1)
     ]
 
     def __init__(self, parent=None):
@@ -127,17 +137,26 @@ class BPMOptionsPage(OptionsPage):
 
     def load(self):
         cfg = self.config.setting
-        self.ui.win_s_parameter.setText(cfg["bpm_win_s_parameter"])
-        self.ui.hop_s_parameter.setText(cfg["bpm_hop_s_parameter"])
-        self.ui.samplerate_parameter.setText(cfg["bpm_samplerate_parameter"])
+        self.ui.slider_parameter.setValue(cfg["bpm_slider_parameter"])
+
+        if cfg["bpm_slider_parameter"] == 1:
+            self.ui.samplerate_parameter.setText("44100")
+            self.ui.win_s_parameter.setText("1024")
+            self.ui.hop_s_parameter.setText("512")
+
+        elif cfg["bpm_slider_parameter"] == 2:
+            self.ui.samplerate_parameter.setText("8000")
+            self.ui.win_s_parameter.setText("512")
+            self.ui.hop_s_parameter.setText("128")
+
+        elif cfg["bpm_slider_parameter"] == 3:
+            self.ui.samplerate_parameter.setText("4000")
+            self.ui.win_s_parameter.setText("128")
+            self.ui.hop_s_parameter.setText("64")
 
     def save(self):
-        self.config.setting["bpm_win_s_parameter"] = unicode(
-            self.ui.win_s_parameter.text())
-        self.config.setting["bpm_hop_s_parameter"] = unicode(
-            self.ui.hop_s_parameter.text())
-        self.config.setting["bpm_samplerate_parameter"] = unicode(
-            self.ui.samplerate_parameter.text())
+        cfg = self.config.setting
+        cfg["bpm_slider_parameter"] = self.ui.slider_parameter.value()
 
 register_file_action(FileBPM())
 register_options_page(BPMOptionsPage)
