@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>465</width>
-    <height>279</height>
+    <width>495</width>
+    <height>273</height>
    </rect>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
@@ -16,88 +16,7 @@
      <property name="title">
       <string>BPM Analyze Parameters:</string>
      </property>
-     <widget class="QLabel" name="label_3">
-      <property name="geometry">
-       <rect>
-        <x>8</x>
-        <y>219</y>
-        <width>69</width>
-        <height>19</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>samplerate:</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="samplerate_parameter">
-      <property name="geometry">
-       <rect>
-        <x>297</x>
-        <y>219</y>
-        <width>135</width>
-        <height>33</height>
-       </rect>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label">
-      <property name="geometry">
-       <rect>
-        <x>8</x>
-        <y>141</y>
-        <width>81</width>
-        <height>19</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Length of FFT:</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="win_s_parameter">
-      <property name="enabled">
-       <bool>true</bool>
-      </property>
-      <property name="geometry">
-       <rect>
-        <x>297</x>
-        <y>141</y>
-        <width>135</width>
-        <height>33</height>
-       </rect>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_2">
-      <property name="geometry">
-       <rect>
-        <x>8</x>
-        <y>180</y>
-        <width>283</width>
-        <height>19</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Number of frames between two consecutive runs:</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="hop_s_parameter">
-      <property name="geometry">
-       <rect>
-        <x>297</x>
-        <y>180</y>
-        <width>135</width>
-        <height>33</height>
-       </rect>
-      </property>
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_5">
+     <widget class="QLabel" name="slider_default">
       <property name="geometry">
        <rect>
         <x>8</x>
@@ -138,7 +57,7 @@
        <number>1</number>
       </property>
      </widget>
-     <widget class="QLabel" name="label_7">
+     <widget class="QLabel" name="slider_super_fast">
       <property name="geometry">
        <rect>
         <x>370</x>
@@ -167,13 +86,73 @@
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>6</x>
+        <y>140</y>
+        <width>471</width>
+        <height>91</height>
+       </rect>
+      </property>
+      <layout class="QGridLayout" name="gridLayout" columnstretch="1,1">
+       <item row="2" column="1">
+        <widget class="QLabel" name="samplerate_value">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="hop_s_label">
+         <property name="text">
+          <string>Number of frames between two consecutive runs:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="1">
+        <widget class="QLabel" name="win_s_value">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLabel" name="hop_s_value">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="win_s_label">
+         <property name="text">
+          <string>Length of FFT:</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="samplerate_label">
+         <property name="text">
+          <string>Samplerate:</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
- </buttongroups>
 </ui>
