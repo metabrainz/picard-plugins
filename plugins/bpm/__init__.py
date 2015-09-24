@@ -32,6 +32,12 @@ from numpy import median, diff
 
 # the python to calculate bpm
 
+bpm_slider_settings = {
+    1: (44100, 1024, 512),
+    2: (8000, 512, 128),
+    3: (4000, 128, 64),
+}
+
 
 def get_file_bpm(self, path):
     """ Calculate the beats per minute (bpm) of a given file.
@@ -41,22 +47,8 @@ def get_file_bpm(self, path):
         samplerate  sampling rate of the signal to analyze
     """
 
-    if BPMOptionsPage.config.setting["bpm_slider_parameter"] == 1:
-        samplerate = 44100
-        buf_size = 1024
-        hop_size = 512
-
-    elif BPMOptionsPage.config.setting["bpm_slider_parameter"] == 2:
-        samplerate = 8000
-        buf_size = 512
-        hop_size = 128
-
-    elif BPMOptionsPage.config.setting["bpm_slider_parameter"] == 3:
-        samplerate = 4000
-        buf_size = 128
-        hop_size = 64
-
-    mediasource = source(path, samplerate, hop_size)
+    samplerate, buf_size, hop_size = bpm_slider_settings[BPMOptionsPage.config.setting["bpm_slider_parameter"]]
+    mediasource = source(path.encode("utf-8"), samplerate, hop_size)
     samplerate = mediasource.samplerate
     beattracking = tempo("specdiff", buf_size, hop_size, samplerate)
     # List of beats, in samples
@@ -134,29 +126,24 @@ class BPMOptionsPage(OptionsPage):
         super(BPMOptionsPage, self).__init__(parent)
         self.ui = Ui_BPMOptionsPage()
         self.ui.setupUi(self)
+        self.ui.slider_parameter.valueChanged.connect(self.update_parameters)
 
     def load(self):
         cfg = self.config.setting
         self.ui.slider_parameter.setValue(cfg["bpm_slider_parameter"])
 
-        if cfg["bpm_slider_parameter"] == 1:
-            self.ui.samplerate_parameter.setText("44100")
-            self.ui.win_s_parameter.setText("1024")
-            self.ui.hop_s_parameter.setText("512")
-
-        elif cfg["bpm_slider_parameter"] == 2:
-            self.ui.samplerate_parameter.setText("8000")
-            self.ui.win_s_parameter.setText("512")
-            self.ui.hop_s_parameter.setText("128")
-
-        elif cfg["bpm_slider_parameter"] == 3:
-            self.ui.samplerate_parameter.setText("4000")
-            self.ui.win_s_parameter.setText("128")
-            self.ui.hop_s_parameter.setText("64")
-
     def save(self):
         cfg = self.config.setting
         cfg["bpm_slider_parameter"] = self.ui.slider_parameter.value()
+
+    def update_parameters(self):
+        val = self.ui.slider_parameter.value()
+        samplerate, buf_size, hop_size = [unicode(v) for v in
+                                          bpm_slider_settings[val]]
+        self.ui.samplerate_value.setText(samplerate)
+        self.ui.win_s_value.setText(buf_size)
+        self.ui.hop_s_value.setText(hop_size)
+
 
 register_file_action(FileBPM())
 register_options_page(BPMOptionsPage)
