@@ -6,10 +6,12 @@
 PLUGIN_NAME = u"Moodbars"
 PLUGIN_AUTHOR = u"Len Joubert"
 PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums."""
+PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]
-PLUGIN_INCOMPATIBLE_PLATFORMS = [
-    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
+#PLUGIN_INCOMPATIBLE_PLATFORMS = [
+#    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
 import os.path
 from collections import defaultdict
