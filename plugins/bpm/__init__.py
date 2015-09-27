@@ -5,16 +5,14 @@
 # Dependancies:
 #   aubio, numpy
 #
-# TODO:
-# See how dependancies are installed automatically or added to Picard if
-# not part of it already
 
 PLUGIN_NAME = u"BPM Analyzer"
 PLUGIN_AUTHOR = u"Len Joubert"
 PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums."""
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]
-
+PLUGIN_INCOMPATIBLE_PLATFORMS = [
+    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
 from collections import defaultdict
 from subprocess import check_call
@@ -30,7 +28,6 @@ from picard.plugins.bpm.ui_options_bpm import Ui_BPMOptionsPage
 from aubio import source, tempo
 from numpy import median, diff
 
-# the python to calculate bpm
 
 bpm_slider_settings = {
     1: (44100, 1024, 512),
@@ -47,7 +44,8 @@ def get_file_bpm(self, path):
         samplerate  sampling rate of the signal to analyze
     """
 
-    samplerate, buf_size, hop_size = bpm_slider_settings[BPMOptionsPage.config.setting["bpm_slider_parameter"]]
+    samplerate, buf_size, hop_size = bpm_slider_settings[
+        BPMOptionsPage.config.setting["bpm_slider_parameter"]]
     mediasource = source(path.encode("utf-8"), samplerate, hop_size)
     samplerate = mediasource.samplerate
     beattracking = tempo("specdiff", buf_size, hop_size, samplerate)
@@ -62,8 +60,6 @@ def get_file_bpm(self, path):
         if is_beat:
             this_beat = beattracking.get_last_s()
             beats.append(this_beat)
-            # if o.get_confidence() > .2 and len(beats) > 2.:
-            #    break
         total_frames += read
         if read < hop_size:
             break
