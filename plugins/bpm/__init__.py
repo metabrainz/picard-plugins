@@ -9,10 +9,12 @@
 PLUGIN_NAME = u"BPM Analyzer"
 PLUGIN_AUTHOR = u"Len Joubert"
 PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums."""
+PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]
-PLUGIN_INCOMPATIBLE_PLATFORMS = [
-    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
+#PLUGIN_INCOMPATIBLE_PLATFORMS = [
+#    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
 from collections import defaultdict
 from subprocess import check_call
