@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 # Changelog:
-#   [2008-03-14] Initial version with support for Ogg Vorbis, FLAC and MP3
+#   [2015-09-24] Initial version with support for Ogg Vorbis, FLAC, WAV and MP3, tested MP3 and FLAC
 
 PLUGIN_NAME = u"Moodbars"
 PLUGIN_AUTHOR = u"Len Joubert"
 PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums."""
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]
+PLUGIN_INCOMPATIBLE_PLATFORMS = [
+    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
 import os.path
 from collections import defaultdict
@@ -38,6 +40,7 @@ def generate_moodbar_for_files(files, format, tagger):
     for mood_file in file_list:
         new_filename = os.path.join(os.path.dirname(
             mood_file), '.' + os.path.splitext(os.path.basename(mood_file))[0] + '.mood')
+        # file format to make it compaitble with Amarok and hidden in linux
         file_list_mood = ['%s' % new_filename]
 
     if format in MOODBAR_COMMANDS \
