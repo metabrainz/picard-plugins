@@ -1,14 +1,26 @@
 # -*- coding: utf-8 -*-
 
-# Automatically generated - don't edit.
-# Use `python setup.py build_ui` to update it.
+# Form implementation generated from reading ui file 'options_lastfm.ui'
+#
+# Created by: PyQt4 UI code generator 4.11.4
+#
+# WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
 
 class Ui_LastfmOptionsPage(object):
     def setupUi(self, LastfmOptionsPage):
@@ -86,24 +98,42 @@ class Ui_LastfmOptionsPage(object):
         self.min_tag_usage.setObjectName(_fromUtf8("min_tag_usage"))
         self.hboxlayout1.addWidget(self.min_tag_usage)
         self.vboxlayout2.addLayout(self.hboxlayout1)
+        self.hboxlayout2 = QtGui.QHBoxLayout()
+        self.hboxlayout2.setMargin(0)
+        self.hboxlayout2.setSpacing(6)
+        self.hboxlayout2.setObjectName(_fromUtf8("hboxlayout2"))
+        self.label_5 = QtGui.QLabel(self.rename_files_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Policy(7), QtGui.QSizePolicy.Policy(5))
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_5.sizePolicy().hasHeightForWidth())
+        self.label_5.setSizePolicy(sizePolicy)
+        self.label_5.setObjectName(_fromUtf8("label_5"))
+        self.hboxlayout2.addWidget(self.label_5)
+        self.api_key = QtGui.QLineEdit(self.rename_files_2)
+        self.api_key.setObjectName(_fromUtf8("api_key"))
+        self.hboxlayout2.addWidget(self.api_key)
+        self.vboxlayout2.addLayout(self.hboxlayout2)
         self.vboxlayout.addWidget(self.rename_files_2)
         spacerItem = QtGui.QSpacerItem(263, 21, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.vboxlayout.addItem(spacerItem)
         self.label_4.setBuddy(self.min_tag_usage)
+        self.label_5.setBuddy(self.api_key)
 
         self.retranslateUi(LastfmOptionsPage)
         QtCore.QMetaObject.connectSlotsByName(LastfmOptionsPage)
         LastfmOptionsPage.setTabOrder(self.use_track_tags, self.ignore_tags)
 
     def retranslateUi(self, LastfmOptionsPage):
-        self.rename_files.setTitle(_("Last.fm"))
-        self.use_track_tags.setText(_("Use track tags"))
-        self.use_artist_tags.setText(_("Use artist tags"))
-        self.rename_files_2.setTitle(_("Tags"))
-        self.ignore_tags_2.setText(_("Ignore tags:"))
-        self.ignore_tags_4.setText(_("Join multiple tags with:"))
-        self.join_tags.setItemText(1, _(" / "))
-        self.join_tags.setItemText(2, _(", "))
-        self.label_4.setText(_("Minimal tag usage:"))
-        self.min_tag_usage.setSuffix(_(" %"))
+        self.rename_files.setTitle(_translate("LastfmOptionsPage", "Last.fm", None))
+        self.use_track_tags.setText(_translate("LastfmOptionsPage", "Use track tags", None))
+        self.use_artist_tags.setText(_translate("LastfmOptionsPage", "Use artist tags", None))
+        self.rename_files_2.setTitle(_translate("LastfmOptionsPage", "Tags", None))
+        self.ignore_tags_2.setText(_translate("LastfmOptionsPage", "Ignore tags:", None))
+        self.ignore_tags_4.setText(_translate("LastfmOptionsPage", "Join multiple tags with:", None))
+        self.join_tags.setItemText(1, _translate("LastfmOptionsPage", " / ", None))
+        self.join_tags.setItemText(2, _translate("LastfmOptionsPage", ", ", None))
+        self.label_4.setText(_translate("LastfmOptionsPage", "Minimal tag usage:", None))
+        self.min_tag_usage.setSuffix(_translate("LastfmOptionsPage", " %", None))
+        self.label_5.setText(_translate("LastfmOptionsPage", "Last.fm API key:", None))
 

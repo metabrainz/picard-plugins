@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 PLUGIN_NAME = u'Last.fm'
-PLUGIN_AUTHOR = u'Lukáš Lalinský'
+PLUGIN_AUTHOR = u'Lukáš Lalinský, Alexander Young'
 PLUGIN_DESCRIPTION = u'Use tags from Last.fm as genre.'
-PLUGIN_VERSION = "0.4"
+PLUGIN_VERSION = "0.5"
 PLUGIN_API_VERSIONS = ["0.15"]
 
 from PyQt4 import QtCore
@@ -52,7 +52,7 @@ def _tags_finalize(album, metadata, tags, next):
 def _tags_downloaded(album, metadata, min_usage, ignore, next, current, data, reply, error):
     try:
         try:
-            intags = data.toptags[0].tag
+            intags = data.lfm[0].toptags[0].tag
         except AttributeError:
             intags = []
         tags = []
@@ -110,19 +110,23 @@ def get_tags(album, metadata, path, min_usage, ignore, next, current):
 def encode_str(s):
     # Yes, that's right, Last.fm prefers double URL-encoding
     s = QtCore.QUrl.toPercentEncoding(s)
-    s = QtCore.QUrl.toPercentEncoding(unicode(s))
+    #s = QtCore.QUrl.toPercentEncoding(unicode(s))
     return s
 
 
 def get_track_tags(album, metadata, artist, track, min_usage, ignore, next, current):
     """Get track top tags."""
-    path = "/1.0/track/%s/%s/toptags.xml" % (encode_str(artist), encode_str(track))
+    api_key = album.tagger.config.setting["lastfm_api_key"] 
+    path = "/2.0/?api_key=%s&method=Track.getTopTags&artist=%s&track=%s" % (encode_str(api_key),
+      encode_str(artist), encode_str(track))
     get_tags(album, metadata, path, min_usage, ignore, next, current)
 
 
 def get_artist_tags(album, metadata, artist, min_usage, ignore, next, current):
     """Get artist top tags."""
-    path = "/1.0/artist/%s/toptags.xml" % (encode_str(artist),)
+    api_key = album.tagger.config.setting["lastfm_api_key"]
+    path = "/2.0/?api_key=%s&lang=en&method=Artist.getTopTags&artist=%s" % (encode_str(api_key), 
+      encode_str(artist),)
     get_tags(album, metadata, path, min_usage, ignore, next, current)
 
 
@@ -158,6 +162,7 @@ class LastfmOptionsPage(OptionsPage):
         IntOption("setting", "lastfm_min_tag_usage", 15),
         TextOption("setting", "lastfm_ignore_tags", "seen live,favorites"),
         TextOption("setting", "lastfm_join_tags", ""),
+        TextOption("setting", "lastfm_api_key", ""),
     ]
 
     def __init__(self, parent=None):
@@ -171,6 +176,7 @@ class LastfmOptionsPage(OptionsPage):
         self.ui.min_tag_usage.setValue(self.config.setting["lastfm_min_tag_usage"])
         self.ui.ignore_tags.setText(self.config.setting["lastfm_ignore_tags"])
         self.ui.join_tags.setEditText(self.config.setting["lastfm_join_tags"])
+        self.ui.api_key.setText(self.config.setting["lastfm_api_key"])
 
     def save(self):
         self.config.setting["lastfm_use_track_tags"] = self.ui.use_track_tags.isChecked()
@@ -178,6 +184,7 @@ class LastfmOptionsPage(OptionsPage):
         self.config.setting["lastfm_min_tag_usage"] = self.ui.min_tag_usage.value()
         self.config.setting["lastfm_ignore_tags"] = unicode(self.ui.ignore_tags.text())
         self.config.setting["lastfm_join_tags"] = unicode(self.ui.join_tags.currentText())
+        self.config.setting["lastfm_api_key"] = unicode(self.ui.api_key.text())
 
 
 register_track_metadata_processor(process_track)
