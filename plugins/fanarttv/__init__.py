@@ -39,7 +39,7 @@ from picard.plugins.fanarttv.ui_options_fanarttv import Ui_FanartTvOptionsPage
 
 FANART_HOST = "webservice.fanart.tv"
 FANART_PORT = 80
-API_KEY = "21305dd1589766f4d544535ad4df12f4"
+FANART_APIKEY = "21305dd1589766f4d544535ad4df12f4"
 
 OPTION_CDART_ALWAYS = "always"
 OPTION_CDART_NEVER = "never"
@@ -75,7 +75,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
     def queue_downloads(self):
         release_group_id = self.metadata["musicbrainz_releasegroupid"]
         path = "/v3/music/albums/%s?api_key=%s&client_key=%s" % \
-            (release_group_id, str(QUrl.toPercentEncoding(API_KEY)), str(QUrl.toPercentEncoding(self._client_key)))
+            (release_group_id, str(QUrl.toPercentEncoding(FANART_APIKEY)), str(QUrl.toPercentEncoding(self._client_key)))
         log.debug("CoverArtProviderFanartTv.queue_downloads: %s" % path)
         self.album.tagger.xmlws.download(
             FANART_HOST,
