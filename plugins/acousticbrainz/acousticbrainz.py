@@ -50,9 +50,9 @@ def result(album, metadata, release, track, data, reply, error):
                 moods.append(v["value"])
         metadata["genre"] = genres
         metadata["mood"] = moods
-        log.debug("%s: Track %s (%s) Parsed response (genres: %s, moods: %s)", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(genres), str(moods))
+        log.debug(u"%s: Track %s (%s) Parsed response (genres: %s, moods: %s)", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(genres), str(moods))
     except Exception as e:
-        log.error("%s: Track %s (%s) Error parsing response: %s", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(e))
+        log.error(u"%s: Track %s (%s) Error parsing response: %s", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(e))
     finally:
         album._requests -= 1
         album._finalize_loading(None)
