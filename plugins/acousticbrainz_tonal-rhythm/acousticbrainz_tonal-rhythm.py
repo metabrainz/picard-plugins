@@ -1,6 +1,22 @@
 # -*- coding: utf-8 -*-
+# Acousticbrainz Tonal/Rhythm plugin for Picard
+# Copyright (C) 2015  Sophist
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
 
-PLUGIN_NAME = _(u'AcousticBrainz')
+PLUGIN_NAME = _(u'AcousticBrainz Tonal-Rhythm')
 PLUGIN_AUTHOR = u'Sophist'
 PLUGIN_DESCRIPTION = u'''Add's the following tags:
 <ul>
@@ -12,6 +28,8 @@ from the AcousticBrainz database providing:
 <li>the musicbrainz_recordingid is in the track's metadata; and</li>
 <li>the key is in the AcousticBrainz database.</li>
 </ol>'''
+PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 PLUGIN_VERSION = '0.1'
 PLUGIN_API_VERSIONS = ["1.4.0"] # Requires support for TKEY which is in 1.4
 
