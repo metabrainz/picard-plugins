@@ -25,11 +25,11 @@ from picard.plugins.replaygain.ui_options_replaygain import Ui_ReplayGainOptions
 # Path to various replay gain tools. There must be a tool for every supported
 # audio file format.
 REPLAYGAIN_COMMANDS = {
-   "Ogg Vorbis": ("replaygain_vorbisgain_command", "replaygain_vorbisgain_options"),
-   "MPEG-1 Audio": ("replaygain_mp3gain_command", "replaygain_mp3gain_options"),
-   "FLAC": ("replaygain_metaflac_command", "replaygain_metaflac_options"),
-   "WavPack": ("replaygain_wvgain_command", "replaygain_wvgain_options"),
-   }
+    "Ogg Vorbis": ("replaygain_vorbisgain_command", "replaygain_vorbisgain_options"),
+    "MPEG-1 Audio": ("replaygain_mp3gain_command", "replaygain_mp3gain_options"),
+    "FLAC": ("replaygain_metaflac_command", "replaygain_metaflac_options"),
+    "WavPack": ("replaygain_wvgain_command", "replaygain_wvgain_options"),
+}
 
 
 def calculate_replay_gain_for_files(files, format, tagger):
@@ -81,6 +81,7 @@ class ReplayGain(BaseAction):
                 {'filename': file.filename}
             )
 
+
 class AlbumGain(BaseAction):
     NAME = N_("Calculate album &gain...")
 
@@ -96,8 +97,8 @@ class AlbumGain(BaseAction):
 
         for natalbum in nats:
             thread.run_task(
-                    partial(self._calculate_natgain, natalbum),
-                    partial(self._albumgain_callback, natalbum))
+                partial(self._calculate_natgain, natalbum),
+                partial(self._albumgain_callback, natalbum))
 
     def split_files_by_type(self, files):
         """Split the given files by filetype into separate lists."""
@@ -140,6 +141,7 @@ class AlbumGain(BaseAction):
                 N_('Could not calculate album gain for "%(album)s".'),
                 {'album': album.metadata["album"]}
             )
+
 
 class ReplayGainOptionsPage(OptionsPage):
 

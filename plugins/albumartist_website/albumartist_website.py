@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = _(u'Album Artist Website')
+PLUGIN_NAME = u'Album Artist Website'
 PLUGIN_AUTHOR = u'Sophist'
 PLUGIN_DESCRIPTION = u'''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
 PLUGIN_VERSION = '0.3'
 PLUGIN_API_VERSIONS = ["0.15.0", "0.15.1", "0.16.0", "1.0.0", "1.1.0", "1.2.0", "1.3.0"]
+PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from picard import config, log
 from picard.util import LockableObject
 from picard.metadata import register_track_metadata_processor
 from functools import partial
+
 
 class AlbumArtistWebsite:
 
@@ -71,7 +74,6 @@ class AlbumArtistWebsite:
                 # Jump through hoops to get track object!!
                 self.website_add_track(album, album._new_tracks[-1], artistId)
 
-
     def website_add_track(self, album, track, artistId):
         self.album_add_request(album)
         if self.website_queue.append(artistId, (track, album)):
@@ -103,7 +105,6 @@ class AlbumArtistWebsite:
                     fm = file.metadata
                     fm['website'] = urls
 
-
     def album_add_request(self, album):
         album._requests += 1
 
@@ -111,7 +112,6 @@ class AlbumArtistWebsite:
         album._requests -= 1
         if album._requests == 0:
             album._finalize_loading(None)
-
 
     def artist_process_metadata(self, artistId, response):
         if 'metadata' in response.children:
@@ -128,7 +128,7 @@ class AlbumArtistWebsite:
         urls = []
         for relation in relations:
             if relation.type == 'official homepage' \
-                and 'target' in relation.children:
+                    and 'target' in relation.children:
                 urls.append(relation.target[0].text)
         return urls
 
