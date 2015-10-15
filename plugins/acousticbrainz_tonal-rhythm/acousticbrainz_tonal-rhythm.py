@@ -23,11 +23,7 @@ PLUGIN_DESCRIPTION = u'''Add's the following tags:
 <li>Key (in ID3v2.3 format)</li>
 <li>Beats Per Minute (BPM)</li>
 </ul>
-from the AcousticBrainz database providing:
-<ol type="a">
-<li>the musicbrainz_recordingid is in the track's metadata; and</li>
-<li>the key is in the AcousticBrainz database.</li>
-</ol>
+from the AcousticBrainz database.<br/><br/>
 Note: This plugin requires Picard 1.4.'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
