@@ -49,7 +49,7 @@ class AcousticBrainz_Key:
     def get_data(self, album, track_metadata, trackXmlNode, releaseXmlNode):
         recordingId = track_metadata['musicbrainz_recordingid']
         if recordingId:
-            log.debug("%s: Add AcusticBrainz request for %s(%s)", PLUGIN_NAME, track_metadata['title'], recordingId)
+            log.debug("%s: Add AcusticBrainz request for %s (%s)", PLUGIN_NAME, track_metadata['title'], recordingId)
             self.album_add_request(album)
             path = "/%s/low-level" % recordingId
             return album.tagger.xmlws.get(
