@@ -29,13 +29,13 @@ PLUGIN_API_VERSIONS = ["0.15"]
 from json import loads
 from functools import partial
 from picard import log
-from picard import webservice
 from picard.metadata import register_track_metadata_processor
+from picard.webservice import REQUEST_DELAY
 
 ACOUSTICBRAINZ_HOST = "acousticbrainz.org"
 ACOUSTICBRAINZ_PORT = 80
 
-webservice.REQUEST_DELAY[(ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT)] = 100
+REQUEST_DELAY[(ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT)] = 50
 
 def result(album, metadata, release, track, data, reply, error):
     moods = []
