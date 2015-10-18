@@ -16,7 +16,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-PLUGIN_NAME = u'AcousticBrainz'
+PLUGIN_NAME = u'AcousticBrainz Mood-Genre'
 PLUGIN_AUTHOR = u'Andrew Cook'
 PLUGIN_DESCRIPTION = u'''Uses AcousticBrainz for mood and genre.
 
@@ -37,10 +37,9 @@ ACOUSTICBRAINZ_PORT = 80
 
 REQUEST_DELAY[(ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT)] = 50
 
-def result(album, metadata, release, track, data, reply, error):
+def result(album, metadata, data, reply, error):
     moods = []
     genres = []
-    bpm = False
     try:
         data = loads(data)["highlevel"]
         for k, v in data.items():
@@ -48,6 +47,7 @@ def result(album, metadata, release, track, data, reply, error):
                 genres.append(v["value"])
             if k.startswith("mood_") and not v["value"].startswith("not_"):
                 moods.append(v["value"])
+
         metadata["genre"] = genres
         metadata["mood"] = moods
         log.debug(u"%s: Track %s (%s) Parsed response (genres: %s, moods: %s)", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(genres), str(moods))
@@ -62,7 +62,7 @@ def process_track(album, metadata, release, track):
         ACOUSTICBRAINZ_HOST,
         ACOUSTICBRAINZ_PORT,
         u"/%s/high-level" % (metadata["musicbrainz_recordingid"]),
-        partial(result, album, metadata, release, track),
+        partial(result, album, metadata),
         priority=True
     )
     album._requests += 1
