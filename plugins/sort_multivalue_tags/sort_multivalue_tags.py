@@ -24,16 +24,20 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 from picard.metadata import register_track_metadata_processor
 
 # Define tags where sort order is important
-sort_multivalue_tags_exceptions = (
-    '~albumartists',
-    '~albumartists_sort',
-    '~artists',
+_sort_multivalue_tags_exclude = (
+    'artists', '~artists_sort', 'musicbrainz_artistid',
+    'albumartists', '~albumartists_sort', 'musicbrainz_albumartistid',
+    'work', 'musicbrainz_workid',
+    'label', 'catalognumber',
+    'country', 'date',
+    'releasetype',
 )
+
 
 def sort_multivalue_tags(tagger, metadata, track, release):
 
     for tag in metadata.keys():
-        if tag in sort_multivalue_tags_exceptions:
+        if tag in _sort_multivalue_tags_exclude:
             continue
         data = metadata.getall(tag)
         if len(data) > 1:
