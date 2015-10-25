@@ -15,7 +15,14 @@
 
 PLUGIN_NAME = u"Sort Multi-Value Tags"
 PLUGIN_AUTHOR = u"Sophist"
-PLUGIN_DESCRIPTION = u'Sort Multi-Value Tags e.g. Release Type, Lyrics alphabetically.'
+PLUGIN_DESCRIPTION = u'''
+This plugin sorts multi-value tags e.g. Performers alphabetically.<br /><br />
+Note: Some multi-value tags are excluded for the following reasons:
+<ol>
+<li>Sequence is important e.g. Artists</li>
+<li>The sequence of one tag is linked to the sequence of another e.g. Label and Catalogue number.</li>
+</ol>
+'''
 PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["0.15"]
 PLUGIN_LICENSE = "GPL-2.0"
@@ -32,6 +39,9 @@ _sort_multivalue_tags_exclude = (
     'country', 'date',
     'releasetype',
 )
+# Possible future enhancement:
+# Sort linked tags e.g. work so that the sequence in related tags e.g. workid retains the relationship between
+# e.g. work and workid.
 
 
 def sort_multivalue_tags(tagger, metadata, track, release):
