@@ -19,6 +19,7 @@
 
 VIDEO_EXTENSIONS = ['m4v', 'wmv', 'ogv', 'oggtheora']
 
+
 def is_video(parser):
     """Returns true, if the file processed is a video file."""
     if parser.context['~video'] or parser.context['~extension'] in VIDEO_EXTENSIONS:

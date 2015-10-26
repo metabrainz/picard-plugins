@@ -56,8 +56,8 @@ GENRE_FILTER["year"] = ["1801, 1802, 1803, 1804, 1805, 1806, 1807, 1808, 1809, 1
 GENRE_FILTER["occasion"] = ["background, birthday, breakup, carnival, chillout, christmas, death, dinner, drinking, driving, graduation, halloween, hanging out, heartache, holiday, late night, love, new year, party, protest, rain, rave, romantic, sleep, spring, summer, sunny, twilight, valentine, wake up, wedding, winter, work"]
 GENRE_FILTER["category"] = ["animal songs, attitude, autumn, b-side, ballad, banjo, bass, beautiful, body parts, bootlegs, brass, cafe del mar, chamber music, clarinet, classic, classic tunes, compilations, covers, cowbell, deceased, demos, divas, dj, drugs, drums, duets, field recordings, female, female vocalists, film score, flute, food, genius, girl group, great lyrics, guitar solo, guitarist, handclaps, harmonica, historical, horns, hypnotic, influential, insane, jam, keyboard, legends, life, linedance, live, loved, lyricism, male, male vocalists, masterpiece, melodic, memories, musicals, nostalgia, novelty, number songs, old school, oldie, oldies, one hit wonders, orchestra, organ, parody, poetry, political, promos, radio programs, rastafarian, remix, samples, satire, saxophone, showtunes, sing-alongs, singer-songwriter, slide guitar, solo instrumentals, songs with names, soundtracks, speeches, stories, strings, stylish, synth, title is a full sentence, top 40, traditional, trumpet, unique, unplugged, violin, virtuoso, vocalization, vocals"]
 GENRE_FILTER["translate"] = {
-"drum 'n' bass": u"drum and bass",
-"drum n bass": u"drum and bass"
+    "drum 'n' bass": u"drum and bass",
+    "drum n bass": u"drum and bass"
 }
 
 
@@ -402,6 +402,7 @@ def get_tags(album, metadata, path, sally, factor, next, current):
                                    partial(_tags_downloaded, album, metadata, sally, factor, next, current),
                                    priority=True, important=True)
 
+
 def encode_str(s):
     # Yes, that's right, Last.fm prefers double URL-encoding
     s = QtCore.QUrl.toPercentEncoding(s)
@@ -675,52 +676,65 @@ class LastfmOptionsPage(OptionsPage):
 
         # parse littlebit the text-inputs
         tmp0 = {}
-        tmp1 = [tmp0.setdefault(i.strip(),i.strip()) for i in unicode(self.ui.genre_major.text()).lower().split(",") if i not in tmp0]
+        tmp1 = [tmp0.setdefault(i.strip(), i.strip())
+                for i in unicode(self.ui.genre_major.text()).lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_major"] = ",".join(tmp1)
         tmp0 = {}
-        tmp1 = [tmp0.setdefault(i.strip(),i.strip()) for i in unicode(self.ui.genre_minor.text()).lower().split(",") if i not in tmp0]
+        tmp1 = [tmp0.setdefault(i.strip(), i.strip())
+                for i in unicode(self.ui.genre_minor.text()).lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_minor"] = ",".join(tmp1)
         tmp0 = {}
-        tmp1 = [tmp0.setdefault(i.strip(),i.strip()) for i in unicode(self.ui.genre_decade.text()).lower().split(",") if i not in tmp0]
+        tmp1 = [tmp0.setdefault(i.strip(), i.strip())
+                for i in unicode(self.ui.genre_decade.text()).lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_decade"] = ",".join(tmp1)
         tmp0 = {}
-        tmp1 = [tmp0.setdefault(i.strip(),i.strip()) for i in unicode(self.ui.genre_year.text()).lower().split(",") if i not in tmp0]
+        tmp1 = [tmp0.setdefault(i.strip(), i.strip())
+                for i in unicode(self.ui.genre_year.text()).lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_year"] = ",".join(tmp1)
         tmp0 = {}
-        tmp1 = [tmp0.setdefault(i.strip(),i.strip()) for i in unicode(self.ui.genre_country.text()).lower().split(",") if i not in tmp0]
+        tmp1 = [tmp0.setdefault(i.strip(), i.strip())
+                for i in unicode(self.ui.genre_country.text()).lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_country"] = ",".join(tmp1)
         tmp0 = {}
-        tmp1 = [tmp0.setdefault(i.strip(),i.strip()) for i in unicode(self.ui.genre_city.text()).lower().split(",") if i not in tmp0]
+        tmp1 = [tmp0.setdefault(i.strip(), i.strip())
+                for i in unicode(self.ui.genre_city.text()).lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_city"] = ",".join(tmp1)
         tmp0 = {}
-        tmp1 = [tmp0.setdefault(i.strip(),i.strip()) for i in unicode(self.ui.genre_occasion.text()).lower().split(",") if i not in tmp0]
+        tmp1 = [tmp0.setdefault(i.strip(), i.strip())
+                for i in unicode(self.ui.genre_occasion.text()).lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_occasion"] = ",".join(tmp1)
         tmp0 = {}
-        tmp1 = [tmp0.setdefault(i.strip(),i.strip()) for i in unicode(self.ui.genre_category.text()).lower().split(",") if i not in tmp0]
+        tmp1 = [tmp0.setdefault(i.strip(), i.strip())
+                for i in unicode(self.ui.genre_category.text()).lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_category"] = ",".join(tmp1)
         tmp0 = {}
-        tmp1 = [tmp0.setdefault(i.strip(),i.strip()) for i in unicode(self.ui.genre_mood.text()).lower().split(",") if i not in tmp0]
+        tmp1 = [tmp0.setdefault(i.strip(), i.strip())
+                for i in unicode(self.ui.genre_mood.text()).lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_mood"] = ",".join(tmp1)
 
         trans = {}
-        tmp0=unicode(self.ui.genre_translations.toPlainText()).lower().split("\n")
+        tmp0 = unicode(
+            self.ui.genre_translations.toPlainText()).lower().split("\n")
         for tmp1 in tmp0:
-            tmp2=tmp1.split(',')
+            tmp2 = tmp1.split(',')
             if len(tmp2) == 2:
-                tmp2[0]=tmp2[0].strip()
-                tmp2[1]=tmp2[1].strip()
-                if len(tmp2[0]) < 1 or len(tmp2[1]) < 1: continue
-                if tmp2[0] in trans and trans[tmp2[0]] <> tmp2[1]: del trans[tmp2[0]]
-                elif not tmp2[0] in trans: trans[tmp2[0]] = tmp2[1]
+                tmp2[0] = tmp2[0].strip()
+                tmp2[1] = tmp2[1].strip()
+                if len(tmp2[0]) < 1 or len(tmp2[1]) < 1:
+                    continue
+                if tmp2[0] in trans and trans[tmp2[0]] != tmp2[1]:
+                    del trans[tmp2[0]]
+                elif not tmp2[0] in trans:
+                    trans[tmp2[0]] = tmp2[1]
 
         tmp3 = trans.items()
         tmp3.sort()

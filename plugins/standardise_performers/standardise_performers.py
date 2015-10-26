@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = _(u'Standardise Performers')
+PLUGIN_NAME = u'Standardise Performers'
 PLUGIN_AUTHOR = u'Sophist'
 PLUGIN_DESCRIPTION = u'''Splits multi-instrument performer tags into single
 instruments and combines names so e.g. (from 10cc by 10cc track 1):
@@ -33,10 +33,11 @@ from picard.metadata import register_track_metadata_processor
 
 standardise_performers_split = re.compile(r", | and ").split
 
+
 def standardise_performers(album, metadata, *args):
     for key, values in metadata.rawitems():
         if not key.startswith('performer:') \
-        and not key.startswith('~performersort:'):
+                and not key.startswith('~performersort:'):
             continue
         mainkey, subkey = key.split(':', 1)
         if not subkey:
@@ -45,9 +46,9 @@ def standardise_performers(album, metadata, *args):
         if len(instruments) == 1:
             continue
         log.debug("%s: Splitting Performer [%s] into separate performers",
-            PLUGIN_NAME,
-            subkey,
-            )
+                  PLUGIN_NAME,
+                  subkey,
+                  )
         for instrument in instruments:
             newkey = '%s:%s' % (mainkey, instrument)
             for value in values:

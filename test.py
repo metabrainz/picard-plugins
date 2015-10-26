@@ -1,6 +1,14 @@
+from __future__ import print_function
 import os
 import glob
+import sys
 import unittest
+
+# python 2 & 3 compatibility
+try:
+    basestring
+except NameError:
+    basestring = str
 
 from generate import *
 
@@ -10,7 +18,16 @@ plugin_file = "plugins.json"
 # The directory which contains plugin files
 plugin_dir = "plugins"
 
+if sys.version_info[:2] == (2, 6):
+    def assertIsInstance(self, obj, cls, msg=None):
+        if not isinstance(obj, cls):
+            self.fail('%s is not an instance of %r' % (repr(obj), cls))
+
+    unittest.TestCase.assertIsInstance = assertIsInstance
+
+
 class GenerateTestCase(unittest.TestCase):
+
     """Run tests"""
 
     def test_generate_json(self):
@@ -45,7 +62,7 @@ class GenerateTestCase(unittest.TestCase):
         zip_files()
 
         # All zip files in plugin_dir
-        plugin_zips = glob.glob(os.path.join(plugin_dir,"*.zip"))
+        plugin_zips = glob.glob(os.path.join(plugin_dir, "*.zip"))
 
         # All top level directories in plugin_dir
         plugin_folders = next(os.walk(plugin_dir))[1]
@@ -70,10 +87,10 @@ class GenerateTestCase(unittest.TestCase):
         # All plugins should contain all required fields
         for module_name, data in plugin_json.items():
             self.assertIsInstance(data['name'], basestring)
-            self.assertIsInstance(data['api_version'], basestring)
+            self.assertIsInstance(data['api_versions'], list)
             self.assertIsInstance(data['author'], basestring)
-            self.assertIsInstance(data['downloads'], int)
             self.assertIsInstance(data['description'], basestring)
+            self.assertIsInstance(data['version'], basestring)
 
 if __name__ == '__main__':
     unittest.main()

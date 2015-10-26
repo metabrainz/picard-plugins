@@ -37,9 +37,9 @@ from picard.ui.options import register_options_page, OptionsPage
 from picard.config import TextOption, BoolOption
 from picard.plugins.fanarttv.ui_options_fanarttv import Ui_FanartTvOptionsPage
 
-FANART_HOST = "webservice.fanart.tv";
+FANART_HOST = "webservice.fanart.tv"
 FANART_PORT = 80
-API_KEY = "21305dd1589766f4d544535ad4df12f4";
+FANART_APIKEY = "21305dd1589766f4d544535ad4df12f4"
 
 OPTION_CDART_ALWAYS = "always"
 OPTION_CDART_NEVER = "never"
@@ -55,6 +55,7 @@ def cover_sort_key(cover):
 
 
 class FanartTvCoverArtImage(CoverArtImage):
+
     """Image from Cover Art Archive"""
 
     support_types = True
@@ -62,6 +63,7 @@ class FanartTvCoverArtImage(CoverArtImage):
 
 
 class CoverArtProviderFanartTv(CoverArtProvider):
+
     """Use fanart.tv to get cover art"""
 
     NAME = "fanart.tv"
@@ -74,7 +76,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
         release_group_id = self.metadata["musicbrainz_releasegroupid"]
         path = "/v3/music/albums/%s" % \
             (release_group_id, )
-        queryargs = {"api_key": QUrl.toPercentEncoding(API_KEY),
+        queryargs = {"api_key": QUrl.toPercentEncoding(FANART_APIKEY),
                      "client_key": QUrl.toPercentEncoding(self._client_key),
                      }
         log.debug("CoverArtProviderFanartTv.queue_downloads: %s" % path)

@@ -18,14 +18,15 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with enzyme.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
 __all__ = ['Parser']
 
 import zlib
 import logging
 import StringIO
 import struct
-from exceptions import ParseError
-import core
+from .exceptions import ParseError
+from . import core
 
 # get logging object
 log = logging.getLogger(__name__)
@@ -248,7 +249,7 @@ class MPEG4(core.AVContainer):
                 pos += datasize
             if len(i18ntabl.keys()) > 0:
                 for k in i18ntabl.keys():
-                    if QTLANGUAGES.has_key(k) and QTLANGUAGES[k] == 'en':
+                    if k in QTLANGUAGES and QTLANGUAGES[k] == 'en':
                         self._appendtable('QTUDTA', i18ntabl[k])
                         self._appendtable('QTUDTA', tabl)
             else:
@@ -274,7 +275,7 @@ class MPEG4(core.AVContainer):
                         # XXX 2082844800 is the difference between Unix and
                         # XXX Apple time. FIXME to work on Apple, too
                         self.timestamp = int(tkhd[1]) - 2082844800
-                    except Exception, e:
+                    except Exception as e:
                         log.exception(u'There was trouble extracting timestamp')
 
                 elif datatype == 'mdia':
@@ -397,10 +398,10 @@ class MPEG4(core.AVContainer):
                 data = file.read(datasize - 8)
                 try:
                     decompressed = zlib.decompress(data)
-                except Exception, e:
+                except Exception as e:
                     try:
                         decompressed = zlib.decompress(data[4:])
-                    except Exception, e:
+                    except Exception as e:
                         log.exception(u'There was a proble decompressiong atom')
                         return atomsize
 

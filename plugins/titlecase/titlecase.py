@@ -58,7 +58,7 @@ def title(string, locale="utf-8"):
 from picard.metadata import (
     register_track_metadata_processor,
     register_album_metadata_processor,
-    )
+)
 
 
 def title_case(tagger, metadata, release, track=None):

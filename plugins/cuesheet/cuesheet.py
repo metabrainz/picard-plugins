@@ -148,7 +148,8 @@ class GenerateCuesheet(BaseAction):
         album = objs[0]
         current_directory = self.config.persist["current_directory"] or QtCore.QDir.homePath()
         current_directory = find_existing_path(unicode(current_directory))
-        filename, selected_format = QtGui.QFileDialog.getSaveFileNameAndFilter(None, "", current_directory, "Cuesheet (*.cue)")
+        filename, selected_format = QtGui.QFileDialog.getSaveFileNameAndFilter(
+            None, "", current_directory, "Cuesheet (*.cue)")
         if filename:
             filename = unicode(filename)
             cuesheet = Cuesheet(filename)

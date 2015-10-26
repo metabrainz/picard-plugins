@@ -19,10 +19,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with enzyme.  If not, see <http://www.gnu.org/licenses/>.
+from __future__ import absolute_import
 from datetime import datetime
-from exceptions import ParseError
+from .exceptions import ParseError
 from struct import unpack
-import core
+from . import core
 import logging
 import re
 
@@ -814,7 +815,7 @@ class Matroska(core.AVContainer):
             if filter:
                 try:
                     value = [filter(item) for item in value] if isinstance(value, list) else filter(value)
-                except Exception, e:
+                except Exception as e:
                     log.warning(u'Failed to convert tag to core attribute: %r', e)
             # Special handling for tv series recordings. The 'title' tag
             # can be used for both the series and the episode name. The
