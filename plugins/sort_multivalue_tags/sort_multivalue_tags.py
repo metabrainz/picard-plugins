@@ -15,20 +15,40 @@
 
 PLUGIN_NAME = u"Sort Multi-Value Tags"
 PLUGIN_AUTHOR = u"Sophist"
-PLUGIN_DESCRIPTION = u'Sort Multi-Value Tags e.g. Release Type, Lyrics alphabetically.'
-PLUGIN_VERSION = "0.1"
+PLUGIN_DESCRIPTION = u'''
+This plugin sorts multi-value tags e.g. Performers alphabetically.<br /><br />
+Note: Some multi-value tags are excluded for the following reasons:
+<ol>
+<li>Sequence is important e.g. Artists</li>
+<li>The sequence of one tag is linked to the sequence of another e.g. Label and Catalogue number.</li>
+</ol>
+'''
+PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["0.15"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from picard.metadata import register_track_metadata_processor
 
-# Define and register the Track Metadata function
+# Define tags where sort order is important
+_sort_multivalue_tags_exclude = (
+    'artists', '~artists_sort', 'musicbrainz_artistid',
+    'albumartists', '~albumartists_sort', 'musicbrainz_albumartistid',
+    'work', 'musicbrainz_workid',
+    'label', 'catalognumber',
+    'country', 'date',
+    'releasetype',
+)
+# Possible future enhancement:
+# Sort linked tags e.g. work so that the sequence in related tags e.g. workid retains the relationship between
+# e.g. work and workid.
 
 
 def sort_multivalue_tags(tagger, metadata, track, release):
 
     for tag in metadata.keys():
+        if tag in _sort_multivalue_tags_exclude:
+            continue
         data = metadata.getall(tag)
         if len(data) > 1:
             sorted_data = sorted(data)
