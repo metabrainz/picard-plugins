@@ -20,8 +20,8 @@
 PLUGIN_NAME = u'fanart.tv cover art'
 PLUGIN_AUTHOR = u'Philipp Wolfer'
 PLUGIN_DESCRIPTION = u'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
-PLUGIN_VERSION = "0.3"
-PLUGIN_API_VERSIONS = ["1.3.0"]
+PLUGIN_VERSION = "0.4"
+PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -72,8 +72,11 @@ class CoverArtProviderFanartTv(CoverArtProvider):
 
     def queue_downloads(self):
         release_group_id = self.metadata["musicbrainz_releasegroupid"]
-        path = "/v3/music/albums/%s?api_key=%s&client_key=%s" % \
-            (release_group_id, str(QUrl.toPercentEncoding(API_KEY)), str(QUrl.toPercentEncoding(self._client_key)))
+        path = "/v3/music/albums/%s" % \
+            (release_group_id, )
+        queryargs = {"api_key": QUrl.toPercentEncoding(API_KEY),
+                     "client_key": QUrl.toPercentEncoding(self._client_key),
+                     }
         log.debug("CoverArtProviderFanartTv.queue_downloads: %s" % path)
         self.album.tagger.xmlws.download(
             FANART_HOST,
@@ -81,7 +84,8 @@ class CoverArtProviderFanartTv(CoverArtProvider):
             path,
             partial(self._json_downloaded, release_group_id),
             priority=True,
-            important=False)
+            important=False,
+            queryargs=queryargs)
         self.album._requests += 1
         return CoverArtProvider.WAIT
 
