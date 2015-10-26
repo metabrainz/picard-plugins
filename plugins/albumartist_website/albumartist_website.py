@@ -4,8 +4,8 @@ PLUGIN_NAME = _(u'Album Artist Website')
 PLUGIN_AUTHOR = u'Sophist'
 PLUGIN_DESCRIPTION = u'''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
-PLUGIN_VERSION = '0.3'
-PLUGIN_API_VERSIONS = ["0.15.0", "0.15.1", "0.16.0", "1.0.0", "1.1.0", "1.2.0", "1.3.0"]
+PLUGIN_VERSION = '0.4'
+PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -79,10 +79,12 @@ class AlbumArtistWebsite:
         if self.website_queue.append(artistId, (track, album)):
             host = config.setting["server_host"]
             port = config.setting["server_port"]
-            path = "/ws/2/%s/%s?inc=%s" % ('artist', artistId, 'url-rels')
+            path = "/ws/2/%s/%s" % ('artist', artistId)
+            queryargs = {"inc": "url-rels"}
             return album.tagger.xmlws.get(host, port, path,
                         partial(self.website_process, artistId),
-                        xml=True, priority=True, important=False)
+                                xml=True, priority=True, important=False,
+                                queryargs=queryargs)
 
     def website_process(self, artistId, response, reply, error):
         if error:
