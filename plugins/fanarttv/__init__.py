@@ -70,6 +70,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
 
     def enabled(self):
         return self._client_key != "" and \
+            super(CoverArtProviderFanartTv, self).enabled() and \
             not self.coverart.front_image_found
 
     def queue_downloads(self):
