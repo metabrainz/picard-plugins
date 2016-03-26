@@ -20,6 +20,7 @@ import re
 
 LASTFM_HOST = "ws.audioscrobbler.com"
 LASTFM_PORT = 80
+LASTFM_API_KEY = "8b331b492e4afd88e8ef9c9aa872c785"
 
 # From http://www.last.fm/api/tos, 2011-07-30
 # 4.4 (...) You will not make more than 5 requests per originating IP address per second, averaged over a
@@ -340,7 +341,7 @@ def _tags_downloaded(album, metadata, sally, factor, next, current, data, reply,
     try:
 
         try:
-            intags = data.toptags[0].tag
+            intags = data.lfm[0].toptags[0].tag
         except AttributeError:
             intags = []
 
@@ -358,7 +359,7 @@ def _tags_downloaded(album, metadata, sally, factor, next, current, data, reply,
 
             tag_to_count[name] = count
 
-        url = str(reply.url().path())
+        url = "%s?%s" % (reply.url().path(), reply.url().encodedQuery())
         _cache[url] = tag_to_count
 
         tags = apply_translations_and_sally(tag_to_count, sally, factor)
@@ -404,21 +405,21 @@ def get_tags(album, metadata, path, sally, factor, next, current):
 
 
 def encode_str(s):
-    # Yes, that's right, Last.fm prefers double URL-encoding
-    s = QtCore.QUrl.toPercentEncoding(s)
-    s = QtCore.QUrl.toPercentEncoding(unicode(s))
-    return s
+    return QtCore.QUrl.toPercentEncoding(unicode(s))
 
 
-def get_track_tags(album, metadata, artist, track, next, current):
-    path = "/1.0/track/%s/%s/toptags.xml" % (encode_str(artist), encode_str(track))
+def get_track_tags(album, metadata, artist, title, track_id, next, current):
+    # Documentation (http://www.last.fm/api/show/track.getTopTags) suggests that
+    # artist and track params are not required if mbid is specified, however
+    # that appears not to be the case, so we specify both for now
+    path = "/2.0/?method=track.gettoptags&artist=%s&track=%s&mbid=%s&api_key=%s" % (encode_str(artist), encode_str(title), encode_str(track_id), encode_str(LASTFM_API_KEY))
     sally = 0
     factor = 1.0
     return get_tags(album, metadata, path, sally, factor, next, current)
 
 
-def get_artist_tags(album, metadata, artist, next, current):
-    path = "/1.0/artist/%s/toptags.xml" % encode_str(artist)
+def get_artist_tags(album, metadata, artist_id, next, current):
+    path = "/2.0/?method=artist.gettoptags&mbid=%s&api_key=%s" % (encode_str(artist_id), encode_str(LASTFM_API_KEY))
     sally = 2
     if album.tagger.config.setting["lastfm_artist_tag_us_ex"]:
         sally = 1
@@ -432,15 +433,17 @@ def process_track(album, metadata, release, track):
     use_artist_tags = tagger.config.setting["lastfm_artist_tag_us_ex"] or tagger.config.setting["lastfm_artist_tag_us_yes"]
 
     if use_track_tags or use_artist_tags:
+        artist_id = metadata["musicbrainz_artistid"]
+        track_id = metadata["musicbrainz_trackid"]
         artist = metadata["artist"]
         title = metadata["title"]
-        if artist:
+        if artist_id:
             if use_artist_tags:
-                get_artist_tags_func = partial(get_artist_tags, album, metadata, artist, None)
+                get_artist_tags_func = partial(get_artist_tags, album, metadata, artist_id, None)
             else:
                 get_artist_tags_func = None
-            if title and use_track_tags:
-                get_track_tags(album, metadata, artist, title, get_artist_tags_func, [])
+            if artist and title and track_id and use_track_tags:
+                get_track_tags(album, metadata, artist, title, track_id, get_artist_tags_func, [])
             elif get_artist_tags_func:
                 get_artist_tags_func([])
 
