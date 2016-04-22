@@ -4,7 +4,7 @@ PLUGIN_NAME = u'Album Artist Website'
 PLUGIN_AUTHOR = u'Sophist'
 PLUGIN_DESCRIPTION = u'''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
-PLUGIN_VERSION = '0.4'
+PLUGIN_VERSION = '0.5'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -99,21 +99,20 @@ class AlbumArtistWebsite:
         log.debug("%s: %r: Artist Official Homepages = %r", PLUGIN_NAME,
                   artistId, urls)
         for track, album in tuples:
-            self.album_remove_request(album)
             if urls:
                 tm = track.metadata
                 tm['website'] = urls
                 for file in track.iterfiles(True):
                     fm = file.metadata
                     fm['website'] = urls
+            self.album_remove_request(album)
 
     def album_add_request(self, album):
         album._requests += 1
 
     def album_remove_request(self, album):
         album._requests -= 1
-        if album._requests == 0:
-            album._finalize_loading(None)
+        album._finalize_loading(None)
 
     def artist_process_metadata(self, artistId, response):
         if 'metadata' in response.children:
