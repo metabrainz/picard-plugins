@@ -580,7 +580,8 @@ class LastfmOptionsPage(OptionsPage):
                 else:  # data lines
                     for column, value in zip(columns, data):
                         if value:
-lists[column].append(value)
+                            lists[column].append(value)
+
         self.ui.genre_major.setText(', '.join(lists['Major']))
         self.ui.genre_minor.setText(', '.join(lists['Minor']))
         self.ui.genre_country.setText(', '.join(lists['Country']))
