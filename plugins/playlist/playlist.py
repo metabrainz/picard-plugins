@@ -13,10 +13,10 @@
 
 PLUGIN_NAME = u"Generate M3U playlist"
 PLUGIN_AUTHOR = u"Francis Chin"
-PLUGIN_DESCRIPTION = u"""Generate an Extended M3U playlist (.m3u8 file,
-UTF8 encoded text). Relative pathnames are used if saving to the directory
-that contains the audio files, otherwise absolute pathnames are used."""
-PLUGIN_VERSION = "0.2"
+PLUGIN_DESCRIPTION = u"""Generate an Extended M3U playlist (.m3u8 file, UTF8
+encoded text). Relative pathnames are used where audio files are in the same
+directory as the playlist, otherwise absolute (full) pathnames are used."""
+PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["1.0.0", "1.1.0", "1.2.0", "1.3.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -32,6 +32,13 @@ from picard.ui.itemviews import BaseAction, register_album_action
 
 _debug_level = 0
 
+def get_safe_filename(filename):
+    _valid_chars = u" .,_-:+&!()"
+    _safe_filename = u"".join(
+        c if (c.isalnum() or c in _valid_chars) else "_" for c in filename
+    ).rstrip()
+    return _safe_filename
+
 
 class PlaylistEntry(list):
 
@@ -40,8 +47,8 @@ class PlaylistEntry(list):
         self.playlist = playlist
         self.index = index
 
-    def add(self, unicode):
-        self.append(unicode + "\n")
+    def add(self, entry_row):
+        self.append(entry_row + "\n")
 
 
 class Playlist(object):
@@ -51,8 +58,8 @@ class Playlist(object):
         self.entries = []
         self.headers = []
 
-    def add_header(self, unicode):
-        self.headers.append(unicode + "\n")
+    def add_header(self, header):
+        self.headers.append(header + "\n")
 
     def write(self):
         b_lines = []
@@ -79,10 +86,17 @@ class GeneratePlaylist(BaseAction):
                     PLUGIN_NAME, VARIOUS_ARTISTS_ID,
                     objs[0].metadata["musicbrainz_albumartistid"]))
         if objs[0].metadata["musicbrainz_albumartistid"] != VARIOUS_ARTISTS_ID:
-            default_filename = (objs[0].metadata["albumartist"] + " - "
-                                + objs[0].metadata["album"] + ".m3u8")
+            default_filename = get_safe_filename(
+                objs[0].metadata["albumartist"] + " - "
+                + objs[0].metadata["album"] + ".m3u8"
+            )
         else:
-            default_filename = objs[0].metadata["album"] + ".m3u8"
+            default_filename = get_safe_filename(
+                objs[0].metadata["album"] + ".m3u8"
+            )
+        if _debug_level > 1:
+            log.debug("{}: default playlist filename sanitized to {}".format(
+                    PLUGIN_NAME, default_filename))
         b_filename, b_selected_format = QtGui.QFileDialog.getSaveFileNameAndFilter(
             None, "Save new playlist",
             os.path.join(current_directory, default_filename),
