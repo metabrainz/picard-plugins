@@ -5,7 +5,6 @@ PLUGIN_VERSION = '1.2'
 PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15"]
 
 from picard.metadata import register_album_metadata_processor
-import re
 
 #==================
 # options
