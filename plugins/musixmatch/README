@@ -1,5 +1,2 @@
 Installation:
-        Obtain API key from Musixmatch (https://developer.musixmatch.com) and write it into the __init__.py file
-os.environ['MUSIXMATCH_API_KEY'] = 'your API key here'
-
-This plugin is bundled with the modules musixmatch (https://github.com/utstikkar/pyMusiXmatch), urrlib2, bisect, and Queue.
+        Obtain API key from Musixmatch (https://developer.musixmatch.com)
