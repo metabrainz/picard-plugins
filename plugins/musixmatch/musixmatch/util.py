@@ -3,6 +3,8 @@ util.py
    by Amelie Anglade and Thierry Bertin-Mahieux
       amelie.anglade@gmail.com & tb2332@columbia.edu
 
+Edited by m-yn: no urllib2, no Queue, no bisect
+
 Set of util functions used by the MusixMatch Python API,
 mostly do HMTL calls.
 
@@ -27,11 +29,6 @@ import sys
 import time
 import copy
 import urllib
-import urllib2 # needed for the TIMEOUT option, otherwise urllib is enough
-try:
-    from Queue import PriorityQueue, Empty
-except ImportError:
-    from queue import PriorityQueue, Empty
 try:
     import json
 except ImportError:
@@ -45,10 +42,6 @@ if('MUSIXMATCH_API_KEY' in os.environ):
 # details of the website to call
 API_HOST = 'api.musixmatch.com'
 API_SELECTOR = '/ws/1.1/'
-
-# timeout for the API call, raise a URLError if the call
-# takes too long
-MXM_CALL_TIMEOUT = 30 # seconds
 
 # cache time length (seconds)
 CACHE_TLENGTH = 3600
@@ -151,7 +144,7 @@ def call(method, params, nocaching=False):
     # encode the url request, call
     url = 'http://%s%s%s?%s' % (API_HOST, API_SELECTOR, method, params)
     #print url
-    f = urllib2.urlopen(url, timeout=MXM_CALL_TIMEOUT)
+    f = urllib.urlopen(url)
     response = f.read()
     # decode response into json
     response = decode_json(response)

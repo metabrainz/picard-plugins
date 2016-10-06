@@ -3,6 +3,8 @@ track.py
    by Amelie Anglade and Thierry Bertin-Mahieux
       amelie.anglade@gmail.com & tb2332@columbia.edu
 
+Edited by m-yn: no urllib2, no Queue, no bisect
+
 Class and functions to query MusixMatch regarding a track
 (find the track, get lyrics, chart info, ...)
 
