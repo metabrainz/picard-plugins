@@ -25,7 +25,7 @@ class wikidata:
 
     
     def website_process(self,release_id,metadata, response, reply, error):
-	if error:
+        if error:
             log.info('WIKIDATA: error retrieving release group info')
         else:
             if 'metadata' in response.children:
