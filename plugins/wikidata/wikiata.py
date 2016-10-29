@@ -76,7 +76,7 @@ class wikidata:
             log.info('WIKIDATA: final list of genre: %s' % genre_list)
             metadata["genre"] = genre_list
         else:
-            print 'Genre not found in wikidata'
+            log.info('WIKIDATA: Genre not found in wikidata')
 
 register_album_metadata_processor(wikidata().process)
 
