@@ -6,6 +6,7 @@ PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15"]
 
 from picard import config, log
 from picard.metadata import register_album_metadata_processor
+from picard.metadata import register_track_metadata_processor
 from picard.webservice import XmlWebService
 from functools import partial
 import threading
@@ -25,10 +26,13 @@ class wikidata:
 	    
         self.xmlws=tagger.tagger.xmlws
         self.log=tagger.log
-        self.tagger=tagger
-
         item_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]
+        self.process_release_group(metadata,tagger,item_id)
+    
+    def process_release_group(self,metadata,tagger,item_id):
         self.lock.acquire()
+        log.debug('WIKIDATA: Looking up cache for item  %s' % item_id)
+
         if item_id in self.cache.keys():
             log.info('WIKIDATA: found in cache')
             genre_list=self.cache.get(item_id);
@@ -39,13 +43,15 @@ class wikidata:
         else:
             # pending requests are handled by adding the metadata object to a list of things to be updated when the genre is found
             if item_id in self.requests.keys():
-                logger.debug('WIKIDATA: nth request')
+                log.debug('WIKIDATA: nth request')
                 self.requests[item_id].append(metadata)
-            else:
-                self.requests[item_id]=[metadata]
-                log.debug('first request')
+                self.lock.release()
+                return
+            self.requests[item_id]=[metadata]
+            log.debug('first request')
             tagger._requests += 1               
             self.lock.release()
+            log.info('about to call musicbrainz to look up %s ' % item_id)
             # find the wikidata url if this exists
             host = config.setting["server_host"]
             port = config.setting["server_port"]
@@ -118,6 +124,7 @@ class wikidata:
             log.info('WiKIDATA: final list of wikidata id found: %s' % genre_entries)
             log.info('WIKIDATA: final list of genre: %s' % genre_list)
             
+            log.debug('WIKIDATA: total items to update: %s ' % len(self.requests[item_id]))
             self.lock.acquire()
             for metadata in self.requests[item_id]:
                 new_genre=metadata["genre"] 
@@ -125,28 +132,27 @@ class wikidata:
                     if str not in genre_list:
                        new_genre.append(str)
                 metadata["genre"] = genre_list
+                log.debug('WIKIDATA: setting genre : %s ' % genre_list)
+
+                
             self.cache[item_id]=genre_list
             self.lock.release()
         else:
             log.info('WIKIDATA: Genre not found in wikidata')
+            
+        log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % tagger._requests)
         tagger._requests -= 1
         if tagger._requests==0:
             tagger._finalize_loading(None)
 
             
-    def process_release(self, album, track_metadata, trackXmlNode, releaseXmlNode):
-        self.xmlws=tagger.tagger.xmlws
-        self.log=tagger.log
-        self.tagger=tagger
+    def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
+        self.xmlws=album.tagger.xmlws
+        self.log=album.log
+        tagger=album
         item_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]		
-        self.lock.acquire()
-        
-        found_release=False;
-        if item_id in self.cache.keys():
-            log.info('WIKIDATA: found in cache')
-            genre_list=self.cache.get(item_id);
-            metadata["genre"] = genre_list
-        
+        log.debug('WIKIDATA: looking up release metadata for %s ' % item_id)
+        self.process_release_group(metadata,tagger,item_id)
         
         
         
@@ -155,4 +161,5 @@ class wikidata:
         
         
 register_album_metadata_processor(wikidata().process)
+register_track_metadata_processor(wikidata().process_track)
 
