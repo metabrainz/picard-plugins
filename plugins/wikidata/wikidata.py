@@ -12,10 +12,11 @@ import threading
 
 class wikidata:
     
+    
     def __init__(self):
         self.lock=threading.Lock()	
         # active request queue
-        self.requests=[]
+        self.requests={}
         
         # cache
         self.cache={}
@@ -26,28 +27,40 @@ class wikidata:
         self.log=tagger.log
         self.tagger=tagger
 
-        release_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]		
+        item_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]		
         self.lock.acquire()
-        if release_id in self.cache.keys():
+        if item_id in self.cache.keys():
             log.info('WIKIDATA: found in cache')
-            genre_list=self.cache.get(release_id);
+            genre_list=self.cache.get(item_id);
             metadata["genre"] = genre_list
             if tagger._requests==0:
                 tagger._finalize_loading(None)
             self.lock.release()
             return
+        
+        
+        # pending requests are handled by adding the metadata object to a list of things to be updated when the genre is found
+        if item_id in self.requests.keys():
+            logger.debug('WIKIDATA: nth request')
+            self.requests[item_id].append(metadata)
+        else:
+            self.requests[item_id]=[metadata]
+            log.debug('first request')
+            
         self.lock.release()
         tagger._requests += 1
         # find the wikidata url if this exists
         host = config.setting["server_host"]
         port = config.setting["server_port"]
-        path = '/ws/2/release-group/%s?inc=url-rels' % release_id
+        path = '/ws/2/release-group/%s?inc=url-rels' % item_id
+        
+        
         
         self.xmlws.get(host, port, path,
-                       partial(self.website_process, release_id,metadata,tagger),
+                       partial(self.website_process, item_id,metadata,tagger),
                                 xml=True, priority=False, important=False)
     
-    def website_process(self,release_id,metadata,tagger, response, reply, error):
+    def website_process(self,item_id,metadata,tagger, response, reply, error):
         found=False;
         if error:
             log.info('WIKIDATA: error retrieving release group info')
@@ -59,7 +72,8 @@ class wikidata:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found=True
                                 wikidata_url=relation.target[0].text
-                                self.process_wikidata(wikidata_url,metadata,tagger)
+                                item_id=item_id
+                                self.process_wikidata(wikidata_url,metadata,tagger,item_id)
         if not found:
             log.info('WIKIDATA: no wikidata url')
             tagger._requests -= 1
@@ -67,14 +81,14 @@ class wikidata:
                 tagger._finalize_loading(None)
 
 
-    def process_wikidata(self,wikidata_url,metadata,tagger):
+    def process_wikidata(self,wikidata_url,metadata,tagger,item_id):
         item=wikidata_url.split('/')[4]
         path="/wiki/Special:EntityData/"+item+".rdf"
         log.info('WIKIDATA: fetching the folowing url wikidata.org%s' % path)
         self.xmlws.get('www.wikidata.org', 443, path,
-                       partial(self.parse_wikidata_response, item,metadata,tagger),
+                       partial(self.parse_wikidata_response, item,tagger,item_id),
                                 xml=True, priority=False, important=False)
-    def parse_wikidata_response(self,item,metadata,tagger, response, reply, error):
+    def parse_wikidata_response(self,item,tagger,item_id, response, reply, error):
         genre_entries=[]
         genre_list=[]
         if error:
@@ -106,15 +120,41 @@ class wikidata:
         if len(genre_list) > 0:
             log.info('WiKIDATA: final list of wikidata id found: %s' % genre_entries)
             log.info('WIKIDATA: final list of genre: %s' % genre_list)
-            metadata["genre"] = genre_list
             
-            release_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]		
-            self.cache[release_id]=genre_list
+            self.lock.acquire()
+            for metadata in self.requests[item_id]:
+                metadata["genre"] = genre_list
+            
+            self.cache[item_id]=genre_list
+            self.lock.release()
         else:
             log.info('WIKIDATA: Genre not found in wikidata')
         tagger._requests -= 1
         if tagger._requests==0:
             tagger._finalize_loading(None)
 
+            
+    def process_release(self, album, track_metadata, trackXmlNode, releaseXmlNode):
+        self.xmlws=tagger.tagger.xmlws
+        self.log=tagger.log
+        self.tagger=tagger
+        item_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]		
+        self.lock.acquire()
+        if item_id in self.cache.keys():
+            log.info('WIKIDATA: found in cache')
+            genre_list=self.cache.get(item_id);
+            metadata["genre"] = genre_list
+            if tagger._requests==0:
+                tagger._finalize_loading(None)
+            self.lock.release()
+            return
+        
+        
+        self.lock.release()
+        
+        
+        
+        
+        
 register_album_metadata_processor(wikidata().process)
 
