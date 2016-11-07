@@ -30,16 +30,18 @@ class wikidata:
         item_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]
         
         self.process_request(metadata,tagger,item_id,type='release-group')
-        if tagger._requests==0:
-            tagger._finalize_loading(None)
         
     def process_request(self,metadata,tagger,item_id,type):
         self.lock.acquire()
-        log.debug('WIKIDATA: Looking up cache for item  %s' % item_id)
+        log.info('WIKIDATA: Looking up cache for item  %s' % item_id)
+        log.info('WIKIDATA: requests %s'  % tagger._requests)
         if item_id in self.cache.keys():
             log.info('WIKIDATA: found in cache')
             genre_list=self.cache.get(item_id);
             metadata["genre"] = genre_list
+            
+            if tagger._requests==0:
+                tagger._finalize_loading(None)
             self.lock.release()
             return
         else:
@@ -86,16 +88,14 @@ class wikidata:
                                 self.process_wikidata(wikidata_url,item_id)
         if not found:
             log.info('WIKIDATA: no wikidata url')
-            #self.lock.acquire()
-            #for tagger in self.taggers[item_id]:
-            #    tagger._requests -= 1
-            #    if tagger._requests<=0:
-            #    
-            #        tagger._finalize_loading(None)
-            #    log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % tagger._requests)
-            #self.lock.release()
+            self.lock.acquire()
+            for tagger in self.taggers[item_id]:
+                tagger._requests -= 1
+                if tagger._requests==0: 
+                    tagger._finalize_loading(None)
+                log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % tagger._requests)
+            self.lock.release()
             
-
     def process_wikidata(self,wikidata_url,item_id):
         item=wikidata_url.split('/')[4]
         path="/wiki/Special:EntityData/"+item+".rdf"
@@ -137,7 +137,7 @@ class wikidata:
             log.info('WIKIDATA: final list of genre: %s' % genre_list)
             
             log.debug('WIKIDATA: total items to update: %s ' % len(self.requests[item_id]))
-            #self.lock.acquire()
+            self.lock.acquire()
             for metadata in self.requests[item_id]:
                 new_genre=metadata["genre"] 
                 for str in genre_list:
@@ -145,23 +145,22 @@ class wikidata:
                        new_genre.append(str)
                 metadata["genre"] = genre_list
                 log.debug('WIKIDATA: setting genre : %s ' % genre_list)
-
                 
             self.cache[item_id]=genre_list
-            #self.lock.release()
+            self.lock.release()
         else:
             log.info('WIKIDATA: Genre not found in wikidata')
         
-        log.info('WIKIDATA: Seeing if we can finalize tags %s ' % self.taggers[item_id])
+        log.info('WIKIDATA: Seeing if we can finalize tags %s  ' % len(self.taggers[item_id]))
         
+        self.lock.acquire()
         for tagger in self.taggers[item_id]:
             tagger._requests -= 1
             if tagger._requests==0:
                 tagger._finalize_loading(None)
-            log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % tagger._requests)
+            log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % tagger._requests)
+        self.lock.release()
         
-
-            
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
         self.xmlws=album.tagger.xmlws
         self.log=album.log
@@ -172,10 +171,8 @@ class wikidata:
         
         
         
-        
-        
-        
-        
-#register_album_metadata_processor(wikidata().process_release)
-register_track_metadata_processor(wikidata().process_track)
+
+wikidata=wikidata()
+#register_album_metadata_processor(wikidata.process_release)
+register_track_metadata_processor(wikidata.process_track)
 
