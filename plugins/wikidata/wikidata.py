@@ -29,12 +29,19 @@ class wikidata:
         self.log=tagger.log
         item_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]
         
+        log.info('WIKIDATA: processing release group %s ' % item_id)
         self.process_request(metadata,tagger,item_id,type='release-group')
+        for artist in dict.get(metadata,'musicbrainz_albumartistid'):
+            item_id=artist
+            log.info('WIKIDATA: processing artist %s' % item_id)
+            self.process_request(metadata,tagger,item_id,type='artist')
+        
         
     def process_request(self,metadata,tagger,item_id,type):
         self.lock.acquire()
         log.info('WIKIDATA: Looking up cache for item  %s' % item_id)
         log.info('WIKIDATA: requests %s'  % tagger._requests)
+        log.info('WIKIDATA: TYPE %s'  % type)
         if item_id in self.cache.keys():
             log.info('WIKIDATA: found in cache')
             genre_list=self.cache.get(item_id);
@@ -79,6 +86,14 @@ class wikidata:
         else:
             if 'metadata' in response.children:
                 if 'release_group' in response.metadata[0].children:
+                    if 'relation_list' in response.metadata[0].release_group[0].children:
+                        for relation in response.metadata[0].release_group[0].relation_list[0].relation:
+                            if relation.type == 'wikidata' and 'target' in relation.children:
+                                found=True
+                                wikidata_url=relation.target[0].text
+                                item_id=item_id
+                                self.process_wikidata(wikidata_url,item_id)
+                if 'artist' in response.metadata[0].children:
                     if 'relation_list' in response.metadata[0].release_group[0].children:
                         for relation in response.metadata[0].release_group[0].relation_list[0].relation:
                             if relation.type == 'wikidata' and 'target' in relation.children:
@@ -173,6 +188,6 @@ class wikidata:
         
 
 wikidata=wikidata()
-#register_album_metadata_processor(wikidata.process_release)
-register_track_metadata_processor(wikidata.process_track)
+register_album_metadata_processor(wikidata.process_release)
+#register_track_metadata_processor(wikidata.process_track)
 
