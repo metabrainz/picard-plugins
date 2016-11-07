@@ -36,7 +36,7 @@ class wikidata:
             if tagger._requests==0:
                 tagger._finalize_loading(None)
             self.lock.release()
-        else
+        else:
             # pending requests are handled by adding the metadata object to a list of things to be updated when the genre is found
             if item_id in self.requests.keys():
                 logger.debug('WIKIDATA: nth request')
@@ -120,8 +120,11 @@ class wikidata:
             
             self.lock.acquire()
             for metadata in self.requests[item_id]:
+                new_genre=metadata["genre"] 
+                for str in genre_list:
+                    if str not in genre_list:
+                       new_genre.append(str)
                 metadata["genre"] = genre_list
-            
             self.cache[item_id]=genre_list
             self.lock.release()
         else:
