@@ -8,14 +8,36 @@ from picard import config, log
 from picard.metadata import register_album_metadata_processor
 from picard.webservice import XmlWebService
 from functools import partial
+import threading
 
 class wikidata:
+    
+    def __init__(self):
+        self.lock=threading.Lock()	
+        # active request queue
+        self.requests=[]
+        
+        # cache
+        self.cache={}
+		
     def process(self,tagger, metadata, release):
+	    
         self.xmlws=tagger.tagger.xmlws
         self.log=tagger.log
         self.tagger=tagger
+
+        release_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]		
+        self.lock.acquire()
+        if release_id in self.cache.keys():
+            log.info('WIKIDATA: found in cache')
+            genre_list=self.cache.get(release_id);
+            metadata["genre"] = genre_list
+            if tagger._requests==0:
+                tagger._finalize_loading(None)
+            self.lock.release()
+            return
+        self.lock.release()
         tagger._requests += 1
-        release_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]
         # find the wikidata url if this exists
         host = config.setting["server_host"]
         port = config.setting["server_port"]
@@ -85,6 +107,9 @@ class wikidata:
             log.info('WiKIDATA: final list of wikidata id found: %s' % genre_entries)
             log.info('WIKIDATA: final list of genre: %s' % genre_list)
             metadata["genre"] = genre_list
+            
+            release_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]		
+            self.cache[release_id]=genre_list
         else:
             log.info('WIKIDATA: Genre not found in wikidata')
         tagger._requests -= 1
