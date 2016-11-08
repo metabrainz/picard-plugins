@@ -94,8 +94,8 @@ class wikidata:
                                 item_id=item_id
                                 self.process_wikidata(wikidata_url,item_id)
                 if 'artist' in response.metadata[0].children:
-                    if 'relation_list' in response.metadata[0].release_group[0].children:
-                        for relation in response.metadata[0].release_group[0].relation_list[0].relation:
+                    if 'relation_list' in response.metadata[0].artist[0].children:
+                        for relation in response.metadata[0].artist[0].relation_list[0].relation:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found=True
                                 wikidata_url=relation.target[0].text
