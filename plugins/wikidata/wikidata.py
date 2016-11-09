@@ -33,7 +33,7 @@ class wikidata:
         self.process_request(metadata,tagger,item_id,type='release-group')
         for artist in dict.get(metadata,'musicbrainz_albumartistid'):
             item_id=artist
-            log.info('WIKIDATA: processing artist %s' % item_id)
+            log.info('WIKIDATA: processing release artist %s' % item_id)
             self.process_request(metadata,tagger,item_id,type='artist')
         
         
@@ -182,12 +182,15 @@ class wikidata:
         tagger=album
         item_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]		
         log.debug('WIKIDATA: looking up release metadata for %s ' % item_id)
-        self.process_request(metadata,tagger,item_id,type='release-group')
-        
-        
+        #self.process_request(metadata,tagger,item_id,type='release-group')
+         
+        for artist in dict.get(metadata,'musicbrainz_artistid'):
+            item_id=artist
+            log.info('WIKIDATA: processing track artist %s' % item_id)
+            self.process_request(metadata,tagger,item_id,type='artist')
         
 
 wikidata=wikidata()
 register_album_metadata_processor(wikidata.process_release)
-#register_track_metadata_processor(wikidata.process_track)
+register_track_metadata_processor(wikidata.process_track)
 
