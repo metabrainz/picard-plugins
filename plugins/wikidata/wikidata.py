@@ -192,5 +192,5 @@ class wikidata:
 
 wikidata=wikidata()
 register_album_metadata_processor(wikidata.process_release)
-register_track_metadata_processor(wikidata.process_track)
+#register_track_metadata_processor(wikidata.process_track)
 
