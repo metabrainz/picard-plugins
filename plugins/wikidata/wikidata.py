@@ -39,9 +39,9 @@ class wikidata:
         
     def process_request(self,metadata,tagger,item_id,type):
         self.lock.acquire()
-        log.info('WIKIDATA: Looking up cache for item  %s' % item_id)
-        log.info('WIKIDATA: requests %s'  % tagger._requests)
-        log.info('WIKIDATA: TYPE %s'  % type)
+        log.debug('WIKIDATA: Looking up cache for item  %s' % item_id)
+        log.debug('WIKIDATA: requests %s'  % tagger._requests)
+        log.debug('WIKIDATA: TYPE %s'  % type)
         if item_id in self.cache.keys():
             log.info('WIKIDATA: found in cache')
             genre_list=self.cache.get(item_id);
@@ -67,17 +67,17 @@ class wikidata:
             log.debug('WIKIDATA: first request for this item')
             
             self.lock.release()
-            log.info('about to call musicbrainz to look up %s ' % item_id)
+            log.info('WIKIDATA: about to call musicbrainz to look up %s ' % item_id)
             # find the wikidata url if this exists
             host = config.setting["server_host"]
             port = config.setting["server_port"]
             
             
-            path = '/ws/2/%s/%s?inc=url-rels' % (type,item_id)
-            
+            path = '/ws/2/%s/%s' % (type,item_id)
+            queryargs = {"inc": "url-rels"}
             self.xmlws.get(host, port, path,
                           partial(self.musicbrainz_release_lookup, item_id,metadata),
-                                   xml=True, priority=False, important=False)
+                                   xml=True, priority=False, important=False,queryargs=queryargs)
         
     def musicbrainz_release_lookup(self,item_id,metadata, response, reply, error):
         found=False;
@@ -96,6 +96,15 @@ class wikidata:
                 if 'artist' in response.metadata[0].children:
                     if 'relation_list' in response.metadata[0].artist[0].children:
                         for relation in response.metadata[0].artist[0].relation_list[0].relation:
+                            if relation.type == 'wikidata' and 'target' in relation.children:
+                                found=True
+                                wikidata_url=relation.target[0].text
+                                item_id=item_id
+                                self.process_wikidata(wikidata_url,item_id)
+                                
+                if 'work' in response.metadata[0].children:
+                    if 'relation_list' in response.metadata[0].work[0].children:
+                        for relation in response.metadata[0].work[0].relation_list[0].relation:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found=True
                                 wikidata_url=relation.target[0].text
@@ -147,28 +156,29 @@ class wikidata:
                                             genre=node2.text
                                             genre_list.append(genre)
                                             log.debug('Our genre is: %s' % genre)
+                                            
+        self.lock.acquire()
         if len(genre_list) > 0:
             log.info('WiKIDATA: final list of wikidata id found: %s' % genre_entries)
             log.info('WIKIDATA: final list of genre: %s' % genre_list)
             
             log.debug('WIKIDATA: total items to update: %s ' % len(self.requests[item_id]))
-            self.lock.acquire()
             for metadata in self.requests[item_id]:
-                new_genre=metadata["genre"] 
+                new_genre=[]
+                new_genre.append(metadata["genre"])
                 for str in genre_list:
-                    if str not in genre_list:
+                    if str not in new_genre:
                        new_genre.append(str)
-                metadata["genre"] = genre_list
+                       log.debug('WIKIDATA: appending genre %s' % str)
+                metadata["genre"] = new_genre
+                self.cache[item_id]=genre_list
                 log.debug('WIKIDATA: setting genre : %s ' % genre_list)
                 
-            self.cache[item_id]=genre_list
-            self.lock.release()
         else:
             log.info('WIKIDATA: Genre not found in wikidata')
         
         log.info('WIKIDATA: Seeing if we can finalize tags %s  ' % len(self.taggers[item_id]))
         
-        self.lock.acquire()
         for tagger in self.taggers[item_id]:
             tagger._requests -= 1
             if tagger._requests==0:
@@ -180,17 +190,30 @@ class wikidata:
         self.xmlws=album.tagger.xmlws
         self.log=album.log
         tagger=album
+        
         item_id = dict.get(metadata,'musicbrainz_releasegroupid')[0]		
         log.debug('WIKIDATA: looking up release metadata for %s ' % item_id)
-        #self.process_request(metadata,tagger,item_id,type='release-group')
-         
+        self.process_request(metadata,tagger,item_id,type='release-group')
+        
+        for artist in dict.get(metadata,'musicbrainz_albumartistid'):
+            item_id=artist
+            log.info('WIKIDATA: processing release artist %s' % item_id)
+            self.process_request(metadata,tagger,item_id,type='artist')
+        
         for artist in dict.get(metadata,'musicbrainz_artistid'):
             item_id=artist
             log.info('WIKIDATA: processing track artist %s' % item_id)
             self.process_request(metadata,tagger,item_id,type='artist')
         
+        if 'musicbrainz_workid' in metadata:
+            for workid in dict.get(metadata,'musicbrainz_workid'):
+                item_id=workid
+                log.info('WIKIDATA: processing track artist %s' % item_id)
+                self.process_request(metadata,tagger,item_id,type='work')
+
+        
 
 wikidata=wikidata()
-register_album_metadata_processor(wikidata.process_release)
-#register_track_metadata_processor(wikidata.process_track)
+#register_album_metadata_processor(wikidata.process_release)
+register_track_metadata_processor(wikidata.process_track)
 
