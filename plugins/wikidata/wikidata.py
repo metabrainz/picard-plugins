@@ -1,8 +1,16 @@
+# Copyright © 2016 Daniel sobey <dns@dns.id.au >
+
+# This work is free. You can redistribute it and/or modify it under the
+# terms of the Do What The Fuck You Want To Public License, Version 2,
+# as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
+
 PLUGIN_NAME = 'wikidata-genre'
 PLUGIN_AUTHOR = 'Daniel Sobey'
 PLUGIN_DESCRIPTION = 'query wikidata to get genre tags'
 PLUGIN_VERSION = '0.1'
 PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15"]
+PLUGIN_LICENSE = 'WTFPL'
+PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
 
 from picard import config, log
 from picard.metadata import register_album_metadata_processor
