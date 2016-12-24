@@ -27,8 +27,8 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 import json
 import traceback
-from PyQt4.QtCore import QUrl
-from PyQt4.QtNetwork import QNetworkReply
+from PyQt5.QtCore import QUrl
+from PyQt5.QtNetwork import QNetworkReply
 from picard import config, log
 from picard.coverart.providers import CoverArtProvider, register_cover_art_provider
 from picard.coverart.image import CoverArtImage
