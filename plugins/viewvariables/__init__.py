@@ -8,7 +8,7 @@ PLUGIN_API_VERSIONS = ['1.0']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
-from PyQt4 import QtGui, QtCore
+from PyQt5 import QtWidgets
 try:
     from picard.util.tags import PRESERVED_TAGS
 except ImportError:
@@ -33,10 +33,10 @@ class ViewVariables(BaseAction):
         dialog.exec_()
 
 
-class ViewVariablesDialog(QtGui.QDialog):
+class ViewVariablesDialog(QtWidgets.QDialog):
 
     def __init__(self, obj, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         self.ui = Ui_VariablesDialog()
         self.ui.setupUi(self)
         self.ui.buttonBox.accepted.connect(self.accept)
@@ -106,11 +106,11 @@ class ViewVariablesDialog(QtGui.QDialog):
         key_item = table.item(i, 0)
         value_item = table.item(i, 1)
         if not key_item:
-            key_item = QtGui.QTableWidgetItem()
+            key_item = QtWidgets.QTableWidgetItem()
             key_item.setFlags(self.key_flags)
             table.setItem(i, 0, key_item)
         if not value_item:
-            value_item = QtGui.QTableWidgetItem()
+            value_item = QtWidgets.QTableWidgetItem()
             value_item.setFlags(self.value_flags)
             table.setItem(i, 1, value_item)
         return key_item, value_item
