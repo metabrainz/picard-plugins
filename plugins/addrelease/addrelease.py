@@ -123,16 +123,28 @@ class AddClusterAsRelease(AddObjectAsEntity):
         nv("name", cluster.metadata["album"])
 
         discnumber_shift = -1
+        tracknumber_shift = -1
         for i, file in enumerate(cluster.files):
             try:
-                i = int(file.metadata["tracknumber"]) - 1
-            except:
-                pass
+                i = int(file.metadata.get("tracknumber", 1))
+                if i <= 0:
+                    # A track number was smaller than or equal to 0 - all other
+                    # track numbers need to be changed to accommodate that.
+                    tracknumber_shift = max(tracknumber_shift, 0 - i)
+                i = i + tracknumber_shift
+            except Exception as e:
+                # The most likely reason for an exception at this point is a
+                # ValueError because the track number in the tags was not a
+                # number. Just log the exception and assume the medium number
+                # is 0.
+                file.log.info("Trying to get the track number of %s caused the following error: %s; assuming 0",
+                              file.filename, e)
+
             # As per https://musicbrainz.org/doc/Development/Release_Editor_Seeding#Tracklists_data
-            # the medium numbers ("m") must be starting with 0.
-            # Maybe the existing tags don't have disc numbers in them or
+            # the medium numbers ("m") and track numbers ("i") must be starting with 0.
+            # Maybe the existing tags don't have disc numbers,track numbers in them or
             # they're starting with something smaller than or equal to 0, so try
-            # to produce a sane disc number.
+            # to produce a sane disc number and track number.
             try:
                 m = int(file.metadata.get("discnumber", 1))
                 if m <= 0:
