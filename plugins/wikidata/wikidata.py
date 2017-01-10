@@ -19,6 +19,7 @@ from picard.webservice import XmlWebService
 from functools import partial
 import threading
 
+
 class wikidata:
     
     
@@ -176,8 +177,8 @@ class wikidata:
                 new_genre.append(metadata["genre"])
                 for str in genre_list:
                     if str not in new_genre:
-                       new_genre.append(str)
-                       log.debug('WIKIDATA: appending genre %s' % str)
+                        new_genre.append(str)
+                        log.debug('WIKIDATA: appending genre %s' % str)
                 metadata["genre"] = new_genre
                 self.cache[item_id]=genre_list
                 log.debug('WIKIDATA: setting genre : %s ' % genre_list)
