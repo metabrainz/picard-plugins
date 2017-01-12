@@ -143,7 +143,7 @@ def call(method, params, nocaching=False):
             return cached_res
     # encode the url request, call
     url = 'http://%s%s%s?%s' % (API_HOST, API_SELECTOR, method, params)
-    #print url
+    # print url
     f = urllib.urlopen(url)
     response = f.read()
     # decode response into json
