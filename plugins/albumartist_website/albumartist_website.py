@@ -4,7 +4,7 @@ PLUGIN_NAME = u'Album Artist Website'
 PLUGIN_AUTHOR = u'Sophist'
 PLUGIN_DESCRIPTION = u'''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
-PLUGIN_VERSION = '0.5'
+PLUGIN_VERSION = '0.6'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -131,7 +131,7 @@ class AlbumArtistWebsite:
             if relation.type == 'official homepage' \
                     and 'target' in relation.children:
                 urls.append(relation.target[0].text)
-        return urls
+        return sorted(urls)
 
 
 register_track_metadata_processor(AlbumArtistWebsite().add_artist_website)
