@@ -11,6 +11,7 @@ PLUGIN_API_VERSIONS = ["1.0.0"]
 
 from picard import config
 from picard.cluster import Cluster
+from picard.const import MUSICBRAINZ_SERVERS
 from picard.file import File
 from picard.util import webbrowser2
 from picard.ui.itemviews import BaseAction, register_cluster_action, register_file_action
@@ -39,7 +40,7 @@ HTML_ATTR_ESCAPE = {
 def mbserver_url(path):
     host = config.setting["server_host"]
     port = config.setting["server_port"]
-    if port == 443:
+    if host in MUSICBRAINZ_SERVERS or port == 443:
         urlstring = "https://%s%s" % (host, path)
     elif port is None or port == 80:
         urlstring = "http://%s%s" % (host, path)
