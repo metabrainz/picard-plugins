@@ -3,12 +3,8 @@
 from __future__ import print_function
 import argparse
 import os
-import re
-import sys
 import json
-
 import zipfile
-import zlib
 
 from hashlib import md5
 from subprocess import call
