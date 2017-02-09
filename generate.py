@@ -3,8 +3,12 @@
 from __future__ import print_function
 import argparse
 import os
+import re
+import sys
 import json
+
 import zipfile
+import zlib
 
 from hashlib import md5
 from subprocess import call
@@ -12,7 +16,7 @@ from subprocess import call
 from get_plugin_data import get_plugin_data
 
 
-def build_json():
+def build_json(version):
     """
     Traverse the plugins directory to generate json data.
     """
@@ -47,17 +51,17 @@ def build_json():
             data['files'] = files
             plugins[dirname] = data
 
-    with open(plugin_file, "w") as out_file:
+    with open(os.path.join(version, plugin_file), "w") as out_file:
         json.dump({"plugins": plugins}, out_file, sort_keys=True, indent=2)
 
 
-def zip_files():
+def zip_files(version):
     """
     Zip up plugin folders
     """
 
     for dirname in next(os.walk(plugin_dir))[1]:
-        archive_path = os.path.join(plugin_dir, dirname)
+        archive_path = os.path.join(os.path.dirname(plugin_dir), version, dirname)
         archive = zipfile.ZipFile(archive_path + ".zip", "w")
 
         dirpath = os.path.join(plugin_dir, dirname)
@@ -94,13 +98,20 @@ plugin_dir = "plugins"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate plugin files for Picard website.')
+    parser.add_argument('version', nargs='?', default='v1.x')
     parser.add_argument('--pull', action='store_true', dest='pull')
     parser.add_argument('--no-zip', action='store_false', dest='zip')
     parser.add_argument('--no-json', action='store_false', dest='json')
     args = parser.parse_args()
+    if args.version == 'v1.x':
+        call(["git", "checkout", "-q", 'master'])
+    else:
+        call(["git", "checkout", "-q", args.version])
+    if not os.path.exists(args.version):
+        os.makedirs(args.version)
     if args.pull:
         call(["git", "pull", "-q"])
     if args.json:
-        build_json()
+        build_json(args.version)
     if args.zip:
-        zip_files()
+        zip_files(args.version)
