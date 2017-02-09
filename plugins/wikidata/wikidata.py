@@ -174,8 +174,7 @@ class wikidata:
             
             log.debug('WIKIDATA: total items to update: %s ' % len(self.requests[item_id]))
             for metadata in self.requests[item_id]:
-                new_genre=[]
-                new_genre.append(metadata["genre"])
+                new_genre = metadata.getall("genre")
                 for str in genre_list:
                     if str not in new_genre:
                         new_genre.append(str)
