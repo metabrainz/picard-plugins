@@ -55,7 +55,13 @@ class wikidata:
         if item_id in self.cache.keys():
             log.info('WIKIDATA: found in cache')
             genre_list=self.cache.get(item_id);
-            metadata["genre"] = genre_list
+            new_genre = metadata.getall("genre")
+
+            for str in genre_list:
+                if str not in new_genre:
+                    new_genre.append(str)
+                    log.debug('WIKIDATA: appending genre %s' % str)
+            metadata["genre"] = new_genre
             
             if tagger._requests==0:
                 tagger._finalize_loading(None)
