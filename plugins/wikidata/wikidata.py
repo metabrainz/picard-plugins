@@ -128,6 +128,7 @@ class wikidata:
                 if tagger._requests==0: 
                     tagger._finalize_loading(None)
                 log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % tagger._requests)
+            del self.requests[item_id]
             self.lock.release()
             
     def process_wikidata(self,wikidata_url,item_id):
@@ -193,6 +194,7 @@ class wikidata:
             if tagger._requests==0:
                 tagger._finalize_loading(None)
             log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % tagger._requests)
+        del self.requests[item_id]
         self.lock.release()
         
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
