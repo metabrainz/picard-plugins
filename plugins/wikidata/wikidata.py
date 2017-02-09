@@ -57,10 +57,10 @@ class wikidata:
             genre_list=self.cache.get(item_id);
             new_genre = metadata.getall("genre")
 
-            for str in genre_list:
-                if str not in new_genre:
-                    new_genre.append(str)
-                    log.debug('WIKIDATA: appending genre %s' % str)
+            for genre in genre_list:
+                if genre not in new_genre:
+                    new_genre.append(genre)
+                    log.debug('WIKIDATA: appending genre %s' % genre)
             metadata["genre"] = new_genre
             
             if tagger._requests==0:
@@ -182,10 +182,10 @@ class wikidata:
             log.debug('WIKIDATA: total items to update: %s ' % len(self.requests[item_id]))
             for metadata in self.requests[item_id]:
                 new_genre = metadata.getall("genre")
-                for str in genre_list:
-                    if str not in new_genre:
-                        new_genre.append(str)
-                        log.debug('WIKIDATA: appending genre %s' % str)
+                for genre in genre_list:
+                    if genre not in new_genre:
+                        new_genre.append(genre)
+                        log.debug('WIKIDATA: appending genre %s' % genre)
                 metadata["genre"] = new_genre
                 self.cache[item_id]=genre_list
                 log.debug('WIKIDATA: setting genre : %s ' % genre_list)
