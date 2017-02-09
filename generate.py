@@ -16,7 +16,7 @@ from subprocess import call
 from get_plugin_data import get_plugin_data
 
 
-def build_json(version):
+def build_json(version=None):
     """
     Traverse the plugins directory to generate json data.
     """
@@ -50,18 +50,23 @@ def build_json(version):
             print("Added: " + dirname)
             data['files'] = files
             plugins[dirname] = data
-
-    with open(os.path.join(version, plugin_file), "w") as out_file:
+    out_path = plugin_file
+    if version:
+        out_path = os.path.join(version, plugin_file)
+    with open(out_path, "w") as out_file:
         json.dump({"plugins": plugins}, out_file, sort_keys=True, indent=2)
 
 
-def zip_files(version):
+def zip_files(version=None):
     """
     Zip up plugin folders
     """
 
     for dirname in next(os.walk(plugin_dir))[1]:
-        archive_path = os.path.join(os.path.dirname(plugin_dir), version, dirname)
+        if version:
+            archive_path = os.path.join(os.path.dirname(plugin_dir), version, dirname)
+        else:
+            archive_path = os.path.join(plugin_dir, dirname)
         archive = zipfile.ZipFile(archive_path + ".zip", "w")
 
         dirpath = os.path.join(plugin_dir, dirname)
@@ -98,16 +103,16 @@ plugin_dir = "plugins"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate plugin files for Picard website.')
-    parser.add_argument('version', nargs='?', default='v1.x')
+    parser.add_argument('version', nargs='?')
     parser.add_argument('--pull', action='store_true', dest='pull')
     parser.add_argument('--no-zip', action='store_false', dest='zip')
     parser.add_argument('--no-json', action='store_false', dest='json')
     args = parser.parse_args()
-    if args.version == 'v1.x':
+    if args.version == 'v1.0' or args.version is None:
         call(["git", "checkout", "-q", 'master'])
     else:
         call(["git", "checkout", "-q", args.version])
-    if not os.path.exists(args.version):
+    if args.version and not os.path.exists(args.version):
         os.makedirs(args.version)
     if args.pull:
         call(["git", "pull", "-q"])
