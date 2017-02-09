@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright © 2016 Daniel sobey <dns@dns.id.au >
 
 # This work is free. You can redistribute it and/or modify it under the
