@@ -1,13 +1,10 @@
 #!/usr/bin/env python
 
 from __future__ import print_function
+import argparse
 import os
-import re
-import sys
 import json
-
 import zipfile
-import zlib
 
 from hashlib import md5
 from subprocess import call
@@ -96,14 +93,14 @@ plugin_file = "plugins.json"
 plugin_dir = "plugins"
 
 if __name__ == '__main__':
-    if 1 in sys.argv:
-        if sys.argv[1] == "pull":
-            call(["git", "pull", "-q"])
-        elif sys.argv[1] == "json":
-            build_json()
-        elif sys.argv[1] == "zip":
-            zip_files()
-    else:
-        # call(["git", "pull", "-q"])
+    parser = argparse.ArgumentParser(description='Generate plugin files for Picard website.')
+    parser.add_argument('--pull', action='store_true', dest='pull')
+    parser.add_argument('--no-zip', action='store_false', dest='zip')
+    parser.add_argument('--no-json', action='store_false', dest='json')
+    args = parser.parse_args()
+    if args.pull:
+        call(["git", "pull", "-q"])
+    if args.json:
         build_json()
+    if args.zip:
         zip_files()
