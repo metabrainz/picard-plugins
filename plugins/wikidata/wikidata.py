@@ -163,7 +163,7 @@ class wikidata:
                                     list1=node1.children.get('name')
                                     for node2 in list1:
                                         if node2.attribs.get('lang')=='en':
-                                            genre=node2.text
+                                            genre=node2.text.title()
                                             genre_list.append(genre)
                                             log.debug('Our genre is: %s' % genre)
                                             
