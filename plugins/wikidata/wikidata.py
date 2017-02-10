@@ -55,13 +55,9 @@ class wikidata:
         if item_id in self.cache.keys():
             log.info('WIKIDATA: found in cache')
             genre_list=self.cache.get(item_id);
-            new_genre = metadata.getall("genre")
-
-            for genre in genre_list:
-                if genre not in new_genre:
-                    new_genre.append(genre)
-                    log.debug('WIKIDATA: appending genre %s' % genre)
-            metadata["genre"] = new_genre
+            new_genre = set(metadata.getall("genre"))
+            new_genre.update(genre_list)
+            metadata["genre"] = list(new_genre)
             
             if tagger._requests==0:
                 tagger._finalize_loading(None)
@@ -181,12 +177,9 @@ class wikidata:
             
             log.debug('WIKIDATA: total items to update: %s ' % len(self.requests[item_id]))
             for metadata in self.requests[item_id]:
-                new_genre = metadata.getall("genre")
-                for genre in genre_list:
-                    if genre not in new_genre:
-                        new_genre.append(genre)
-                        log.debug('WIKIDATA: appending genre %s' % genre)
-                metadata["genre"] = new_genre
+                new_genre = set(metadata.getall("genre"))
+                new_genre.update(genre_list)
+                metadata["genre"] = list(new_genre)
                 self.cache[item_id]=genre_list
                 log.debug('WIKIDATA: setting genre : %s ' % genre_list)
                 
