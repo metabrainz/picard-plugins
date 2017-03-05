@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright © 2016 Daniel sobey <dns@dns.id.au >
 
 # This work is free. You can redistribute it and/or modify it under the
@@ -7,7 +8,7 @@
 PLUGIN_NAME = 'wikidata-genre'
 PLUGIN_AUTHOR = 'Daniel Sobey'
 PLUGIN_DESCRIPTION = 'query wikidata to get genre tags'
-PLUGIN_VERSION = '0.1'
+PLUGIN_VERSION = '0.2'
 PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
@@ -54,7 +55,9 @@ class wikidata:
         if item_id in self.cache.keys():
             log.info('WIKIDATA: found in cache')
             genre_list=self.cache.get(item_id);
-            metadata["genre"] = genre_list
+            new_genre = set(metadata.getall("genre"))
+            new_genre.update(genre_list)
+            metadata["genre"] = list(new_genre)
             
             if tagger._requests==0:
                 tagger._finalize_loading(None)
@@ -127,6 +130,7 @@ class wikidata:
                 if tagger._requests==0: 
                     tagger._finalize_loading(None)
                 log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % tagger._requests)
+            del self.requests[item_id]
             self.lock.release()
             
     def process_wikidata(self,wikidata_url,item_id):
@@ -162,7 +166,7 @@ class wikidata:
                                     list1=node1.children.get('name')
                                     for node2 in list1:
                                         if node2.attribs.get('lang')=='en':
-                                            genre=node2.text
+                                            genre=node2.text.title()
                                             genre_list.append(genre)
                                             log.debug('Our genre is: %s' % genre)
                                             
@@ -173,13 +177,9 @@ class wikidata:
             
             log.debug('WIKIDATA: total items to update: %s ' % len(self.requests[item_id]))
             for metadata in self.requests[item_id]:
-                new_genre=[]
-                new_genre.append(metadata["genre"])
-                for str in genre_list:
-                    if str not in new_genre:
-                        new_genre.append(str)
-                        log.debug('WIKIDATA: appending genre %s' % str)
-                metadata["genre"] = new_genre
+                new_genre = set(metadata.getall("genre"))
+                new_genre.update(genre_list)
+                metadata["genre"] = list(new_genre)
                 self.cache[item_id]=genre_list
                 log.debug('WIKIDATA: setting genre : %s ' % genre_list)
                 
@@ -193,6 +193,7 @@ class wikidata:
             if tagger._requests==0:
                 tagger._finalize_loading(None)
             log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % tagger._requests)
+        del self.requests[item_id]
         self.lock.release()
         
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
