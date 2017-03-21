@@ -77,8 +77,10 @@ class CuesheetTrack(list):
 
 class Cuesheet(object):
 
-    def __init__(self, filename):
+    def __init__(self, filename, idx="1"):
         self.filename = filename
+        if idx != "1":
+            self.filename = filename[:filename.rfind('.')] + '-%s.cue' % idx
         self.tracks = []
 
     def read(self):
@@ -150,30 +152,33 @@ class GenerateCuesheet(BaseAction):
             None, "", current_directory, "Cuesheet (*.cue)")
         if filename:
             filename = unicode(filename)
-            cuesheet = Cuesheet(filename)
-            #try: cuesheet.read()
-            #except IOError: pass
-            while len(cuesheet.tracks) <= len(album.tracks):
-                track = CuesheetTrack(cuesheet, len(cuesheet.tracks))
-                cuesheet.tracks.append(track)
-            #if len(cuesheet.tracks) > len(album.tracks) - 1:
-            #    cuesheet.tracks = cuesheet.tracks[0:len(album.tracks)+1]
 
-            t = cuesheet.tracks[0]
-            t.set("PERFORMER", album.metadata["albumartist"])
-            t.set("TITLE", album.metadata["album"])
-            t.set("REM", "MUSICBRAINZ_ALBUM_ID", album.metadata["musicbrainz_albumid"])
-            t.set("REM", "MUSICBRAINZ_ALBUM_ARTIST_ID", album.metadata["musicbrainz_albumartistid"])
-            if "date" in album.metadata:
-                t.set("REM", "DATE", album.metadata["date"])
-            index = 0.0
-            for i, track in enumerate(album.tracks):
+            currentDiscNumber = None
+            idx = 0
+            cuesheet = None
+            for track in album.tracks:
+                if not currentDiscNumber or track.metadata["discnumber"] != currentDiscNumber:
+                    if cuesheet:
+                        cuesheet.write()
+                    currentDiscNumber = track.metadata["discnumber"]
+                    cuesheet = Cuesheet(filename, currentDiscNumber)
+                    cuesheet.tracks = [CuesheetTrack(cuesheet, 0)] + [CuesheetTrack(cuesheet, i + 1) for i, x in enumerate(album.tracks) if x.metadata["discnumber"] == currentDiscNumber]
+                    t = cuesheet.tracks[0]
+                    t.set("PERFORMER", album.metadata["albumartist"])
+                    t.set("TITLE", album.metadata["album"])
+                    t.set("REM", "MUSICBRAINZ_ALBUM_ID", album.metadata["musicbrainz_albumid"])
+                    t.set("REM", "MUSICBRAINZ_ALBUM_ARTIST_ID", album.metadata["musicbrainz_albumartistid"])
+                    if "date" in album.metadata:
+                        t.set("REM", "DATE", album.metadata["date"])
+                    index = 0.0
+                    idx = 0
+
                 mm = index / 60.0
                 ss = (mm - int(mm)) * 60.0
                 ff = (ss - int(ss)) * 75.0
                 index += track.metadata.length / 1000.0
-                t = cuesheet.tracks[i + 1]
-                t.set("TRACK", "%02d" % (i + 1), "AUDIO")
+                t = cuesheet.tracks[idx + 1]
+                t.set("TRACK", "%02d" % (idx + 1), "AUDIO")
                 t.set("PERFORMER", track.metadata["artist"])
                 t.set("TITLE", track.metadata["title"])
                 t.set("REM", "MUSICBRAINZ_TRACK_ID", track.metadata["musicbrainz_trackid"])
@@ -183,7 +188,8 @@ class GenerateCuesheet(BaseAction):
                     audio_filename = file.filename
                     if os.path.dirname(filename) == os.path.dirname(audio_filename):
                         audio_filename = os.path.basename(audio_filename)
-                    cuesheet.tracks[i].set("FILE", audio_filename, "MP3")
+                    cuesheet.tracks[idx + 1].set("FILE", audio_filename, "MP3")
+                idx += 1
 
             cuesheet.write()
 
