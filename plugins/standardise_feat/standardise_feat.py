@@ -12,15 +12,15 @@ from picard.plugin import PluginPriority
 _feat_re = re.compile(r" f(ea)?t(\.|uring)? ", re.IGNORECASE)
 
 
-def standardise_feat(artists, artists_list):
+def standardise_feat(artists_str, artists_list):
     match_exp = r"(\s*.*\s*)".join((map(re.escape, artists_list)))
     try:
-        join_phrases = re.match(match_exp, artists).groups()
+        join_phrases = re.match(match_exp, artists_str).groups()
     except AttributeError:
-        log.debug("Unable to standardise artists: %r", artists)
-        return artists
+        log.debug("Unable to standardise artists: %r", artists_str)
+        return artists_str
     else:
-        standardised_join_phrases = [re.sub(_feat_re, " feat. ", phrase)
+        standardised_join_phrases = [_feat_re.sub(" feat. ", phrase)
                                      for phrase in join_phrases]
         # Add a blank string at the end to allow zipping of
         # join phrases and artists_list since there is one less join phrase
@@ -35,8 +35,8 @@ def standardise_track_artist(tagger, metadata, release, track):
 
 
 def standardise_album_artist(tagger, metadata, release):
-    metadata["albumartist"] = standardise_feat(metadata["albumartist"], metadata.getall("albumartistsort"))
-    metadata["~albumartists"] = standardise_feat(metadata["~albumartists"], metadata.getall("~albumartists_sort"))
+    metadata["albumartist"] = standardise_feat(metadata["albumartist"], metadata.getall("~albumartists"))
+    metadata["albumartistsort"] = standardise_feat(metadata["albumartistsort"], metadata.getall("~albumartists_sort"))
 
 
 register_track_metadata_processor(standardise_track_artist, priority=PluginPriority.HIGH)
