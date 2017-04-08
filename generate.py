@@ -105,7 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('--no-zip', action='store_false', dest='zip')
     parser.add_argument('--no-json', action='store_false', dest='json')
     args = parser.parse_args()
-    if args.version == 'v1' or args.version is None:
+    if args.version is None:
         call(["git", "checkout", "-q", 'master', '--', 'plugins'])
     else:
         call(["git", "checkout", "-q", args.version, '--', 'plugins'])
