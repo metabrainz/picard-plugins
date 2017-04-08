@@ -12,7 +12,7 @@ from subprocess import call
 from get_plugin_data import get_plugin_data
 
 
-def build_json(build_dir, version=None):
+def build_json(build_dir='build', version=None):
     """
     Traverse the plugins directory to generate json data.
     """
@@ -53,7 +53,7 @@ def build_json(build_dir, version=None):
         json.dump({"plugins": plugins}, out_file, sort_keys=True, indent=2)
 
 
-def zip_files(build_dir, version=None):
+def zip_files(build_dir='build', version=None):
     """
     Zip up plugin folders
     """
