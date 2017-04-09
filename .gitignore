@@ -9,3 +9,4 @@ __pycache__/
 # Distribution / packaging
 .Python
 env/
+build/

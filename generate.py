@@ -1,21 +1,24 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from __future__ import print_function
+import argparse
 import os
-import re
-import sys
 import json
-
 import zipfile
-import zlib
 
 from hashlib import md5
 from subprocess import call
 
 from get_plugin_data import get_plugin_data
 
+VERSION_TO_BRANCH = {
+    None: 'master',
+    '1.0': 'master',
+    '2.0': '2.0',
+}
 
-def build_json():
+
+def build_json(dest_dir):
     """
     Traverse the plugins directory to generate json data.
     """
@@ -49,18 +52,18 @@ def build_json():
             print("Added: " + dirname)
             data['files'] = files
             plugins[dirname] = data
-
-    with open(plugin_file, "w") as out_file:
+    out_path = os.path.join(dest_dir, plugin_file)
+    with open(out_path, "w") as out_file:
         json.dump({"plugins": plugins}, out_file, sort_keys=True, indent=2)
 
 
-def zip_files():
+def zip_files(dest_dir):
     """
     Zip up plugin folders
     """
 
     for dirname in next(os.walk(plugin_dir))[1]:
-        archive_path = os.path.join(plugin_dir, dirname)
+        archive_path = os.path.join(dest_dir, dirname)
         archive = zipfile.ZipFile(archive_path + ".zip", "w")
 
         dirpath = os.path.join(plugin_dir, dirname)
@@ -96,14 +99,20 @@ plugin_file = "plugins.json"
 plugin_dir = "plugins"
 
 if __name__ == '__main__':
-    if 1 in sys.argv:
-        if sys.argv[1] == "pull":
-            call(["git", "pull", "-q"])
-        elif sys.argv[1] == "json":
-            build_json()
-        elif sys.argv[1] == "zip":
-            zip_files()
-    else:
-        # call(["git", "pull", "-q"])
-        build_json()
-        zip_files()
+    parser = argparse.ArgumentParser(description='Generate plugin files for Picard website.')
+    parser.add_argument('version', nargs='?', help="Build output files for the specified version")
+    parser.add_argument('--build_dir', default="build", help="Path for the build output. DEFAULT = %(default)s")
+    parser.add_argument('--pull', action='store_true', dest='pull', help="Pulls the remote origin and updates the files before building")
+    parser.add_argument('--no-zip', action='store_false', dest='zip', help="Do not generate the zip files in the build output")
+    parser.add_argument('--no-json', action='store_false', dest='json', help="Do not generate the json file in the build output")
+    args = parser.parse_args()
+    call(["git", "checkout", "-q", VERSION_TO_BRANCH[args.version], '--', 'plugins'])
+    dest_dir = os.path.abspath(os.path.join(args.build_dir, args.version or ''))
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
+    if args.pull:
+        call(["git", "pull", "-q"])
+    if args.json:
+        build_json(dest_dir)
+    if args.zip:
+        zip_files(dest_dir)
