@@ -1,25 +1,16 @@
-from __future__ import print_function
 import os
 import glob
-import sys
+import json
 import shutil
 import tempfile
 import unittest
+from generate import build_json, zip_files
+
 # python 2 & 3 compatibility
 try:
     basestring
 except NameError:
     basestring = str
-
-from generate import *
-
-
-if sys.version_info[:2] == (2, 6):
-    def assertIsInstance(self, obj, cls, msg=None):
-        if not isinstance(obj, cls):
-            self.fail('%s is not an instance of %r' % (repr(obj), cls))
-
-    unittest.TestCase.assertIsInstance = assertIsInstance
 
 
 class GenerateTestCase(unittest.TestCase):
@@ -74,7 +65,7 @@ class GenerateTestCase(unittest.TestCase):
         plugin_zips = glob.glob(os.path.join(self.dest_dir, "*.zip"))
 
         # All top level directories in plugin_dir
-        plugin_folders = next(os.walk(plugin_dir))[1]
+        plugin_folders = next(os.walk(self.PLUGIN_DIR))[1]
 
         # Number of folders should be equal to number of zips
         self.assertEqual(len(plugin_zips), len(plugin_folders))
