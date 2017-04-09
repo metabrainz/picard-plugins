@@ -100,11 +100,11 @@ plugin_dir = "plugins"
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate plugin files for Picard website.')
-    parser.add_argument('version', nargs='?')
-    parser.add_argument('--build_dir', default="build")
-    parser.add_argument('--pull', action='store_true', dest='pull')
-    parser.add_argument('--no-zip', action='store_false', dest='zip')
-    parser.add_argument('--no-json', action='store_false', dest='json')
+    parser.add_argument('version', nargs='?', help="Build output files for the specified version")
+    parser.add_argument('--build_dir', default="build", help="Path for the build output. DEFAULT = %(default)s")
+    parser.add_argument('--pull', action='store_true', dest='pull', help="Pulls the remote origin and updates the files before building")
+    parser.add_argument('--no-zip', action='store_false', dest='zip', help="Do not generate the zip files in the build output")
+    parser.add_argument('--no-json', action='store_false', dest='json', help="Do not generate the json file in the build output")
     args = parser.parse_args()
     call(["git", "checkout", "-q", VERSION_TO_BRANCH[args.version], '--', 'plugins'])
     dest_dir = os.path.abspath(os.path.join(args.build_dir, args.version or ''))
