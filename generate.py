@@ -106,7 +106,11 @@ if __name__ == '__main__':
     parser.add_argument('--no-zip', action='store_false', dest='zip', help="Do not generate the zip files in the build output")
     parser.add_argument('--no-json', action='store_false', dest='json', help="Do not generate the json file in the build output")
     args = parser.parse_args()
-    call(["git", "checkout", "-q", VERSION_TO_BRANCH[args.version], '--', 'plugins'])
+    # Work around in order to checkout the plugins folder from another branch
+    # A simple git checkout does not remove folders removed from another branch
+    # but it does add new nodes.
+    call(["rm", "-rf", plugin_dir+"/*"])
+    call(["git", "checkout", "-q", VERSION_TO_BRANCH[args.version], "--", plugin_dir])
     dest_dir = os.path.abspath(os.path.join(args.build_dir, args.version or ''))
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
@@ -116,3 +120,5 @@ if __name__ == '__main__':
         build_json(dest_dir)
     if args.zip:
         zip_files(dest_dir)
+    # Resetting the plugins folder for cleanup
+    call(["git", "reset", "-q", plugin_dir])
