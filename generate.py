@@ -11,8 +11,14 @@ from subprocess import call
 
 from get_plugin_data import get_plugin_data
 
+VERSION_TO_BRANCH = {
+    None: 'master',
+    '1.0': 'master',
+    '2.0': '2.0',
+}
 
-def build_json(build_dir='build', version=None):
+
+def build_json(dest_dir):
     """
     Traverse the plugins directory to generate json data.
     """
@@ -46,23 +52,18 @@ def build_json(build_dir='build', version=None):
             print("Added: " + dirname)
             data['files'] = files
             plugins[dirname] = data
-    out_path = plugin_file
-    if version:
-        out_path = os.path.join(build_dir, version, plugin_file)
+    out_path = os.path.join(dest_dir, plugin_file)
     with open(out_path, "w") as out_file:
         json.dump({"plugins": plugins}, out_file, sort_keys=True, indent=2)
 
 
-def zip_files(build_dir='build', version=None):
+def zip_files(dest_dir):
     """
     Zip up plugin folders
     """
 
     for dirname in next(os.walk(plugin_dir))[1]:
-        if version:
-            archive_path = os.path.join(os.path.dirname(plugin_dir), build_dir, version, dirname)
-        else:
-            archive_path = os.path.join(plugin_dir, dirname)
+        archive_path = os.path.join(dest_dir, dirname)
         archive = zipfile.ZipFile(archive_path + ".zip", "w")
 
         dirpath = os.path.join(plugin_dir, dirname)
@@ -105,15 +106,13 @@ if __name__ == '__main__':
     parser.add_argument('--no-zip', action='store_false', dest='zip')
     parser.add_argument('--no-json', action='store_false', dest='json')
     args = parser.parse_args()
-    if args.version is None:
-        call(["git", "checkout", "-q", 'master', '--', 'plugins'])
-    else:
-        call(["git", "checkout", "-q", args.version, '--', 'plugins'])
-    if args.version and not os.path.exists(os.path.join(args.build_dir, args.version)):
-        os.makedirs(os.path.join(args.build_dir, args.version))
+    call(["git", "checkout", "-q", VERSION_TO_BRANCH[args.version], '--', 'plugins'])
+    dest_dir = os.path.abspath(os.path.join(args.build_dir, args.version or ''))
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
     if args.pull:
         call(["git", "pull", "-q"])
     if args.json:
-        build_json(args.build_dir, args.version)
+        build_json(dest_dir)
     if args.zip:
-        zip_files(args.build_dir, args.version)
+        zip_files(dest_dir)
