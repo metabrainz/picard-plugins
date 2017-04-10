@@ -4,7 +4,7 @@ PLUGIN_NAME = u'No release'
 PLUGIN_AUTHOR = u'Johannes Weißl'
 PLUGIN_DESCRIPTION = '''Do not store specific release information in releases of unknown origin.'''
 PLUGIN_VERSION = '0.1'
-PLUGIN_API_VERSIONS = ['0.15']
+PLUGIN_API_VERSIONS = ['0.15', "2.0"]
 
 from PyQt5 import QtCore, QtWidgets
 
