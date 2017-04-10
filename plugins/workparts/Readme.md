@@ -1,0 +1,11 @@
+This is the first version of "workparts.py".
+It populates the metadata tags with information from the MusicBrainz database about the work(s) of which the track is a recording, and the work(s) of which they are a part, passing up through mutiple work-part levels until the top is reached.
+This is particularly designed to assist with tagging of classical music so that players or library managers which can display multiple work levels can have access to them.
+This first version adds custom fields for work_0 (& workId_0) being the bottom level and work_parent_n (& work_parentId_n) for each successive level n above that.
+If there is more than one work at the bottom level, then it should create work_0.1 etc, but I haven't found a suitable album to test that (and arguably it is bad style to have more than one...). If there is more than one "parent" work of a lower level work, it uses the one with the longest name, on the grounds that the longest-named is likely to be the lowest level; this might possibly be improved.
+Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to Daniel Sobey for assistance in dealing with this and to Sophist for the albumartist_website code which I have used extensively. I have tried to add some more comments to help any others trying the same techniques. There are also extensive log.info and log.debug statements which could be slimmed down once testing is complete. 
+Planned enhancements (among others) are 
+(a) to include discrimination as to type of parts relationship (i.e. exclude irrelevant parents)
+(b) to add arranger and any other relevant metadata relating to a work which is not in the standard Picard tags
+(c) to generate "stripped" versions of the part levels, such that the higher level work text is not repeated in the lowere levels
+(d) to generate specific  3-level or 2-level tags to assist library managers / players in using the data (e.g. Group Header, Subheader and Title (part) for Muso; Work and Movement for iTunes).
