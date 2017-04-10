@@ -46,9 +46,9 @@ class Ui_NoReleaseOptionsPage(object):
         QtCore.QMetaObject.connectSlotsByName(NoReleaseOptionsPage)
 
     def retranslateUi(self, NoReleaseOptionsPage):
-        self.groupBox.setTitle(QtWidgets.QApplication.translate('NoReleaseOptionsPage', 'No release', None, QtWidgets.QApplication.UnicodeUTF8))
-        self.norelease_enable.setText(QtWidgets.QApplication.translate('NoReleaseOptionsPage', _('Enable plugin for all releases by default'), None, QtWidgets.QApplication.UnicodeUTF8))
-        self.label.setText(QtWidgets.QApplication.translate('NoReleaseOptionsPage', _('Tags to strip (comma-separated)'), None, QtWidgets.QApplication.UnicodeUTF8))
+        self.groupBox.setTitle(_('No release'))
+        self.norelease_enable.setText(_('Enable plugin for all releases by default'))
+        self.label.setText(_('Tags to strip (comma-separated)'))
 
 
 def strip_release_specific_metadata(tagger, metadata):
