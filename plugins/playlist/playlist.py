@@ -23,7 +23,7 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 import os.path
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtWidgets
 from picard import log
 from picard.const import VARIOUS_ARTISTS_ID
 from picard.util import find_existing_path, encode_filename
@@ -97,7 +97,7 @@ class GeneratePlaylist(BaseAction):
         if _debug_level > 1:
             log.debug("{}: default playlist filename sanitized to {}".format(
                     PLUGIN_NAME, default_filename))
-        b_filename, b_selected_format = QtGui.QFileDialog.getSaveFileNameAndFilter(
+        b_filename, b_selected_format = QtWidgets.QFileDialog.getSaveFileNameAndFilter(
             None, "Save new playlist",
             os.path.join(current_directory, default_filename),
             "Playlist (*.m3u8 *.m3u)"
