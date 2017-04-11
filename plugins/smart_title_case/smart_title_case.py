@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+
 # This is the Smart Title Case plugin for MusicBrainz Picard.
 # Copyright (C) 2017 Sophist.
 #
