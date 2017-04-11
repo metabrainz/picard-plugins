@@ -111,17 +111,21 @@ def title_case(tagger, metadata, release, track=None):
             artist = metadata.getall(artist_string)
             artists = metadata.getall(artists_list)
             new_artists = map(string_title_case, artists)
-            new_artist = [artist_title_case(x, artists, new_artists) for x in values]
+            new_artist = [artist_title_case(x, artists, new_artists) for x in artist]
             if artists != new_artists and artist != new_artist:
                 log.debug("SmartTitleCase: %s: %s replaced with %s", artist_string, artist, new_artist)
-                log.debug("SmartTitleCase: %s: %r replaced with %r", artist_list, artists, new_artists)
+                log.debug("SmartTitleCase: %s: %r replaced with %r", artists_list, artists, new_artists)
                 metadata[artist_string] = new_artist
                 metadata[artists_list] = new_artists
             elif artists != new_artists or artist != new_artist:
                 if artists != new_artists:
                     log.warning("SmartTitleCase: %s changed, %s wasn't", artists_list, artist_string)
+                    log.warning("SmartTitleCase: %s: %r changed to %r", artists_list, artists, new_artists)
+                    log.warning("SmartTitleCase: %s: %r unchanged", artist_string, artist)
                 else:
                     log.warning("SmartTitleCase: %s changed, %s wasn't", artist_string, artists_list)
+                    log.warning("SmartTitleCase: %s: %r changed to %r", artist_string, artist, new_artist)
+                    log.warning("SmartTitleCase: %s: %r unchanged", artists_list, artists)
 
 register_track_metadata_processor(title_case)
 register_album_metadata_processor(title_case)
