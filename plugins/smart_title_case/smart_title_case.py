@@ -20,11 +20,6 @@ PLUGIN_LICENSE = "GPL-3.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 
 import re, unicodedata
-from picard import log
-from picard.metadata import (
-    register_track_metadata_processor,
-    register_album_metadata_processor,
-)
 
 title_tags = ['title', 'album']
 artist_tags = [
@@ -33,7 +28,7 @@ artist_tags = [
     ('albumartist', '~albumartists'),
     ('albumartistsort', '~albumartists_sort'),
     ]
-title_re = re.compile(r'\S+', re.UNICODE)
+title_re = re.compile(r'\w\S*', re.UNICODE)
 
 def match_word(match):
     word = match.group(0)
@@ -51,13 +46,21 @@ def string_title_case(string, locale="utf-8"):
     string = unicodedata.normalize("NFKC", string)
     return title_re.sub(match_word, string)
 
-assert "Make Title" == string_title_case("make title")
-assert "mAkE tItLe" == string_title_case("mAkE tItLe")
-assert "Make's Title's" == string_title_case("make's title's")
+assert "Make Title Case" == string_title_case("make title case")
+assert "Already Title Case" == string_title_case("Already Title Case")
+assert "mIxEd cAsE" == string_title_case("mIxEd cAsE")
+assert "A" == string_title_case("a")
+assert "Apostrophe's Apostrophe's" == string_title_case("apostrophe's apostrophe's")
+assert "(Bracketed Text)" == string_title_case("(bracketed text)")
+assert "'Single Quotes'" == string_title_case("'single quotes'")
+assert '"Double Quotes"' == string_title_case('"double quotes"')
 
-def match_phrase(match):
-    phrase = match.group(0)
-    return string_title_case(phrase)
+# Put this here so that above unit tests can run standalone before getting an import error
+from picard import log
+from picard.metadata import (
+    register_track_metadata_processor,
+    register_album_metadata_processor,
+)
 
 def artist_title_case(text, artists):
     """
