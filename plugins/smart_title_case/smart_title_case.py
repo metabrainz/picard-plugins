@@ -73,7 +73,7 @@ def artist_title_case(text, artists):
     to identify artists to make title case
     and the join strings to leave as-is.
     """
-    find = u"^(" + ur")(\s+\S+?\s+)(".join((map(re.escape, artists))) + u")(.*$)"
+    find = u"^(" + ur")(\s+\S+?\s+)(".join((map(re.escape, map(string_cleanup,artists)))) + u")(.*$)"
     replace = "".join([ur"%s\%d" % (string_title_case(a), x*2 + 2) for x, a in enumerate(artists)])
     result = re.sub(find, replace, string_cleanup(text), re.UNICODE)
     if result != text:
