@@ -36,15 +36,20 @@ def match_word(match):
         word = word[0].upper() + word[1:]
     return word
 
-def string_title_case(string, locale="utf-8"):
-    """Title-case a string using a less destructive method than str.title."""
+def string_title_match(match_word, string):
+    return title_re.sub(match_word, string)
+
+def string_cleanup(string, locale="utf-8"):
     if not string:
         return u""
     if not isinstance(string, unicode):
         string = string.decode(locale)
     # Replace with normalised unicode string
-    string = unicodedata.normalize("NFKC", string)
-    return title_re.sub(match_word, string)
+    return unicodedata.normalize("NFKC", string)
+
+def string_title_case(string, locale="utf-8"):
+    """Title-case a string using a less destructive method than str.title."""
+    return string_title_match(match_word, string_cleanup(string, locale))
 
 assert "Make Title Case" == string_title_case("make title case")
 assert "Already Title Case" == string_title_case("Already Title Case")
@@ -70,9 +75,10 @@ def artist_title_case(text, artists):
     """
     find = u"^(" + ur")(\s+\S+?\s+)(".join((map(re.escape, artists))) + u")(.*$)"
     replace = "".join([ur"%s\%d" % (string_title_case(a), x*2 + 2) for x, a in enumerate(artists)])
-    result = re.sub(find, replace, text, re.UNICODE)
-    log.debug("SmartTitleCase: %r replaced with %r", text, result)
-    return
+    result = re.sub(find, replace, string_cleanup(text), re.UNICODE)
+    if result != text:
+        log.debug("SmartTitleCase: %r replaced with %r", text, result)
+    return result
 
 assert "The Beatles feat. The Who" == artist_title_case("the beatles feat. the who", ["the beatles", "the who"])
 
