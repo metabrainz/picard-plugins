@@ -67,20 +67,24 @@ from picard.metadata import (
     register_album_metadata_processor,
 )
 
-def artist_title_case(text, artists):
+def artist_title_case(text, artists, artists_upper):
     """
     Use the array of artists and the joined string
     to identify artists to make title case
     and the join strings to leave as-is.
     """
     find = u"^(" + ur")(\s+\S+?\s+)(".join((map(re.escape, map(string_cleanup,artists)))) + u")(.*$)"
-    replace = "".join([ur"%s\%d" % (string_title_case(a), x*2 + 2) for x, a in enumerate(artists)])
+    replace = "".join([ur"%s\%d" % (a, x*2 + 2) for x, a in enumerate(artists_upper)])
     result = re.sub(find, replace, string_cleanup(text), re.UNICODE)
     if result != text:
         log.debug("SmartTitleCase: %r replaced with %r", text, result)
     return result
 
-assert "The Beatles feat. The Who" == artist_title_case("the beatles feat. the who", ["the beatles", "the who"])
+assert "The Beatles feat. The Who" == artist_title_case(
+                                        "the beatles feat. the who",
+                                        ["the beatles", "the who"],
+                                        ["The Beatles", "The Who"]
+                                        )
 
 def title_case(tagger, metadata, release, track=None):
     for name in title_tags:
@@ -91,7 +95,9 @@ def title_case(tagger, metadata, release, track=None):
         if artist_string in metadata and artists_list in metadata:
             values = metadata.getall(artist_string)
             artists = metadata.getall(artists_list)
-            metadata[artist_string] = [artist_title_case(x, artists) for x in values]
+            new_artists = map(string_title_case, artists)
+            metadata[artist_string] = [artist_title_case(x, artists, new_artists) for x in values]
+            metadata[artists_list] = new_artists
 
 register_track_metadata_processor(title_case)
 register_album_metadata_processor(title_case)
