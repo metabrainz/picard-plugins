@@ -39,7 +39,7 @@ artist_tags = [
     ('albumartist', '~albumartists'),
     ('albumartistsort', '~albumartists_sort'),
     ]
-title_re = re.compile(r'\w\S*', re.UNICODE)
+title_re = re.compile(r'\w[^-,/\s]*', re.UNICODE)
 
 def match_word(match):
     word = match.group(0)
@@ -70,6 +70,9 @@ assert "Apostrophe's Apostrophe's" == string_title_case("apostrophe's apostrophe
 assert "(Bracketed Text)" == string_title_case("(bracketed text)")
 assert "'Single Quotes'" == string_title_case("'single quotes'")
 assert '"Double Quotes"' == string_title_case('"double quotes"')
+assert "A,B" == string_title_case("a,b")
+assert "A-B" == string_title_case("a-b")
+assert "A/B" == string_title_case("a/b")
 
 # Put this here so that above unit tests can run standalone before getting an import error
 from picard import log
@@ -87,8 +90,6 @@ def artist_title_case(text, artists, artists_upper):
     find = u"^(" + ur")(\s+\S+?\s+)(".join((map(re.escape, map(string_cleanup,artists)))) + u")(.*$)"
     replace = "".join([ur"%s\%d" % (a, x*2 + 2) for x, a in enumerate(artists_upper)])
     result = re.sub(find, replace, string_cleanup(text), re.UNICODE)
-    if result != text:
-        log.debug("SmartTitleCase: %r replaced with %r", text, result)
     return result
 
 assert "The Beatles feat. The Who" == artist_title_case(
@@ -101,14 +102,26 @@ def title_case(tagger, metadata, release, track=None):
     for name in title_tags:
         if name in metadata:
             values = metadata.getall(name)
-            metadata[name] = [string_title_case(v) for v in values]
+            new_values = [string_title_case(v) for v in values]
+            if values != new_values:
+                log.debug("SmartTitleCase: %s: %r replaced with %r", name, values, new_values)
+                metadata[name] = new_values
     for artist_string, artists_list in artist_tags:
         if artist_string in metadata and artists_list in metadata:
-            values = metadata.getall(artist_string)
+            artist = metadata.getall(artist_string)
             artists = metadata.getall(artists_list)
             new_artists = map(string_title_case, artists)
-            metadata[artist_string] = [artist_title_case(x, artists, new_artists) for x in values]
-            metadata[artists_list] = new_artists
+            new_artist = [artist_title_case(x, artists, new_artists) for x in values]
+            if artists != new_artists and artist != new_artist:
+                log.debug("SmartTitleCase: %s: %s replaced with %s", artist_string, artist, new_artist)
+                log.debug("SmartTitleCase: %s: %r replaced with %r", artist_list, artists, new_artists)
+                metadata[artist_string] = new_artist
+                metadata[artists_list] = new_artists
+            elif artists != new_artists or artist != new_artist:
+                if artists != new_artists:
+                    log.warning("SmartTitleCase: %s changed, %s wasn't", artists_list, artist_string)
+                else:
+                    log.warning("SmartTitleCase: %s changed, %s wasn't", artist_string, artists_list)
 
 register_track_metadata_processor(title_case)
 register_album_metadata_processor(title_case)
