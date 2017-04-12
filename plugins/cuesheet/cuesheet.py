@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = u"Generate Cuesheet"
-PLUGIN_AUTHOR = u"Lukáš Lalinský"
+PLUGIN_NAME = "Generate Cuesheet"
+PLUGIN_AUTHOR = "Lukáš Lalinský, Sambhav Kothari"
 PLUGIN_DESCRIPTION = "Generate cuesheet (.cue file) from an album."
-PLUGIN_VERSION = "0.2"
-PLUGIN_API_VERSIONS = ["0.10", "0.15"]
+PLUGIN_VERSION = "1.0"
+PLUGIN_API_VERSIONS = ["2.0"]
 
 
 import os.path
@@ -42,8 +42,8 @@ class CuesheetTrack(list):
     def getLength(self):
         try:
             nextTrack = self.cuesheet.tracks[self.index + 1]
-            index0 = self.find((u"INDEX", u"01"))
-            index1 = nextTrack.find((u"INDEX", u"01"))
+            index0 = self.find(("INDEX", "01"))
+            index1 = nextTrack.find(("INDEX", "01"))
             return msfToMs(index1[0][2]) - msfToMs(index0[0][2])
         except IndexError:
             return 0
@@ -52,25 +52,25 @@ class CuesheetTrack(list):
         try:
             return self.find(prefix)[0][len(prefix)]
         except IndexError:
-            return u""
+            return ""
 
     def getArtist(self):
-        return self.getField((u"PERFORMER",))
+        return self.getField(("PERFORMER",))
 
     def getTitle(self):
-        return self.getField((u"TITLE",))
+        return self.getField(("TITLE",))
 
     def setArtist(self, artist):
         found = False
         for item in self:
-            if item[0] == u"PERFORMER":
+            if item[0] == "PERFORMER":
                 if not found:
                     item[1] = artist
                     found = True
                 else:
                     del item
         if not found:
-            self.append((u"PERFORMER", artist))
+            self.append(("PERFORMER", artist))
 
     artist = property(getArtist, setArtist)
 
@@ -133,7 +133,7 @@ class Cuesheet(object):
                         indent = 2
                     elif line[0] != "FILE":
                         indent = 4
-                line2 = u" ".join([self.quote(s) for s in line])
+                line2 = " ".join([self.quote(s) for s in line])
                 lines.append(" " * indent + line2.encode("UTF-8") + "\n")
         with open(encode_filename(self.filename), "wt") as f:
             f.writelines(lines)
@@ -145,11 +145,11 @@ class GenerateCuesheet(BaseAction):
     def callback(self, objs):
         album = objs[0]
         current_directory = self.config.persist["current_directory"] or QtCore.QDir.homePath()
-        current_directory = find_existing_path(unicode(current_directory))
+        current_directory = find_existing_path(string_(current_directory))
         filename, selected_format = QtWidgets.QFileDialog.getSaveFileName(
             None, "", current_directory, "Cuesheet (*.cue)")
         if filename:
-            filename = unicode(filename)
+            filename = string_(filename)
             cuesheet = Cuesheet(filename)
             #try: cuesheet.read()
             #except IOError: pass
