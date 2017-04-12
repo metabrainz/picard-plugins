@@ -28,7 +28,7 @@ import os
 import sys
 import time
 import copy
-import urllib
+import urllib.request, urllib.parse, urllib.error
 try:
     import json
 except ImportError:
@@ -67,21 +67,19 @@ class TimedCache():
         curr_time = time.time()
         if curr_time - self.last_cleanup > CACHE_TLENGTH:
             if self.verbose:
-                print 'we cleanup cache'
+                print('we cleanup cache')
             new_stuff = {}
-            new_stuff.update(filter(
-                lambda x: curr_time - x[1][0] < CACHE_TLENGTH,
-                self.stuff.items()))
+            new_stuff.update([x for x in list(self.stuff.items()) if curr_time - x[1][0] < CACHE_TLENGTH])
             self.stuff = new_stuff
             self.last_cleanup = curr_time
         # add object to cache (try/except should be useless now)
         try:
             hashcode = hash(query)
             if self.verbose:
-                print 'cache, hashcode is:', hashcode
+                print('cache, hashcode is:', hashcode)
             self.stuff[hashcode] = (time.time(), copy.deepcopy(res))
-        except TypeError, e:
-            print 'Error, stuff not hashable:', e
+        except TypeError as e:
+            print('Error, stuff not hashable:', e)
             pass
 
     def query_cache(self, query):
@@ -91,8 +89,8 @@ class TimedCache():
         """
         hashcode = hash(query)
         if self.verbose:
-            print 'query_cache, hashcode is:', hashcode
-        if hashcode in self.stuff.keys():
+            print('query_cache, hashcode is:', hashcode)
+        if hashcode in list(self.stuff.keys()):
             data = self.stuff[hashcode]
             if time.time() - data[0] > CACHE_TLENGTH:
                 self.stuff.pop(hashcode)
@@ -126,25 +124,25 @@ def call(method, params, nocaching=False):
       params     - dictionary of params, e.g. track_id -> 123
       nocaching  - set to True to disable caching
     """
-    for k, v in params.items():
-        if isinstance(v, unicode):
+    for k, v in list(params.items()):
+        if isinstance(v, str):
             params[k] = v.encode('utf-8')
     # sanity checks
     params['format'] = 'json'
-    if not 'apikey' in params.keys() or params['apikey'] is None:
+    if not 'apikey' in list(params.keys()) or params['apikey'] is None:
         params['apikey'] = MUSIXMATCH_API_KEY
     if params['apikey'] is None:
         raise MusixMatchAPIError(-1, 'EMPTY API KEY, NOT IN YOUR ENVIRONMENT?')
-    params = urllib.urlencode(params)
+    params = urllib.parse.urlencode(params)
     # caching
     if not nocaching:
-        cached_res = MXMPY_CACHE.query_cache(method + str(params))
+        cached_res = MXMPY_CACHE.query_cache(method + string_(params))
         if not cached_res is None:
             return cached_res
     # encode the url request, call
     url = 'http://%s%s%s?%s' % (API_HOST, API_SELECTOR, method, params)
     # print url
-    f = urllib.urlopen(url)
+    f = urllib.request.urlopen(url)
     response = f.read()
     # decode response into json
     response = decode_json(response)
@@ -152,7 +150,7 @@ def call(method, params, nocaching=False):
     res_checked = check_status(response)
     # cache
     if not nocaching:
-        MXMPY_CACHE.cache(method + str(params), res_checked)
+        MXMPY_CACHE.cache(method + string_(params), res_checked)
     # done
     return res_checked
 
@@ -177,13 +175,13 @@ def check_status(response):
        body of the message in JSON
        except if error was raised
     """
-    if not 'message' in response.keys():
+    if not 'message' in list(response.keys()):
         raise MusixMatchAPIError(-1)
     msg = response['message']
-    if not 'header' in msg.keys():
+    if not 'header' in list(msg.keys()):
         raise MusixMatchAPIError(-1)
     header = msg['header']
-    if not 'status_code' in header.keys():
+    if not 'status_code' in list(header.keys()):
         raise MusixMatchAPIError(-1)
     code = header['status_code']
     if code != 200:
@@ -223,4 +221,4 @@ def status_code(value):
         q = "Requested method was not found."
         return q
     # wrong code?
-    return "Unknown error code: " + str(value)
+    return "Unknown error code: " + string_(value)
