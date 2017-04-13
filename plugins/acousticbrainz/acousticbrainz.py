@@ -24,7 +24,7 @@ WARNING: Experimental plugin. All guarantees voided by use.'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 PLUGIN_VERSION = "0.0"
-PLUGIN_API_VERSIONS = ["0.15"]
+PLUGIN_API_VERSIONS = ["0.15", "2.0"]
 
 from json import loads
 from functools import partial

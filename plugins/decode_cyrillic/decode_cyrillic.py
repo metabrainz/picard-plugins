@@ -31,7 +31,7 @@ to proper UTF-8 encoded strings. If your track/album names look something like
 before running the "Lookup" or "Scan" tools
 '''
 PLUGIN_VERSION = "1.0"
-PLUGIN_API_VERSIONS = ["1.0"]
+PLUGIN_API_VERSIONS = ["1.0", "2.0"]
 PLUGIN_LICENSE = "MIT"
 PLUGIN_LICENSE_URL = "https://opensource.org/licenses/MIT"
 

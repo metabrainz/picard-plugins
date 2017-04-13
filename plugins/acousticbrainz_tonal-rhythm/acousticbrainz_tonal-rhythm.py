@@ -28,7 +28,7 @@ Note: This plugin requires Picard 1.4.'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 PLUGIN_VERSION = '0.1'
-PLUGIN_API_VERSIONS = ["1.4.0"] # Requires support for TKEY which is in 1.4
+PLUGIN_API_VERSIONS = ["1.4.0", "2.0"] # Requires support for TKEY which is in 1.4
 
 import json
 from picard import config, log

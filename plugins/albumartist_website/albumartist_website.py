@@ -5,7 +5,7 @@ PLUGIN_AUTHOR = u'Sophist'
 PLUGIN_DESCRIPTION = u'''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
 PLUGIN_VERSION = '0.6'
-PLUGIN_API_VERSIONS = ["1.4.0"]
+PLUGIN_API_VERSIONS = ["1.4.0", "2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
