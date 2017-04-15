@@ -2,7 +2,7 @@ PLUGIN_NAME = 'Feat. Artists in Titles'
 PLUGIN_AUTHOR = 'Lukas Lalinsky, Michael Wiencek, Bryan Toth'
 PLUGIN_DESCRIPTION = 'Move "feat." from artist names to album and track titles. Match is case insensitive.'
 PLUGIN_VERSION = "0.3"
-PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15", "0.16"]
+PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15", "0.16", "2.0"]
 
 from picard.metadata import register_album_metadata_processor, register_track_metadata_processor
 import re
