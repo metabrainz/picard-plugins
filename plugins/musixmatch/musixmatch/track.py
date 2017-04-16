@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
 import sys
-import util
+from . import util
 
 
 class Track(object):
@@ -71,7 +71,7 @@ class Track(object):
             body = util.call('track.get', params)
             trackdata = body['track']
         # save result
-        for k in trackdata.keys():
+        for k in list(trackdata.keys()):
             self.__setattr__(k, trackdata[k])
 
     # track.lyrics.get in the API
@@ -146,13 +146,13 @@ def search(**args):
     valid_params = ('q', 'q_track', 'q_artist', 'q_track_artist', 'q_lyrics',
                     'page', 'page_size', 'f_has_lyrics', 'f_artist_id',
                     'f_artist_mbid', 'quorum_factor', 'apikey')
-    for k in args.keys():
+    for k in list(args.keys()):
         if not k in valid_params:
             raise util.MusixMatchAPIError(-1,
                                           'Invalid track search param: ' + str(k))
     # call and gather a list of tracks
     track_list = list()
-    params = dict((k, v) for k, v in args.iteritems() if not v is None)
+    params = dict((k, v) for k, v in list(args.items()) if not v is None)
     body = util.call('track.search', params)
     track_list_dict = body["track_list"]
     for track_dict in track_list_dict:
@@ -173,12 +173,12 @@ def chart(**args):
     """
     # sanity check
     valid_params = ('page', 'page_size', 'country', 'f_has_lyrics', 'apikey')
-    for k in args.keys():
+    for k in list(args.keys()):
         if not k in valid_params:
             raise util.MusixMatchAPIError(-1, 'Invalid chart param: ' + str(k))
     # do the call and gather track list
     track_list = list()
-    params = dict((k, v) for k, v in args.iteritems() if not v is None)
+    params = dict((k, v) for k, v in list(args.items()) if not v is None)
     body = util.call('track.chart.get', params)
     track_list_dict = body["track_list"]
     for track_dict in track_list_dict:
