@@ -4,22 +4,23 @@
 #   [2015-09-24] Initial version with support for Ogg Vorbis, FLAC, WAV and MP3, tested MP3 and FLAC
 
 PLUGIN_NAME = u"Moodbars"
-PLUGIN_AUTHOR = u"Len Joubert"
+PLUGIN_AUTHOR = u"Len Joubert, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums."""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]
+PLUGIN_VERSION = "1.0"
+PLUGIN_API_VERSIONS = ["2.0"]
 #PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
 import os.path
+from functools import partial
 from collections import defaultdict
 from subprocess import check_call
 from picard.album import Album, NatAlbum
 from picard.track import Track
 from picard.file import File
-from picard.util import encode_filename, decode_filename, partial, thread
+from picard.util import encode_filename, decode_filename, thread
 from picard.ui.options import register_options_page, OptionsPage
 from picard.config import TextOption
 from picard.ui.itemviews import (BaseAction, register_file_action,
@@ -127,13 +128,13 @@ class MoodbarOptionsPage(OptionsPage):
             self.config.setting["moodbar_wav_command"])
 
     def save(self):
-        self.config.setting["moodbar_vorbis_command"] = unicode(
+        self.config.setting["moodbar_vorbis_command"] = string_(
             self.ui.vorbis_command.text())
-        self.config.setting["moodbar_mp3_command"] = unicode(
+        self.config.setting["moodbar_mp3_command"] = string_(
             self.ui.mp3_command.text())
-        self.config.setting["moodbar_flac_command"] = unicode(
+        self.config.setting["moodbar_flac_command"] = string_(
             self.ui.flac_command.text())
-        self.config.setting["moodbar_wav_command"] = unicode(
+        self.config.setting["moodbar_wav_command"] = string_(
             self.ui.wav_command.text())
 
 register_file_action(MoodBar())
