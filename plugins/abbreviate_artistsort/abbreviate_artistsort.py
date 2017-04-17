@@ -165,8 +165,7 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                         unsortTag,
                         unsort[i],
                     )
-                    if _debug_level > 0:
-                        print("  Could not match surname (%s) in remaining unsorted:" % (surname, unsort))
+                    log.warning("  Could not match surname (%s) in remaining unsorted: %s" % (surname, unsort))
                     break
 
                 # Sorted:   Surname, Forename(s)...
