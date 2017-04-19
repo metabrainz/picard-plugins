@@ -16,7 +16,6 @@ from picard.file import File
 from picard.util import webbrowser2
 from picard.ui.itemviews import BaseAction, register_cluster_action, register_file_action
 
-import codecs
 import os
 import tempfile
 
@@ -80,7 +79,7 @@ class AddObjectAsEntity(BaseAction):
 
     def generate_html_file(self, form_values):
         (fd, fp) = tempfile.mkstemp(suffix=".html")
-        f = codecs.getwriter("utf-8")(os.fdopen(fd, "w"))
+        f = os.fdopen(fd, "w", encoding="utf-8")
 
         def esc(s):
             return "".join(HTML_ATTR_ESCAPE.get(c, c) for c in s)
