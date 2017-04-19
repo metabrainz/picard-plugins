@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = u'View script variables'
-PLUGIN_AUTHOR = u'Sophist'
-PLUGIN_DESCRIPTION = u'''Display a dialog box listing the metadata variables for the track / file.'''
+PLUGIN_NAME = 'View script variables'
+PLUGIN_AUTHOR = 'Sophist'
+PLUGIN_DESCRIPTION = '''Display a dialog box listing the metadata variables for the track / file.'''
 PLUGIN_VERSION = '0.6'
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = "GPL-2.0"
@@ -47,7 +47,7 @@ class ViewVariablesDialog(QtWidgets.QDialog):
         elif isinstance(obj, Track):
             tn = metadata['tracknumber']
             if len(tn) == 1:
-                tn = u"0" + tn
+                tn = "0" + tn
             self.setWindowTitle(_("Track: %s %s ") % (tn, metadata['title']))
         else:
             self.setWindowTitle(_("Variables"))
@@ -85,7 +85,7 @@ class ViewVariablesDialog(QtWidgets.QDialog):
 
             key_item, value_item = self.get_table_items(table, i)
             i += 1
-            key_item.setText(u"_" + key[1:] if key.startswith('~') else key)
+            key_item.setText("_" + key[1:] if key.startswith('~') else key)
             if key in metadata:
                 value = dict.get(metadata, key)
                 if len(value) == 1 and value[0] != '':

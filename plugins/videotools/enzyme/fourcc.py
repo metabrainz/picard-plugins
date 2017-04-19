@@ -34,7 +34,7 @@ def resolve(code):
     the codec.
     """
     if isinstance(code, basestring):
-        codec = u'Unknown'
+        codec = 'Unknown'
         # Check for twocc
         if re.match(r'^0x[\da-f]{1,4}$', code, re.I):
             # Twocc in hex form
@@ -56,9 +56,9 @@ def resolve(code):
             return code.upper(), unicode(FOURCC[code.upper()])
         return None, codec
     elif isinstance(code, (int, long)):
-        return hex(code), TWOCC.get(code, u'Unknown')
+        return hex(code), TWOCC.get(code, 'Unknown')
 
-    return None, u'Unknown'
+    return None, 'Unknown'
 
 
 TWOCC = {

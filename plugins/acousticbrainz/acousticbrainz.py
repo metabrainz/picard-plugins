@@ -16,9 +16,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-PLUGIN_NAME = u'AcousticBrainz Mood-Genre'
-PLUGIN_AUTHOR = u'Andrew Cook'
-PLUGIN_DESCRIPTION = u'''Uses AcousticBrainz for mood and genre.
+PLUGIN_NAME = 'AcousticBrainz Mood-Genre'
+PLUGIN_AUTHOR = 'Andrew Cook'
+PLUGIN_DESCRIPTION = '''Uses AcousticBrainz for mood and genre.
 
 WARNING: Experimental plugin. All guarantees voided by use.'''
 PLUGIN_LICENSE = "GPL-2.0"
@@ -50,9 +50,9 @@ def result(album, metadata, data, reply, error):
 
         metadata["genre"] = genres
         metadata["mood"] = moods
-        log.debug(u"%s: Track %s (%s) Parsed response (genres: %s, moods: %s)", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(genres), str(moods))
+        log.debug("%s: Track %s (%s) Parsed response (genres: %s, moods: %s)", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(genres), str(moods))
     except Exception as e:
-        log.error(u"%s: Track %s (%s) Error parsing response: %s", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(e))
+        log.error("%s: Track %s (%s) Error parsing response: %s", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(e))
     finally:
         album._requests -= 1
         album._finalize_loading(None)
@@ -61,7 +61,7 @@ def process_track(album, metadata, release, track):
     album.tagger.xmlws.download(
         ACOUSTICBRAINZ_HOST,
         ACOUSTICBRAINZ_PORT,
-        u"/%s/high-level" % (metadata["musicbrainz_recordingid"]),
+        "/%s/high-level" % (metadata["musicbrainz_recordingid"]),
         partial(result, album, metadata),
         priority=True
     )

@@ -22,9 +22,9 @@
 # THE SOFTWARE.
 
 from __future__ import print_function
-PLUGIN_NAME = u"Decode Cyrillic"
-PLUGIN_AUTHOR = u"aeontech"
-PLUGIN_DESCRIPTION = u'''
+PLUGIN_NAME = "Decode Cyrillic"
+PLUGIN_AUTHOR = "aeontech"
+PLUGIN_DESCRIPTION = '''
 This plugin helps you quickly convert mis-encoded cyrillic Windows-1251 tags 
 to proper UTF-8 encoded strings. If your track/album names look something like
 "Àëèñà â ñò›àíå ÷óäåñ", run this plugin from the context menu

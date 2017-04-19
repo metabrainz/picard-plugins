@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = u'Album Artist Website'
-PLUGIN_AUTHOR = u'Sophist'
-PLUGIN_DESCRIPTION = u'''Add's the album artist(s) Official Homepage(s)
+PLUGIN_NAME = 'Album Artist Website'
+PLUGIN_AUTHOR = 'Sophist'
+PLUGIN_DESCRIPTION = '''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
 PLUGIN_VERSION = '0.6'
 PLUGIN_API_VERSIONS = ["1.4.0", "2.0"]

@@ -1,6 +1,6 @@
-PLUGIN_NAME = u'Remove Perfect Albums'
-PLUGIN_AUTHOR = u'ichneumon, hrglgrmpf'
-PLUGIN_DESCRIPTION = u'''Remove all perfectly matched albums from the selection.'''
+PLUGIN_NAME = 'Remove Perfect Albums'
+PLUGIN_AUTHOR = 'ichneumon, hrglgrmpf'
+PLUGIN_DESCRIPTION = '''Remove all perfectly matched albums from the selection.'''
 PLUGIN_VERSION = '0.2'
 PLUGIN_API_VERSIONS = ['0.15']
 PLUGIN_LICENSE = "GPL-2.0"

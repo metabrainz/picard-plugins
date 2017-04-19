@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = u'Last.fm.Plus'
-PLUGIN_AUTHOR = u'RifRaf, Lukáš Lalinský, voiceinsideyou'
-PLUGIN_DESCRIPTION = u'''Uses folksonomy tags from Last.fm to<br/>
+PLUGIN_NAME = 'Last.fm.Plus'
+PLUGIN_AUTHOR = 'RifRaf, Lukáš Lalinský, voiceinsideyou'
+PLUGIN_DESCRIPTION = '''Uses folksonomy tags from Last.fm to<br/>
 * Sort music into major and minor genres based on configurable genre "whitelists"<br/>
 * Add "mood", "occasion" and other custom categories<br/>
 * Add "original release year" and "decade" tags, as well as populate blank dates.'''
@@ -56,8 +56,8 @@ GENRE_FILTER["year"] = ["1801, 1802, 1803, 1804, 1805, 1806, 1807, 1808, 1809, 1
 GENRE_FILTER["occasion"] = ["background, birthday, breakup, carnival, chillout, christmas, death, dinner, drinking, driving, graduation, halloween, hanging out, heartache, holiday, late night, love, new year, party, protest, rain, rave, romantic, sleep, spring, summer, sunny, twilight, valentine, wake up, wedding, winter, work"]
 GENRE_FILTER["category"] = ["animal songs, attitude, autumn, b-side, ballad, banjo, bass, beautiful, body parts, bootlegs, brass, cafe del mar, chamber music, clarinet, classic, classic tunes, compilations, covers, cowbell, deceased, demos, divas, dj, drugs, drums, duets, field recordings, female, female vocalists, film score, flute, food, genius, girl group, great lyrics, guitar solo, guitarist, handclaps, harmonica, historical, horns, hypnotic, influential, insane, jam, keyboard, legends, life, linedance, live, loved, lyricism, male, male vocalists, masterpiece, melodic, memories, musicals, nostalgia, novelty, number songs, old school, oldie, oldies, one hit wonders, orchestra, organ, parody, poetry, political, promos, radio programs, rastafarian, remix, samples, satire, saxophone, showtunes, sing-alongs, singer-songwriter, slide guitar, solo instrumentals, songs with names, soundtracks, speeches, stories, strings, stylish, synth, title is a full sentence, top 40, traditional, trumpet, unique, unplugged, violin, virtuoso, vocalization, vocals"]
 GENRE_FILTER["translate"] = {
-    "drum 'n' bass": u"drum and bass",
-    "drum n bass": u"drum and bass"
+    "drum 'n' bass": "drum and bass",
+    "drum n bass": "drum and bass"
 }
 
 

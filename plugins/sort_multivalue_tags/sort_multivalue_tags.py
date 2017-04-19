@@ -13,9 +13,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-PLUGIN_NAME = u"Sort Multi-Value Tags"
-PLUGIN_AUTHOR = u"Sophist"
-PLUGIN_DESCRIPTION = u'''
+PLUGIN_NAME = "Sort Multi-Value Tags"
+PLUGIN_AUTHOR = "Sophist"
+PLUGIN_DESCRIPTION = '''
 This plugin sorts multi-value tags e.g. Performers alphabetically.<br /><br />
 Note: Some multi-value tags are excluded for the following reasons:
 <ol>

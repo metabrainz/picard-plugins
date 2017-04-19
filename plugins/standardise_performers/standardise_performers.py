@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = u'Standardise Performers'
-PLUGIN_AUTHOR = u'Sophist'
-PLUGIN_DESCRIPTION = u'''Splits multi-instrument performer tags into single
+PLUGIN_NAME = 'Standardise Performers'
+PLUGIN_AUTHOR = 'Sophist'
+PLUGIN_DESCRIPTION = '''Splits multi-instrument performer tags into single
 instruments and combines names so e.g. (from 10cc by 10cc track 1):
 <pre>
 Performer [acoustic guitar, bass, dobro, electric guitar and tambourine]: Graham Gouldman

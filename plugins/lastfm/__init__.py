@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = u'Last.fm'
-PLUGIN_AUTHOR = u'Lukáš Lalinský'
-PLUGIN_DESCRIPTION = u'Use tags from Last.fm as genre.'
+PLUGIN_NAME = 'Last.fm'
+PLUGIN_AUTHOR = 'Lukáš Lalinský'
+PLUGIN_DESCRIPTION = 'Use tags from Last.fm as genre.'
 PLUGIN_VERSION = "0.4"
 PLUGIN_API_VERSIONS = ["0.15"]
 
@@ -30,9 +30,9 @@ _pending_xmlws_requests = {}
 
 # TODO: move this to an options page
 TRANSLATE_TAGS = {
-    "hip hop": u"Hip-Hop",
-    "synth-pop": u"Synthpop",
-    "electronica": u"Electronic",
+    "hip hop": "Hip-Hop",
+    "synth-pop": "Synthpop",
+    "electronica": "Electronic",
 }
 TITLE_CASE = True
 

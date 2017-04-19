@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = u'No release'
-PLUGIN_AUTHOR = u'Johannes Weißl'
+PLUGIN_NAME = 'No release'
+PLUGIN_AUTHOR = 'Johannes Weißl'
 PLUGIN_DESCRIPTION = '''Do not store specific release information in releases of unknown origin.'''
 PLUGIN_VERSION = '0.1'
 PLUGIN_API_VERSIONS = ['0.15']

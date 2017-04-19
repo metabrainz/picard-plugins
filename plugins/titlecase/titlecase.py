@@ -6,7 +6,7 @@
 # published by the Free Software Foundation
 
 PLUGIN_NAME = "Title Case"
-PLUGIN_AUTHOR = u"Javier Kohen"
+PLUGIN_AUTHOR = "Javier Kohen"
 PLUGIN_DESCRIPTION = "Capitalize First Character In Every Word Of A Title"
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15"]
@@ -30,7 +30,7 @@ def utitle(string):
     for i in xrange(1, len(string)):
         s = string[i]
         # Special case apostrophe in the middle of a word.
-        if s in u"’'" and string[i - 1].isalpha():
+        if s in "’'" and string[i - 1].isalpha():
             cap = False
         elif iswbound(s):
             cap = True
@@ -46,7 +46,7 @@ def utitle(string):
 def title(string, locale="utf-8"):
     """Title-case a string using a less destructive method than str.title."""
     if not string:
-        return u""
+        return ""
     # if the string is all uppercase, lowercase it - Erich/Javier
     #   Lots of Japanese songs use entirely upper-case English titles,
     #   so I don't like this change... - JoeW

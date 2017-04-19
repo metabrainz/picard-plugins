@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-PLUGIN_NAME = u'Paper CD case'
-PLUGIN_AUTHOR = u'Philipp Wolfer'
-PLUGIN_DESCRIPTION = u'Create a paper CD case from an album or cluster using http://papercdcase.com'
+PLUGIN_NAME = 'Paper CD case'
+PLUGIN_AUTHOR = 'Philipp Wolfer'
+PLUGIN_DESCRIPTION = 'Create a paper CD case from an album or cluster using http://papercdcase.com'
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["1.3.0", "1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"

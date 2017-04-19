@@ -16,9 +16,9 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-PLUGIN_NAME = u'AcousticBrainz Tonal-Rhythm'
-PLUGIN_AUTHOR = u'Sophist'
-PLUGIN_DESCRIPTION = u'''Add's the following tags:
+PLUGIN_NAME = 'AcousticBrainz Tonal-Rhythm'
+PLUGIN_AUTHOR = 'Sophist'
+PLUGIN_DESCRIPTION = '''Add's the following tags:
 <ul>
 <li>Key (in ID3v2.3 format)</li>
 <li>Beats Per Minute (BPM)</li>

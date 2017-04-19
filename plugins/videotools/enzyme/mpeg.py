@@ -247,7 +247,7 @@ class MPEG(core.AVContainer):
                     self._set('interlaced', True)
                 return True
             else:
-                log.debug(u'ext: %r' % ext)
+                log.debug('ext: %r' % ext)
             buffer = buffer[pos + 4:]
         return False
 
@@ -580,7 +580,7 @@ class MPEG(core.AVContainer):
 
         if ptsdts and ptsdts == ord(buffer[9]) >> 4:
             if ord(buffer[9]) >> 4 != ptsdts:
-                log.warning(u'WARNING: bad PTS/DTS, please contact us')
+                log.warning('WARNING: bad PTS/DTS, please contact us')
                 return packet_length, None
 
             # timestamp = self.ReadPTS(buffer[9:14])
@@ -594,7 +594,7 @@ class MPEG(core.AVContainer):
 
 
     def isPES(self, file):
-        log.info(u'trying mpeg-pes scan')
+        log.info('trying mpeg-pes scan')
         file.seek(0, 0)
         buffer = file.read(3)
 
@@ -758,7 +758,7 @@ class MPEG(core.AVContainer):
                         else:
                             # timestamp broken
                             del self.start
-                            log.warning(u'Timestamp error, correcting')
+                            log.warning('Timestamp error, correcting')
 
             if hasattr(self, 'start') and self.start and \
                    self.sequence_header_offset and self.video and self.audio:
@@ -809,7 +809,7 @@ class MPEG(core.AVContainer):
                 timestamp = self.ReadPESHeader(c + offset, buffer[c + offset:], tsid)[1]
                 if timestamp is None:
                     # this should not happen
-                    log.error(u'bad TS')
+                    log.error('bad TS')
                     return None
                 return c + offset + timestamp
             c += TS_PACKET_LENGTH
@@ -896,7 +896,7 @@ class MPEG(core.AVContainer):
             return 0
 
         file = open(self.filename)
-        log.debug(u'scanning file...')
+        log.debug('scanning file...')
         while 1:
             file.seek(self.__seek_size__ * 10, 1)
             buffer = file.read(self.__sample_size__)
@@ -905,10 +905,10 @@ class MPEG(core.AVContainer):
             pos = self.__search__(buffer)
             if pos == None:
                 continue
-            log.debug(u'buffer position: %r' % self.get_time(buffer[pos:]))
+            log.debug('buffer position: %r' % self.get_time(buffer[pos:]))
 
         file.close()
-        log.debug(u'done scanning file')
+        log.debug('done scanning file')
 
 
 Parser = MPEG
