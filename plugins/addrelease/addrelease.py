@@ -6,8 +6,8 @@ PLUGIN_DESCRIPTION = "Adds a plugin context menu option to clusters and single\
  files to help you quickly add them as releases or standalone recordings to\
  the MusicBrainz database via the website by pre-populating artists,\
  track names and times."
-PLUGIN_VERSION = "0.7.1"
-PLUGIN_API_VERSIONS = ["1.0.0", "2.0"]
+PLUGIN_VERSION = "0.7.2"
+PLUGIN_API_VERSIONS = ["2.0"]
 
 from picard import config
 from picard.cluster import Cluster
@@ -16,7 +16,6 @@ from picard.file import File
 from picard.util import webbrowser2
 from picard.ui.itemviews import BaseAction, register_cluster_action, register_file_action
 
-import codecs
 import os
 import tempfile
 
@@ -80,22 +79,22 @@ class AddObjectAsEntity(BaseAction):
 
     def generate_html_file(self, form_values):
         (fd, fp) = tempfile.mkstemp(suffix=".html")
-        f = codecs.getwriter("utf-8")(os.fdopen(fd, "w"))
 
-        def esc(s):
-            return "".join(HTML_ATTR_ESCAPE.get(c, c) for c in s)
-        # add a global (release-level) name-value
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            def esc(s):
+                return "".join(HTML_ATTR_ESCAPE.get(c, c) for c in s)
+            # add a global (release-level) name-value
 
-        def nv(n, v):
-            f.write(HTML_INPUT % (esc(n), esc(v)))
+            def nv(n, v):
+                f.write(HTML_INPUT % (esc(n), esc(v)))
 
-        f.write(HTML_HEAD % (self.NAME, mbserver_url(self.submit_path)))
+            f.write(HTML_HEAD % (self.NAME, mbserver_url(self.submit_path)))
 
-        for key in form_values:
-            nv(key, form_values[key])
+            for key in form_values:
+                nv(key, form_values[key])
 
-        f.write(HTML_TAIL % (self.NAME))
-        f.close()
+            f.write(HTML_TAIL % (self.NAME))
+
         return fp
 
     def open_html_file(self, fp):
