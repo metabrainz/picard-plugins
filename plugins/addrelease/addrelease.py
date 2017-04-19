@@ -79,22 +79,22 @@ class AddObjectAsEntity(BaseAction):
 
     def generate_html_file(self, form_values):
         (fd, fp) = tempfile.mkstemp(suffix=".html")
-        f = os.fdopen(fd, "w", encoding="utf-8")
 
-        def esc(s):
-            return "".join(HTML_ATTR_ESCAPE.get(c, c) for c in s)
-        # add a global (release-level) name-value
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            def esc(s):
+                return "".join(HTML_ATTR_ESCAPE.get(c, c) for c in s)
+            # add a global (release-level) name-value
 
-        def nv(n, v):
-            f.write(HTML_INPUT % (esc(n), esc(v)))
+            def nv(n, v):
+                f.write(HTML_INPUT % (esc(n), esc(v)))
 
-        f.write(HTML_HEAD % (self.NAME, mbserver_url(self.submit_path)))
+            f.write(HTML_HEAD % (self.NAME, mbserver_url(self.submit_path)))
 
-        for key in form_values:
-            nv(key, form_values[key])
+            for key in form_values:
+                nv(key, form_values[key])
 
-        f.write(HTML_TAIL % (self.NAME))
-        f.close()
+            f.write(HTML_TAIL % (self.NAME))
+
         return fp
 
     def open_html_file(self, fp):
