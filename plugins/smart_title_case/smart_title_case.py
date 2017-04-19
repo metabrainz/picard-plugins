@@ -39,7 +39,7 @@ artist_tags = [
     ('albumartist', '~albumartists'),
     ('albumartistsort', '~albumartists_sort'),
     ]
-title_re = re.compile(r'\w[^-,/\s]*', re.UNICODE)
+title_re = re.compile(ur'\w[^-,/\s\u2010]*', re.UNICODE)
 
 def match_word(match):
     word = match.group(0)
@@ -74,13 +74,6 @@ assert "A,B" == string_title_case("a,b")
 assert "A-B" == string_title_case("a-b")
 assert "A/B" == string_title_case("a/b")
 
-# Put this here so that above unit tests can run standalone before getting an import error
-from picard import log
-from picard.metadata import (
-    register_track_metadata_processor,
-    register_album_metadata_processor,
-)
-
 def artist_title_case(text, artists, artists_upper):
     """
     Use the array of artists and the joined string
@@ -97,6 +90,13 @@ assert "The Beatles feat. The Who" == artist_title_case(
                                         ["the beatles", "the who"],
                                         ["The Beatles", "The Who"]
                                         )
+
+# Put this here so that above unit tests can run standalone before getting an import error
+from picard import log
+from picard.metadata import (
+    register_track_metadata_processor,
+    register_album_metadata_processor,
+)
 
 def title_case(tagger, metadata, release, track=None):
     for name in title_tags:
