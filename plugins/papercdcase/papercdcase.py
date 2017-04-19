@@ -17,16 +17,16 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-PLUGIN_NAME = u'Paper CD case'
-PLUGIN_AUTHOR = u'Philipp Wolfer'
-PLUGIN_DESCRIPTION = u'Create a paper CD case from an album or cluster using http://papercdcase.com'
-PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["1.3.0", "1.4.0"]
+PLUGIN_NAME = 'Paper CD case'
+PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
+PLUGIN_DESCRIPTION = 'Create a paper CD case from an album or cluster using http://papercdcase.com'
+PLUGIN_VERSION = "1.0"
+PLUGIN_API_VERSIONS = ["1.3.0", "1.4.0", "2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 
-from PyQt4.QtCore import QUrl
+from PyQt5.QtCore import QUrl, QUrlQuery
 from picard.album import Album
 from picard.cluster import Cluster
 from picard.ui.itemviews import BaseAction, register_album_action, register_cluster_action
@@ -40,12 +40,14 @@ PAPERCDCASE_URL = 'http://papercdcase.com/advanced.php'
 def build_papercdcase_url(artist, album, tracks):
     url = QUrl(PAPERCDCASE_URL)
     # papercdcase.com does not deal well with unicode characters :(
-    url.addQueryItem('artist', textencoding.asciipunct(artist))
-    url.addQueryItem('title', textencoding.asciipunct(album))
+    url_query = QUrlQuery()
+    url_query.addQueryItem('artist', textencoding.asciipunct(artist))
+    url_query.addQueryItem('title', textencoding.asciipunct(album))
     i = 1
     for track in tracks:
-        url.addQueryItem('track' + str(i), textencoding.asciipunct(track))
+        url_query.addQueryItem('track' + string_(i), textencoding.asciipunct(track))
         i += 1
+    url.setQuery(url_query.query(QUrl.FullyEncoded))
     return url.toString()
 
 

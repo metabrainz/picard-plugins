@@ -6,7 +6,7 @@ PLUGIN_DESCRIPTION = u'Use tags from Last.fm as genre.'
 PLUGIN_VERSION = "0.4"
 PLUGIN_API_VERSIONS = ["0.15"]
 
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 from picard.metadata import register_track_metadata_processor
 from picard.ui.options import register_options_page, OptionsPage
 from picard.config import BoolOption, IntOption, TextOption

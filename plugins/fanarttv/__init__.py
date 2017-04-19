@@ -17,18 +17,18 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-PLUGIN_NAME = u'fanart.tv cover art'
-PLUGIN_AUTHOR = u'Philipp Wolfer'
-PLUGIN_DESCRIPTION = u'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
-PLUGIN_VERSION = "0.5"
-PLUGIN_API_VERSIONS = ["1.4.0"]
+PLUGIN_NAME = 'fanart.tv cover art'
+PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
+PLUGIN_DESCRIPTION = 'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
+PLUGIN_VERSION = "1.0"
+PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 import json
 import traceback
-from PyQt4.QtCore import QUrl
-from PyQt4.QtNetwork import QNetworkReply
+from PyQt5.QtCore import QUrl
+from PyQt5.QtNetwork import QNetworkReply
 from picard import config, log
 from picard.coverart.providers import CoverArtProvider, register_cover_art_provider
 from picard.coverart.image import CoverArtImage
@@ -59,7 +59,7 @@ class FanartTvCoverArtImage(CoverArtImage):
     """Image from Cover Art Archive"""
 
     support_types = True
-    sourceprefix = u"FATV"
+    sourceprefix = "FATV"
 
 
 class CoverArtProviderFanartTv(CoverArtProvider):
@@ -162,7 +162,7 @@ class FanartTvOptionsPage(OptionsPage):
             self.ui.fanarttv_cdart_use_if_no_albumcover.setChecked(True)
 
     def save(self):
-        config.setting["fanarttv_client_key"] = unicode(self.ui.fanarttv_client_key.text())
+        config.setting["fanarttv_client_key"] = string_(self.ui.fanarttv_client_key.text())
         if self.ui.fanarttv_cdart_use_always.isChecked():
             config.setting["fanarttv_use_cdart"] = OPTION_CDART_ALWAYS
         elif self.ui.fanarttv_cdart_use_never.isChecked():

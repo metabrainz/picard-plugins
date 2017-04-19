@@ -6,13 +6,13 @@
 #   aubio, numpy
 #
 
-PLUGIN_NAME = u"BPM Analyzer"
-PLUGIN_AUTHOR = u"Len Joubert"
+PLUGIN_NAME = "BPM Analyzer"
+PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums."""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]
+PLUGIN_VERSION = "1.0"
+PLUGIN_API_VERSIONS = ["2.0"]
 #PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
@@ -94,7 +94,7 @@ class FileBPM(BaseAction):
         )
         calculated_bpm = get_file_bpm(self.tagger, file.filename)
         # self.tagger.log.debug('%s' % (calculated_bpm))
-        file.metadata["bpm"] = str(round(calculated_bpm, 1))
+        file.metadata["bpm"] = string_(round(calculated_bpm, 1))
 
     def _calculate_bpm_callback(self, file, result=None, error=None):
         if not error:
@@ -136,7 +136,7 @@ class BPMOptionsPage(OptionsPage):
 
     def update_parameters(self):
         val = self.ui.slider_parameter.value()
-        samplerate, buf_size, hop_size = [unicode(v) for v in
+        samplerate, buf_size, hop_size = [string_(v) for v in
                                           bpm_slider_settings[val]]
         self.ui.samplerate_value.setText(samplerate)
         self.ui.win_s_value.setText(buf_size)
