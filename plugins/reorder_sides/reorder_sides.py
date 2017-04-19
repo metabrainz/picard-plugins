@@ -14,9 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-PLUGIN_NAME = u'Re-order sides of a release'
-PLUGIN_AUTHOR = u'David Mandelberg'
-PLUGIN_DESCRIPTION = u"""\
+PLUGIN_NAME = 'Re-order sides of a release'
+PLUGIN_AUTHOR = 'David Mandelberg'
+PLUGIN_DESCRIPTION = """\
   Split mediums and re-order sides to match side order rather than
   medium order. E.g., if a release has two mediums with track numbers
   <em>A1, A2, ..., D1, D2, ...</em> and <em>B1, B2, ..., C1, C2,
@@ -28,10 +28,10 @@ PLUGIN_DESCRIPTION = u"""\
   changers
   (https://en.wikipedia.org/wiki/Record_changer#Automatic_sequencing)
   play in the correct order."""
-PLUGIN_VERSION = u'0.1'
-PLUGIN_API_VERSIONS = [u'1.3.0']
-PLUGIN_LICENSE = u'GPL-3.0'
-PLUGIN_LICENSE_URL = u'https://www.gnu.org/licenses/gpl-3.0.html'
+PLUGIN_VERSION = '0.1'
+PLUGIN_API_VERSIONS = ['1.3.0']
+PLUGIN_LICENSE = 'GPL-3.0'
+PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-3.0.html'
 
 import collections
 

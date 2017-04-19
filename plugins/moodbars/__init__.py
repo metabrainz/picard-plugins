@@ -3,8 +3,8 @@
 # Changelog:
 #   [2015-09-24] Initial version with support for Ogg Vorbis, FLAC, WAV and MP3, tested MP3 and FLAC
 
-PLUGIN_NAME = u"Moodbars"
-PLUGIN_AUTHOR = u"Len Joubert, Sambhav Kothari"
+PLUGIN_NAME = "Moodbars"
+PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums."""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"

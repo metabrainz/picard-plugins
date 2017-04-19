@@ -3,8 +3,8 @@
 # Changelog:
 #   [2008-03-14] Initial version with support for Ogg Vorbis, FLAC and MP3
 
-PLUGIN_NAME = u"ReplayGain"
-PLUGIN_AUTHOR = u"Philipp Wolfer"
+PLUGIN_NAME = "ReplayGain"
+PLUGIN_AUTHOR = "Philipp Wolfer"
 PLUGIN_DESCRIPTION = """Calculate ReplayGain for selected files and albums."""
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-PLUGIN_NAME = u"Load as non-album track"
-PLUGIN_AUTHOR = u"Philipp Wolfer"
+PLUGIN_NAME = "Load as non-album track"
+PLUGIN_AUTHOR = "Philipp Wolfer"
 PLUGIN_DESCRIPTION = "Allows loading selected tracks as non-album tracks. Useful for tagging single tracks where you do not care about the album."
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["1.4.0", "2.0"]

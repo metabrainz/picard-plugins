@@ -14,9 +14,9 @@
 # GNU General Public License for more details.
 
 from __future__ import print_function
-PLUGIN_NAME = u"Abbreviate artist-sort"
-PLUGIN_AUTHOR = u"Sophist"
-PLUGIN_DESCRIPTION = u'''Abbreviate Artist-Sort and Album-Artist-Sort Tags.
+PLUGIN_NAME = "Abbreviate artist-sort"
+PLUGIN_AUTHOR = "Sophist"
+PLUGIN_DESCRIPTION = '''Abbreviate Artist-Sort and Album-Artist-Sort Tags.
 e.g. "Vivaldi, Antonio" becomes "Vivaldi, A."
 This is particularly useful for classical albums that can have a long list of artists.
 %artistsort% is abbreviated into %_artistsort_abbrev% and
@@ -75,8 +75,8 @@ _abbreviate_tags = [
     ('albumartistsort', 'albumartist', '~albumartistsort_abbrev'),
     ('artistsort', 'artist', '~artistsort_abbrev'),
 ]
-_prefixes = [u"A", u"The"]
-_split = u", "
+_prefixes = ["A", "The"]
+_split = ", "
 _abbreviate_cache = {}
 
 
@@ -98,8 +98,8 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                 sorts[i] = _abbreviate_cache[sort]
                 continue
             unsort = unsorts[i]
-            new_sort = u""
-            new_unsort = u""
+            new_sort = ""
+            new_unsort = ""
 
             while len(sort) > 0 and len(unsort) > 0:
 
@@ -108,16 +108,16 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                         print("  Ending without separator '%s' - moving '%s'." % (_split, sort))
                     new_sort += sort
                     new_unsort += unsort
-                    sort = unsort = u""
+                    sort = unsort = ""
                     continue
 
                 surname, rest = sort.split(_split, 1)
-                if rest == u"":
+                if rest == "":
                     if _debug_level > 3:
                         print("  Ending with separator '%s' - moving '%s'." % (_split, surname))
                     new_sort += sort
                     new_unsort += unsort
-                    sort = unsort = u""
+                    sort = unsort = ""
                     continue
 
                 # Move leading whitespace

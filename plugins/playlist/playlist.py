@@ -11,9 +11,9 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
-PLUGIN_NAME = u"Generate M3U playlist"
-PLUGIN_AUTHOR = u"Francis Chin"
-PLUGIN_DESCRIPTION = u"""Generate an Extended M3U playlist (.m3u8 file, UTF8
+PLUGIN_NAME = "Generate M3U playlist"
+PLUGIN_AUTHOR = "Francis Chin"
+PLUGIN_DESCRIPTION = """Generate an Extended M3U playlist (.m3u8 file, UTF8
 encoded text). Relative pathnames are used where audio files are in the same
 directory as the playlist, otherwise absolute (full) pathnames are used."""
 PLUGIN_VERSION = "0.3"
@@ -33,8 +33,8 @@ from picard.ui.itemviews import BaseAction, register_album_action
 _debug_level = 0
 
 def get_safe_filename(filename):
-    _valid_chars = u" .,_-:+&!()"
-    _safe_filename = u"".join(
+    _valid_chars = " .,_-:+&!()"
+    _safe_filename = "".join(
         c if (c.isalnum() or c in _valid_chars) else "_" for c in filename
     ).rstrip()
     return _safe_filename
@@ -105,7 +105,7 @@ class GeneratePlaylist(BaseAction):
         if b_filename:
             filename = unicode(b_filename)
             playlist = Playlist(filename)
-            playlist.add_header(u"#EXTM3U")
+            playlist.add_header("#EXTM3U")
             
             for album in objs:
                 for track in album.tracks:
@@ -116,7 +116,7 @@ class GeneratePlaylist(BaseAction):
                         # M3U EXTINF row
                         track_length_seconds = int(round(track.metadata.length / 1000.0))
                         # EXTINF format assumed to be fixed as follows:
-                        entry.add(u"#EXTINF:{duration:d},{artist} - {title}".format(
+                        entry.add("#EXTINF:{duration:d},{artist} - {title}".format(
                             duration=track_length_seconds,
                             artist=track.metadata["artist"],
                             title=track.metadata["title"]
