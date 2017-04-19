@@ -39,7 +39,7 @@ artist_tags = [
     ('albumartist', '~albumartists'),
     ('albumartistsort', '~albumartists_sort'),
     ]
-title_re = re.compile(ur'\w[^-,/\s\u2010]*', re.UNICODE)
+title_re = re.compile(ur'\w[^-,/\s\u2010\u2011]*', re.UNICODE)
 
 def match_word(match):
     word = match.group(0)
