@@ -7,7 +7,7 @@ PLUGIN_DESCRIPTION = "Adds a plugin context menu option to clusters and single\
  the MusicBrainz database via the website by pre-populating artists,\
  track names and times."
 PLUGIN_VERSION = "0.7.1"
-PLUGIN_API_VERSIONS = ["1.0.0", "2.0"]
+PLUGIN_API_VERSIONS = ["2.0"]
 
 from picard import config
 from picard.cluster import Cluster
