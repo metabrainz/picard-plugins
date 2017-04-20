@@ -4,7 +4,7 @@ It populates the metadata tags with information from the MusicBrainz database ab
 This is particularly designed to assist with tagging of classical music so that players or library managers which can display multiple work levels can have access to them.
 
 OUTPUT 
-All custom tags produced by this plugin are prefixed with "CWP_". The basic tags are as follows:
+All custom tags produced by this plugin are prefixed with "CWP_". The basic tags are as follows:\n
 	CWP_work_n, where n is an integer >=0 : The work name at level n. For n=0, the tag is the same as the standard Picard tag "work"
 	CWP_work_top : The top work name (i.e. for maximal n). Thus, if max n = N, CWP_work_top = CWP_work_N.
 	CWP_workId_n : The matching work id for each work name. For n=0, the tag is the same as the standard Picard tag "MusicBrainz Work Id"

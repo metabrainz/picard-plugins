@@ -88,6 +88,7 @@ class PartLevels:
             works = dict.get(track_metadata,'work', [])
             log.debug("Work names: %s", works)                                              #debug
             track_metadata["CWP_work_" + str(part_level)] = works
+            track_metadata['CWP_error'] = None
             for index, workId in enumerate(workIds):
                     # there may be >1 workid but this is not yet fully supported, so code below joins together the work names for multiple ids and attaches it to the first id
                     # this is based on the (reasonable) assumption that multiple "recording of"s will be children of the same parent work.
