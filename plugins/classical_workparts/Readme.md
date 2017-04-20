@@ -1,5 +1,5 @@
 GENERAL INFORMATION
-This is version 0.2 of "classical_workparts.py" (renamed from workparts.py to make the intended use clearer).
+This is version 0.3 of "classical_workparts.py" (renamed from workparts.py to make the intended use clearer).
 It populates the metadata tags with information from the MusicBrainz database about the work(s) of which the track is a recording, and the work(s) of which they are a part, passing up through mutiple work-part levels until the top is reached.
 This is particularly designed to assist with tagging of classical music so that players or library managers which can display multiple work levels can have access to them.
 
