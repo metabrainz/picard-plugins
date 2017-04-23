@@ -94,7 +94,8 @@ class PartLevels:
                     # this is based on the (reasonable) assumption that multiple "recording of"s will be children of the same parent work.
                 if len(works)>1:
                     track_metadata['~cwp_error'] = "WARNING: More than one work for this recording. Check that works are parts of the same higher work as only one parent will be followed up."
-                work = works          ## until multi-works functionality added
+                work = sorted(works)
+                         ## until multi-works functionality added
                 self.rename_works(track_metadata, workId, work, part_level)
                 self.parts[workId]['name']= work
                 track = album._new_tracks[-1]     # Jump through hoops to get track object!!
