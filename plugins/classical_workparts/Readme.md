@@ -1,5 +1,5 @@
 # General Information
-This is version 0.3 of "classical_workparts.py" (renamed from workparts.py to make the intended use clearer).
+This is version 0.3 of "classical_workparts.py" (renamed from workparts.py to make the intended use clearer). It only works currently with FLAC and mp3 files.
 It populates hidden variables in Picard with information from the MusicBrainz database about the work(s) of which the track is a recording, and the work(s) of which they are a part, passing up through mutiple work-part levels until the top is reached.
 This is particularly designed to assist with tagging of classical music so that players or library managers which can display multiple work levels can have access to them.
 ** PLEASE NOTE ** A tagger script is required to make use of these hidden variables. Please see the notes on "Usage" below.
@@ -62,6 +62,6 @@ Planned enhancements (among others) are
 2. to find a better way of selecting parents rather than just length of name
 
 # Technical Matters
-Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to Daniel Sobey for assistance in dealing with this and to Sophist for the albumartist_website code which I have used extensively. I have tried to add some more comments to help any others trying the same techniques.
+Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to @dns_server for assistance in dealing with this and to @sophist for the albumartist_website code which I have used extensively. I have tried to add some more comments to help any others trying the same techniques.
 Issues were also encountered with "Service unavailable" responses from the XML web service. Up to 6 re-tries are made before flagging an error in _cwp_error.
 A variety of releases were used to test this plugin, but there may still be bugs, so further testing is welcome. The following release was particularly complex and useful for testing: https://musicbrainz.org/release/ec519fde-94ee-4812-9717-659d91be11d4
