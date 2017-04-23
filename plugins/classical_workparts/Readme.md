@@ -54,6 +54,8 @@ The following tagger scripts are provided and may be modified as needed:
 - CWP tags: To write out the hidden variables as explicit tags. Intended to assist script developers etc. - best not to save these tags, to avoid clutter.
 There is also another script, which is nothing to do with works, but which is included if needed to provide a degree of consistency between Picard artist conventions and those in SongKOng and Muso (call "Muso artists").
 
+The included jpg gives an illustration of the use of extended metadata in Muso to give dual-language information.
+
 # Possible Enhancements
 Planned enhancements (among others) are 
 1. to include discrimination as to type of parts relationship (i.e. exclude irrelevant parents)
