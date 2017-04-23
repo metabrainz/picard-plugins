@@ -83,38 +83,42 @@ class PartLevels:
         part_level = 0
         workIds = dict.get(track_metadata,'musicbrainz_workid', [])
         if workIds:
-            log.debug("WorkIds: %s", workIds)                                              #debug
-            track_metadata["CWP_workId_" + str(part_level)] = workIds
+            # log.debug("WorkIds: %s", workIds)                                              #debug
+            track_metadata["cwp_workid_" + str(part_level)] = workIds
             works = dict.get(track_metadata,'work', [])
             log.debug("Work names: %s", works)                                              #debug
-            track_metadata["CWP_work_" + str(part_level)] = works
-            track_metadata['CWP_error'] = None
+            track_metadata["cwp_work_" + str(part_level)] = works
+            #track_metadata['cwp_error'] = None
             for index, workId in enumerate(workIds):
                     # there may be >1 workid but this is not yet fully supported, so code below joins together the work names for multiple ids and attaches it to the first id
                     # this is based on the (reasonable) assumption that multiple "recording of"s will be children of the same parent work.
+                if len(works)>1:
+                    track_metadata['cwp_error'] = "WARNING: More than one work for this recording. Check that works are parts of the same higher work as only one parent will be followed up."
                 work = works          ## until multi-works functionality added
-                    # in case there is >1 workid, the part_level will store the workid index after the dec pt (used in all parent metadata too)
                 self.rename_works(track_metadata, workId, work, part_level)
                 self.parts[workId]['name']= work
                 track = album._new_tracks[-1]     # Jump through hoops to get track object!!
                 # check to see if the work's parent has already been cached before doing a full lookup
                 if workId in self.works_cache:
                     log.debug("%s: GETTING METADATA FROM CACHE", PLUGIN_NAME)             #debug
-                    #self.album_add_request(album)
                     partId = workId
-                    while self.works_cache.get(partId, None):
-                        log.debug("Work: %s", self.parts[partId]['name'])                 #debug
+                    while partId in self.works_cache:
+                        #log.debug("Work: %s, level: %s", self.parts[partId]['name'], part_level)                 #debug
                         part_level += 1
                         parentId = self.works_cache[partId]
-                        track_metadata['CWP_workId_' + str(part_level)] = parentId
                         parent = self.parts[parentId]['name']
-                        track_metadata['CWP_work_' + str(part_level)] = parent
+#
+                        track_metadata['cwp_workid_' + str(part_level)] = parentId
+                        track_metadata['cwp_work_' + str(part_level)] = parent
                         self.rename_works(track_metadata, parentId, parent, part_level)
                         stripped_work = self.parts[partId]['stripped_name']
-                        track_metadata['CWP_part_' + str(part_level-1)]=stripped_work
+                        track_metadata['cwp_part_' + str(part_level-1)]=stripped_work
+#
                         if parentId not in self.works_cache:                   # We've reached the top
+                            log.debug("Reached the top in cache.")
                             self.parts[parentId][(track, album)]['part_level'] = part_level       # max number of part levels for work (so far)
                             self.top_works[(track, album)]['workId'] = parentId
+#
                         partId = parentId
                     if track_metadata['tracknumber'] == track_metadata['totaltracks']:            #last track
                         self.final_process(album)                       # so do the final album-level processing before we go!  
@@ -123,7 +127,6 @@ class PartLevels:
                         if not self.parts[workId]['no_parent']:
                             part_level += 1
                             self.work_add_track(part_level, album, track, workId)
-                            # part_level -= 1                               #reset for next workId at this level - not yet supported
                         else:
                             self.parts[workId][(track, album)]['part_level'] = 0 
                             self.top_works[(track, album)]['workId'] = workId
@@ -132,31 +135,30 @@ class PartLevels:
                     else:
                         part_level += 1
                         self.work_add_track(part_level, album, track, workId, 0)
-                        # part_level -= 1                                   #reset for next workId at this level - not yet supported
                 break #plugin does not currently support multiple workIds. Works for multiple workIds are assumed to be children of the same parent and are concatenated.
         else:                                                       # there are no workiIds
-            track_metadata['CWP_single_work_album'] = 0
-            track_metadata['CWP_part_levels'] = part_level
+            track_metadata['cwp_single_work_album'] = 0
+            track_metadata['cwp_part_levels'] = part_level
 
     def work_add_track(self, part_level, album, track, workId, tries):
         log.debug("%s: ADDING WORK TO LOOKUP QUEUE", PLUGIN_NAME)                   #debug
         self.album_add_request(album)
             # to change the _requests variable to indicate that there are pending requests for this item and delay picard from finalizing the album                   
-        log.debug("%s: Added lookup request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
+        #log.debug("%s: Added lookup request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
         if self.works_queue.append(workId, (track, album)): # All work combos are queued, but only new workIds are passed to XML lookup
             host = config.setting["server_host"]
             port = config.setting["server_port"]
             path = "/ws/2/%s/%s" % ('work', workId)
             queryargs = {"inc": "work-rels"}
             log.debug("%s: Initiating XML lookup for %s......", PLUGIN_NAME, workId)   #debug
-            log.debug("Part level: %s", part_level)                                     #debug
-            log.debug("workId: %s", workId)                                         #debug
+            #log.debug("Part level: %s", part_level)                                     #debug
+            #log.debug("workId: %s", workId)                                         #debug
             return album.tagger.xmlws.get(host, port, path,
                         partial(self.work_process, part_level, workId, tries),
                                 xml=True, priority=True, important=False,
                                 queryargs=queryargs)
-        else:
-            log.debug("%s: Work is already in queue: %s", PLUGIN_NAME, workId)      #debug
+        #else:                                                                      #debug
+            #log.debug("%s: Work is already in queue: %s", PLUGIN_NAME, workId)      #debug
 
     def work_process(self, part_level, workId, tries, response, reply, error):
         log.debug("%s: LOOKING UP WORK: %s", PLUGIN_NAME, workId)                     #debug
@@ -170,32 +172,29 @@ class PartLevels:
                     self.work_add_track(part_level, album, track, workId, tries + 1)
                 else:
                     log.error("EXHAUSTED MAX RE-TRIES")
-                    track.metadata['CWP_error'] = "MISSING METADATA due to network errors. Re-try or fix manually."
+                    track.metadata['cwp_error'] = "ERROR: MISSING METADATA due to network errors. Re-try or fix manually."
                 self.album_remove_request(album)
             return
         tuples = self.works_queue.remove(workId)
-        for track, album in tuples:
-            log.debug("%s Requests = %s", PLUGIN_NAME, album._requests)   #debug
-        log.debug("Number of tracks to process for this work: %s", len(tuples))    #debug
+        #for track, album in tuples:                                       #debug
+            #log.debug("%s Requests = %s", PLUGIN_NAME, album._requests)   #debug
         if workId in self.parts:
             parentList = self.work_process_metadata(workId, response)
                 # returns [parent id, parent name] or None if no parent found
             if parentList:
                 parentId = parentList[0]
                 parent = parentList[1]
-                log.debug("%s: Processed metadata and found parent :%s", PLUGIN_NAME, parentId)      #debug
-                self.works_cache[workId] = parentId
+                #log.debug("%s: Processed metadata and found parent :%s", PLUGIN_NAME, parentId)      #debug
                 if parentId:
+                    self.works_cache[workId] = parentId
                     self.parts[workId]['parent']= parentId
                     self.parts[parentId]['name'] = parent
-                    log.debug("parent name = %s", parent)                           #debug
                     self.set_metadata(part_level, workId, parentId, parent, tuples)
                     part_level += 1 
-                    log.debug("Look for the next level.....")           #debug
+                    #log.debug("Look for the next level.....")           #debug
                     for track, album in tuples:         
                         self.work_add_track(part_level, album, track, parentId, 0)
                 else:
-                    self.works_cache[workId] = None                 # to prevent looking it up again, but also...
                     self.parts[workId]['no_parent'] = True          # so we remember we looked it up and found none
                     # We've reached the top - NB part_level refers to (non-existent) parent, so is one higher than would be expected
                     for track, album in tuples:
@@ -210,7 +209,7 @@ class PartLevels:
             if album._requests == 1:                                  # Next remove will finalise album
                 self.final_process(album)                       # so do the final album-level processing before we go!  
             self.album_remove_request(album)
-            log.debug("%s: Removed request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
+            #log.debug("%s: Removed request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
 
     
     def work_process_metadata(self, workId, response):
@@ -234,8 +233,8 @@ class PartLevels:
                         new_workIds.append(relation.work[0].id)
                         new_works.append(relation.work[0].title[0].text)
         log.debug("%s: Parent works found: %s", PLUGIN_NAME, new_works)                          #debug
-        if not new_workIds:
-                log.debug("No parent found")                             #debug
+        #if not new_workIds:                                            #debug
+            #log.debug("No parent found")                             #debug
         # just select one parent work to return (the longest named, as it is likely to be the lowest level)
         if new_workIds:
             if len(new_workIds) > 1:
@@ -243,7 +242,6 @@ class PartLevels:
                     new_work = max(new_works)
                     i = new_works.index(new_work)
                     new_workId = new_workIds[i]
-                    log.debug("Selected parent = %s", new_work)             #debug  
                 else:
                     new_workId = new_workIds[0]     # in case work is not named for some reason
                     new_work = None                
@@ -260,10 +258,10 @@ class PartLevels:
         log.debug("%s: %r: SETTING METADATA FOR PARENT = %r", PLUGIN_NAME, workId, parentId)                     #debug
         for track, album in tuples:
             tm = track.metadata
-            tm['CWP_error'] = None
+            #tm['cwp_error'] = None
             if parentId:
-                tm['CWP_workId_' + str(part_level)] = parentId
-                tm['CWP_work_' + str(part_level)] = parent
+                tm['cwp_workid_' + str(part_level)] = parentId
+                tm['cwp_work_' + str(part_level)] = parent
                 self.rename_works(tm, parentId, parent, part_level)
                 work = self.parts[workId]['name']                                          # maybe more than one work name
                 works = []
@@ -274,7 +272,7 @@ class PartLevels:
                 stripped_works = []
                 for work in works:
                     stripped_works.append(self.strip_parent_from_work(work, parent))
-                tm['CWP_part_' + str(part_level-1)]= stripped_works
+                tm['cwp_part_' + str(part_level-1)]= stripped_works
                 self.parts[workId]['stripped_name'] = stripped_works
                 if stripped_works == works:                          # no match found: nothing stripped
                     self.pending_strip[(track, album)][parentId]['childId'] = workId
@@ -286,15 +284,15 @@ class PartLevels:
                     for child in children:
                         stripped_works.append(self.strip_parent_from_work(child, parent))
                     child_level = self.pending_strip[(track, album)][workId]['part_level']
-                    tm['CWP_part_' + str(child_level)] = stripped_works
+                    tm['cwp_part_' + str(child_level)] = stripped_works
                     childId = self.pending_strip[(track, album)][workId]['childId']
                     self.parts[childId]['stripped_name'] = stripped_works
                     
 
     def rename_works(self, track_metadata, workId, work, part_level):
-        track_metadata['CWP_workId_top'] = workId
-        track_metadata['CWP_work_top'] = work
-        track_metadata['CWP_part_levels'] = part_level
+        track_metadata['cwp_workid_top'] = workId
+        track_metadata['cwp_work_top'] = work
+        track_metadata['cwp_part_levels'] = part_level
 
     def strip_parent_from_work(self, work, parent):
         log.debug("%s: STRIPPING HIGHER LEVEL WORK TEXT FROM PART NAMES", PLUGIN_NAME)
@@ -304,10 +302,10 @@ class PartLevels:
         p = re.compile(pattern_parent, re.IGNORECASE)
         m = p.search(work)              
         if m:
-            log.debug("Matched...")
+            #log.debug("Matched...")                                           #debug
             stripped_work = m.group(1)
         else:
-            log.debug("No match...")
+            #log.debug("No match...")                                          #debug
             stripped_work = work
         log.debug("Work: %s", work)
         log.debug("Stripped work: %s", stripped_work)
@@ -334,8 +332,8 @@ class PartLevels:
                 work_part_levels[top_work] = part_levels
         for track, album in self.top_works:
             tm = track.metadata
-            tm['CWP_work_part_levels'] = work_part_levels[self.top_works[(track, album)]['workId']]
-            tm['CWP_single_work_album'] = single_work_album
+            tm['cwp_work_part_levels'] = work_part_levels[self.top_works[(track, album)]['workId']]
+            tm['cwp_single_work_album'] = single_work_album
             self.derive_from_title(track, album)
             self.extend_metadata(track, album, single_work_album)
             entries_to_remove.append((track, album))
@@ -345,123 +343,112 @@ class PartLevels:
 
     def derive_from_title(self, track, album):
         tm = track.metadata
-        log.info("metadata: %s", tm)
         title = tm['title']
         movt = ""
         work = ""
-        part_levels = int(tm['CWP_part_levels'])
-        if int(tm['CWP_work_part_levels']) > 0:                          # we have a work with movements
-            if part_levels > 0:
-                parent = tm['CWP_work_1']
-                try_movt = self.strip_parent_from_work(title, parent)
-                if try_movt != title:
-                    movt = try_movt
-                    work = parent
-                else:
-                    colons = title.count(":")
-                    if colons > 0:
-                        log.info("Track: %s, Colons: %s, Part_levels: %s", track, colons, part_levels)
-                        if colons > part_levels:
-                            while colons > part_levels:               # remove the shortest part each time until there are no more colons than part_levels
-                                parts = title.split(': ')
-                                title = ""
-                                shortest_part = min(parts)
-                                log.info("Parts: %s", parts)
-                                for i, part in enumerate(parts, 0):
-                                    title = title + part
-                                    if i < len(parts) - 1:
-                                        if i == parts.index(shortest_part):
-                                            title = title + " "
-                                        else:
-                                            title = title + ": "
-                        log.info("Title: " + title)
-                        title_split = title.rsplit(': ',1)
-                        log.info("Title_split: %s", title_split)
-                        work = title_split[0]
-                        movt = title_split[1] 
-                        log.info("Work: %s, Movt: %s", work, movt)
-                    else:
-                        movt = title
-                tm['CWP_title_work'] = work
-                tm['CWP_title_movement'] =movt              
+        if 'cwp_part_levels' in tm:
+            part_levels = int(tm['cwp_part_levels'])
+            if int(tm['cwp_work_part_levels']) > 0:                          # we have a work with movements
+                if part_levels > 0:
+                    if 'cwp_work_1' in tm:
+                        parent = tm['cwp_work_1']
+                        try_movt = self.strip_parent_from_work(title, parent)
+                        if try_movt != title:
+                            movt = try_movt
+                            work = parent
+                        else:
+                            colons = title.count(":")
+                            if colons > 0:
+                                title_split = title.split(': ',1)
+                                title_rsplit = title.rsplit(': ',1)
+                                work = title_split[0]
+                                movt = title_rsplit[1] 
+                            else:
+                                movt = title
+                        tm['cwp_title_work'] = work
+                        tm['cwp_title_movement'] =movt              
         return None
 
     def extend_metadata(self, track, album, single_work_album):
         tm = track.metadata
-        part_levels = int(tm['CWP_part_levels'])
+        part_levels = int(tm['cwp_part_levels'])
         ## set up group heading and part
         if single_work_album == 1:
-            if int(tm['CWP_work_part_levels']) > 2:
+            if int(tm['cwp_work_part_levels']) > 2:
                 part_levels -= 1
         if part_levels > 0:
             if part_levels == 1:
-                groupheading = tm['CWP_work_1']
+                groupheading = tm['cwp_work_1']
             if part_levels == 2:
-                groupheading = tm['CWP_work_2'] + ":: " + tm['CWP_part_1']
+                groupheading = tm['cwp_work_2'] + ":: " + tm['cwp_part_1']
             if part_levels >= 3:
-                groupheading = tm['CWP_work_3'] + ":: " + tm['CWP_part_2'] + ": " + tm['CWP_part_1']
-            tm['CWP_groupheading'] = groupheading
-        if 'CWP_part_0' in tm:
-            part = tm ['CWP_part_0']
+                groupheading = tm['cwp_work_3'] + ":: " + tm['cwp_part_2'] + ": " + tm['cwp_part_1']
+            tm['cwp_groupheading'] = groupheading
+        if 'cwp_part_0' in tm:
+            part = tm ['cwp_part_0']
+            tm['cwp_part'] = part
         else:
-            part = tm['CWP_work_0']
-        tm['CWP_part'] = part
+            part = tm['title']
+            tm['cwp_extended_part'] = part
         if part_levels == 0:
-            groupheading = tm['CWP_work_0']
+            groupheading = tm['cwp_work_0']
         ## extend group heading from title metadata
         punc = re.compile(r'\W*')
-        log.info("Compiled regex")
         if groupheading:
-            if 'CWP_title_work' in tm:
-                work = tm['CWP_title_work']
-            else:
-                work = tm['title']    
-            nopunc_work = punc.sub('',work).strip().lower()          # Could also use translate to remove accented chars etc.?
-            nopunc_gh = punc.sub('',groupheading).strip().lower()
-            work_len = len(nopunc_work)
-            sub_len = work_len * self.SUBSTRING_MATCH
-            if self.test_sub(nopunc_gh, nopunc_work, sub_len):
-                if part_levels > 0:
-                    tm['CWP_extended_groupheading'] = groupheading
-            else:
-                if part_levels > 0:
-                    tm['CWP_extended_groupheading'] = groupheading + " {" + work + "}"
+            if 'cwp_title_work' in tm:
+                work = tm['cwp_title_work']
+                nopunc_work = punc.sub('',work).strip().lower()          # Could also use translate to remove accented chars etc.?
+                nopunc_gh = punc.sub('',groupheading).strip().lower()
+                work_len = len(nopunc_work)
+                sub_len = work_len * self.SUBSTRING_MATCH
+                if self.test_sub(nopunc_gh, nopunc_work, sub_len, 0):
+                    if part_levels > 0:
+                        tm['cwp_extended_groupheading'] = groupheading
                 else:
-                    tm['CWP_extended_groupheading'] = groupheading           # title will be in part
+                    if part_levels > 0:
+                        tm['cwp_extended_groupheading'] = groupheading + " {" + work + "}"
+                    else:
+                        tm['cwp_extended_groupheading'] = groupheading           # title will be in part
+            else:
+                tm['cwp_extended_groupheading'] = groupheading
         ## extend part from title metadata
         if part:
-            if 'CWP_title_movement' in tm:
-                movement = tm['CWP_title_movement']
+            if 'cwp_title_movement' in tm:
+                movement = tm['cwp_title_movement']
             else:
                 movement = tm['title']    
             nopunc_movt = punc.sub('',movement).strip().lower()          # Could also use translate to remove accented chars etc.?
             nopunc_part = punc.sub('',part).strip().lower()
             movt_len = len(nopunc_movt)
             sub_len = movt_len * self.SUBSTRING_MATCH
-            if self.test_sub(nopunc_part, nopunc_movt, sub_len):
+            if self.test_sub(nopunc_part, nopunc_movt, sub_len, 0):
                 if part_levels > 0:
-                    tm['CWP_extended_part'] = part
+                    tm['cwp_extended_part'] = part
             else:
                 if part_levels > 0:
-                    tm['CWP_extended_part'] = part + " {" + movement + "}"
+                    tm['cwp_extended_part'] = part + " {" + movement + "}"
                 else:
-                    tm['CWP_extended_part'] = part           # title will be in part
+                    tm['cwp_extended_part'] = part           # title will be in part
         return None
 
-    def test_sub(self, strA, strB, sub_len):
+    def test_sub(self, strA, strB, sub_len, depth):
         if strA.count(strB) > 0:
+            log.info("FOUND: %s", strB)
             return strB
         else:
-            if len(strB) <= sub_len:
-                return None
-            strB1 = strB[1:]
-            test = self.test_sub(strA, strB1, sub_len)
-            if not test:
-                strB2 = strB[:-1]
-                return self.test_sub(strA, strB2, sub_len)
+            if depth < 16:     #to prevent excessive recursioon, which can cause Picard to hang
+                depth += 1
+                if len(strB) <= sub_len:
+                    return None
+                strB1 = strB[1:]
+                test = self.test_sub(strA, strB1, sub_len, depth)
+                if not test:
+                    strB2 = strB[:-1]
+                    return self.test_sub(strA, strB2, sub_len, depth)
+                else:
+                    return test
             else:
-                return test
-
+                return None
     def album_add_request(self, album):
         album._requests += 1
 
