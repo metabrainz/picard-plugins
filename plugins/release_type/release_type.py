@@ -2,7 +2,7 @@ PLUGIN_NAME = 'Release Type'
 PLUGIN_AUTHOR = 'Elliot Chance'
 PLUGIN_DESCRIPTION = 'Appends information to EPs and Singles'
 PLUGIN_VERSION = '1.3'
-PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15"]
+PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15", "2.0"]
 
 from picard.metadata import register_album_metadata_processor
 
