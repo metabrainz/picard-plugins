@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 PLUGIN_NAME = 'Re-order sides of a release'
-PLUGIN_AUTHOR = 'David Mandelberg'
+PLUGIN_AUTHOR = 'David Mandelberg, Sambhav Kothari'
 PLUGIN_DESCRIPTION = """\
   Split mediums and re-order sides to match side order rather than
   medium order. E.g., if a release has two mediums with track numbers
@@ -28,8 +28,8 @@ PLUGIN_DESCRIPTION = """\
   changers
   (https://en.wikipedia.org/wiki/Record_changer#Automatic_sequencing)
   play in the correct order."""
-PLUGIN_VERSION = '0.1'
-PLUGIN_API_VERSIONS = ['1.3.0']
+PLUGIN_VERSION = '1.0'
+PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = 'GPL-3.0'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-3.0.html'
 
@@ -174,7 +174,7 @@ def find_side(side_info, metadata):
   orig_discnumber = int(metadata['discnumber'])
   orig_tracknumber = int(metadata['tracknumber'])
 
-  for side_item in side_info.iteritems():
+  for side_item in side_info.items():
     (
       side,
       (
@@ -215,12 +215,12 @@ def reorder_sides(tagger, metadata, *args):
   side_first_tracknumber = side_info[side][1]
   side_last_tracknumber = side_info[side][2]
 
-  metadata['totaldiscs'] = str(len(all_sides))
-  metadata['discnumber'] = str(all_sides.index(side) + 1)
+  metadata['totaldiscs'] = string_(len(all_sides))
+  metadata['discnumber'] = string_(all_sides.index(side) + 1)
 
   metadata['totaltracks'] = \
-    str(side_last_tracknumber - side_first_tracknumber + 1)
+    string_(side_last_tracknumber - side_first_tracknumber + 1)
   metadata['tracknumber'] = \
-    str(int(metadata['tracknumber']) - side_first_tracknumber + 1)
+    string_(int(metadata['tracknumber']) - side_first_tracknumber + 1)
 
 register_track_metadata_processor(reorder_sides)
