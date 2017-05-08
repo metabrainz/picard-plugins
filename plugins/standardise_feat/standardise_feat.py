@@ -2,7 +2,9 @@ PLUGIN_NAME = 'Standardise Feat.'
 PLUGIN_AUTHOR = 'Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'Standardises "featuring" join phrases for artists to "feat."'
 PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["1.4"]
+PLUGIN_API_VERSIONS = ["1.4", "2.0"]
+PLUGIN_LICENSE = "GPL-3.0"
+PLUGIN_LICENSE_URL = "http://www.gnu.org/licenses/gpl-3.0.txt"
 
 import re
 from picard import log

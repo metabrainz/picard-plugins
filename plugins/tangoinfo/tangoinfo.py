@@ -9,7 +9,7 @@ it does not cause unnecessary server load for either MusicBrainz.org
 or tango.info</p>
 """
 PLUGIN_VERSION = "0.1.5"
-PLUGIN_API_VERSIONS = ["1.3.0", "1.4.0"]
+PLUGIN_API_VERSIONS = ["1.3.0", "1.4.0", "2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 

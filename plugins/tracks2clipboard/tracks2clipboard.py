@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
 PLUGIN_NAME = "Copy Cluster to Clipboard"
-PLUGIN_AUTHOR = "Michael Elsdörfer"
+PLUGIN_AUTHOR = "Michael Elsdörfer, Sambhav Kothari"
 PLUGIN_DESCRIPTION = "Exports a cluster's tracks to the clipboard, so it can be copied into the tracklist field on MusicBrainz"
-PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15"]
+PLUGIN_VERSION = "1.0"
+PLUGIN_API_VERSIONS = ["2.0"]
 
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtWidgets
 from picard.cluster import Cluster
 from picard.util import format_time
 from picard.ui.itemviews import BaseAction, register_cluster_action
@@ -44,8 +44,8 @@ class CopyClusterToClipboard(BaseAction):
                     file.metadata["title"],
                     format_time(file.metadata.length))))
 
-        clipboard = QtGui.QApplication.clipboard()
-        clipboard.setText("\n".join(map(lambda x: x[1], sorted(tracks))))
+        clipboard = QtWidgets.QApplication.clipboard()
+        clipboard.setText("\n".join([x[1] for x in sorted(tracks)]))
 
 
 register_cluster_action(CopyClusterToClipboard())
