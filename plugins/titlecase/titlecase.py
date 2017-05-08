@@ -6,10 +6,10 @@
 # published by the Free Software Foundation
 
 PLUGIN_NAME = "Title Case"
-PLUGIN_AUTHOR = "Javier Kohen"
+PLUGIN_AUTHOR = "Javier Kohen, Sambhav Kothari"
 PLUGIN_DESCRIPTION = "Capitalize First Character In Every Word Of A Title"
-PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15"]
+PLUGIN_VERSION = "1.0"
+PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -27,7 +27,7 @@ def utitle(string):
     """Title-case a string using a less destructive method than str.title."""
     new_string = string[0].capitalize()
     cap = False
-    for i in xrange(1, len(string)):
+    for i in range(1, len(string)):
         s = string[i]
         # Special case apostrophe in the middle of a word.
         if s in "’'" and string[i - 1].isalpha():
@@ -43,7 +43,7 @@ def utitle(string):
     return new_string
 
 
-def title(string, locale="utf-8"):
+def title(string):
     """Title-case a string using a less destructive method than str.title."""
     if not string:
         return ""
@@ -51,9 +51,7 @@ def title(string, locale="utf-8"):
     #   Lots of Japanese songs use entirely upper-case English titles,
     #   so I don't like this change... - JoeW
     #if string == string.upper(): string = string.lower()
-    if not isinstance(string, unicode):
-        string = string.decode(locale)
-    return utitle(string)
+    return utitle(string_(string))
 
 from picard.metadata import (
     register_track_metadata_processor,
