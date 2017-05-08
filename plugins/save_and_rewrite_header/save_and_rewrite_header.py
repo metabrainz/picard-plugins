@@ -24,7 +24,7 @@ PLUGIN_NAME = "Save and rewrite header"
 PLUGIN_AUTHOR = "Nicolas Cenerario"
 PLUGIN_DESCRIPTION = "This plugin adds a context menu action to save files and rewrite their header."
 PLUGIN_VERSION = "0.2"
-PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15"]
+PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15", "2.0"]
 PLUGIN_LICENSE = "GPL-3.0"
 PLUGIN_LICENSE_URL = "http://www.gnu.org/licenses/gpl-3.0.txt"
 
