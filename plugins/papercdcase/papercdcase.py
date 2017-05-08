@@ -21,7 +21,7 @@ PLUGIN_NAME = 'Paper CD case'
 PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'Create a paper CD case from an album or cluster using http://papercdcase.com'
 PLUGIN_VERSION = "1.0"
-PLUGIN_API_VERSIONS = ["1.3.0", "1.4.0", "2.0"]
+PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
