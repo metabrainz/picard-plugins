@@ -23,8 +23,8 @@ Note: Some multi-value tags are excluded for the following reasons:
 <li>The sequence of one tag is linked to the sequence of another e.g. Label and Catalogue number.</li>
 </ol>
 '''
-PLUGIN_VERSION = "0.2"
-PLUGIN_API_VERSIONS = ["0.15"]
+PLUGIN_VERSION = "0.3"
+PLUGIN_API_VERSIONS = ["0.15", "2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -46,7 +46,7 @@ _sort_multivalue_tags_exclude = (
 
 def sort_multivalue_tags(tagger, metadata, track, release):
 
-    for tag in metadata.keys():
+    for tag in list(metadata.keys()):
         if tag in _sort_multivalue_tags_exclude:
             continue
         data = metadata.getall(tag)
