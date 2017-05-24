@@ -2,7 +2,33 @@
 
 PLUGIN_NAME = u'Classical Extras'
 PLUGIN_AUTHOR = u'Mark Evens (using some code & techniques from "Album Artist Website" by Sophist)'
-PLUGIN_DESCRIPTION = u'A plugin to create tags for the hierarchy of works which contain a given track recording - particularly for classical music'
+PLUGIN_DESCRIPTION = u'''A plugin to:
+I. Create tags for the hierarchy of works which contain a given track recording - particularly for classical music'
+
+II. Create sorted fields for all performers. Creates a number of variables with alternative values for "artists" and "artist".
+Creates an ensemble variable for all ensemble-type performers.
+Also creates matching sort fields for artist and artists.
+The outputs are hidden variables in Picard (the user can then use a tagger script to choose which value
+ they want in their artist, artists or other tags). 
+
+Variables provided are:
+Sort fields for all performers
+All soloists, with and without instruments/voices (and sorted without instruments/voices).
+All ensembles, with and without type (and sorted without type).
+All soloists who are also album artists (without instrument etc.).
+All ensembles who are also album artists (without type etc.).
+All conductors who are also album artists.
+All composers who are also album artists.
+
+In case composers / peformers etc are in non-latin script, a latin alternative is provided.
+This should not be necessary if "Translate artist names to this locale" is selected in Options->METADATA
+- an alternative composer variable is returned where the composer is constructed from the sorted composer variable.
+- a performer tag is created using a transliteration technique (for crtyllic scripts).
+
+A variable is also provided for soloists who are not album artists ("support performers").
+
+III. Create tags for artist types which are not normally created in Picard - particularly for classical music (notably instrument arrangers).
+'''
 PLUGIN_VERSION = '0.5'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
@@ -15,7 +41,6 @@ from functools import partial
 import collections
 import re
 import unicodedata as ud
-import string
 
 # CONSTANTS
 orchestras = ['orchestra', 'philharmonic', 'philharmonica', 'philharmoniker', 'musicians', 'academy', 'symphony', 'orkester']
@@ -36,7 +61,7 @@ def is_latin(uchr):
 def only_roman_chars(unistr):
     return all(is_latin(uchr)
            for uchr in unistr
-           if uchr.isalpha()) 
+           if uchr.isalpha())
 
 def get_roman(string):
     capital_letters = {
@@ -126,7 +151,7 @@ def get_roman(string):
     return translit_string
 
 def remove_middle(performer):
-    plist = performer.split()                                             
+    plist = performer.split()
     if len(plist) == 3:
         return plist[0] + ' ' + plist[2]                             # to remove middle names of Russian composers
     else:
@@ -181,11 +206,9 @@ class AltArtists:
     def alt_artists(self, album, metadata, *args):
         log.info("RUNNING %s", PLUGIN_NAME)
         self.sort_performers(metadata)                 #provide all the sort fields before creating the new variables
-        soloist = {}
         soloists = []
         soloist_names=[]
         soloists_sort =[]
-        ensemble = {}
         ensembles = []
         ensemble_names = []
         ensembles_sort = []
@@ -212,7 +235,7 @@ class AltArtists:
                 for index, conductor in enumerate(values):
                     if not only_roman_chars(conductor):
                         conductor = remove_middle(unsort(conductorsort[index]))
-                    conductors.append(conductor)  
+                    conductors.append(conductor)
                     if stripsir(conductor) in metadata['~albumartists'] or sort_field(stripsir(conductor)) in metadata['~albumartists_sort'] \
                     or stripsir(conductor) in metadata['~albumartists_sort']:
                        album_conductors.append(conductor)  
@@ -238,7 +261,6 @@ class AltArtists:
                     else:
                         soloists.append(performer)
                         soloist_names.append(performername)
-                        #newkey = 'soloist'
                         match=last.search(sort_field(stripsir(performername)))
                         if match:
                             performerlast = match.group(1)
@@ -284,16 +306,15 @@ class AltArtists:
                         composerlast = composersort
                     if not only_roman_chars(composer):
                         composer = remove_middle(unsort(composersort))
-                    composers.append(composer)  
+                    composers.append(composer)
                     if stripsir(composer) in metadata['~albumartists'] or sort_field(stripsir(composer)) in metadata['~albumartists_sort'] \
                     or stripsir(composer) in metadata['~albumartists_sort'] or composersort in metadata['~albumartists_sort'] \
                     or unsort(composersort) in metadata['~albumartists'] or composerlast in metadata['~albumartists'] \
                     or composerlast in metadata['~albumartists_sort']:
                        album_composers.append(composer)
                        album_composers_sort.append(composersort[index])
-                       album_composer_lastnames.append(composerlast) 
+                       album_composer_lastnames.append(composerlast)
 
-     
 
         metadata['~caa_soloists'] = soloists
         metadata['~caa_soloist_names'] = soloist_names
@@ -313,9 +334,7 @@ class AltArtists:
         metadata['~caa_support_performers'] = support_performers
         metadata['~caa_support_performers_sort'] = support_performers_sort
         metadata['~caa_composer'] = composers
-        metadata['~caa_conductor'] = conductors 
-        #log.info("METADATA")
-        #log.debug(metadata)
+        metadata['~caa_conductor'] = conductors
 
     def sort_performers(self, metadata):
         for key, values in metadata.rawitems():
@@ -356,13 +375,13 @@ class ExtraArtists:
     def add_artist_info(self, album, track_metadata, trackXmlNode, releaseXmlNode):
         log.debug("%s: LOAD NEW TRACK", PLUGIN_NAME)                                      #debug
         #log.info("ALBUM %s", album)
-        log.info("METADATA %s", track_metadata)
-        log.info("TRACKXMLNODE %s", trackXmlNode)
+        #log.info("METADATA %s", track_metadata)
+        #log.info("TRACKXMLNODE %s", trackXmlNode)
         #log.info("RELEASEXMLNODE %s", releaseXmlNode)
         tm = track_metadata
         track = album._new_tracks[-1]     # Jump through hoops to get track object!!
         self.track_listing.append(track)
-        if '~caa_album_composer_lastnames' in track_metadata:                          # composer last names created by alternative artists plugin
+        if '~caa_album_composer_lastnames' in track_metadata:                          # composer last names created by alternative artists (this will be made more seamless )
             composer_lastnames = track_metadata['~caa_album_composer_lastnames']
             if album in self.album_artists:
                 if composer_lastnames not in self.album_artists[album]['composer_lastnames']:
@@ -400,11 +419,11 @@ class ExtraArtists:
             if 'relation' in record.relation_list[0].children:
                 for relation_list_item in record.relation_list:
                     log.info("Relation list item %s", relation_list_item)
-                    relationList.append(relation_list_item.relation)        
+                    relationList.append(relation_list_item.relation)
                 log.debug("PASS TO PROCESSING RELATIONS")
                 return self.artist_process_relations(relationList, artistType)
         else:
-            log.error("%s: %r: MusicBrainz work xml result not in correct format - %s", 
+            log.error("%s: %r: MusicBrainz work xml result not in correct format - %s",
                       PLUGIN_NAME, workId, response)
         return None
 
@@ -431,7 +450,7 @@ class ExtraArtists:
                                         log.debug("Append %s  .....", inst.text)
                                         instrument_list.append(inst.text)
                                         log.debug("....appended. Instrument_list = %s", instrument_list)
-                                    else: 
+                                    else:
                                         instrument_list = [inst.text]
                             if instrument_list:
                                 log.debug("OK OK")
@@ -442,7 +461,7 @@ class ExtraArtists:
         if artists:
             log.debug("%s: Artists of type %s found: %s", PLUGIN_NAME, artistType, artists)                          #debug
         else:
-            log.debug("No Artist found")                                                                    #debug          
+            log.debug("No Artist found")                                                                    #debug
         return artists
 
     def process_album(self, album):
@@ -493,7 +512,7 @@ class ExtraArtists:
             if '~cea_arranger' in tm:
                 tm['~cea_arranger'] = tm['~cea_arranger'] + '; ' + details
             else:
-                tm['~cea_arranger'] = details   
+                tm['~cea_arranger'] = details
 
 
 class PartLevels:
@@ -549,9 +568,9 @@ class PartLevels:
 
     def __init__(self):
         self.works_cache = {}
-            # maintains list of parent of each workid, or None if no parent found, so that XML lookup only executed if no existing record 
+            # maintains list of parent of each workid, or None if no parent found, so that XML lookup only executed if no existing record
         self.partof = {}
-            # the inverse of the above (immediate children of each parent)                          
+            # the inverse of the above (immediate children of each parent)
         self.works_queue = self.WorksQueue()
             # lookup queue - holds track/album pairs for each queued workid (may be more than one pair per id, especially for higher-level parts)
         self.parts = collections.defaultdict(lambda: collections.defaultdict(dict))
@@ -627,7 +646,7 @@ class PartLevels:
     def work_add_track(self, album, track, workId, tries):
         #log.debug("%s: ADDING WORK TO LOOKUP QUEUE", PLUGIN_NAME)                   #debug
         self.album_add_request(album)
-            # to change the _requests variable to indicate that there are pending requests for this item and delay picard from finalizing the album                   
+            # to change the _requests variable to indicate that there are pending requests for this item and delay picard from finalizing the album
         log.debug("%s: Added lookup request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
         if self.works_queue.append(workId, (track, album)): # All work combos are queued, but only new workIds are passed to XML lookup
             host = config.setting["server_host"]
@@ -658,11 +677,9 @@ class PartLevels:
                 self.album_remove_request(album)
             return
         tuples = self.works_queue.remove(workId)
-        for track, album in tuples:                                       
+        for track, album in tuples:
             self.track_listing[(track, album)] = workId
             #log.debug("%s Requests = %s", PLUGIN_NAME, album._requests)   #debug
-        #log.info("Response**********************************")
-        #log.info(response)
         if workId in self.parts:
             metaList = self.work_process_metadata(workId, response)
             #log.debug("metaList: %s", metaList)
@@ -698,7 +715,7 @@ class PartLevels:
                 self.top[album].append(parentId)
         for track, album in tuples:
             if album._requests == 1:                                  # Next remove will finalise album
-                self.process_album(album)                       # so do the final album-level processing before we go!  
+                self.process_album(album)                       # so do the final album-level processing before we go!
             self.album_remove_request(album)
             log.debug("%s: Removed request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
 
@@ -742,7 +759,7 @@ class PartLevels:
             answer = self.process_trackback(self.trackback[topId], ref_height, top_info)
             if answer:
                 tracks = answer[1]['track']
-                log.info("TRACKS: %s", tracks)
+                #log.info("TRACKS: %s", tracks)
                 work_part_levels = self.trackback[topId]['depth']
                 for track in tracks:
                     track_meta = track[0]
@@ -769,8 +786,6 @@ class PartLevels:
 
     def append_trackback(self, parentId, child):
         if parentId in self.trackback:
-            #log.debug("TESTING BEFORE APPEND...  self.trackback[key] = %s", self.trackback[key])
-            #log.debug("..............  self.trackback[child] = %s", self.trackback[child])
             if child not in self.trackback[parentId]['children']:
                 log.debug("TRYING TO APPEND...")
                 self.trackback[parentId]['children'].append(child)
@@ -814,7 +829,6 @@ class PartLevels:
                 if 'relation_list' in response.metadata[0].work[0].children:
                     if 'relation' in response.metadata[0].work[0].relation_list[0].children:
                         for relation_list_item in response.metadata[0].work[0].relation_list:
-                            #log.info("Relation list item %s", relation_list_item)
                             relationList.append(relation_list_item.relation)
                         return self.work_process_relations(relationList)
 
@@ -847,9 +861,7 @@ class PartLevels:
                             artist = (instrument, name, sort_name)
                             artists.append(artist)
                             #log.debug("ARTISTS %s", artists)
-        #log.debug("%s: Parent works found: %s", PLUGIN_NAME, new_works)                          #debug
-        #if not new_workIds:                                            #debug
-            ##log.debug("No parent found")                             #debug
+
         # just select one parent work to return (the longest named, as it is likely to be the lowest level)
         if new_workIds:
             if len(new_workIds) > 1:
@@ -859,23 +871,21 @@ class PartLevels:
                     new_workId = new_workIds[i]
                 else:
                     new_workId = new_workIds[0]     # in case work is not named for some reason
-                    new_work = None                
+                    new_work = None
             else:
                 new_workId = new_workIds[0]
-                new_work = new_works[0]           
+                new_work = new_works[0]
         else:
             new_workId = None
-            new_work = None   
+            new_work = None
         workItems = (new_workId, new_work)
         itemsFound = [workItems, artists]
-        #log.debug("ITEMSFOUND********* %s", itemsFound)
         return itemsFound
     
     def set_metadata(self, part_level, workId, parentId, parent, track):
         log.info("Got to set metadata")
         log.debug("%s: SETTING METADATA FOR TRACK = %r, parent = %s, part_level = %s", PLUGIN_NAME, track, parent, part_level)                     #debug
         tm = track.metadata
-        #tm['~cwp_error'] = None
         if parentId:
             tm['~cwp_workid_' + str(part_level)] = parentId
             tm['~cwp_work_' + str(part_level)] = parent
@@ -900,7 +910,6 @@ class PartLevels:
             tm['~cwp_part_' + str(part_level-1)]= stripped_works
             self.parts[workId]['stripped_name'] = stripped_works
             if stripped_works == works:                          # no match found: nothing stripped
-                #log.info("Set up pending strip")
                 self.pending_strip[(track)][parentId]['childId'] = workId
                 self.pending_strip[(track)][parentId]['children'] = works
                 self.pending_strip[(track)][parentId]['part_level'] = part_level - 1
@@ -922,9 +931,9 @@ class PartLevels:
             name = arranger[1]
             sort_name = arranger[2]
             newkey = '%s:%s' % ('arranger', instrument)
-            #log.debug("NEW KEY = %s", newkey)
             tm.add_unique(newkey, name)
-            tm['~cwp_arranger'] = name + ' (' + instrument + ')'                   
+            tm['~cwp_arranger'] = name + ' (' + instrument + ')'
+            tm['~cwp_arranger_sort'] = sort_name
 
 
     def strip_parent_from_work(self, work, parent, part_level, extend):             #extend=True is used to find "full_parent" names
@@ -938,7 +947,7 @@ class PartLevels:
             pattern_parent = "(\W*"+pattern_parent+")(.*)"
         log.info("Pattern parent: %s, Work: %s", pattern_parent, work)
         p = re.compile(pattern_parent, re.IGNORECASE)
-        m = p.search(work)              
+        m = p.search(work)
         if m:
             log.debug("Matched...")                                           #debug
             if extend:
@@ -982,7 +991,6 @@ class PartLevels:
                     tm['~cwp_workid_top'] = top_info['id']
                     tm['~cwp_work_top'] = top_info['name']
                     tm['~cwp_single_work_album'] = top_info['single']
-                    #self.extend_metadata(track, ref_height, depth)
                     log.info("Track metadata = %s", tm)
                     if 'track' in tracks:
                         tracks['track'].append((track, height))
@@ -1002,7 +1010,6 @@ class PartLevels:
                 parent = self.parts[parentId]['name']
                 use_titles_in_work = True
                 prev_title_work = None
-                title_work_level = 0
                 for child in trackback['children']:
                     log.info("child trackback = %s", child)
                     answer = self.process_trackback(child, ref_height, top_info)
@@ -1024,8 +1031,8 @@ class PartLevels:
                             title_works = self.derive_from_title(track_meta)
                             work = title_works[0]
                             if prev_title_work and work != prev_title_work:
-                                use_titles_in_work = False 
-                                log.debug("Do not use titles in work for track %s. Work: %s, Prev work: %s, Parent: %s", track, work, prev_title_work, parent) 
+                                use_titles_in_work = False
+                                log.debug("Do not use titles in work for track %s. Work: %s, Prev work: %s, Parent: %s", track, work, prev_title_work, parent)
                             prev_title_work = work
                 if use_titles_in_work:
                     if 'track' in tracks:
@@ -1072,9 +1079,9 @@ class PartLevels:
                                 title_split = title.split(': ',1)
                                 title_rsplit = title.rsplit(': ',1)
                                 work = title_split[0]
-                                movt = title_rsplit[1] 
+                                movt = title_rsplit[1]
                             else:
-                                movt = title             
+                                movt = title
         log.info("Work %s, Movt %s", work, movt)
         return (work, movt)
 
@@ -1109,14 +1116,9 @@ class PartLevels:
         if groupheading:
             if '~cwp_title_work' in tm and '~cwp_title_work_level' in tm:
                 work = tm['~cwp_title_work']
-                # nopunc_work = self.boil(work)         
-                # nopunc_gh = self.boil(groupheading)
-                # work_len = len(nopunc_work)
-                # sub_len = work_len * self.SUBSTRING_MATCH
-                # if self.test_sub(nopunc_gh, nopunc_work, sub_len, 0):
-                log.debug("Test for GH/work diffs. gh = %s, work = %s", groupheading, work)
+                #log.debug("Test for GH/work diffs. gh = %s, work = %s", groupheading, work)
                 diff = self.diff_pair(groupheading, work)
-                log.debug("DIFF GH - WORK. ti =%s", diff)
+                #log.debug("DIFF GH - WORK. ti =%s", diff)
                 if not diff:
                     if part_levels > 0:
                         ext_groupheading = groupheading
@@ -1153,14 +1155,14 @@ class PartLevels:
                 ext_groupheading = groupheading
             if ext_groupheading:
                 log.debug("EXTENDED GROUPHEADING: %s", ext_groupheading)
-                tm['~cwp_extended_groupheading'] = ext_groupheading   
+                tm['~cwp_extended_groupheading'] = ext_groupheading
         ## extend part from title metadata
         log.debug("Now extend part...")
         if part:
             if '~cwp_title_movement' in tm:
                 movement = tm['~cwp_title_movement']
             else:
-                movement = tm['~cwp_title'] or tm['title']    
+                movement = tm['~cwp_title'] or tm['title']
 
             diff = self.diff_pair(part, movement)
             log.debug("DIFF PART - MOVT. ti =%s", diff)
@@ -1189,17 +1191,15 @@ class PartLevels:
         #p3 = re.compile(r'([\s\w]+)')             # Matches phrases separated by punctuation
     # remove certain words from the comparison
         removewords = ["part", "act","scene","movement","movt" ]
-        log.info("Words to remove in comparison: %s", removewords)
-        log.debug("mb_item: %s", mb_item)
-       # mb_item = self.remove_words(mb_item, removewords)
+        #log.info("Words to remove in comparison: %s", removewords)
+        #log.debug("mb_item: %s", mb_item)
         querywords = mb_item.split()
         resultwords = []
         for word in querywords:
-            if word.lower() not in removewords:   
+            if word.lower() not in removewords:
                 resultwords.append(word)
         mb = ' '.join(resultwords)
         log.debug("mb_item(2): %s", mb_item)
-        #title_item = self.remove_words(title_item, removewords)
         querywords = title_item.split()
         resultwords = []
         for word in querywords:
@@ -1251,7 +1251,7 @@ class PartLevels:
                 if ti_bit.lower() not in nonWords:
                     ti_test.append(ti_bit)
         log.debug("words %s", words)
-        words_prop = words / len(ti_list)              # proportion of words in ti which are in mb
+        #words_prop = words / len(ti_list)              # proportion of words in ti which are in mb
         log.debug("ti_test = %s", ti_test)
         new_words = len(ti_test)                       # only significant new words count
         #if words_prop > self.SUBSTRING_MATCH and new_words < 4:
@@ -1267,12 +1267,9 @@ class PartLevels:
                 ti = None
     # see if there is any significant difference between the strings
         if ti:
-            log.debug("****  1  ******")
-            nopunc_ti = self.boil(ti)  
+            nopunc_ti = self.boil(ti)
             nopunc_mb = self.boil(mb)
-            log.debug("****  2  ******")
             ti_len = len(nopunc_ti)
-            log.debug("****  3  ******")
             sub_len = ti_len * self.SUBSTRING_MATCH
             log.debug("test sub....")
             if self.test_sub(nopunc_mb, nopunc_ti, sub_len, 0):   # is there a substring of ti of length at least sub_len in mb?
@@ -1294,7 +1291,7 @@ class PartLevels:
                     ti = ti.replace(")", "")
 
             if ti:
-                match_chars = [("(",")"),("[","]"),("{","}")]   
+                match_chars = [("(",")"),("[","]"),("{","}")]
                 last = len(ti) - 1
                 for char_pair in match_chars:
                     if char_pair[0] == ti[0] and char_pair[1] == ti[last]:
@@ -1308,7 +1305,7 @@ class PartLevels:
             log.info("FOUND: %s", strB)
             return strB
         else:
-            if depth < 16:     #to prevent excessive recursioon, which can cause Picard to hang
+            if depth < 16:     #to prevent excessive recursion, which can cause Picard to hang
                 depth += 1
                 if len(strB) <= sub_len:
                     return None
