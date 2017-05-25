@@ -1,0 +1,12 @@
+$noop(ARTIST SCRIPT FOR MUSO. NB THIS SCRIPT REQUIRES THE "CLASSICAL EXTRAS" PLUGIN)
+$noop(RUN THIS AFTER THE ALTERNATIVE ARTISTS SCRIPT)
+
+$setmulti(arranger,%arranger%$if(%_cea_arranger%,; )%_cea_arranger%$if(%_cwp_arranger%,; )%_cwp_arranger%)
+
+$noop(MODIFY ALBUM NAME TO INCLUDE COMPOSER - MB release name is put in RELEASE_NAME)
+$set(release_name,%album%)
+$set(album,$if(%_cea_album_composer_lastnames%,$if($not($in(%album%,%_cea_album_composer_lastnames%)),%_cea_album_composer_lastnames%: %album%,%album%),%album%))
+
+
+$set(stamp,%stamp% Extra artist tags. )
+
