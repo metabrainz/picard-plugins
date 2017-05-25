@@ -1,0 +1,9 @@
+$noop(CREATE WORK STRUCTURE FOR MUSO ETC.  - WITHOUT using extended metadata)
+$noop(NB these script is specifically designed to be run in conjunction with the classical_workparts plugin as it uses tags produced by that plugin)
+$noop(********************************)
+$set(muso_part,%_cwp_part%)
+$set(muso_work,$if2(%_cwp_groupheading%,))
+$set(musicbrainz_work,%_cwp_work_top%)
+$set(title,$if2(%_cwp_title%,%title%))
+
+$set(stamp,%stamp% Muso unextended tags. )
