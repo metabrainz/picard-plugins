@@ -5,7 +5,7 @@ This is particularly designed to assist with tagging of classical music so that 
 ** PLEASE NOTE ** Tagger scripts are required to make use of these hidden variables. Please see the notes on "Usage" below.
 
 # Output 
-All variables produced by this plugin are prefixed with "_cwp_", "_caa_" or "_cea_" depending on which section of the plugin (i.e.which Class) cretaed them. The basic variables are as follows:
+All variables produced by this plugin are prefixed with "_cwp_", "_caa_" or "_cea_" depending on which section of the plugin (i.e.which Class) created them. The basic variables are as follows:
 
 ## Work parts and levels
 - _cwp_work_n, where n is an integer >=0 : The work name at level n. For n=0, the tag is the same as the current standard Picard tag "work"
@@ -21,17 +21,18 @@ All variables produced by this plugin are prefixed with "_cwp_", "_caa_" or "_ce
 If there is more than one work at the bottom level, then _cwp_work_0 and _cwp_workid_0 will have multiple entries. However, only the first workId is used to find a parent work. This should be OK in 99% of cases, since the existence of multiple works at the bottom level is because they are not broken into separate tracks on the recording and thus they are children of a common parent.
 If there is more than one "parent" work of a lower level work, the plugin CURERENTLY uses the one with the longest name, on the grounds that the longest-named is likely to be the lowest level (but not necessarily); this is scheduled for improvement.
 
-As well as variables derived from MB's work structure, some variables are produced which are derived from the track title. Typically titles may be in the format "Work: Movement". The plugin will sttempt to extract the work and movement into:
+As well as variables derived from MB's work structure, some variables are produced which are derived from the track title. Typically titles may be in the format "Work: Movement". The plugin will attempt to extract the work and movement into:
 - _cwp_title_work, and
 - _cwp_title_movement
-This process can be a bit hit and miss. The variables will only be produced if there is a parent work.
+This process can be a bit hit and miss as we are dependent on the naming convention of the title.
+- _cwp_title_work_level is used to indicate at what level in the main structure the _cwp_title_work will be applied. Normally this is level 1.
 
 In addition to these generic variables some custom variables are produced, particularly for Muso users, but which may be of value to others:
 - _cwp_part : The movement name derived from the MB work names - to populate Muso's Title field.
 - _cwp_groupheading : For multi-level works, this is intended to be imported to Muso's Group Header field. For two or more levels, the sub-header for Muso will be the text after a double colon.
 - _cwp_extended_part : = _cwp_part with additional movement information from the title - given in {}.
 - _cwp_extended_groupheading : = _cwp_part with additional work information from the title - given in {}.
-The latter two variables can be useful where the "canonical" work names in MB are in the original language and the titles are in English (say). The user can choose which set of variables they prefer (different tagger scripts supplied).
+The latter two variables can be useful where the "canonical" work names in MB are in the original language and the titles are in English (say). The user can choose which set of variables they prefer (different tagger scripts supplied). Various heuristics are used to try and add (and only add) meaningful additional information, but oddities may occur which require manual editing.
 
 One artist tag is set in this section:
 - _cwp_arranger : This is for "instrument arrangers", where Picard does not currently write them to the Arranger tag (despite style guidance saying to use specific instrument types instead of generic arranger). This might become unnecessary if Picard is fixed.
@@ -39,7 +40,7 @@ One artist tag is set in this section:
 Finally, the tag _cwp_error is provided to supply warnings and error messages to the user. At present these are a warning if there is more than one work (only one parent will be followed) or if excessive "Service Unavailabilty" has caused some metadata to be omitted.
 
 ## Alternative artists
-- _caa_soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons.
+- _caa_soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be "soloists" in that they may be part of an ensemble.
 - _caa_soloist_names : Names of the above (i.e. no instruments).
 - _caa_soloists_sort : Sort_names of the above.
 - _caa_ensembles : List of performers which are ensembles (with type / instruments - e.g. "orchestra" - in brackets), separated by semi-colons.
@@ -63,8 +64,8 @@ Note re non-Latin characters: These can be avoided by using the Picard option (O
 
 ## Extra artists
 - _cea_performer : An alternative to performer, based on the sort name (see note re non-Latin script above).
-- _cea_arranger : Instrument arranger for the recording (not created by Picard).
-- _cea_album_composer_lastnames : Last names of composers of ANY track on the album and who are album artists. This can be used to prefix the album name if required. (cf _caa_album_composer_lastnames)
+- _cea_arranger : Instrument arranger for the recording (not created by Picard as standard).
+- _cea_album_composer_lastnames : Last names of composers of ANY track on the album who are also album artists. This can be used to prefix the album name if required. (cf _caa_album_composer_lastnames)
 
 # Usage
 
@@ -93,8 +94,7 @@ The following tagger scripts are provided and may be modified as needed:
 - CWP tags: To write out the hidden variables as explicit tags. Intended to assist script developers etc. - best not to save these tags, to avoid clutter.
 ### for artists:
 - Alternative artists: to make use of the _caa_ variables. This is designed to make use of the display features of Muso and LMS and may need modification for other systems.
-- Extra artists : to make use of the _cea_arranger and _cwp_arranger variables and to prefix the album with _cea_album_composer_lastnames
-There is also another script, which is nothing to do with works, but which is included if needed to provide a degree of consistency between Picard artist conventions and those in SongKong and Muso (call "Muso artists").
+- Extra artists : to make use of the _cea_arranger and _cwp_arranger variables and to prefix the album with _cea_album_composer_lastnames.
 
 The included jpg gives an illustration of the use of extended metadata in Muso to give dual-language information.
 
@@ -114,6 +114,7 @@ v0.4
 - Improved processing of works with only one part
 - Improved logic to deal with parent works which are not completely named (e.g. no opus number in parent, but is in child)
 - Improved extended metadata logic
+
 v0.5 
 - Get artist-rels as well as work-rels on work lookup and populate "instrument arranger" metadata
 - Improved heuristics for extending metadata based on titles
