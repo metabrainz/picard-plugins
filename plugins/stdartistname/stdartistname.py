@@ -34,12 +34,13 @@ PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
-from picard import config, log
+from picard import log
 from picard.metadata import register_album_metadata_processor
 
 class AlbumArtistStdName:
 
-    def add_artist_std_name(self, album, album_metadata, releaseXmlNode):
+    @staticmethod
+    def add_artist_std_name(album, album_metadata, releaseXmlNode):
         albumid = releaseXmlNode.id
         if 'artist_credit' in releaseXmlNode.children:
             stdFirstArtist = ""
