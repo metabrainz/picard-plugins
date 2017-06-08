@@ -43,7 +43,6 @@ class AlbumArtistStdName:
             stdArtist = ""
             sortArtist = ""
             aCount = 0
-            jPhrase = []
             # The 'name_credit' child should always be there.
             # This check is to avoid a runtime error if it doesn't exist for some reason.
             if 'name_credit' in releaseXmlNode.artist_credit[0].children:
