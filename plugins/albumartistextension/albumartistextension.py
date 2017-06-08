@@ -103,9 +103,9 @@ class AlbumArtistStdName:
                         log.error("%s: %r: Missing 'artist' in XML contents: %s",
                                 PLUGIN_NAME, albumid, releaseXmlNode)
                     aCount += 1
-                else:
-                    log.error("%s: %r: Missing 'name_credit' in XML contents: %s",
-                            PLUGIN_NAME, albumid, releaseXmlNode)
+            else:
+                log.error("%s: %r: Missing 'name_credit' in XML contents: %s",
+                        PLUGIN_NAME, albumid, releaseXmlNode)
             if len(stdArtist) > 0:
                 album_metadata["~aaeStdAlbumArtists"] = stdArtist
             if len(credArtist) > 0:
