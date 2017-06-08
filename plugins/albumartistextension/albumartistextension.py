@@ -8,33 +8,22 @@ more detailed information about the album artists.
 <br /><br />
 The information is provided in the following variables:
 <ul>
-<li>_aaeStdAlbumArtists = The standardized version of album artist(s)
-<li>_aaeCredAlbumArtists = The credited version of album artist(s)
-<li>_aaeSortAlbumArtists = The sorted version of album artist(s)
+<li>_aaeStdAlbumArtists = The standardized version of the album artists.
+<li>_aaeCredAlbumArtists = The credited version of the album artists.
+<li>_aaeSortAlbumArtists = The sorted version of the album artists.
+<li>_aaeStdPrimaryAlbumArtist = The standardized version of the first
+    (primary) album artist.
+<li>_aaeCredPrimaryAlbumArtist = The credited version of the first (primary)
+    album artist.
+<li>_aaeSortPrimaryAlbumArtist_n = The sorted version of the first (primary)
+    album artist.
 <li>_aaeAlbumArtistCount = The number of artists comprising the album artist.
-<li>_aaeStdAlbumArtist_n = The standardized version of the album artists,
-    where n is the number of the artist in the list starting at 0.  If there 
-    are two artists in the AlbumArtist tag, then they will be available in 
-    the _aaeStdAlbumArtist_0 and _aaeStdAlbumArtist_1 variables. 
-<li>_aaeCredAlbumArtist_n = The credited version of the album artists,
-    where n is the number of the artist in the list starting at 0.  If there
-    are two artists in the AlbumArtist tag, then they will be available in
-    the _aaeCredAlbumArtist_0 and _aaeCredAlbumArtist_1 variables.
-<li>_aaeSortAlbumArtist_n = The sorted version of the album artists, where
-    n is the number of the artist in the list starting at 0.  If there are
-    two artists in the AlbumArtist tag, then they will be available in the
-    _aaeSortAlbumArtist_0 and _aaeSortAlbumArtist_1 variables.
-<li>_aaeJoinPhrase_n = The phrases used to join the album artists, where n
-    is the number of the phrase in the list starting at 0.  NOTE: This
-    variable will not be provided if there is only one artist in the
-    AlbumArtist tag.  The user should check that _aaeAlbumArtistCount is
-    greater than one before using this variable.
 </ul>
 PLEASE NOTE: Tagger scripts are required to make use of these hidden
 variables.
 '''
 
-PLUGIN_VERSION = "0.3"
+PLUGIN_VERSION = "0.4"
 PLUGIN_API_VERSIONS = ["1.4"]
 PLUGIN_LICENSE = "GPL-2.0 or later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -67,7 +56,6 @@ class AlbumArtistStdName:
                     # Check if there is a 'joinphrase' specified.
                     if 'joinphrase' in ncredit.attribs:
                         tempPhrase = ncredit.joinphrase
-                        jPhrase.append(tempPhrase)
                     # Check if there is a 'name' specified.  This will be the
                     # credited name.
                     if 'name' in ncredit.children:
@@ -82,10 +70,11 @@ class AlbumArtistStdName:
                         if 'name' in ncredit.artist[0].children:
                             tempStdName = ncredit.artist[0].name[0].text
                             stdArtist += tempStdName + tempPhrase
-                            album_metadata["~aaeStdAlbumArtist_%i" % aCount] = tempStdName
                             tCredName = tempCredName if len(tempCredName) > 0 else tempStdName
                             credArtist += tCredName + tempPhrase
-                            album_metadata["~aaeCredAlbumArtist_%i" % aCount] = tCredName
+                            if aCount < 1:
+                                album_metadata["~aaeStdPrimaryAlbumArtist"] = tempStdName
+                                album_metadata["~aaeCredPrimaryAlbumArtist"] = tCredName
                         else:
                             log.error("%s: %r: Missing artist 'name' in XML contents: %s",
                                     PLUGIN_NAME, albumid, releaseXmlNode)
@@ -95,7 +84,8 @@ class AlbumArtistStdName:
                         if 'sort_name' in ncredit.artist[0].children:
                             tempSortName = ncredit.artist[0].sort_name[0].text
                             sortArtist += tempSortName + tempPhrase
-                            album_metadata["~aaeSortAlbumArtist_%i" % aCount] = tempSortName
+                            if aCount < 1:
+                                album_metadata["~aaeSortPrimaryAlbumArtist"] = tempSortName
                         else:
                             log.error("%s: %r: Missing artist 'sort_name' in XML contents: %s",
                                     PLUGIN_NAME, albumid, releaseXmlNode)
@@ -114,11 +104,6 @@ class AlbumArtistStdName:
                 album_metadata["~aaeSortAlbumArtists"] = sortArtist
             if aCount > 0:
                 album_metadata["~aaeAlbumArtistCount"] = aCount
-            # Reset counter
-            aCount = 0
-            for tPhrase in jPhrase:
-                album_metadata["~aaeJoinPhrase_%i" % aCount] = tPhrase
-                aCount += 1
         else:
             log.error("%s: %r: Error reading XML contents: %s",
                       PLUGIN_NAME, albumid, releaseXmlNode)
