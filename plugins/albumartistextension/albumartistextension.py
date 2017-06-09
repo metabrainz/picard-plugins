@@ -15,7 +15,7 @@ The information is provided in the following variables:
     (primary) album artist.
 <li>_aaeCredPrimaryAlbumArtist = The credited version of the first (primary)
     album artist.
-<li>_aaeSortPrimaryAlbumArtist_n = The sorted version of the first (primary)
+<li>_aaeSortPrimaryAlbumArtist = The sorted version of the first (primary)
     album artist.
 <li>_aaeAlbumArtistCount = The number of artists comprising the album artist.
 </ul>
