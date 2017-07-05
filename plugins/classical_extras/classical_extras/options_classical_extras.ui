@@ -2208,12 +2208,9 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QFrame" name="frame">
-            <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+           <widget class="QGroupBox" name="groupBox">
+            <property name="title">
+             <string>Works source</string>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_11">
              <item>
@@ -2983,56 +2980,7 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>cwp_titles</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>groupBox_4</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>168</x>
-     <y>122</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>478</x>
-     <y>113</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_works</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>groupBox_4</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>94</x>
-     <y>151</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>463</x>
-     <y>153</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_extended</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>groupBox_4</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>233</x>
-     <y>175</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>448</x>
-     <y>178</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
  <buttongroups>
   <buttongroup name="Source_buttons"/>
   <buttongroup name="Style_buttons"/>

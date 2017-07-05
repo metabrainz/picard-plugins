@@ -59,10 +59,29 @@ Use "work_type" as a source in the prvious section to (e.g.) map to the genre ta
 "Fix cyrillic names (where possible and if not fixed by locale settings)" attempts to provide English version of composers, conductors and performers where the script is non-Latin and the relevant locale settings (Options->Metadata) have not fixed this. For performers, the tags are updated directly, but for composers and conductors, the original tag is left and can be updated by adding lines in the previous section (map composer->composer etc.)
 
 ## Work and parts tab
-There three coloured sections
 
-1. 
+There three coloured sections as shown in the screen print below:
+![Works and parts options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/work_parts_options.jpg)
 
+1. "Include all work levels" should be selected otherwise this section will not run.
+
+    "Use cache (if available)" prevents excessive look-ups of the MB database. Every look-up of a parent work needs to be performed separately (hopefully the MB database might make this easier some day). Network usage constraints by MB means that each look-up tales a minimum of 1 second. Once a release has been looked-up, the works are retained in cache, significantly reducing the time required if, say, the options are changed and the data refreshed. However, if the user edits the works in the MB database then the cache will need to be turned off temporarily for the refresh to find the new/changed works.
+
+2. "Tagging style". This section determines how the hierarchy of works will be sourced.
+
+    * **Works source**: There are 3 options for determing the principal source of the works metadata
+      - "Use only metadata from title text". The plugin will atempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.
+      - "Use only metadata from canonical works". The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will be in the language of the release.
+      - "Use canonical work metadata enhanced with title text". This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. See image below for an example (using the Muso library manager).
+      ![Respighi](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/Respighi.jpg)
+
+    * **Source of canonical work text**. Where either of the second two options above are chosen, there is a further choice to be made:
+      - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast, JB 1:112", not "Má vlast".
+      - "Consistent with lowest level work description (where possible)". The names of the level 0 work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast", not "Má vlast, JB 1:112". This frequently looks better, but not always, particularly if the level 0 work name does not contain all the parent work detail. If selected, this choice will only be implemented where the level 0 work name appears to have the parent work names within it.
+
+3. "Tags to create" sets the names of the tags that will be created from the sources described above.
+
+    * **Movement/Part tags**
 
 ## Work parts and levels
 - _cwp_work_n, where n is an integer >=0 : The work name at level n. For n=0, the tag is the same as the current standard Picard tag "work"
