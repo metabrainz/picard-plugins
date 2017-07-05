@@ -24,18 +24,19 @@ There are four coloured sections:
   * Sources
 The most useful sources are available from the drop-down list and are as follows:
 Most of the names are for artist data and are sourced from hidden variables (prefixed with "_cea_")
-- soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be "soloists" in that they may be part of an ensemble.
-- soloist_names : Names of the above (i.e. no instruments).
-- ensembles : List of performers which are ensembles (with type / instruments - e.g. "orchestra" - in brackets), separated by semi-colons.
-- ensemble_names : Names of the above (i.e. no instruments).
-- album_soloists : Sub-list of soloist_names who are also album artists
-- album_conductors : List of conductors whao are also album artists
-- album_ensembles: Sub-list of ensemble_names who are also album artists
-- album_composers : List of composers who are also album artists
-- album_composer_lastnames : Last names of composers of ANY track on the album who are also album artists. This is the source used to prefix the album name (when that option is selected).
-- support_performers : Sub-list of soloist_names who are NOT album artists
-- composer : Note that, if "Fix cyrillic names" in the last section is checked, this is based on sort name, to avoid non-latin language problems (if translation is not already made via locale choices).
-- conductor : Note that, if "Fix cyrillic names" in the last section is checked, this is based on sort name, to avoid non-latin language problems (if translation is not already made via locale choices).
+  - soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be "soloists" in that they may be part of an ensemble.
+  - soloist_names : Names of the above (i.e. no instruments).
+  - ensembles : List of performers which are ensembles (with type / instruments - e.g. "orchestra" - in brackets), separated by semi-colons.
+  - ensemble_names : Names of the above (i.e. no instruments).
+  - album_soloists : Sub-list of soloist_names who are also album artists
+  - album_conductors : List of conductors whao are also album artists
+  - album_ensembles: Sub-list of ensemble_names who are also album artists
+  - album_composers : List of composers who are also album artists
+  - album_composer_lastnames : Last names of composers of ANY track on the album who are also album artists. This is the source used to prefix the album name (when that option is selected).
+  - support_performers : Sub-list of soloist_names who are NOT album artists
+  - composer : Note that, if "Fix cyrillic names" in the last section is checked, this is based on sort name, to avoid non-latin language problems (if translation is not already made via locale choices).
+  - conductor : Note that, if "Fix cyrillic names" in the last section is checked, this is based on sort name, to avoid non-latin language problems (if translation is not already made via locale choices).
+
 The last item in the drop-down list is "work_type" which only has content if the "Infer work types" box in the last coloured section is checked.
 Any Picard tag names can also be typed in as sources. Hidden variables may also be used. Any source names which are not recognised will be treated as string constants; blanks may also be used.
 
