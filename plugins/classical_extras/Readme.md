@@ -81,7 +81,17 @@ There three coloured sections as shown in the screen print below:
 
 3. "Tags to create" sets the names of the tags that will be created from the sources described above.
 
-    * **Movement/Part tags**
+    * **Movement/Part tags**:
+    - "Tags for Movement - including embedded movt/part numbers". This tag(s) will conatin the lowest-level part name extracted from the lowest-level work name, following the chosen tagging style.
+    - "Tags for Movement - excluding embedded movt/part numbers". As above, but without the movement part/number prefix (if applicable)
+    - "Tags for(computed) movement number". This is not necessarily the prefix number removed above, but is the sequence number of the movement within its parent work **on the current release**.
+
+    * **Work tags**:
+    - "Tags for Work - for software with 2-level capability". Some software (notably Muso) can display a 2-level work hierarchy as well as the work-movement hierarchy. This tag can be use to store the 2-level work name (a double colon :: is used to separate the levels within the tag).
+    - "Tags for Work - for software with 1-level capability". Software which can display a movement and work (but no higher levels) should use any tags specified here. Note that if there are multiple work levels, the intermediate levels will not be tagged. Users wanting all the information should use the tags from the previous option (but it may cause some breaks in the display if levels change).
+    - "Tags for top-level (canonical) work". This is the top-level work held in MB. This can be useful for cataloguing and searching (if the library software is capabale).
+
+
 
 ## Work parts and levels
 - _cwp_work_n, where n is an integer >=0 : The work name at level n. For n=0, the tag is the same as the current standard Picard tag "work"
