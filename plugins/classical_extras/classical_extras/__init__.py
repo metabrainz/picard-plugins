@@ -196,7 +196,7 @@ def longest_common_substring(s1, s2):
                    x_longest = x
            else:
                m[x][y] = 0
-   return s1[x_longest - longest: x_longest]    
+   return s1[x_longest - longest: x_longest]
 
 def longest_common_sequence(list1, list2, start=0):
     min_len = min(len(list1),len(list2))
@@ -231,7 +231,7 @@ class ExtraArtists:
         options = album.tagger.config.setting
         if  not options["classical_extra_artists"]:
             return
-        
+
         #CONSTANTS
         self.ERROR = options["log_error"]
         self.WARNING = options["log_warning"]
@@ -244,7 +244,7 @@ class ExtraArtists:
 
         self.alt_artists(album, track_metadata)
 
-        if self.DEBUG: log.debug("%s: LOAD NEW TRACK", PLUGIN_NAME)                                      
+        if self.DEBUG: log.debug("%s: LOAD NEW TRACK", PLUGIN_NAME)                   
         tm = track_metadata
         track = album._new_tracks[-1]     # Jump through hoops to get track object!!
         self.track_listing.append(track)
@@ -442,7 +442,7 @@ class ExtraArtists:
             ensemble=re.compile(r'(.*)\b' + ensemble_name + r'\b(.*)', re.IGNORECASE)
             if ensemble.search(performer):
                 return 'Group'
-        return False        
+        return False
 
 
 
@@ -621,7 +621,7 @@ class ExtraArtists:
                 self.cea_options = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(dict)))
                 self.cea_options['Classical Extras']['Artists options']['Album prefix'] = 'Composer' if options['cea_composer_album'] \
                     else 'None'
-                self.cea_options['Classical Extras']['Artists options']['Tags to blank'] = ",".join([options['cea_blank_tag'] , options['cea_blank_tag_2']])    
+                self.cea_options['Classical Extras']['Artists options']['Tags to blank'] = ",".join([options['cea_blank_tag'] , options['cea_blank_tag_2']])
                 for i in range(0,16):
                     if options['cea_tag_'+str(i+1)] != "":
                         self.cea_options['Classical Extras']['Artists options']['Line ' + str(i+1)]['Source'] = options['cea_source_' + str(i+1)]
@@ -644,7 +644,7 @@ class ExtraArtists:
                 if isinstance(tm[tag], basestring):
                     if self.DEBUG: log.debug("tm[tag]: %s", tm[tag])
                     tm[tag]= [tm[tag], source]
-                else:  
+                else:
                     tm[tag].append(source)
         else:
             tm[tag] = [source]
@@ -785,7 +785,7 @@ class PartLevels:
         self.USE_CACHE = options["use_cache"]
         self.GRANULARITY = options["cwp_granularity"]            #splitting for matching of parents. 1 = split in two, 2 = split in three etc.
         self.PROXIMITY = options["cwp_proximity"]           #proximity of new words in title comparison which will result in infill words being included as well. 2 means 2-word 'gaps' of existing words between new words will be treated as 'new'
-        self.END_PROXIMITY = options["cwp_end_proximity"]         # proximity measure to be used when infilling to the end of the title   
+        self.END_PROXIMITY = options["cwp_end_proximity"]         # proximity measure to be used when infilling to the end of the title
         self.REMOVEWORDS = options["cwp_removewords"]
         self.SYNONYMS = options["cwp_synonyms"]
         self.USE_LEVEL_0 = options["cwp_level0_works"]
@@ -812,7 +812,7 @@ class PartLevels:
         workIds = dict.get(track_metadata,'musicbrainz_workid', [])
         if workIds:
             works = dict.get(track_metadata,'work', [])
-            for index, workId in enumerate(workIds):
+            for workId in workIds:
                     # there may be >1 workid but this is not yet fully supported, so code below joins together the work names for multiple ids and attaches it to the first id
                     # this is based on the (reasonable) assumption that multiple "recording of"s will be children of the same parent work.
                 if len(works)>1:
@@ -1200,7 +1200,6 @@ class PartLevels:
                 height = trackback['height']
                 parentId = trackback['id']
                 parent = self.parts[parentId]['name']
-                prev_title_work = None
                 for child in trackback['children']:
                     if self.INFO: log.info("child trackback = %s", child)
                     answer = self.process_trackback(album_req, child, ref_height, top_info)
@@ -1291,7 +1290,7 @@ class PartLevels:
             for i, track in enumerate(tracks['track']):
                 track_meta = track[0]
                 tm = track_meta.metadata
-                part_level = track[1] - height 
+                part_level = track[1] - height
                 if common_len > 0:
                     if self.INFO: log.info("Use %s info for track: %s", name_type, track_meta)
                     name = tracks[name_type][i]
@@ -1471,6 +1470,7 @@ class PartLevels:
                 if self.INFO: log.info("Title_depth: %s", title_depth)
                 diff_work = []
                 diff_part = []
+                tw_str_lower = 'x' # to avoid errors, reset before used
                 for d in range(1,title_depth+1):
                     tw_str = '~cwp_title_work_'+str(d)
                     if self.INFO: log.info("TW_STR = %s", tw_str)
@@ -1755,6 +1755,7 @@ class PartLevels:
         # remove duplicate successive words (and remove first word of title item if it duplicates last word of mb item)
         if ti:
             ti_list_new = re.split(' ', ti)
+            ti_bit_prev = None
             for i, ti_bit in enumerate(ti_list_new):
                 if ti_bit != "...":
 
@@ -1854,7 +1855,7 @@ class PartLevels:
         p1 = re.compile(r'^\W*\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b[\s|\.|:|,|;]', re.IGNORECASE)  # Matches Roman numerals with punctuation
         p2 = re.compile(r'^\W*\d+\W*')             # Matches positive integers with punctuation
         movt = part
-        for i in range(0,5):                                                # in case of multiple levels
+        for _ in range(0,5):                                                # in case of multiple levels
             movt = p2.sub('',p1.sub('',movt)).strip()
         if self.DEBUG: log.debug("Done movt")
         movt_inc_tags = options["cwp_movt_tag_inc"].split(",")
@@ -1868,7 +1869,7 @@ class PartLevels:
             tm[tag.strip()] = part
         for tag in movt_exc_tags:
             tm[tag.strip()] = movt
-        for tag in  movt_no_tags:  
+        for tag in  movt_no_tags:
             tm[tag.strip()] = tm['~cwp_movt_num']
         for tag in gh_tags:
             tm[tag.strip()] = groupheading
@@ -1912,7 +1913,7 @@ class PartLevels:
                 else:  
                     tm[tag].append(source)
         else:
-            tm[tag] = [source]        
+            tm[tag] = [source]  
 
 
 ################################################

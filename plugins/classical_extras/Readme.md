@@ -8,7 +8,7 @@ All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea
 Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which needed to be added to / modified / deleted according to user requirements. 
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
-# Installtion
+# Installation
 Instal the zip file in your plugins folder in the usual fashion
 
 # Usage
@@ -33,7 +33,7 @@ Most of the names are for artist data and are sourced from hidden variables (pre
       - ensembles : List of performers which are ensembles (with type / instruments - e.g. "orchestra" - in brackets), separated by semi-colons.
       - ensemble_names : Names of the above (i.e. no instruments).
       - album_soloists : Sub-list of soloist_names who are also album artists
-      - album_conductors : List of conductors whao are also album artists
+      - album_conductors : List of conductors who are also album artists
       - album_ensembles: Sub-list of ensemble_names who are also album artists
       - album_composers : List of composers who are also album artists
       - album_composer_lastnames : Last names of composers of ANY track on the album who are also album artists. This is the source used to prefix the album name (when that option is selected).
