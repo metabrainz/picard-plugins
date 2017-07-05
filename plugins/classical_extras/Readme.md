@@ -15,7 +15,9 @@ Instal the zip file in your plugins folder in the usual fashion
 After installation, go to the Options Page and modify choices as required. There are 3 tabs - "Artists", "Works and parts" and "Advanced". The subsections below describe each of these.
 
 ## Artists tab
-There are four coloured sections:
+There are four coloured sections as shown in the screen image below:
+
+![Artist options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/artist_options.jpg)
 
 1. "Create extra artist metadata" should be selected otherwise this section will not run. This is the default.
 
