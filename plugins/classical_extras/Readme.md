@@ -18,6 +18,7 @@ After installation, go to the Options Page and modify choices as required. There
 There are four coloured sections:
 
 1. "Create extra artist metadata" should be selected otherwise this section will not run. This is the default.
+
 "Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name if the name(s) does not already appear in the album name. MB style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
 
 2. "Remove Picard-generated tags before applying subsequent actions?". Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options->Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive.
