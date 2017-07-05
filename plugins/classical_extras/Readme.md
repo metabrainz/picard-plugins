@@ -14,7 +14,7 @@ After installation, go to the Options Page and modify choices as required. There
 ## Artists tab
 There are four coloured sections:
 
-### 1
+  ### 1
 "Create extra artist metadata" should be selected otherwise this section will not run. This is the default.
 "Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name if the name(s) does not already appear in the album name. MB style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
 
