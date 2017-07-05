@@ -13,13 +13,17 @@ After installation, go to the Options Page and modify choices as required. There
 
 ##Artists tab
 There are four coloured sections:
+
 ###1
 "Create extra artist metadata" should be selected otherwise this section will not run. This is the default.
 "Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name if the name(s) does not already appear in the album name. MB style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
+
 ###2
 "Remove Picard-generated tags before applying subsequent actions?". Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options->Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive.
+
 ###3
 "Tag mapping". This section permits the contents of any hidden variable or tag to be written to one or more tags.
+
 ####Sources
 The most useful sources are available from the drop-down list and are as follows:
 Most of the names are for artist data and are sourced from hidden variables (prefixed with "_cea_")
@@ -37,8 +41,10 @@ Most of the names are for artist data and are sourced from hidden variables (pre
 - conductor : Note that, if "Fix cyrillic names" in the last section is checked, this is based on sort name, to avoid non-latin language problems (if translation is not already made via locale choices).
 The last item in the drop-down list is "work_type" which only has content if the "Infer work types" box in the last coloured section is checked.
 Any Picard tag names can also be typed in as sources. Hidden variables may also be used. Any source names which are not recognised will be treated as string constants; blanks may also be used.
+
 ####Tags
 Enter the (comma-separated) tag names into which the sources should be written (case sensitive). Note that this will result in the source data being APPENDED in the tag - it will not overwrite the existing contents. Check "Conditional?" if the tag is only to be updated if it is previously blank. The lines will be applied in the order shown. Users should be able to achieve most requirements via a combination of blanking tags, using the right source order and "conditional" flags. For example, to overwrite a tag sourced from "composer" with "conductor", specify "conductor" first, then "composer" as conditional.
+
 ###4
 "Include arrangers from all work levels, plus instrument arrangers". This will gather together any arranger information from the recording, work or parent works and place it in the "arranger" tag. If you want to add arrangers as composers, do so in the previous section. (Note that Picard does not natively pick up all arrangers)
 "Infer work types (map to genre using tag mapping or script as req'd)". This attempts to create a "work_type" tag based on information in the artist-related tags. It does not (currently) use the "work-type" data for MB works as this is not well populated and is under review at present. Values provided are:
@@ -48,6 +54,7 @@ Use "work_type" as a source in the prvious section to (e.g.) map to the genre ta
 
 ##Work and parts tab
 There three coloured sections
+
 ###1
 
 
