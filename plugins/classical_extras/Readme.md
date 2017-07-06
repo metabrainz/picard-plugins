@@ -2,17 +2,17 @@
 This is version 0.6 of "classical_extras". It only works currently with FLAC and mp3 files.
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
-This plugin is particularly designed to assist with tagging of classical music so that players or library managers which can display multiple work levels and different artist types can have access to them.
+This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
 
-All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea_" depending on which section of the plugin (i.e.which Class) created them. Full details of these variables are given in a later section.
-Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which needed to be added to / modified / deleted according to user requirements. 
+All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea_" depending on which section of the plugin (i.e. which Class) created them. Full details of these variables are given in a later section.
+Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which can be added to / modified / deleted according to user requirements. 
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 # Installation
-Instal the zip file in your plugins folder in the usual fashion
+Install the zip file in your plugins folder in the usual fashion
 
 # Usage
-After installation, go to the Options Page and modify choices as required. There are 3 tabs - "Artists", "Works and parts" and "Advanced". The subsections below describe each of these. If the options provided do not allow sufficient flexibility for a user's need and they do not want to use scripting, then it may be possible to achieve the required result by running and saving twice (or more!) with different options each time. This is not recommended for more than a one-off - a script would be better.
+After installation, go to the Options Page and modify choices as required. There are 3 tabs - "Artists", "Works and parts" and "Advanced". The sections below describe each of these. If the options provided do not allow sufficient flexibility for a user's need and they do not want to use scripting, then it may be possible to achieve the required result by running and saving twice (or more!) with different options each time. This is not recommended for more than a one-off - a script would be better.
 
 ## Artists tab
 There are four coloured sections as shown in the screen image below:
@@ -51,10 +51,10 @@ Enter the (comma-separated) tag names into which the sources should be written (
 
 4. "Include arrangers from all work levels, plus instrument arrangers". This will gather together any arranger information from the recording, work or parent works and place it in the "arranger" tag. If you want to add arrangers as composers, do so in the previous section. (Note that Picard does not natively pick up all arrangers)
 
-"Infer work types (map to genre using tag mapping or script as req'd)". This attempts to create a "work_type" tag based on information in the artist-related tags. It does not (currently) use the "work-type" data for MB works as this is not well populated and is under review at present. Values provided are:
+"Infer work types (map to genre using tag mapping or script as req'd)". This attempts to create a "work_type" tag based on information in the artist-related tags. It does not (currently) use the "work-type" data associated with MB works as this is not well populated and is under review at present. Values provided are:
 Orchestral, Concerto, Instrumental, Voice, Choral, Opera, Duet, Aria, Song. For concerto and solo performances the instrument is also given where possible.
 
-Use "work_type" as a source in the prvious section to (e.g.) map to the genre tag. For more complex treatment, use scripts.
+Use "work_type" as a source in the previous section to (e.g.) map to the genre tag. For more complex treatment, use scripts.
 
 "Fix cyrillic names (where possible and if not fixed by locale settings)" attempts to provide English version of composers, conductors and performers where the script is non-Latin and the relevant locale settings (Options->Metadata) have not fixed this. For performers, the tags are updated directly, but for composers and conductors, the original tag is left and can be updated by adding lines in the previous section (map composer->composer etc.)
 
@@ -63,14 +63,14 @@ Use "work_type" as a source in the prvious section to (e.g.) map to the genre ta
 There three coloured sections as shown in the screen print below:
 ![Works and parts options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/work_parts_options.jpg)
 
-1. "Include all work levels" should be selected otherwise this section will not run.
+1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
 
     "Use cache (if available)" prevents excessive look-ups of the MB database. Every look-up of a parent work needs to be performed separately (hopefully the MB database might make this easier some day). Network usage constraints by MB means that each look-up tales a minimum of 1 second. Once a release has been looked-up, the works are retained in cache, significantly reducing the time required if, say, the options are changed and the data refreshed. However, if the user edits the works in the MB database then the cache will need to be turned off temporarily for the refresh to find the new/changed works.
 
 2. "Tagging style". This section determines how the hierarchy of works will be sourced.
 
     * **Works source**: There are 3 options for determing the principal source of the works metadata
-      - "Use only metadata from title text". The plugin will atempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.
+      - "Use only metadata from title text". The plugin will attempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.
       - "Use only metadata from canonical works". The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will be in the language of the release.
       - "Use canonical work metadata enhanced with title text". This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. See image below for an example (using the Muso library manager).
       ![Respighi](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/Respighi.jpg)
@@ -96,7 +96,7 @@ There three coloured sections as shown in the screen print below:
 Hopefully, this tab should not be much used - and even less in future versions. In any case, it should not need to be changed frequently. There are four sections as shown in the sceeen print below:
 ![Advanced options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/advanced_options.jpg)
 
-1. "Artists". This has only one subsection - "Ensemble strings" - which permits the listing of strings by which ensembles of differnt types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the "Artists" tab as sources for any required tags. 
+1. "Artists". This has only one subsection - "Ensemble strings" - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the "Artists" tab as sources for any required tags. 
 If it is important that only whole words are to be matched, be sure to include a space after the string.
 
 2. "Work levels". This section has parameters applicable to the "works and parts" functions.
