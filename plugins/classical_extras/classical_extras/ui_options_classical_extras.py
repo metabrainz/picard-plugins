@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\Mark\Documents\Mark's documents\Music\Picard\picard-plugins\plugins\classical_extras\classical_extras\options_classical_extras.ui'
 #
-# Created: Thu Jul 06 12:20:25 2017
+# Created: Thu Jul 06 23:25:58 2017
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -1213,7 +1213,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setBuddy(self.cwp_retries)
 
         self.retranslateUi(ClassicalExtrasOptionsPage)
-        self.tabWidget.setCurrentIndex(1)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(ClassicalExtrasOptionsPage)
 
     def retranslateUi(self, ClassicalExtrasOptionsPage):
@@ -1535,7 +1535,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.run_options_2.setTitle(_translate("ClassicalExtrasOptionsPage", "Ensemble strings (separate names by commas)", None))
         self.cea_orchestras_2.setText(_translate("ClassicalExtrasOptionsPage", "Orchestras", None))
         self.cea_choirs_2.setText(_translate("ClassicalExtrasOptionsPage", "Choirs", None))
-        self.cea_groups_2.setText(_translate("ClassicalExtrasOptionsPage", "Groups", None))
+        self.cea_groups_2.setText(_translate("ClassicalExtrasOptionsPage", "Groups (i.e. other ensembles such as quartets etc.)", None))
         self.run_options_3.setTitle(_translate("ClassicalExtrasOptionsPage", "Work levels", None))
         self.label_4.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Max number of re-tries to access works (in case of server errors)</p></body></html>", None))
         self.run_options_3a.setTitle(_translate("ClassicalExtrasOptionsPage", "How title metadata should be included in extended metadata (use cautiously - read documentation)", None))

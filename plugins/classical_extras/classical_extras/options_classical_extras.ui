@@ -32,7 +32,7 @@
       <string notr="true">background-color: rgb(170, 170, 127);</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -2743,7 +2743,7 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
              <item>
               <widget class="QLabel" name="cea_groups_2">
                <property name="text">
-                <string>Groups</string>
+                <string>Groups (i.e. other ensembles such as quartets etc.)</string>
                </property>
               </widget>
              </item>

@@ -1892,7 +1892,10 @@ class PartLevels:
         for tag in movt_inc_tags:
             self.append_tag(tm, tag, part)
         for tag in  movt_no_tags:
-            self.append_tag(tm, tag, tm['~cwp_movt_num'], movt_no_sep)
+            if tag in movt_inc_tags + movt_exc_tags:
+                self.append_tag(tm, tag, tm['~cwp_movt_num'], movt_no_sep)
+            else:
+                self.append_tag(tm, tag, tm['~cwp_movt_num'])
         for tag in movt_exc_tags:
             self.append_tag(tm, tag, movt)
 
@@ -1922,6 +1925,8 @@ class PartLevels:
             self.cwp_options['Classical Extras']['Works options']['Synonyms'] = options['cwp_synonyms']
             if self.INFO: log.info("Options %s", self.cwp_options)
             self.append_tag(tm, options['cwp_options_tag'], str(dict(self.cwp_options)))
+        if self.ERROR and "~cwp_error" in tm:
+            tm['An_error_has_ocurred'] = tm['~cwp_error']
 
     def append_tag(self, tm, tag, source, sep = None):
         if self.DEBUG: log.debug("In append_tag. tag = %s, source = %s, sep =%s", tag, source, sep)
