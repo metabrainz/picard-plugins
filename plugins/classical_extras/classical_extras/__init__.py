@@ -248,15 +248,15 @@ class ExtraArtists:
         tm = track_metadata
         track = album._new_tracks[-1]     # Jump through hoops to get track object!!
         self.track_listing.append(track)
-        if '~cea_album_track_composer_lastnames' in track_metadata:                          # composer last names created by alt_artists function
-            composer_lastnames = track_metadata['~cea_album_composer_lastnames']
+        if '~cea_album_track_composer_lastnames' in tm:                          # composer last names created by alt_artists function
+            composer_lastnames = track_metadata['~cea_album_track_composer_lastnames']
             if album in self.album_artists:
                 if composer_lastnames not in self.album_artists[album]['composer_lastnames']:
                     self.album_artists[album]['composer_lastnames'].append(composer_lastnames)
             else:
                 self.album_artists[album]['composer_lastnames'] = [composer_lastnames]
         else:
-            log.error("NO _CAA_ALBUM_COMPOSER_LASTNAMES variable available for recording. Try REFRESH.")
+            log.error("NO _CEA_ALBUM_TRACK_COMPOSER_LASTNAMES variable available for recording. Try REFRESH.")
         if 'recording' in trackXmlNode.children:
             for record in trackXmlNode.children['recording']:
                 performerList = self.artist_process_metadata(track, record, 'instrument')
@@ -1859,24 +1859,43 @@ class PartLevels:
             movt = p2.sub('',p1.sub('',movt)).strip()
         if self.DEBUG: log.debug("Done movt")
         movt_inc_tags = options["cwp_movt_tag_inc"].split(",")
+        movt_inc_tags = [x.strip(' ') for x in movt_inc_tags]
         movt_exc_tags = options["cwp_movt_tag_exc"].split(",")
+        movt_exc_tags = [x.strip(' ') for x in movt_exc_tags]
         movt_no_tags = options["cwp_movt_no_tag"].split(",")
+        movt_no_tags = [x.strip(' ') for x in movt_no_tags]
+        movt_no_sep = options["cwp_movt_no_sep"]
         gh_tags = options["cwp_work_tag_multi"].split(",")
+        gh_tags = [x.strip(' ') for x in gh_tags]
+        gh_sep = options["cwp_multi_work_sep"]
         work_tags = options["cwp_work_tag_single"].split(",")
+        work_tags = [x.strip(' ') for x in work_tags]
+        work_sep = options["cwp_single_work_sep"]
         top_tags = options["cwp_top_tag"].split(",")
-        if self.DEBUG: log.debug("Done splits")
-        for tag in movt_inc_tags:
-            tm[tag.strip()] = part
-        for tag in movt_exc_tags:
-            tm[tag.strip()] = movt
-        for tag in  movt_no_tags:
-            tm[tag.strip()] = tm['~cwp_movt_num']
+        top_tags = [x.strip(' ') for x in top_tags]
+
+        if self.DEBUG: log.debug("Done splits. gh_tags: %s, work_tags: %s, movt_inc_tags: %s, movt_exc_tags: %s, movt_no_tags: %s", gh_tags, work_tags, movt_inc_tags, movt_exc_tags, movt_no_tags)
+        for tag in gh_tags + work_tags + movt_inc_tags + movt_exc_tags + movt_no_tags:
+            tm[tag] = ""
         for tag in gh_tags:
-            tm[tag.strip()] = groupheading
+            if tag in movt_inc_tags + movt_exc_tags + movt_no_tags:
+                self.append_tag(tm, tag, groupheading, gh_sep)
+            else:
+                self.append_tag(tm, tag, groupheading)
         for tag in work_tags:
-            tm[tag.strip()] = work
+            if tag in movt_inc_tags + movt_exc_tags + movt_no_tags:
+                self.append_tag(tm, tag, work, work_sep)
+            else:
+                self.append_tag(tm, tag, work)
         for tag in top_tags:
-            tm[tag.strip()] = tm['~cwp_work_top'] or ""
+            tm[tag] = tm['~cwp_work_top'] or ""
+        for tag in movt_inc_tags:
+            self.append_tag(tm, tag, part)
+        for tag in  movt_no_tags:
+            self.append_tag(tm, tag, tm['~cwp_movt_num'], movt_no_sep)
+        for tag in movt_exc_tags:
+            self.append_tag(tm, tag, movt)
+
         if self.DEBUG: log.debug("Published metadata for %s", track)
         if options['cwp_options_tag'] != "":
             self.cwp_options = collections.defaultdict(lambda: collections.defaultdict(dict))
@@ -1904,16 +1923,23 @@ class PartLevels:
             if self.INFO: log.info("Options %s", self.cwp_options)
             self.append_tag(tm, options['cwp_options_tag'], str(dict(self.cwp_options)))
 
-    def append_tag(self, tm, tag, source):
+    def append_tag(self, tm, tag, source, sep = None):
+        if self.DEBUG: log.debug("In append_tag. tag = %s, source = %s, sep =%s", tag, source, sep)
+        if sep:
+            if source and source != "":
+                source = source + sep 
         if tag in tm:
             if source not in tm[tag]:
+
                 if isinstance(tm[tag], basestring):
-                    if self.DEBUG: log.debug("tm[tag]: %s", tm[tag])
-                    tm[tag]= [tm[tag], source]
+                    if self.DEBUG: log.debug("tm[tag]: %s, separator = %s", tm[tag], sep)
+                    newtag = [tm[tag], source]
                 else:  
-                    tm[tag].append(source)
+                    newtag = tm[tag].append(source)
+                tm[tag] = "".join(newtag)
         else:
-            tm[tag] = [source]  
+            tm[tag] = [source]
+
 
 
 ################################################
@@ -2014,6 +2040,10 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         TextOption("setting", "cwp_movt_tag_inc", "part"),
         TextOption("setting", "cwp_movt_tag_exc", "movement"),
         TextOption("setting", "cwp_movt_no_tag", "movement_no"),
+        TextOption("setting", "cwp_multi_work_sep", ": "),
+        TextOption("setting", "cwp_single_work_sep", ": "),
+        TextOption("setting", "cwp_movt_no_sep", ". "),
+
         TextOption("setting", "cwp_work_tag_multi", "groupheading"),
         TextOption("setting", "cwp_work_tag_single", "grouping"),
         TextOption("setting", "cwp_top_tag", "top_work"),
@@ -2135,6 +2165,10 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         self.ui.cwp_work_tag_single.setText(self.config.setting["cwp_work_tag_single"])
         self.ui.cwp_top_tag.setText(self.config.setting["cwp_top_tag"])
 
+        self.ui.cwp_multi_work_sep.setEditText(self.config.setting["cwp_multi_work_sep"])
+        self.ui.cwp_single_work_sep.setEditText(self.config.setting["cwp_single_work_sep"])
+        self.ui.cwp_movt_no_sep.setEditText(self.config.setting["cwp_movt_no_sep"])
+
         self.ui.cea_composer_album.setChecked(self.config.setting["cea_composer_album"])
 
         self.ui.cea_blank_tag.setText(self.config.setting["cea_blank_tag"])
@@ -2243,6 +2277,10 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         self.config.setting["cwp_work_tag_multi"] = unicode(self.ui.cwp_work_tag_multi.text())
         self.config.setting["cwp_work_tag_single"] = unicode(self.ui.cwp_work_tag_single.text())
         self.config.setting["cwp_top_tag"] = unicode(self.ui.cwp_top_tag.text())
+
+        self.config.setting["cwp_multi_work_sep"] = self.ui.cwp_multi_work_sep.currentText()
+        self.config.setting["cwp_single_work_sep"] = self.ui.cwp_single_work_sep.currentText()
+        self.config.setting["cwp_movt_no_sep"] = self.ui.cwp_movt_no_sep.currentText()
 
         self.config.setting["cea_composer_album"] = self.ui.cea_composer_album.isChecked()
 

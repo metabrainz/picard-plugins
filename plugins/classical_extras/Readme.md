@@ -79,17 +79,21 @@ There three coloured sections as shown in the screen print below:
       - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast, JB 1:112", not "Má vlast".
       - "Consistent with lowest level work description (where possible)". The names of the level 0 work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast", not "Má vlast, JB 1:112". This frequently looks better, but not always, particularly if the level 0 work name does not contain all the parent work detail. If selected, this choice will only be implemented where the level 0 work name appears to have the parent work names within it.
 
-3. "Tags to create" sets the names of the tags that will be created from the sources described above.
-
-    * **Movement/Part tags**:
-      - "Tags for Movement - including embedded movt/part numbers". This tag(s) will conatin the lowest-level part name extracted from the lowest-level work name, following the chosen tagging style.
-      - "Tags for Movement - excluding embedded movt/part numbers". As above, but without the movement part/number prefix (if applicable)
-      - "Tags for(computed) movement number". This is not necessarily the prefix number removed above, but is the sequence number of the movement within its parent work **on the current release**.
+3. "Tags to create" sets the names of the tags that will be created from the sources described above. All these tags will be blanked before filling as specified. Tags specified against more than one source will have later sources appended in the sequence specified, separated by separators as specified.
 
     * **Work tags**:
       - "Tags for Work - for software with 2-level capability". Some software (notably Muso) can display a 2-level work hierarchy as well as the work-movement hierarchy. This tag can be use to store the 2-level work name (a double colon :: is used to separate the levels within the tag).
       - "Tags for Work - for software with 1-level capability". Software which can display a movement and work (but no higher levels) should use any tags specified here. Note that if there are multiple work levels, the intermediate levels will not be tagged. Users wanting all the information should use the tags from the previous option (but it may cause some breaks in the display if levels change).
       - "Tags for top-level (canonical) work". This is the top-level work held in MB. This can be useful for cataloguing and searching (if the library software is capabale).
+
+    * **Movement/Part tags**:
+      - "Tags for(computed) movement number". This is not necessarily the embedded movt/part number, but is the sequence number of the movement within its parent work **on the current release**.
+      - "Tags for Movement - excluding embedded movt/part numbers". As below, but without the movement part/number prefix (if applicable)
+      - "Tags for Movement - including embedded movt/part numbers". This tag(s) will contain the full lowest-level part name extracted from the lowest-level work name, according to the chosen tagging style.
+
+
+
+
 
 
 
