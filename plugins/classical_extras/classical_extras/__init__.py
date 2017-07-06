@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.6'
+PLUGIN_VERSION = '0.6.1'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -248,15 +248,15 @@ class ExtraArtists:
         tm = track_metadata
         track = album._new_tracks[-1]     # Jump through hoops to get track object!!
         self.track_listing.append(track)
-        if '~cea_album_track_composer_lastnames' in track_metadata:                          # composer last names created by alt_artists function
-            composer_lastnames = track_metadata['~cea_album_composer_lastnames']
+        if '~cea_album_track_composer_lastnames' in tm:                          # composer last names created by alt_artists function
+            composer_lastnames = track_metadata['~cea_album_track_composer_lastnames']
             if album in self.album_artists:
                 if composer_lastnames not in self.album_artists[album]['composer_lastnames']:
                     self.album_artists[album]['composer_lastnames'].append(composer_lastnames)
             else:
                 self.album_artists[album]['composer_lastnames'] = [composer_lastnames]
         else:
-            log.error("NO _CAA_ALBUM_COMPOSER_LASTNAMES variable available for recording. Try REFRESH.")
+            log.error("NO _CEA_ALBUM_TRACK_COMPOSER_LASTNAMES variable available for recording. Try REFRESH.")
         if 'recording' in trackXmlNode.children:
             for record in trackXmlNode.children['recording']:
                 performerList = self.artist_process_metadata(track, record, 'instrument')
@@ -521,7 +521,8 @@ class ExtraArtists:
                                     else:
                                         self.append_tag(tm, '~cea_work_type', 'Aria')
                                         match2 = vocals.search(soloists[0])
-                                        self.append_tag(tm, '~cea_work_type', match2.group(2).strip().title())
+                                        if match2:
+                                            self.append_tag(tm, '~cea_work_type', match2.group(2).strip().title())
                             elif len(soloists) == 2:
                                 self.append_tag(tm, '~cea_work_type', 'Duet')
 
@@ -790,7 +791,8 @@ class PartLevels:
         self.SYNONYMS = options["cwp_synonyms"]
         self.USE_LEVEL_0 = options["cwp_level0_works"]
 
-        if self.DEBUG: log.debug("%s: LOAD NEW TRACK", PLUGIN_NAME)                                      #debug
+        if self.DEBUG: log.debug("%s: LOAD NEW TRACK", PLUGIN_NAME)
+        if self.INFO: log.info("trackXmlNode: %s", trackXmlNode)
         # fix titles which include composer name
         composersort = dict.get(track_metadata,'composersort', [])
         composerlastnames = []
@@ -893,7 +895,7 @@ class PartLevels:
             if self.DEBUG: log.debug("%s: Work is already in queue: %s", PLUGIN_NAME, workId)      #debug
 
     def work_process(self, workId, tries, response, reply, error):
-        if self.DEBUG: log.debug("%s: LOOKING UP WORK: %s", PLUGIN_NAME, workId)                     #debug
+        if self.DEBUG: log.debug("%s: work_process. LOOKING UP WORK: %s", PLUGIN_NAME, workId)                     #debug
         if error:
             if self.ERROR: log.error("%s: %r: Network error retrieving work record", PLUGIN_NAME, workId)
             tuples = self.works_queue.remove(workId)
@@ -937,7 +939,7 @@ class PartLevels:
                     self.top_works[(track, album)]['workId'] = workId
                     if workId not in self.top[album]:
                         self.top[album].append(workId)
-                    #if self.INFO: log.info("TOP[album]: %s", self.top[album])
+                    if self.INFO: log.info("TOP[album]: %s", self.top[album])
             else:  #ERROR?
                 self.parts[workId]['no_parent'] = True          # so we remember we looked it up and found none
                 self.top_works[(track, album)]['workId'] = workId
@@ -947,8 +949,10 @@ class PartLevels:
                 self.process_album(album)                       # so do the final album-level processing before we go!
             self.album_remove_request(album)
             if self.DEBUG: log.debug("%s: Removed request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
+        if self.DEBUG: log.debug("%s: End of work_process for workid %s", PLUGIN_NAME, workid)
 
     def work_process_metadata(self, workId, response):
+        if self.DEBUG: log.debug("%s: In work_process_metadata", PLUGIN_NAME)
         relationList = []
         if 'metadata' in response.children:
             if 'work' in response.metadata[0].children:
@@ -963,7 +967,7 @@ class PartLevels:
         return None
 
     def work_process_relations(self, relations):
-        #if self.DEBUG: log.debug("%s RelationSS--> %s", PLUGIN_NAME, relations)
+        if self.DEBUG: log.debug("%s In work_process_relations. Relations--> %s", PLUGIN_NAME, relations)
         new_workIds = []
         new_works = []
         artists = []
@@ -1262,15 +1266,26 @@ class PartLevels:
                 if self.DEBUG: log.debug("%s list %s", name_type, name_list)
                 if len(name_list) == 1:                    # only one track in this work so try and extract using colons
                     track_height = tracks['track'][0][1]
-                    if track_height - height >0:
+                    if track_height - height >0:            # part_level
                         if name_type == 'title':
-                            common_subset = self.derive_from_title(tracks['track'][0][0])[0]
+                            track = tracks['track'][0][0]
+                            if self.DEBUG: log.debug("Single track work. Deriving directly from title text: %s", track)
+                            tm = track.metadata
+                            mb = tm['~cwp_work_0']
+                            ti = name_list[0]
+                            diff = self.diff_pair(mb, ti)
+                            if diff:
+                                common_subset = self.derive_from_title(track, diff)
                         else:
                             common_subset = ""
+                            common_len = 0
                     else:    
                         common_subset = name_list[0]
                     if self.INFO: log.info("%s is single-track work. common_subset is set to %s", tracks['track'][0][0], common_subset)
-                    common_len = len(common_subset)
+                    if common_subset:
+                        common_len = len(common_subset)
+                    else:
+                        common_len = 0
                 else:
                     compare = name_list[0].split()
                     for name in name_list:
@@ -1383,35 +1398,26 @@ class PartLevels:
                 self.parts[childId]['stripped_name'] = stripped_works
         if self.DEBUG: log.debug("GOT TO END OF SET_METADATA")
 
-    def derive_from_title(self, track):
+    def derive_from_title(self, track, title):
         if self.INFO: log.info("%s: DERIVING METADATA FROM TITLE for track: %s", PLUGIN_NAME, track)
         tm = track.metadata
-        title = tm['~cwp_title'] or tm['title']                            # ~cwp_title if composer had to be removed
         movt = ""
         work = ""
         if '~cwp_part_levels' in tm:
             part_levels = int(tm['~cwp_part_levels'])
             if int(tm['~cwp_work_part_levels']) > 0:                          # we have a work with movements
-                if part_levels > 0:
-                    if '~cwp_work_1' in tm:
-                        parent = tm['~cwp_work_1']
-                        stripped = self.strip_parent_from_work(title, parent, 1, False)
-                        if stripped[0] != title:
-                            movt = stripped[0].strip(":,;.- ")
-                            work = stripped[1]
-                        else:
-                            colons = title.count(":")
-                            if colons > 0:
-                                title_split = title.split(': ',1)
-                                title_rsplit = title.rsplit(': ',1)
-                                if part_levels >= colons:
-                                    work = title_rsplit[0]
-                                    movt = title_rsplit[1]
-                                else:
-                                    work = title_split[0]
-                                    movt = title_split[1]
-                            else:
-                                movt = title
+                colons = title.count(":")
+                if colons > 0:
+                    title_split = title.split(': ',1)
+                    title_rsplit = title.rsplit(': ',1)
+                    if part_levels >= colons:
+                        work = title_rsplit[0]
+                        movt = title_rsplit[1]
+                    else:
+                        work = title_split[0]
+                        movt = title_split[1]
+                else:
+                    movt = title
         if self.INFO: log.info("Work %s, Movt %s", work, movt)
         return (work, movt)
 
@@ -1545,8 +1551,18 @@ class PartLevels:
                 movement = tm['~cwp_title'] or tm['title']
             diff = self.diff_pair(part, movement)
             if self.INFO: log.info("DIFF PART - MOVT. ti =%s", diff)
-            if not diff:
-                if self.DEBUG: log.debug("....strings compared....")
+            if diff:
+                if '~cwp_work_1' in tm:
+                    diff2 = self.diff_pair(tm['~cwp_work_1'], diff)
+                    if diff2:
+                        no_diff = False
+                    else:
+                        no_diff = True
+                else:
+                    no_diff = False
+            else:
+                no_diff = True
+            if no_diff:
                 if part_levels > 0:
                     tm['~cwp_extended_part'] = part
                 else:
@@ -1555,7 +1571,7 @@ class PartLevels:
                         del tm['~cwp_extended_groupheading']
             else:
                 if part_levels > 0:
-                    stripped_movt = diff.strip()
+                    stripped_movt = diff2.strip()
                     tm['~cwp_extended_part'] = part + " {" + stripped_movt + "}"
                 else:
                     tm['~cwp_extended_part'] = movement           # title will be in part
@@ -1573,7 +1589,7 @@ class PartLevels:
         if not ti:
             return None
         p1 = re.compile(r'^\W*\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b[\s|\.|:|,|;]', re.IGNORECASE)  # Matches Roman numerals with punctuation
-        p2 = re.compile(r'^\W*\d+\W*')             # Matches positive integers with punctuation
+        p2 = re.compile(r'^\W*\d+[.):-]')             # Matches positive integers with punctuation
         # remove certain words from the comparison
         removewords = self.REMOVEWORDS.split(',')
         if self.INFO: log.info("Removewords = %s", removewords)
@@ -1853,30 +1869,52 @@ class PartLevels:
             work = tm['~cwp_extended_work'] or ""
         if self.DEBUG: log.debug("Done options")
         p1 = re.compile(r'^\W*\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b[\s|\.|:|,|;]', re.IGNORECASE)  # Matches Roman numerals with punctuation
-        p2 = re.compile(r'^\W*\d+\W*')             # Matches positive integers with punctuation
+        p2 = re.compile(r'^\W*\d+[.):-]')             # Matches positive integers with punctuation
         movt = part
         for _ in range(0,5):                                                # in case of multiple levels
             movt = p2.sub('',p1.sub('',movt)).strip()
         if self.DEBUG: log.debug("Done movt")
         movt_inc_tags = options["cwp_movt_tag_inc"].split(",")
+        movt_inc_tags = [x.strip(' ') for x in movt_inc_tags]
         movt_exc_tags = options["cwp_movt_tag_exc"].split(",")
+        movt_exc_tags = [x.strip(' ') for x in movt_exc_tags]
         movt_no_tags = options["cwp_movt_no_tag"].split(",")
+        movt_no_tags = [x.strip(' ') for x in movt_no_tags]
+        movt_no_sep = options["cwp_movt_no_sep"]
         gh_tags = options["cwp_work_tag_multi"].split(",")
+        gh_tags = [x.strip(' ') for x in gh_tags]
+        gh_sep = options["cwp_multi_work_sep"]
         work_tags = options["cwp_work_tag_single"].split(",")
+        work_tags = [x.strip(' ') for x in work_tags]
+        work_sep = options["cwp_single_work_sep"]
         top_tags = options["cwp_top_tag"].split(",")
-        if self.DEBUG: log.debug("Done splits")
-        for tag in movt_inc_tags:
-            tm[tag.strip()] = part
-        for tag in movt_exc_tags:
-            tm[tag.strip()] = movt
-        for tag in  movt_no_tags:
-            tm[tag.strip()] = tm['~cwp_movt_num']
+        top_tags = [x.strip(' ') for x in top_tags]
+
+        if self.DEBUG: log.debug("Done splits. gh_tags: %s, work_tags: %s, movt_inc_tags: %s, movt_exc_tags: %s, movt_no_tags: %s", gh_tags, work_tags, movt_inc_tags, movt_exc_tags, movt_no_tags)
+        for tag in gh_tags + work_tags + movt_inc_tags + movt_exc_tags + movt_no_tags:
+            tm[tag] = ""
         for tag in gh_tags:
-            tm[tag.strip()] = groupheading
+            if tag in movt_inc_tags + movt_exc_tags + movt_no_tags:
+                self.append_tag(tm, tag, groupheading, gh_sep)
+            else:
+                self.append_tag(tm, tag, groupheading)
         for tag in work_tags:
-            tm[tag.strip()] = work
+            if tag in movt_inc_tags + movt_exc_tags + movt_no_tags:
+                self.append_tag(tm, tag, work, work_sep)
+            else:
+                self.append_tag(tm, tag, work)
         for tag in top_tags:
-            tm[tag.strip()] = tm['~cwp_work_top'] or ""
+            tm[tag] = tm['~cwp_work_top'] or ""
+        for tag in movt_inc_tags:
+            self.append_tag(tm, tag, part)
+        for tag in  movt_no_tags:
+            if tag in movt_inc_tags + movt_exc_tags:
+                self.append_tag(tm, tag, tm['~cwp_movt_num'], movt_no_sep)
+            else:
+                self.append_tag(tm, tag, tm['~cwp_movt_num'])
+        for tag in movt_exc_tags:
+            self.append_tag(tm, tag, movt)
+
         if self.DEBUG: log.debug("Published metadata for %s", track)
         if options['cwp_options_tag'] != "":
             self.cwp_options = collections.defaultdict(lambda: collections.defaultdict(dict))
@@ -1903,17 +1941,26 @@ class PartLevels:
             self.cwp_options['Classical Extras']['Works options']['Synonyms'] = options['cwp_synonyms']
             if self.INFO: log.info("Options %s", self.cwp_options)
             self.append_tag(tm, options['cwp_options_tag'], str(dict(self.cwp_options)))
+        if self.ERROR and "~cwp_error" in tm:
+            tm['An_error_has_ocurred'] = tm['~cwp_error']
 
-    def append_tag(self, tm, tag, source):
+    def append_tag(self, tm, tag, source, sep = None):
+        if self.DEBUG: log.debug("In append_tag. tag = %s, source = %s, sep =%s", tag, source, sep)
+        if sep:
+            if source and source != "":
+                source = source + sep 
         if tag in tm:
             if source not in tm[tag]:
+
                 if isinstance(tm[tag], basestring):
-                    if self.DEBUG: log.debug("tm[tag]: %s", tm[tag])
-                    tm[tag]= [tm[tag], source]
+                    if self.DEBUG: log.debug("tm[tag]: %s, separator = %s", tm[tag], sep)
+                    newtag = [tm[tag], source]
                 else:  
-                    tm[tag].append(source)
+                    newtag = tm[tag].append(source)
+                tm[tag] = "".join(newtag)
         else:
-            tm[tag] = [source]  
+            tm[tag] = [source]
+
 
 
 ################################################
@@ -1923,12 +1970,14 @@ class PartLevels:
     def strip_parent_from_work(self, work, parent, part_level, extend):             #extend=True is used to find "full_parent" names
         if self.DEBUG: log.debug("%s: STRIPPING HIGHER LEVEL WORK TEXT FROM PART NAMES", PLUGIN_NAME)
         full_parent = parent
-        clean_parent = re.sub('[^\w\s]',' ',parent)
-        pattern_parent = re.sub("\s","\W{0,2}", clean_parent)
+        punc_space = r'[\'!\"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]\s+'
+        clean_parent = re.sub(punc_space,' ',parent)                  # replace any punctuation followed by a space, with a space (to remove any inconsistent punctuation)
+        pattern_parent = re.sub("\s","[^\p{L}|\d]{0,2}", clean_parent)         # now allow the spaces to be filled with up to 2 non-letters
+        # NB [^\p{L}|\d] is used instead of \W to allow for non-Latin characters, similarly [\p{L}|\d] is used instead of \w
         if extend:
-            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"\w*)(\W*\s)(.*)"
+            pattern_parent = "(.*\s|^)([^\p{L}|\d]*"+pattern_parent+"[\p{L}|\d]*)([^\p{L}|\d]*\s)(.*)"
         else:
-            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"\w*\W?)(.*)"
+            pattern_parent = "(.*\s|^)([^\p{L}|\d]*"+pattern_parent+"[\p{L}|\d]*[^\p{L}|\d]?)(.*)"
         if self.INFO: log.info("Pattern parent: %s, Work: %s", pattern_parent, work)
         p = re.compile(pattern_parent, re.IGNORECASE)
         m = p.search(work)
@@ -2014,6 +2063,10 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         TextOption("setting", "cwp_movt_tag_inc", "part"),
         TextOption("setting", "cwp_movt_tag_exc", "movement"),
         TextOption("setting", "cwp_movt_no_tag", "movement_no"),
+        TextOption("setting", "cwp_multi_work_sep", ": "),
+        TextOption("setting", "cwp_single_work_sep", ": "),
+        TextOption("setting", "cwp_movt_no_sep", ". "),
+
         TextOption("setting", "cwp_work_tag_multi", "groupheading"),
         TextOption("setting", "cwp_work_tag_single", "grouping"),
         TextOption("setting", "cwp_top_tag", "top_work"),
@@ -2135,6 +2188,10 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         self.ui.cwp_work_tag_single.setText(self.config.setting["cwp_work_tag_single"])
         self.ui.cwp_top_tag.setText(self.config.setting["cwp_top_tag"])
 
+        self.ui.cwp_multi_work_sep.setEditText(self.config.setting["cwp_multi_work_sep"])
+        self.ui.cwp_single_work_sep.setEditText(self.config.setting["cwp_single_work_sep"])
+        self.ui.cwp_movt_no_sep.setEditText(self.config.setting["cwp_movt_no_sep"])
+
         self.ui.cea_composer_album.setChecked(self.config.setting["cea_composer_album"])
 
         self.ui.cea_blank_tag.setText(self.config.setting["cea_blank_tag"])
@@ -2243,6 +2300,10 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         self.config.setting["cwp_work_tag_multi"] = unicode(self.ui.cwp_work_tag_multi.text())
         self.config.setting["cwp_work_tag_single"] = unicode(self.ui.cwp_work_tag_single.text())
         self.config.setting["cwp_top_tag"] = unicode(self.ui.cwp_top_tag.text())
+
+        self.config.setting["cwp_multi_work_sep"] = self.ui.cwp_multi_work_sep.currentText()
+        self.config.setting["cwp_single_work_sep"] = self.ui.cwp_single_work_sep.currentText()
+        self.config.setting["cwp_movt_no_sep"] = self.ui.cwp_movt_no_sep.currentText()
 
         self.config.setting["cea_composer_album"] = self.ui.cea_composer_album.isChecked()
 

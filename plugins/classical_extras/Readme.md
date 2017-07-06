@@ -1,18 +1,25 @@
 # General Information
-This is version 0.6 of "classical_extras". It only works currently with FLAC and mp3 files.
+This is version 0.6.1 of "classical_extras". It has only been tested with FLAC and mp3 files.
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
-This plugin is particularly designed to assist with tagging of classical music so that players or library managers which can display multiple work levels and different artist types can have access to them.
+This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
 
-All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea_" depending on which section of the plugin (i.e.which Class) created them. Full details of these variables are given in a later section.
-Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which needed to be added to / modified / deleted according to user requirements. 
+It has two components "Extra Artists" and "Work Parts" which can be used independently or together. "Work Parts" will take at least as many seconds to process as there are works to look up (owing to MB throttling) so users who only want the extra artist information and not the work details may turn it off.
+
+All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea_" depending on which component of the plugin created them. Full details of these variables are given in a later section.
+Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which can be added to / modified / deleted according to user requirements. 
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
+## Updates
+Version 0.6.1 has amended regex to permit non-Latin characters in work text.
+
 # Installation
-Instal the zip file in your plugins folder in the usual fashion
+Install the zip file in your plugins folder in the usual fashion
 
 # Usage
-After installation, go to the Options Page and modify choices as required. There are 3 tabs - "Artists", "Works and parts" and "Advanced". The subsections below describe each of these.
+After installation, go to the Options Page and modify choices as required. There are 3 tabs - "Artists", "Works and parts" and "Advanced". The sections below describe each of these. If the options provided do not allow sufficient flexibility for a user's need and they do not want to use scripting, then it may be possible to achieve the required result by running and saving twice (or more!) with different options each time. This is not recommended for more than a one-off - a script would be better.
+
+**Important**: It is recommended only to use the plugin on one release at a time, particularly if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" - use a tool such as SongKong for that and then use the plugin to enhance the results as required.
 
 ## Artists tab
 There are four coloured sections as shown in the screen image below:
@@ -51,10 +58,10 @@ Enter the (comma-separated) tag names into which the sources should be written (
 
 4. "Include arrangers from all work levels, plus instrument arrangers". This will gather together any arranger information from the recording, work or parent works and place it in the "arranger" tag. If you want to add arrangers as composers, do so in the previous section. (Note that Picard does not natively pick up all arrangers)
 
-"Infer work types (map to genre using tag mapping or script as req'd)". This attempts to create a "work_type" tag based on information in the artist-related tags. It does not (currently) use the "work-type" data for MB works as this is not well populated and is under review at present. Values provided are:
-Orchestral, Concerto, Instrumental, Vocal, Choral, Opera, Duet, Aria, Song. For concerto and solo performances the instrument is also given where possible.
+"Infer work types (map to genre using tag mapping or script as req'd)". This attempts to create a "work_type" tag based on information in the artist-related tags. It does not (currently) use the "work-type" data associated with MB works as this is not well populated and is under review at present. Values provided are:
+Orchestral, Concerto, Instrumental, Voice, Choral, Opera, Duet, Aria, Song. For concerto and solo performances the instrument is also given where possible.
 
-Use "work_type" as a source in the prvious section to (e.g.) map to the genre tag. For more complex treatment, use scripts.
+Use "work_type" as a source in the previous section to (e.g.) map to the genre tag. For more complex treatment, use scripts.
 
 "Fix cyrillic names (where possible and if not fixed by locale settings)" attempts to provide English version of composers, conductors and performers where the script is non-Latin and the relevant locale settings (Options->Metadata) have not fixed this. For performers, the tags are updated directly, but for composers and conductors, the original tag is left and can be updated by adding lines in the previous section (map composer->composer etc.)
 
@@ -63,14 +70,14 @@ Use "work_type" as a source in the prvious section to (e.g.) map to the genre ta
 There three coloured sections as shown in the screen print below:
 ![Works and parts options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/work_parts_options.jpg)
 
-1. "Include all work levels" should be selected otherwise this section will not run.
+1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
 
     "Use cache (if available)" prevents excessive look-ups of the MB database. Every look-up of a parent work needs to be performed separately (hopefully the MB database might make this easier some day). Network usage constraints by MB means that each look-up tales a minimum of 1 second. Once a release has been looked-up, the works are retained in cache, significantly reducing the time required if, say, the options are changed and the data refreshed. However, if the user edits the works in the MB database then the cache will need to be turned off temporarily for the refresh to find the new/changed works.
 
 2. "Tagging style". This section determines how the hierarchy of works will be sourced.
 
     * **Works source**: There are 3 options for determing the principal source of the works metadata
-      - "Use only metadata from title text". The plugin will atempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.
+      - "Use only metadata from title text". The plugin will attempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.
       - "Use only metadata from canonical works". The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will be in the language of the release.
       - "Use canonical work metadata enhanced with title text". This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. See image below for an example (using the Muso library manager).
       ![Respighi](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/Respighi.jpg)
@@ -79,134 +86,143 @@ There three coloured sections as shown in the screen print below:
       - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast, JB 1:112", not "Má vlast".
       - "Consistent with lowest level work description (where possible)". The names of the level 0 work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast", not "Má vlast, JB 1:112". This frequently looks better, but not always, particularly if the level 0 work name does not contain all the parent work detail. If selected, this choice will only be implemented where the level 0 work name appears to have the parent work names within it.
 
-3. "Tags to create" sets the names of the tags that will be created from the sources described above.
-
-    * **Movement/Part tags**:
-      - "Tags for Movement - including embedded movt/part numbers". This tag(s) will conatin the lowest-level part name extracted from the lowest-level work name, following the chosen tagging style.
-      - "Tags for Movement - excluding embedded movt/part numbers". As above, but without the movement part/number prefix (if applicable)
-      - "Tags for(computed) movement number". This is not necessarily the prefix number removed above, but is the sequence number of the movement within its parent work **on the current release**.
+3. "Tags to create" sets the names of the tags that will be created from the sources described above. All these tags will be blanked before filling as specified. Tags specified against more than one source will have later sources appended in the sequence specified, separated by separators as specified.
 
     * **Work tags**:
       - "Tags for Work - for software with 2-level capability". Some software (notably Muso) can display a 2-level work hierarchy as well as the work-movement hierarchy. This tag can be use to store the 2-level work name (a double colon :: is used to separate the levels within the tag).
       - "Tags for Work - for software with 1-level capability". Software which can display a movement and work (but no higher levels) should use any tags specified here. Note that if there are multiple work levels, the intermediate levels will not be tagged. Users wanting all the information should use the tags from the previous option (but it may cause some breaks in the display if levels change).
       - "Tags for top-level (canonical) work". This is the top-level work held in MB. This can be useful for cataloguing and searching (if the library software is capabale).
 
+    * **Movement/Part tags**:
+      - "Tags for(computed) movement number". This is not necessarily the embedded movt/part number, but is the sequence number of the movement within its parent work **on the current release**.
+      - "Tags for Movement - excluding embedded movt/part numbers". As below, but without the movement part/number prefix (if applicable)
+      - "Tags for Movement - including embedded movt/part numbers". This tag(s) will contain the full lowest-level part name extracted from the lowest-level work name, according to the chosen tagging style.
 
+## Advanced tab
 
-## Work parts and levels
-- _cwp_work_n, where n is an integer >=0 : The work name at level n. For n=0, the tag is the same as the current standard Picard tag "work"
+Hopefully, this tab should not be much used - and even less in future versions. In any case, it should not need to be changed frequently. There are four sections as shown in the sceeen print below:
+![Advanced options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/advanced_options.jpg)
+
+1. "Artists". This has only one subsection - "Ensemble strings" - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the "Artists" tab as sources for any required tags. 
+If it is important that only whole words are to be matched, be sure to include a space after the string.
+
+2. "Work levels". This section has parameters applicable to the "works and parts" functions.
+
+	* **Max number of re-tries to access works (in case of server errors)**. Sometimes MB lookups fail. Unfortunately Picard (currently) has no automatic "retry" function. The plugin will attempt to retry for the specified number of attempts. If it still fails, the hidden variable _cwp_error will be set with a message; if error logging is checked in section 4, an error message will be written to the log and the contents of _cwp_error will be written out to a special tag called "An_error_has_occurred" which should appear prominently in the bottom pane of Picard. The problem may be resolved by refreshing, otherwise there may be a problem with the MB database availability. It is unlikely to be a software problem with the plugin.
+
+	* **How title metadata should be included in extended metadata**. This subsection contains various parameters affecting the processing of strings in titles. Because titles are free-form, not all circumstances can be anticipated. Detailed documentation of these is beyond the scope of this Readme as the effects can be quite complex and subtle and may require an understanding of the plugin code (which is of course open-source) to acsertain them. If pure canonical works are used ("Use only metadata from canonical works" and, if necessary, "Full MusicBrainz work hierarchy" on the Works and parts tab, section 2) then this processing should be irrelevant, but no text from titles will be included.
+
+3. "Logging options". These options are in addition to the options chosen in Picard's "Help->View error/debug log" settings. They only affect messages written by this plugin. To enable debug messages to be shown, the flag needs to be set here and "Debug mode" needs to be turned on in the log. It is strongly advised to keep the "debug" and "info" flags unchecked unless debugging is required as they slow up processing significantly.
+
+4. "Save options in a tag?" can be used so that the user has a record of which options were selected to achieve the resulting tags. Note that the tags will be blanked first so this will only show the last options used on a particular file. The same tag can be used for both sets of options, resulting in a multi-valued tag. The tag contents are in Python directory format. In a future version, there **might** be functionality to read this tag and use the options therein.
+
+# Information on hidden variables
+
+This section is for users who want to write their own scripts. The definition and source of each hidden variable is listed.
+
+## Works and parts
+
+- _cwp_work_n, where n is an integer >=0 : The MB work name at level n. For n=0, the tag is the same as the current standard Picard tag "work"
 - _cwp_work_top : The top work name (i.e. for maximal n). Thus, if max n = N, _cwp_work_top = _cwp_work_N.
 - _cwp_workid_n : The matching work id for each work name. For n=0, the tag is the same as the standard Picard tag "MusicBrainz Work Id"
 - _cwp_workid_top : The matching work id for the top work name.
 - _cwp_part_n : A "stripped" version of _cwp_work_n, where higher-level work text has been removed wherever possible, to avoid duplication on display.
-	Thus in theory, _cwp_work_0 will be the same as "_cwp_work_top: _cwp_part_(N-1): ...: _cwp_part_0" (punctuation excepted), but may differ in more complex situations where there is not an exact hierarchy of text as the work levels are traversed.
+	Thus in theory, _cwp_work_0 will be the same as "_cwp_work_top: _cwp_part_(N-1): ...: _cwp_part_0" (punctuation excepted), but may differ in more complex situations where there is not an exact hierarchy of text as the work levels are traversed. (See below for the "_X0" series which attempts to address any such inconsistencies)
 - _cwp_part_levels : The number of work levels attached to THIS TRACK. Should be equal to N = max(n) referred to above.
 - _cwp_work_part_levels : The maximum number of levels for ANY TRACK in the album which has the same top work as this track.
 - _cwp_single_work_album : A flag = 1 if there is only one top work in this album, else = 0.
+- _cwp_work : the level selected by the plugin to be the source of the single-level work name if "Use only metadata from canonical works" is selected (usually the top level, but one lower in the case of a single work album).
+- _cwp_groupheading : the level selected by the plugin to be the source of the multi-level work name if "Use only metadata from canonical works" is selected.
+- _cwp_part : The movement name derived from the MB work names (generally = _cwp_part_0) and used as the source for the movement name used for "Tags for Movement - including embedded movt/part numbers".
 
-If there is more than one work at the bottom level, then _cwp_work_0 and _cwp_workid_0 will have multiple entries. However, only the first workId is used to find a parent work. This should be OK in 99% of cases, since the existence of multiple works at the bottom level is because they are not broken into separate tracks on the recording and thus they are children of a common parent. Another common situation is that a "bottom level" work is spread across more than one track. Rather than artificially split the work into sub-parts, this is often shown in MusicBrainz as a track being a "partial recording of" a work. The plugin deals with this by creating a notional lowest-level with the suffix " (part)" appended to the work it is a partial recording of. In order that this notional part can be separately identified from the full work, the musicbrainz_trackid is used as the identifier rather than the workid.
-If there is more than one "parent" work of a lower level work, the plugin CURRENTLY uses the one with the longest name, on the grounds that the longest-named is likely to be the lowest level (but not necessarily); this is scheduled for improvement.
+If there is more than one work at the bottom level, then _cwp_work_0 and _cwp_workid_0 will have multiple entries. However, only the first workId is used to find a parent work. This should be OK in 99% of cases, since the existence of multiple works at the bottom level is because they are not broken into separate tracks on the recording and thus they are children of a common parent. Another common situation is that a "bottom level" work is spread across more than one track. Rather than artificially split the work into sub-parts, this is often shown in MusicBrainz as a track being a "partial recording of" a work. The plugin deals with this by creating a notional lowest-level with the suffix " (part)" appended to the work it is a partial recording of. In order that this notional part can be separately identified from the full work, the musicbrainz_recordingid is used as the identifier rather than the workid.
+If there is more than one "parent" work of a lower level work, the plugin **currently** uses the one with the longest name, on the grounds that the longest-named is likely to be the lowest level (but not necessarily); this is an area for improvement.
 
-As well as variables derived from MB's work structure, some variables are produced which are derived from the track title. Typically titles may be in the format "Work: Movement". Sometimes the title is prefixed by the name of the composer; in this case the variable
+- _cwp_X0_part_0 : A "stripped" version of _cwp_work_0 (see above), where elements of _cwp_work_0 which repeat within level 1 have been stripped.
+- _cwp_X0_work_n : The elements of _cwp_work_0 which repeat within level n
+- _cwp_X0_work_repeat : The (higher) level at which a repeated work has been found by attempting to create a hierarchy of works from the level 0 work. If any such repeats are found the attempt to use work level 0 as a text basis for all works (where "Consistent with lowest level work description" has been selected as the source for canonical work text) will be abandoned and the full MB hierarchy will be used instead. However, script writers can use the _cwp_X0_work_n variables to over-ride this behaviour, if wished.
+
+As well as variables derived from MB's work structure, some variables are produced which are derived from the track title. Typically titles may be in the format "Work: Movement", but not always. Sometimes the title is prefixed by the name of the composer; in this case the variable
 - _cwp_title
-is provided which excludes the composer name and subsequent processing is carried out using this rather than the full title. The plugin will attempt to extract the work and movement into:
-- _cwp_title_work, and
-- _cwp_title_movement
-This process can be a bit hit and miss as we are dependent on the naming convention of the title.
-- _cwp_title_work_level is used to indicate at what level in the main structure the _cwp_title_work will be applied. Normally this is level 1.
+is provided which excludes the composer name and subsequent processing is carried out using this rather than the full title. 
 
-In addition to these generic variables some custom variables are produced, particularly for Muso users, but which may be of value to others:
-- _cwp_part : The movement name derived from the MB work names - to populate Muso's Title field.
-- _cwp_groupheading : For multi-level works, this is intended to be imported to Muso's Group Header field. For two or more levels, the sub-header for Muso will be the text after a double colon.
+The plugin uses a number of methods attempt to extract the works and movement from the title. The resulting variables are:
+- _cwp_title_work_n, and
+- _cwp_title_part_n
+which mirror those for the ones based on MB works described above.
+- _cwp_title_part_levels which similarly mirrors _cwp_part_levels
+- _cwp_title_work_levels which similarly mirrors _cwp_work_part_levels
+
+- _cwp_title_work is the level selected by the plugin to be the source of the single-level work name if "Use only metadata from title text" is selected (usually the top level, but one lower in the case of a single work album).
+- _cwp_title_groupheading is similarly the level selected by the plugin to be the source of the multi-level work name if "Use only metadata from title text" is selected.
+
 - _cwp_extended_part : = _cwp_part with additional movement information from the title - given in {}.
-- _cwp_extended_groupheading : = _cwp_part with additional work information from the title - given in {}.
-The latter two variables can be useful where the "canonical" work names in MB are in the original language and the titles are in English (say). The user can choose which set of variables they prefer (different tagger scripts supplied). Various heuristics are used to try and add (and only add) meaningful additional information, but oddities may occur which require manual editing.
+- _cwp_extended_groupheading : = _cwp_groupheading with additional work information from the title - given in {}.
+The latter two variables can be useful where the "canonical" work names in MB are in the original language and the titles are in English (say). Various heuristics are used to try and add (and only add) meaningful additional information, but oddities may occur which require manual editing.
 
 One artist tag is set in this section:
 - _cwp_arranger : This is for "instrument arrangers", where Picard does not currently write them to the Arranger tag (despite style guidance saying to use specific instrument types instead of generic arranger). This might become unnecessary if Picard is fixed.
 
 Finally, the tag _cwp_error is provided to supply warnings and error messages to the user. At present these are a warning if there is more than one work (only one parent will be followed) or if excessive "Service Unavailabilty" has caused some metadata to be omitted.
 
-## Alternative artists
-- _caa_soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be "soloists" in that they may be part of an ensemble.
-- _caa_soloist_names : Names of the above (i.e. no instruments).
-- _caa_soloists_sort : Sort_names of the above.
-- _caa_ensembles : List of performers which are ensembles (with type / instruments - e.g. "orchestra" - in brackets), separated by semi-colons.
-- _caa_ensemble_names : Names of the above (i.e. no instruments).
-- _caa_ensembles_sort : Sort_names of the above.
-- _caa_album_soloists : Sub-list of soloist_names who are also album artists
-- _caa_album_soloists_sort : Sort_names of the above.
-- _caa_album_conductors : List of conductors whao are also album artists
-- _caa_album_conductors_sort : Sort_names of the above.
-- _caa_album_ensembles: Sub-list of ensemble_names who are also album artists
-- _caa_album_ensembles_sort : Sort_names of the above.
-- _caa_album_composers : List of composers who are also album artists
-- _caa_album_composers_sort : Sort_names of the above.
-- _caa_album_composer_lastnames : Last names of the above. (N.B. This only includes the composers of the current track - compare with _cea_album_composer_lastnames below).
-- _caa_support_performers : Sub-list of soloist_names who are NOT album artists
-- _caa_support_performers_sort : Sort_names of the above.
-- _caa_composer : Alternative composer name, based on sort name, to avoid non-latin language problems.
-- _caa_conductor : Alternative conductor name, based on sort name, to avoid non-latin language problems.
+## Artists
+- _cea_soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be "soloists" in that they may be part of an ensemble.
+- _cea_soloist_names : Names of the above (i.e. no instruments).
+- _cea_soloists_sort : Sort_names of the above.
+- _cea_ensembles : List of performers which are ensembles (with type / instruments - e.g. "orchestra" - in brackets), separated by semi-colons.
+- _cea_ensemble_names : Names of the above (i.e. no instruments).
+- _cea_ensembles_sort : Sort_names of the above.
+- _cea_album_soloists : Sub-list of soloist_names who are also album artists
+- _cea_album_soloists_sort : Sort_names of the above.
+- _cea_album_conductors : List of conductors whao are also album artists
+- _cea_album_conductors_sort : Sort_names of the above.
+- _cea_album_ensembles: Sub-list of ensemble_names who are also album artists
+- _cea_album_ensembles_sort : Sort_names of the above.
+- _cea_album_composers : List of composers who are also album artists
+- _cea_album_composers_sort : Sort_names of the above.
+- _cea_album_track_composer_lastnames : Last names of the above. (N.B. This only includes the composers of the current track - compare with _cea_album_composer_lastnames below).
+- _cea_album_composer_lastnames : Last names of composers of ANY track on the album who are also album artists. This can be used to prefix the album name if required. (cf _cea_album_track_composer_lastnames)
+- _cea_support_performers : Sub-list of soloist_names who are NOT album artists
+- _cea_support_performers_sort : Sort_names of the above.
+- _cea_composer : Alternative composer name, based on sort name, to avoid non-latin language problems.
+- _cea_conductor : Alternative conductor name, based on sort name, to avoid non-latin language problems.
+- _cea_performer : An alternative to performer, based on the sort name (see note re non-Latin script below).
+- _cea_arranger : Instrument arranger for the recording (not created by Picard as standard). If the work and parts functionality has also been selected, it will include the arrangers of parent works, which Picard also currently omits.
 
-Note re non-Latin characters: These can be avoided by using the Picard option (Options->Metadata) "Translate artist names to this locale where possible". This plugin provides an alternative which will always remove middle (patronymic) names from Cyrillic-script names (but does not deal fully with other non-Latin scripts). It is based on the sort names, except for performers, where a Cyrillic-Latin transliteration is used. The Picard option only currently works properly for the Artist tag (where it uses the locale primary alias, which can be set to exclude patronyms) - other tags use the full sort name as the basis, which will generally include the patronym.
+Note re non-Latin characters: These can be avoided by using the Picard option (Options->Metadata "Translate artist names to this locale where possible"). This plugin provides an alternative which will always remove middle (patronymic) names from Cyrillic-script names (but does not deal fully with other non-Latin scripts). It is based on the sort names wherever possible, otherwise a Cyrillic-Latin transliteration is used. The Picard option only currently works properly for the Artist tag (where it uses the locale primary alias, which can be set to exclude patronyms) - other tags use the full sort name as the basis, which will generally include the patronym.
 
-## Extra artists
-- _cea_performer : An alternative to performer, based on the sort name (see note re non-Latin script above).
-- _cea_arranger : Instrument arranger for the recording (not created by Picard as standard).
-- _cea_album_composer_lastnames : Last names of composers of ANY track on the album who are also album artists. This can be used to prefix the album name if required. (cf _caa_album_composer_lastnames)
+-cea_work_type : Although not strictly an artist field, this is derived from artist and performer metadata. This is the variable populated if "Infer work types" is selected on the Artists tab.
 
-# Usage
+# Software-specific notes
 
-## Work parts and levels
-The _cwp_ prefix is used so as minimise the risk of conflicts with other variables. However, to make use of these variables, a tagger script is required to write the tags to suit the user's needs.
 Note that _cwp_part_levels > 0 will indicate that the track recording is part of a work and so could be used to set other software-specific flags (e.g. for iTunes "show work movement") to indicate a multi-level "work: movement".
-SongKong users may wish to map the _cwp variables to tags produced by SongKong, in which case the mappings are principally:
+
+## SongKong
+
+SongKong users may wish to map the _cwp variables to tags produced by SongKong if consistency is desired, in which case the mappings are principally:
 - _cwp_work_0 => musicbrainz_work_composition
 - _cwp_workid_0 => musicbrainz_work_composition_id
 - _cwp_work_n => musicbrainz_work_part_leveln, for n = 1..6
 - _cwp_workid_n => musicbrainz_work_part_leveln_id, for n = 1..6
 - _cwp_work_top => musicbrainz_work 
-In addition, _cwp_title_work and _cwp_title_movement are intended to be equivalent to SongKong's work and movement tags, but the algorithm is less sophisticated.
-(N.B. Full consistency between SongKong and Picard will also require the modification of Artist asnd related tags via Taggerscript, or the preservation of the related file tags )
-For Muso users, the specific custom variables described above are provided and a choice can be made using a simple Tagger Script option.
+In addition, _cwp_title_work and _cwp_title_part_0 are intended to be equivalent to SongKong's work and part tags.
+(N.B. Full consistency between SongKong and Picard may also require the modification of Artist and related tags via a script, or the preservation of the related file tags)
 
-## Artists
-Again, these use prefixes (_cwp_, _caa_, or _cea_ depending on which Class in the plugin generates them) and require tagger scripts of the user's choosing to turn them into tags.
+## Muso
 
-## Tagger scripts
-The following tagger scripts are provided and may be modified as needed:
-### for works:
-- Muso works: to write the main tags for Muso to show Group Header, Sub-header and Part (import to Title).
-- Extended works: as above, but makes use of the extended metadata described in the previous section.
-- SongKong works: provides the same tags as SongKong/Jaikoz, including a title-derived work and movement where applicable and possible.
-- CWP tags: To write out the hidden variables as explicit tags. Intended to assist script developers etc. - best not to save these tags, to avoid clutter.
-### for artists:
-- Alternative artists: to make use of the _caa_ variables. This is designed to make use of the display features of Muso and LMS and may need modification for other systems.
-- Extra artists : to make use of the _cea_arranger and _cwp_arranger variables and to prefix the album with _cea_album_composer_lastnames.
+The tag "groupheading" should be as the "Tags for Work - for software with 2-level capability". Muso will use this directly and extract the levels from in (split by the double colon). Muso permits a variety of import options which should be capable of combination with the tagging options in this plugin to achieve most desired effects. To avoid the use of import options in Muso, set the output tags from the plugin to be the native ones used by Muso (NB "title" may include or exclude groupheading - Muso should recognise it and extract it).
 
-The included jpg gives an illustration of the use of extended metadata in Muso to give dual-language information.
+## Players with no "work" capability
+
+Leave the "title" tag unchanged or make it a combination of work and movement.
+
 
 # Possible Enhancements
 Planned enhancements (among others) are 
 1. Include discrimination as to type of parts relationship (i.e. exclude irrelevant parents)
 2. If a work is an arrangement of another work, look for the parent works of that other work
-2. Find a better way of selecting parents where there is more than one (rather than just length of name as at present)
-3. Be able to choose whether or not to use cache when refreshing (at present, if works have already been loaded as part of a previous album, they will not be associated with the new album - the only way to clear the cache is to close and re-open Picard)
-4. Provide a UI to control various parameters
+3. Find a better way of selecting parents where there is more than one (rather than just length of name as at present)
 
 # Technical Matters
 Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to @dns_server for assistance in dealing with this and to @sophist for the albumartist_website code which I have used extensively. I have tried to add some more comments to help any others trying the same techniques.
-Issues were also encountered with "Service unavailable" responses from the XML web service. Up to 6 re-tries are made before flagging an error in _cwp_error.
 A variety of releases were used to test this plugin, but there may still be bugs, so further testing is welcome. The following release was particularly complex and useful for testing: https://musicbrainz.org/release/ec519fde-94ee-4812-9717-659d91be11d4
-
-# Updates
-v0.4
-- Added logic to remove composer name from title
-- Improved processing of works with only one part
-- Improved logic to deal with parent works which are not completely named (e.g. no opus number in parent, but is in child)
-- Improved extended metadata logic
-
-v0.5 
-- Get artist-rels as well as work-rels on work lookup and populate "instrument arranger" metadata
-- Improved heuristics for extending metadata based on titles
-- "Alternative" and "Extra" artist metadata (the former just uses metadata whereas the latter does an XML lookup of the recording)
