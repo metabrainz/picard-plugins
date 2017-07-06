@@ -52,7 +52,7 @@ Enter the (comma-separated) tag names into which the sources should be written (
 4. "Include arrangers from all work levels, plus instrument arrangers". This will gather together any arranger information from the recording, work or parent works and place it in the "arranger" tag. If you want to add arrangers as composers, do so in the previous section. (Note that Picard does not natively pick up all arrangers)
 
 "Infer work types (map to genre using tag mapping or script as req'd)". This attempts to create a "work_type" tag based on information in the artist-related tags. It does not (currently) use the "work-type" data for MB works as this is not well populated and is under review at present. Values provided are:
-Orchestral, Concerto, Instrumental, Vocal, Choral, Opera, Duet, Aria, Song. For concerto and solo performances the instrument is also given where possible.
+Orchestral, Concerto, Instrumental, Voice, Choral, Opera, Duet, Aria, Song. For concerto and solo performances the instrument is also given where possible.
 
 Use "work_type" as a source in the prvious section to (e.g.) map to the genre tag. For more complex treatment, use scripts.
 

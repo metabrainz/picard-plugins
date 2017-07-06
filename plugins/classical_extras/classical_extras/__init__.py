@@ -521,7 +521,8 @@ class ExtraArtists:
                                     else:
                                         self.append_tag(tm, '~cea_work_type', 'Aria')
                                         match2 = vocals.search(soloists[0])
-                                        self.append_tag(tm, '~cea_work_type', match2.group(2).strip().title())
+                                        if match2:
+                                            self.append_tag(tm, '~cea_work_type', match2.group(2).strip().title())
                             elif len(soloists) == 2:
                                 self.append_tag(tm, '~cea_work_type', 'Duet')
 
