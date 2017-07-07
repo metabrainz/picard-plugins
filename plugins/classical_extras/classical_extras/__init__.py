@@ -791,7 +791,8 @@ class PartLevels:
         self.SYNONYMS = options["cwp_synonyms"]
         self.USE_LEVEL_0 = options["cwp_level0_works"]
 
-        if self.DEBUG: log.debug("%s: LOAD NEW TRACK", PLUGIN_NAME)                                      #debug
+        if self.DEBUG: log.debug("%s: LOAD NEW TRACK", PLUGIN_NAME)
+        if self.INFO: log.info("trackXmlNode: %s", trackXmlNode)
         # fix titles which include composer name
         composersort = dict.get(track_metadata,'composersort', [])
         composerlastnames = []
@@ -1263,15 +1264,26 @@ class PartLevels:
                 if self.DEBUG: log.debug("%s list %s", name_type, name_list)
                 if len(name_list) == 1:                    # only one track in this work so try and extract using colons
                     track_height = tracks['track'][0][1]
-                    if track_height - height >0:
+                    if track_height - height >0:            # part_level
                         if name_type == 'title':
-                            common_subset = self.derive_from_title(tracks['track'][0][0])[0]
+                            track = tracks['track'][0][0]
+                            if self.DEBUG: log.debug("Single track work. Deriving directly from title text: %s", track)
+                            tm = track.metadata
+                            mb = tm['~cwp_work_0']
+                            ti = name_list[0]
+                            diff = self.diff_pair(mb, ti)
+                            if diff:
+                                common_subset = self.derive_from_title(track, diff)
                         else:
                             common_subset = ""
+                            common_len = 0
                     else:    
                         common_subset = name_list[0]
                     if self.INFO: log.info("%s is single-track work. common_subset is set to %s", tracks['track'][0][0], common_subset)
-                    common_len = len(common_subset)
+                    if common_subset:
+                        common_len = len(common_subset)
+                    else:
+                        common_len = 0
                 else:
                     compare = name_list[0].split()
                     for name in name_list:
@@ -1384,35 +1396,26 @@ class PartLevels:
                 self.parts[childId]['stripped_name'] = stripped_works
         if self.DEBUG: log.debug("GOT TO END OF SET_METADATA")
 
-    def derive_from_title(self, track):
+    def derive_from_title(self, track, title):
         if self.INFO: log.info("%s: DERIVING METADATA FROM TITLE for track: %s", PLUGIN_NAME, track)
         tm = track.metadata
-        title = tm['~cwp_title'] or tm['title']                            # ~cwp_title if composer had to be removed
         movt = ""
         work = ""
         if '~cwp_part_levels' in tm:
             part_levels = int(tm['~cwp_part_levels'])
             if int(tm['~cwp_work_part_levels']) > 0:                          # we have a work with movements
-                if part_levels > 0:
-                    if '~cwp_work_1' in tm:
-                        parent = tm['~cwp_work_1']
-                        stripped = self.strip_parent_from_work(title, parent, 1, False)
-                        if stripped[0] != title:
-                            movt = stripped[0].strip(":,;.- ")
-                            work = stripped[1]
-                        else:
-                            colons = title.count(":")
-                            if colons > 0:
-                                title_split = title.split(': ',1)
-                                title_rsplit = title.rsplit(': ',1)
-                                if part_levels >= colons:
-                                    work = title_rsplit[0]
-                                    movt = title_rsplit[1]
-                                else:
-                                    work = title_split[0]
-                                    movt = title_split[1]
-                            else:
-                                movt = title
+                colons = title.count(":")
+                if colons > 0:
+                    title_split = title.split(': ',1)
+                    title_rsplit = title.rsplit(': ',1)
+                    if part_levels >= colons:
+                        work = title_rsplit[0]
+                        movt = title_rsplit[1]
+                    else:
+                        work = title_split[0]
+                        movt = title_split[1]
+                else:
+                    movt = title
         if self.INFO: log.info("Work %s, Movt %s", work, movt)
         return (work, movt)
 
@@ -1546,8 +1549,18 @@ class PartLevels:
                 movement = tm['~cwp_title'] or tm['title']
             diff = self.diff_pair(part, movement)
             if self.INFO: log.info("DIFF PART - MOVT. ti =%s", diff)
-            if not diff:
-                if self.DEBUG: log.debug("....strings compared....")
+            if diff:
+                if '~cwp_work_1' in tm:
+                    diff2 = self.diff_pair(tm['~cwp_work_1'], diff)
+                    if diff2:
+                        no_diff = False
+                    else:
+                        no_diff = True
+                else:
+                    no_diff = False
+            else:
+                no_diff = True
+            if no_diff:
                 if part_levels > 0:
                     tm['~cwp_extended_part'] = part
                 else:
@@ -1556,7 +1569,7 @@ class PartLevels:
                         del tm['~cwp_extended_groupheading']
             else:
                 if part_levels > 0:
-                    stripped_movt = diff.strip()
+                    stripped_movt = diff2.strip()
                     tm['~cwp_extended_part'] = part + " {" + stripped_movt + "}"
                 else:
                     tm['~cwp_extended_part'] = movement           # title will be in part
