@@ -4,7 +4,9 @@ It populates hidden variables in Picard with information from the MusicBrainz da
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
 
-All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea_" depending on which section of the plugin (i.e. which Class) created them. Full details of these variables are given in a later section.
+It has two components "Extra Artists" and "Work Parts" which can be used independently or together. "Work Parts" will take at least as many seconds to process as there are works to look up (owing to MB throttling) so users who only want the extra artist information and not the work details may turn it off.
+
+All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea_" depending on which component of the plugin created them. Full details of these variables are given in a later section.
 Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which can be added to / modified / deleted according to user requirements. 
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
@@ -13,6 +15,8 @@ Install the zip file in your plugins folder in the usual fashion
 
 # Usage
 After installation, go to the Options Page and modify choices as required. There are 3 tabs - "Artists", "Works and parts" and "Advanced". The sections below describe each of these. If the options provided do not allow sufficient flexibility for a user's need and they do not want to use scripting, then it may be possible to achieve the required result by running and saving twice (or more!) with different options each time. This is not recommended for more than a one-off - a script would be better.
+
+**Important**: It is recommended only to use the plugin on one release at a time, particularly if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" - use a tool such as SongKong for that and then use the plugin to enhance the results as required.
 
 ## Artists tab
 There are four coloured sections as shown in the screen image below:
