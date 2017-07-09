@@ -1,5 +1,5 @@
 # General Information
-This is version 0.6 of "classical_extras". It has only been tested with FLAC and mp3 files.
+This is version 0.6.1 of "classical_extras". It has only been tested with FLAC and mp3 files.
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
@@ -10,7 +10,8 @@ All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea
 Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which can be added to / modified / deleted according to user requirements. 
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
-**WARNING**: Do not use this version on releases where the works are in cyrillic script otherwise the regular expressions will undergo "catastrophic backtracking" and Picard will hang for a long time. They may eventually resolve after about an hour, but better to try and avoid it. An update is planned to address this.
+## Updates
+Version 0.6.1 has amended regex to permit non-Latin characters in work text.
 
 # Installation
 Install the zip file in your plugins folder in the usual fashion

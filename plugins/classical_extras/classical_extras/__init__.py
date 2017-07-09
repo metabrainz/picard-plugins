@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.6'
+PLUGIN_VERSION = '0.6.1'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -895,7 +895,7 @@ class PartLevels:
             if self.DEBUG: log.debug("%s: Work is already in queue: %s", PLUGIN_NAME, workId)      #debug
 
     def work_process(self, workId, tries, response, reply, error):
-        if self.DEBUG: log.debug("%s: LOOKING UP WORK: %s", PLUGIN_NAME, workId)                     #debug
+        if self.DEBUG: log.debug("%s: work_process. LOOKING UP WORK: %s", PLUGIN_NAME, workId)                     #debug
         if error:
             if self.ERROR: log.error("%s: %r: Network error retrieving work record", PLUGIN_NAME, workId)
             tuples = self.works_queue.remove(workId)
@@ -939,7 +939,7 @@ class PartLevels:
                     self.top_works[(track, album)]['workId'] = workId
                     if workId not in self.top[album]:
                         self.top[album].append(workId)
-                    #if self.INFO: log.info("TOP[album]: %s", self.top[album])
+                    if self.INFO: log.info("TOP[album]: %s", self.top[album])
             else:  #ERROR?
                 self.parts[workId]['no_parent'] = True          # so we remember we looked it up and found none
                 self.top_works[(track, album)]['workId'] = workId
@@ -949,8 +949,10 @@ class PartLevels:
                 self.process_album(album)                       # so do the final album-level processing before we go!
             self.album_remove_request(album)
             if self.DEBUG: log.debug("%s: Removed request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
+        if self.DEBUG: log.debug("%s: End of work_process for workid %s", PLUGIN_NAME, workid)
 
     def work_process_metadata(self, workId, response):
+        if self.DEBUG: log.debug("%s: In work_process_metadata", PLUGIN_NAME)
         relationList = []
         if 'metadata' in response.children:
             if 'work' in response.metadata[0].children:
@@ -965,7 +967,7 @@ class PartLevels:
         return None
 
     def work_process_relations(self, relations):
-        #if self.DEBUG: log.debug("%s RelationSS--> %s", PLUGIN_NAME, relations)
+        if self.DEBUG: log.debug("%s In work_process_relations. Relations--> %s", PLUGIN_NAME, relations)
         new_workIds = []
         new_works = []
         artists = []
@@ -1587,7 +1589,7 @@ class PartLevels:
         if not ti:
             return None
         p1 = re.compile(r'^\W*\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b[\s|\.|:|,|;]', re.IGNORECASE)  # Matches Roman numerals with punctuation
-        p2 = re.compile(r'^\W*\d+\W*')             # Matches positive integers with punctuation
+        p2 = re.compile(r'^\W*\d+[.):-]')             # Matches positive integers with punctuation
         # remove certain words from the comparison
         removewords = self.REMOVEWORDS.split(',')
         if self.INFO: log.info("Removewords = %s", removewords)
@@ -1867,7 +1869,7 @@ class PartLevels:
             work = tm['~cwp_extended_work'] or ""
         if self.DEBUG: log.debug("Done options")
         p1 = re.compile(r'^\W*\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b[\s|\.|:|,|;]', re.IGNORECASE)  # Matches Roman numerals with punctuation
-        p2 = re.compile(r'^\W*\d+\W*')             # Matches positive integers with punctuation
+        p2 = re.compile(r'^\W*\d+[.):-]')             # Matches positive integers with punctuation
         movt = part
         for _ in range(0,5):                                                # in case of multiple levels
             movt = p2.sub('',p1.sub('',movt)).strip()
@@ -1968,12 +1970,14 @@ class PartLevels:
     def strip_parent_from_work(self, work, parent, part_level, extend):             #extend=True is used to find "full_parent" names
         if self.DEBUG: log.debug("%s: STRIPPING HIGHER LEVEL WORK TEXT FROM PART NAMES", PLUGIN_NAME)
         full_parent = parent
-        clean_parent = re.sub('[^\w\s]',' ',parent)
-        pattern_parent = re.sub("\s","\W{0,2}", clean_parent)
+        punc_space = r'[\'!\"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]\s+'
+        clean_parent = re.sub(punc_space,' ',parent)                  # replace any punctuation followed by a space, with a space (to remove any inconsistent punctuation)
+        pattern_parent = re.sub("\s","[^\p{L}|\d]{0,2}", clean_parent)         # now allow the spaces to be filled with up to 2 non-letters
+        # NB [^\p{L}|\d] is used instead of \W to allow for non-Latin characters, similarly [\p{L}|\d] is used instead of \w
         if extend:
-            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"\w*)(\W*\s)(.*)"
+            pattern_parent = "(.*\s|^)([^\p{L}|\d]*"+pattern_parent+"[\p{L}|\d]*)([^\p{L}|\d]*\s)(.*)"
         else:
-            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"\w*\W?)(.*)"
+            pattern_parent = "(.*\s|^)([^\p{L}|\d]*"+pattern_parent+"[\p{L}|\d]*[^\p{L}|\d]?)(.*)"
         if self.INFO: log.info("Pattern parent: %s, Work: %s", pattern_parent, work)
         p = re.compile(pattern_parent, re.IGNORECASE)
         m = p.search(work)
