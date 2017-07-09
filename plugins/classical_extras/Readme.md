@@ -10,6 +10,8 @@ All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea
 Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which can be added to / modified / deleted according to user requirements. 
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
+**WARNING**: Do not use this version on releases where the works are in cyrillic script otherwise the regular expressions will undergo "catastrophic backtracking" and Picard will hang for a long time. They may eventually resolve after about an hour, but better to try and avoid it. An update is planned to address this.
+
 # Installation
 Install the zip file in your plugins folder in the usual fashion
 
