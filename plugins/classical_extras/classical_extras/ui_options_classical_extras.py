@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\Mark\Documents\Mark's documents\Music\Picard\picard-plugins\plugins\classical_extras\classical_extras\options_classical_extras.ui'
 #
-# Created: Thu Jul 06 23:25:58 2017
+# Created: Tue Jul 11 00:03:19 2017
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_ClassicalExtrasOptionsPage(object):
     def setupUi(self, ClassicalExtrasOptionsPage):
         ClassicalExtrasOptionsPage.setObjectName(_fromUtf8("ClassicalExtrasOptionsPage"))
-        ClassicalExtrasOptionsPage.resize(963, 883)
+        ClassicalExtrasOptionsPage.resize(1006, 883)
         self.vboxlayout = QtGui.QVBoxLayout(ClassicalExtrasOptionsPage)
         self.vboxlayout.setSpacing(6)
         self.vboxlayout.setMargin(9)
@@ -48,7 +48,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 919, 819))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 945, 839))
         self.scrollAreaWidgetContents.setAcceptDrops(False)
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.verticalLayout_13 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
@@ -99,6 +99,9 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_68 = QtGui.QLabel(self.artist_tags_2)
         self.label_68.setObjectName(_fromUtf8("label_68"))
         self.verticalLayout_3.addWidget(self.label_68)
+        self.label_43 = QtGui.QLabel(self.artist_tags_2)
+        self.label_43.setObjectName(_fromUtf8("label_43"))
+        self.verticalLayout_3.addWidget(self.label_43)
         self._14 = QtGui.QHBoxLayout()
         self._14.setSpacing(6)
         self._14.setMargin(0)
@@ -723,6 +726,21 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.cea_cond_16.setObjectName(_fromUtf8("cea_cond_16"))
         self._37.addWidget(self.cea_cond_16)
         self.verticalLayout_3.addLayout(self._37)
+        self._38 = QtGui.QHBoxLayout()
+        self._38.setSpacing(6)
+        self._38.setMargin(0)
+        self._38.setObjectName(_fromUtf8("_38"))
+        self.label_42 = QtGui.QLabel(self.artist_tags_2)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.label_42.sizePolicy().hasHeightForWidth())
+        self.label_42.setSizePolicy(sizePolicy)
+        self.label_42.setLayoutDirection(QtCore.Qt.LeftToRight)
+        self.label_42.setLineWidth(1)
+        self.label_42.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.label_42.setObjectName(_fromUtf8("label_42"))
+        self._38.addWidget(self.label_42)
         self.label_17 = QtGui.QLabel(self.artist_tags_2)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -730,8 +748,10 @@ class Ui_ClassicalExtrasOptionsPage(object):
         sizePolicy.setHeightForWidth(self.label_17.sizePolicy().hasHeightForWidth())
         self.label_17.setSizePolicy(sizePolicy)
         self.label_17.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.label_17.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_17.setObjectName(_fromUtf8("label_17"))
-        self.verticalLayout_3.addWidget(self.label_17)
+        self._38.addWidget(self.label_17)
+        self.verticalLayout_3.addLayout(self._38)
         self.cea_tag_sort = QtGui.QCheckBox(self.artist_tags_2)
         self.cea_tag_sort.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.cea_tag_sort.setObjectName(_fromUtf8("cea_tag_sort"))
@@ -1213,19 +1233,20 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setBuddy(self.cwp_retries)
 
         self.retranslateUi(ClassicalExtrasOptionsPage)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(ClassicalExtrasOptionsPage)
 
     def retranslateUi(self, ClassicalExtrasOptionsPage):
         self.Artists.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p><br/></p></body></html>", None))
         self.use_cea.setText(_translate("ClassicalExtrasOptionsPage", "Create extra artist metadata", None))
         self.cea_composer_album.setText(_translate("ClassicalExtrasOptionsPage", "Name album as \"Composer Last Name(s): Album Name\"", None))
-        self.artist_tags.setTitle(_translate("ClassicalExtrasOptionsPage", "Remove Picard-generated tags before applying subsequent actions? (NB existing file tags will remain)", None))
+        self.artist_tags.setTitle(_translate("ClassicalExtrasOptionsPage", "Remove Picard-generated tags before applying subsequent actions? (NB existing FILE tags will remain - to remove these, overwrite them in the next section)", None))
         self.label_3.setText(_translate("ClassicalExtrasOptionsPage", "Tags to blank (comma-separated, case -sensitive):", None))
         self.artist_tags_2.setTitle(_translate("ClassicalExtrasOptionsPage", "Tag mapping - map Classical Extras \"sources\" into required tags (comma separate multiple tag names)", None))
         self.label_16.setText(_translate("ClassicalExtrasOptionsPage", "Notes: To put a constant in a tag, type it into the source box preceded by a backslash \\", None))
-        self.label_18.setText(_translate("ClassicalExtrasOptionsPage", "            Any valid Picard tag can be entered in the \"source\" box, as well as Classical Extras sources, and mapped into other tags - not just restricted to artists", None))
-        self.label_68.setText(_translate("ClassicalExtrasOptionsPage", "            In all cases, the source will be APPENDED to the tag. To replace the original tag, first blank it (box above)", None))
+        self.label_18.setText(_translate("ClassicalExtrasOptionsPage", "   Any valid Picard-generated tag can be entered in the \"source\" box, as well as Classical Extras sources, and mapped into other tags - not just restricted to artists", None))
+        self.label_68.setText(_translate("ClassicalExtrasOptionsPage", "   In all cases, the source will be APPENDED to the Picard tag. To replace the original tag, first blank it in the section above - add it back later in the list below if required (e.g. artist -> artist)", None))
+        self.label_43.setText(_translate("ClassicalExtrasOptionsPage", "      BUT note that any existing FILE tags will be replaced by (not appended with) any Picard/Classical Extras tag.", None))
         self.label_20.setText(_translate("ClassicalExtrasOptionsPage", "Source from:", None))
         self.cea_source_1.setItemText(1, _translate("ClassicalExtrasOptionsPage", "album_soloists", None))
         self.cea_source_1.setItemText(2, _translate("ClassicalExtrasOptionsPage", "album_conductors", None))
@@ -1482,6 +1503,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.cea_source_16.setItemText(13, _translate("ClassicalExtrasOptionsPage", "work_type", None))
         self.label_67.setText(_translate("ClassicalExtrasOptionsPage", "into tags:", None))
         self.cea_cond_16.setText(_translate("ClassicalExtrasOptionsPage", "Conditional?", None))
+        self.label_42.setText(_translate("ClassicalExtrasOptionsPage", "(If source is empty, tag will be left unchanged)                                                                                                                                        ", None))
         self.label_17.setText(_translate("ClassicalExtrasOptionsPage", "(Conditional tags will only be filled if previously empty)", None))
         self.cea_tag_sort.setText(_translate("ClassicalExtrasOptionsPage", "Also populate sort tags if a sort tag exists for the source", None))
         self.groupBox_5.setTitle(_translate("ClassicalExtrasOptionsPage", "Other options", None))
