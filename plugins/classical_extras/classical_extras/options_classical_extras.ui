@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>963</width>
+    <width>1006</width>
     <height>883</height>
    </rect>
   </property>
@@ -32,7 +32,7 @@
       <string notr="true">background-color: rgb(170, 170, 127);</string>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -52,8 +52,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>919</width>
-            <height>819</height>
+            <width>945</width>
+            <height>839</height>
            </rect>
           </property>
           <property name="acceptDrops">
@@ -95,7 +95,7 @@
               <string notr="true">background-color: rgb(205, 230, 255);</string>
              </property>
              <property name="title">
-              <string>Remove Picard-generated tags before applying subsequent actions? (NB existing file tags will remain)</string>
+              <string>Remove Picard-generated tags before applying subsequent actions? (NB existing FILE tags will remain - to remove these, overwrite them in the next section)</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_12">
               <item>
@@ -142,14 +142,21 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
               <item>
                <widget class="QLabel" name="label_18">
                 <property name="text">
-                 <string>            Any valid Picard tag can be entered in the &quot;source&quot; box, as well as Classical Extras sources, and mapped into other tags - not just restricted to artists</string>
+                 <string>   Any valid Picard-generated tag can be entered in the &quot;source&quot; box, as well as Classical Extras sources, and mapped into other tags - not just restricted to artists</string>
                 </property>
                </widget>
               </item>
               <item>
                <widget class="QLabel" name="label_68">
                 <property name="text">
-                 <string>            In all cases, the source will be APPENDED to the tag. To replace the original tag, first blank it (box above)</string>
+                 <string>   In all cases, the source will be APPENDED to the Picard tag. To replace the original tag, first blank it in the section above - add it back later in the list below if required (e.g. artist -&gt; artist)</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="label_43">
+                <property name="text">
+                 <string>      BUT note that any existing FILE tags will be replaced by (not appended with) any Picard/Classical Extras tag.</string>
                 </property>
                </widget>
               </item>
@@ -2090,20 +2097,55 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                </layout>
               </item>
               <item>
-               <widget class="QLabel" name="label_17">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
+               <layout class="QHBoxLayout" name="_38">
+                <property name="spacing">
+                 <number>6</number>
                 </property>
-                <property name="layoutDirection">
-                 <enum>Qt::RightToLeft</enum>
+                <property name="margin">
+                 <number>0</number>
                 </property>
-                <property name="text">
-                 <string>(Conditional tags will only be filled if previously empty)</string>
-                </property>
-               </widget>
+                <item>
+                 <widget class="QLabel" name="label_42">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::LeftToRight</enum>
+                  </property>
+                  <property name="lineWidth">
+                   <number>1</number>
+                  </property>
+                  <property name="text">
+                   <string>(If source is empty, tag will be left unchanged)                                                                                                                                        </string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_17">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::RightToLeft</enum>
+                  </property>
+                  <property name="text">
+                   <string>(Conditional tags will only be filled if previously empty)</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
               <item>
                <widget class="QCheckBox" name="cea_tag_sort">

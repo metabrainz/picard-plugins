@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.6.1'
+PLUGIN_VERSION = '0.6.3'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -251,12 +251,16 @@ class ExtraArtists:
         if '~cea_album_track_composer_lastnames' in tm:                          # composer last names created by alt_artists function
             composer_lastnames = track_metadata['~cea_album_track_composer_lastnames']
             if album in self.album_artists:
-                if composer_lastnames not in self.album_artists[album]['composer_lastnames']:
-                    self.album_artists[album]['composer_lastnames'].append(composer_lastnames)
+                if 'composer_lastnames' in self.album_artists[album]:
+                    if composer_lastnames not in self.album_artists[album]['composer_lastnames']:
+                        self.album_artists[album]['composer_lastnames'].append(composer_lastnames)
+                else:
+                    self.album_artists[album]['composer_lastnames'] = [composer_lastnames]
             else:
                 self.album_artists[album]['composer_lastnames'] = [composer_lastnames]
         else:
-            log.error("NO _CEA_ALBUM_TRACK_COMPOSER_LASTNAMES variable available for recording. Try REFRESH.")
+            if self.WARNING: log.warning("%s: No _cea_album_track_composer_lastnames variable available for recording \"%s\".", PLUGIN_NAME, tm['title'])
+            self.append_tag(track_metadata, '~cea_warning', 'No _cea_album_track_composer_lastnames variable available for recording')
         if 'recording' in trackXmlNode.children:
             for record in trackXmlNode.children['recording']:
                 performerList = self.artist_process_metadata(track, record, 'instrument')
@@ -297,7 +301,7 @@ class ExtraArtists:
         last = re.compile(r'(.*),')
         for key, values in metadata.rawitems():
             if key.startswith('conductor'):
-                conductorsort = metadata['~cea_conductor_sort'].split(';')
+                conductorsort = metadata['~cea_conductors_sort'].split(';')
                 for index, conductor in enumerate(values):
                     if not only_roman_chars(conductor):
                         if album.tagger.config.setting['cea_cyrillic']:
@@ -364,6 +368,7 @@ class ExtraArtists:
                                 support_performers_sort.append(performer)
             if key == 'composer':
                 composers_sort = metadata['composersort'].split(';')
+                metadata['~cea_composers_sort'] = composers_sort
                 for index, composer in enumerate(values):
                     composersort = composers_sort[index]
                     match=last.search(composersort)
@@ -380,7 +385,7 @@ class ExtraArtists:
                     or unsort(composersort) in metadata['~albumartists'] or composerlast in metadata['~albumartists'] \
                     or composerlast in metadata['~albumartists_sort']:
                        album_composers.append(composer)
-                       album_composers_sort.append(composersort[index])
+                       album_composers_sort.append(composersort)
                        album_composer_lastnames.append(composerlast)
         metadata['~cea_soloists'] = soloists
         metadata['~cea_soloist_names'] = soloist_names
@@ -457,9 +462,11 @@ class ExtraArtists:
         else:
             if self.ERROR: log.error("%s: %r: MusicBrainz artist xml result not in correct format.",
                       PLUGIN_NAME, track)
-            if self.ERROR: log.error("This could be because the recording has no relationships on MusicBrainz.")
-            if self.ERROR: log.error("Check the details on MusicBrainz. XML returned is as follows:")
-            if self.ERROR: log.error(record)
+            extra_msg = ' Turn on info logging and refresh for more information' if not self.INFO else ''
+            if self.ERROR: log.error("This could be because the recording has no relationships on MusicBrainz.%s", extra_msg)
+            if self.INFO: log.info("Check the details on MusicBrainz. XML returned is as follows:")
+            if self.INFO: log.error(record)
+            self.append_tag(track.metadata, '~cea_error', 'MusicBrainz artist xml result not in correct format.')
         return None
 
     def artist_process_relations(self, relations, artistType):
@@ -491,11 +498,11 @@ class ExtraArtists:
 
     def process_album(self, album):
         options = album.tagger.config.setting
-        blank_tags = options['cea_blank_tag'].split(",")
-        blank_tags_2 = options['cea_blank_tag_2'].split(",")
+        blank_tags = options['cea_blank_tag'].split(",") + options['cea_blank_tag_2'].split(",")
         sort_tags = options['cea_tag_sort']
         for track in self.track_listing:
             tm = track.metadata
+            tm['~cea_version'] = PLUGIN_VERSION
             # set work-type before any tags are blanked
             if options['cea_genres']:
                 instrument = re.compile(r'.*\((.+)\)')
@@ -564,11 +571,10 @@ class ExtraArtists:
                             else:
                                 self.append_tag(tm, '~cea_work_type', 'Song')
                                 self.append_tag(tm, '~cea_work_type', 'Voice')
+            # blank tags
             for tag in blank_tags:
                 if tag.strip() in tm:
-                    del tm[tag.strip()]
-            for tag in blank_tags_2:
-                if tag.strip() in tm:
+                    tm['~cea_'+tag.strip()] = tm[tag.strip()]  # place blanked tags into hidden variables available for re-use
                     del tm[tag.strip()]
             for i in range(0,16):
                 tagline = options['cea_tag_' + str(i+1)].split(",")
@@ -581,15 +587,19 @@ class ExtraArtists:
                         sort = "sort"
                     else:
                         sort = "_sort"
+                    if source == "composer" or source == "artist" or source == "albumartist" or source == "trackartist":
+                        source_sort = "sort"
+                    else:
+                        source_sort = "_sort"
                     if self.DEBUG: log.debug("%s: Tag mapping: Line: %s, Source: %s, Tag: %s, no_names_source: %s, sort: %s, item %s",PLUGIN_NAME, i+1, source, tag, no_names_source, sort, item)
                     if not conditional or tm[tag] == "":
                         if "~cea_" + source in tm:
-                            if self.DEBUG: log.debug("caa")
+                            if self.DEBUG: log.debug("cea")
                             self.append_tag(tm, tag, tm['~cea_' + source])
                             if sort_tags:
-                                if "~cea_" + no_names_source + "_sort" in tm:
-                                    if self.DEBUG: log.debug("caa sort")
-                                    self.append_tag(tm, tag + sort, tm['~cea_' + no_names_source + '_sort'])
+                                if "~cea_" + no_names_source + source_sort in tm:
+                                    if self.DEBUG: log.debug("cea sort")
+                                    self.append_tag(tm, tag + sort, tm['~cea_' + no_names_source + source_sort])
                         elif source in tm:
                             if self.DEBUG: log.debug("Picard")
                             self.append_tag(tm, tag, tm[source])
@@ -600,7 +610,7 @@ class ExtraArtists:
                         elif len(source) > 0 and source[0] == "\\":
                             self.append_tag(tm, tag, source[1:])
                         else:
-                            tm[tag] = ""
+                            pass
             if options['cea_arrangers']:
                 if '~cea_arranger' in tm:
                     if 'arranger' in tm:
@@ -636,6 +646,10 @@ class ExtraArtists:
                 self.cea_options['Classical Extras']['Artists options']['Choir strings'] = options['cea_choirs']
                 self.cea_options['Classical Extras']['Artists options']['Group strings'] = options['cea_groups']
                 self.append_tag(tm, options['cea_options_tag'], str(dict(self.cea_options)))
+            if self.ERROR and "~cea_error" in tm:
+                tm['001_ERRORS'] = tm['~cea_error']
+            if self.WARNING and "~cea_warning" in tm:
+                tm['002_WARNINGS'] = tm['~cea_warning']
         self.track_listing = []
         if self.INFO: log.info("FINISHED Classical Extra Artists. Album: %s", track.album.metadata)
 
@@ -782,7 +796,7 @@ class PartLevels:
         self.INFO = options["log_info"]
 
         self.MAX_RETRIES = options["cwp_retries"]           #Maximum number of XML- lookup retries if error returned from server
-        self.SUBSTRING_MATCH = options["cwp_substring_match"]    #Proportion of a string to be matched to a (usually larger) string for it to be considered essentially similar
+        self.SUBSTRING_MATCH = float(options["cwp_substring_match"]) / 100   #Proportion of a string to be matched to a (usually larger) string for it to be considered essentially similar
         self.USE_CACHE = options["use_cache"]
         self.GRANULARITY = options["cwp_granularity"]            #splitting for matching of parents. 1 = split in two, 2 = split in three etc.
         self.PROXIMITY = options["cwp_proximity"]           #proximity of new words in title comparison which will result in infill words being included as well. 2 means 2-word 'gaps' of existing words between new words will be treated as 'new'
@@ -811,6 +825,7 @@ class PartLevels:
             if test in composerlastnames:
                 track_metadata['~cwp_title'] = title_split[1]
         # now process works
+        track = album._new_tracks[-1]     # Jump through hoops to get track object!!
         workIds = dict.get(track_metadata,'musicbrainz_workid', [])
         if workIds:
             works = dict.get(track_metadata,'work', [])
@@ -818,12 +833,13 @@ class PartLevels:
                     # there may be >1 workid but this is not yet fully supported, so code below joins together the work names for multiple ids and attaches it to the first id
                     # this is based on the (reasonable) assumption that multiple "recording of"s will be children of the same parent work.
                 if len(works)>1:
-                    track_metadata['~cwp_error'] = "WARNING: More than one work for this recording. Check that works are parts of the same higher work as only one parent will be followed up."
+                    if self.WARNING: log.warning("%s: WARNING: More than one work for this recording (%s). Check that works are parts of the same higher work as only one parent will be followed up.", PLUGIN_NAME, track_metadata['title'])
+                    track_metadata['~cwp_warning'] = "WARNING: More than one work for this recording. Check that works are parts of the same higher work as only one parent will be followed up."
                 work = sorted(works)
                          ## until multi-works functionality added
                 self.parts[workId]['name']= work
                 partial = False
-                if 'partial' in track_metadata['~performance_attributes']:               # treat the recording as work level 0 and the work of wich it is a partial recording as work level 1
+                if 'partial' in track_metadata['~performance_attributes']:               # treat the recording as work level 0 and the work of which it is a partial recording as work level 1
                     partial = True
                     parentId = workId
                     true_workId = workId
@@ -842,7 +858,6 @@ class PartLevels:
                     if workId not in self.work_listing[album]:
                         self.work_listing[album].append(workId)
                     if self.DEBUG: log.debug("%s: Id %s is PARTIAL RECORDING OF id: %s, name: %s", PLUGIN_NAME, workId, parentId, work)
-                track = album._new_tracks[-1]     # Jump through hoops to get track object!!
                 self.trackback[album][workId]['id'] = workId
                 if 'meta' in self.trackback[album][workId]:
                     if (track,album) not in self.trackback[album][workId]['meta']:
@@ -875,6 +890,10 @@ class PartLevels:
                 if album._requests == 0 and track_metadata['tracknumber'] == track_metadata['totaltracks']:            #last track
                     self.process_album(album)
                 break #plugin does not currently support multiple workIds. Works for multiple workIds are assumed to be children of the same parent and are concatenated.
+        else:     # no work relation
+            if self.WARNING: log.warning("%s: WARNING - no works for this track: \"%s\"", PLUGIN_NAME, title)
+            self.append_tag(track_metadata,'~cwp_warning', 'No works for this track')
+            self.publish_metadata(album, track)
 
     def work_add_track(self, album, track, workId, tries):
         if self.DEBUG: log.debug("%s: ADDING WORK TO LOOKUP QUEUE", PLUGIN_NAME)                   #debug
@@ -897,7 +916,7 @@ class PartLevels:
     def work_process(self, workId, tries, response, reply, error):
         if self.DEBUG: log.debug("%s: work_process. LOOKING UP WORK: %s", PLUGIN_NAME, workId)                     #debug
         if error:
-            if self.ERROR: log.error("%s: %r: Network error retrieving work record", PLUGIN_NAME, workId)
+            if self.WARNING: log.warning("%s: %r: Network error retrieving work record", PLUGIN_NAME, workId)
             tuples = self.works_queue.remove(workId)
             for track, album in tuples:
                 if self.DEBUG: log.debug("%s: Removed request after network error. Requests = %s", PLUGIN_NAME, album._requests)   #debug
@@ -905,7 +924,7 @@ class PartLevels:
                     if self.DEBUG: log.debug("REQUEUEING...")
                     self.work_add_track(album, track, workId, tries + 1)
                 else:
-                    if self.WARNING: log.warning("%s: EXHAUSTED MAX RE-TRIES for XML lookup for track %s", PLUGIN_NAME, track)
+                    if self.ERROR: log.error("%s: EXHAUSTED MAX RE-TRIES for XML lookup for track %s", PLUGIN_NAME, track)
                     track.metadata['~cwp_error'] = "ERROR: MISSING METADATA due to network errors. Re-try or fix manually."
                 self.album_remove_request(album)
             return
@@ -916,7 +935,7 @@ class PartLevels:
             if self.DEBUG: log.debug("%s Requests = %s", PLUGIN_NAME, album._requests)   #debug
         if self.DEBUG: log.debug("RESPONSE = %s", response)
         if workId in self.parts:
-            metaList = self.work_process_metadata(workId, response)
+            metaList = self.work_process_metadata(workId, tuples, response)
             parentList = metaList[0]
                 # returns [parent id, parent name] or None if no parent found
             arrangers = metaList[1]
@@ -951,7 +970,7 @@ class PartLevels:
             if self.DEBUG: log.debug("%s: Removed request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
         if self.DEBUG: log.debug("%s: End of work_process for workid %s", PLUGIN_NAME, workid)
 
-    def work_process_metadata(self, workId, response):
+    def work_process_metadata(self, workId, tuples, response):
         if self.DEBUG: log.debug("%s: In work_process_metadata", PLUGIN_NAME)
         relationList = []
         if 'metadata' in response.children:
@@ -964,6 +983,9 @@ class PartLevels:
             else:
                 if self.ERROR: log.error("%s: %r: MusicBrainz work xml result not in correct format - %s",
                           PLUGIN_NAME, workId, response)
+                for track, album in tuples:
+                    tm = track.metadata
+                    self.append_tag(tm, '~cwp_error', 'MusicBrainz work xml result not in correct format for work id: ' + str(workId))
         return None
 
     def work_process_relations(self, relations):
@@ -1275,7 +1297,7 @@ class PartLevels:
                             ti = name_list[0]
                             diff = self.diff_pair(mb, ti)
                             if diff:
-                                common_subset = self.derive_from_title(track, diff)
+                                common_subset = self.derive_from_title(track, diff)[0]
                         else:
                             common_subset = ""
                             common_len = 0
@@ -1765,8 +1787,12 @@ class PartLevels:
             ti_len = len(nopunc_ti)
             sub_len = ti_len * self.SUBSTRING_MATCH
             if self.DEBUG: log.debug("test sub....")
-            if self.test_sub(nopunc_mb, nopunc_ti, sub_len, 0):   # is there a substring of ti of length at least sub_len in mb?
-                return None                                         # in which case treat it as essentially the same
+            # if self.test_sub(nopunc_mb, nopunc_ti, sub_len, 0):   # is there a substring of ti of length at least sub_len in mb?
+            #     return None                                         # in which case treat it as essentially the same
+            lcs = longest_common_substring(nopunc_mb, nopunc_ti)
+            if self.INFO: log.info("Longest common substring is: %s. Sub_len is %s", lcs, sub_len)
+            if len(lcs) >= sub_len:
+                return None
             if self.DEBUG: log.debug("...done, ti =%s", ti)
         # remove duplicate successive words (and remove first word of title item if it duplicates last word of mb item)
         if ti:
@@ -1851,6 +1877,7 @@ class PartLevels:
         if self.DEBUG: log.debug("%s: IN PUBLISH METADATA for %s", PLUGIN_NAME, track)
         options = album.tagger.config.setting
         tm = track.metadata
+        tm['~cwp_version'] = PLUGIN_VERSION
         if self.DEBUG: log.debug("Check options")
         if options["cwp_titles"]:
             if self.DEBUG: log.debug("titles")
@@ -1942,7 +1969,9 @@ class PartLevels:
             if self.INFO: log.info("Options %s", self.cwp_options)
             self.append_tag(tm, options['cwp_options_tag'], str(dict(self.cwp_options)))
         if self.ERROR and "~cwp_error" in tm:
-            tm['An_error_has_ocurred'] = tm['~cwp_error']
+            tm['001_ERRORS'] = tm['~cwp_error']
+        if self.WARNING and "~cwp_warning" in tm:
+                tm['002_WARNINGS'] = tm['~cwp_warning']
 
     def append_tag(self, tm, tag, source, sep = None):
         if self.DEBUG: log.debug("In append_tag. tag = %s, source = %s, sep =%s", tag, source, sep)
@@ -1950,16 +1979,18 @@ class PartLevels:
             if source and source != "":
                 source = source + sep 
         if tag in tm:
+            if self.INFO: log.info("Existing tag (%s) to be updated: %s", tag, tm[tag])
             if source not in tm[tag]:
-
                 if isinstance(tm[tag], basestring):
                     if self.DEBUG: log.debug("tm[tag]: %s, separator = %s", tm[tag], sep)
                     newtag = [tm[tag], source]
                 else:  
                     newtag = tm[tag].append(source)
                 tm[tag] = "".join(newtag)
+            if self.INFO: log.info("Updated tag (%s) is: %s", tag, tm[tag])
         else:
             tm[tag] = [source]
+            if self.INFO: log.info("Newly created (%s) tag is: %s", tag, tm[tag])
 
 
 
@@ -1972,14 +2003,13 @@ class PartLevels:
         full_parent = parent
         punc_space = r'[\'!\"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]\s+'
         clean_parent = re.sub(punc_space,' ',parent)                  # replace any punctuation followed by a space, with a space (to remove any inconsistent punctuation)
-        pattern_parent = re.sub("\s","[^\p{L}|\d]{0,2}", clean_parent)         # now allow the spaces to be filled with up to 2 non-letters
-        # NB [^\p{L}|\d] is used instead of \W to allow for non-Latin characters, similarly [\p{L}|\d] is used instead of \w
+        pattern_parent = re.sub("\s","\W{0,2}", clean_parent)         # now allow the spaces to be filled with up to 2 non-letters
         if extend:
-            pattern_parent = "(.*\s|^)([^\p{L}|\d]*"+pattern_parent+"[\p{L}|\d]*)([^\p{L}|\d]*\s)(.*)"
+            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"\w*)(\W*\s)(.*)"
         else:
-            pattern_parent = "(.*\s|^)([^\p{L}|\d]*"+pattern_parent+"[\p{L}|\d]*[^\p{L}|\d]?)(.*)"
+            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"w*\W?)(.*)"
         if self.INFO: log.info("Pattern parent: %s, Work: %s", pattern_parent, work)
-        p = re.compile(pattern_parent, re.IGNORECASE)
+        p = re.compile(pattern_parent, re.IGNORECASE|re.UNICODE)
         m = p.search(work)
         if m:
             if self.DEBUG: log.debug("Matched...")                                           #debug
@@ -2046,13 +2076,13 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         IntOption("setting", "cwp_retries", 6),
         TextOption("setting", "cea_orchestras", "orchestra, philharmonic, philharmonica, philharmoniker, musicians, academy, symphony, orkester"),
         TextOption("setting", "cea_choirs", "choir, choir vocals, chorus, singers, domchors, domspatzen, koor"),
-        TextOption("setting", "cea_groups", "ensemble, band, group, trio, quartet, quintet, sextet, septet, octet, chamber, consort, players, les "),
+        TextOption("setting", "cea_groups", "ensemble, band, group, trio, quartet, quintet, sextet, septet, octet, chamber, consort, players, les , the "),
         BoolOption("setting", "use_cache", True),
         IntOption("setting", "cwp_proximity", 2),
         IntOption("setting", "cwp_end_proximity", 1),
         IntOption("setting", "cwp_granularity", 1),
         IntOption("setting", "cwp_substring_match", 66),
-        TextOption("setting", "cwp_removewords", " part, act, scene, movement , movt, no., n., nr., book , the , a , la , le , un, une , el , il "),
+        TextOption("setting", "cwp_removewords", " (part), part, act, scene, movement , movt, no., n., nr., book , the , a , la , le , un, une , el , il "),
         TextOption("setting", "cwp_synonyms", "(1, one) / (2, two) / (3, three) / (&, and)"),
         
         BoolOption("setting", "cwp_titles", False),
@@ -2073,12 +2103,12 @@ class ClassicalExtrasOptionsPage(OptionsPage):
 
         BoolOption("setting", "cea_composer_album", True),
 
-        TextOption("setting", "cea_blank_tag", "artist, artistsort, albumartist, albumartistsort, album_artist, album_artist_sort"),
+        TextOption("setting", "cea_blank_tag", "artist, artistsort"),
         TextOption("setting", "cea_blank_tag_2", "performer:orchestra, performer:choir, performer:choir vocals"),
 
         TextOption("setting", "cea_source_1", "album_soloists"),
         TextOption("setting", "cea_tag_1", "artist, artists"),
-        BoolOption("setting", "cea_cond_1", False),
+        BoolOption("setting", "cea_cond_1", True),
 
         TextOption("setting", "cea_source_2", "album_conductors"),
         TextOption("setting", "cea_tag_2", "artist, artists"),
@@ -2092,7 +2122,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         TextOption("setting", "cea_tag_4", "artist, artists, soloists, trackartist"),
         BoolOption("setting", "cea_cond_4", True),
 
-        TextOption("setting", "cea_source_5", "conductor"),
+        TextOption("setting", "cea_source_5", "conductors"),
         TextOption("setting", "cea_tag_5", "artist, artists"),
         BoolOption("setting", "cea_cond_5", True),
 
@@ -2108,16 +2138,16 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         TextOption("setting", "cea_tag_8", "band"),
         BoolOption("setting", "cea_cond_8", False),
 
-        TextOption("setting", "cea_source_9", "album"),
-        TextOption("setting", "cea_tag_9", "release_name"),
-        BoolOption("setting", "cea_cond_9", False),
+        TextOption("setting", "cea_source_9", "composers"),
+        TextOption("setting", "cea_tag_9", "artist, artists"),
+        BoolOption("setting", "cea_cond_9", True),
 
-        TextOption("setting", "cea_source_10", ""),
-        TextOption("setting", "cea_tag_10", ""),
+        TextOption("setting", "cea_source_10", "album"),
+        TextOption("setting", "cea_tag_10", "release_name"),
         BoolOption("setting", "cea_cond_10", False),
 
-        TextOption("setting", "cea_source_11", ""),
-        TextOption("setting", "cea_tag_11", ""),
+        TextOption("setting", "cea_source_11", "work_type"),
+        TextOption("setting", "cea_tag_11", "genre"),
         BoolOption("setting", "cea_cond_11", False),
 
         TextOption("setting", "cea_source_12", ""),
@@ -2132,13 +2162,13 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         TextOption("setting", "cea_tag_14", ""),
         BoolOption("setting", "cea_cond_14", False),
 
-        TextOption("setting", "cea_source_15", ""),
-        TextOption("setting", "cea_tag_15", ""),
+        TextOption("setting", "cea_source_15", "artist"),
+        TextOption("setting", "cea_tag_15", "artists"),
         BoolOption("setting", "cea_cond_15", False),
 
-        TextOption("setting", "cea_source_16", ""),
-        TextOption("setting", "cea_tag_16", ""),
-        BoolOption("setting", "cea_cond_16", False),
+        TextOption("setting", "cea_source_16", "artist"),
+        TextOption("setting", "cea_tag_16", "artist"),
+        BoolOption("setting", "cea_cond_16", True),
 
         BoolOption("setting", "cea_tag_sort", True),
 
