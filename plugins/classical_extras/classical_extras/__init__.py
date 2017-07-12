@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.6.2'
+PLUGIN_VERSION = '0.6.3'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -251,8 +251,11 @@ class ExtraArtists:
         if '~cea_album_track_composer_lastnames' in tm:                          # composer last names created by alt_artists function
             composer_lastnames = track_metadata['~cea_album_track_composer_lastnames']
             if album in self.album_artists:
-                if composer_lastnames not in self.album_artists[album]['composer_lastnames']:
-                    self.album_artists[album]['composer_lastnames'].append(composer_lastnames)
+                if 'composer_lastnames' in self.album_artists[album]:
+                    if composer_lastnames not in self.album_artists[album]['composer_lastnames']:
+                        self.album_artists[album]['composer_lastnames'].append(composer_lastnames)
+                else:
+                    self.album_artists[album]['composer_lastnames'] = [composer_lastnames]
             else:
                 self.album_artists[album]['composer_lastnames'] = [composer_lastnames]
         else:
@@ -495,8 +498,7 @@ class ExtraArtists:
 
     def process_album(self, album):
         options = album.tagger.config.setting
-        blank_tags = options['cea_blank_tag'].split(",")
-        blank_tags_2 = options['cea_blank_tag_2'].split(",")
+        blank_tags = options['cea_blank_tag'].split(",") + options['cea_blank_tag_2'].split(",")
         sort_tags = options['cea_tag_sort']
         for track in self.track_listing:
             tm = track.metadata
@@ -569,13 +571,10 @@ class ExtraArtists:
                             else:
                                 self.append_tag(tm, '~cea_work_type', 'Song')
                                 self.append_tag(tm, '~cea_work_type', 'Voice')
+            # blank tags
             for tag in blank_tags:
                 if tag.strip() in tm:
                     tm['~cea_'+tag.strip()] = tm[tag.strip()]  # place blanked tags into hidden variables available for re-use
-                    del tm[tag.strip()]
-            for tag in blank_tags_2:
-                if tag.strip() in tm:
-                    tm['~cea_'+tag.strip()] = tm[tag.strip()]
                     del tm[tag.strip()]
             for i in range(0,16):
                 tagline = options['cea_tag_' + str(i+1)].split(",")
@@ -797,7 +796,7 @@ class PartLevels:
         self.INFO = options["log_info"]
 
         self.MAX_RETRIES = options["cwp_retries"]           #Maximum number of XML- lookup retries if error returned from server
-        self.SUBSTRING_MATCH = options["cwp_substring_match"]    #Proportion of a string to be matched to a (usually larger) string for it to be considered essentially similar
+        self.SUBSTRING_MATCH = float(options["cwp_substring_match"]) / 100   #Proportion of a string to be matched to a (usually larger) string for it to be considered essentially similar
         self.USE_CACHE = options["use_cache"]
         self.GRANULARITY = options["cwp_granularity"]            #splitting for matching of parents. 1 = split in two, 2 = split in three etc.
         self.PROXIMITY = options["cwp_proximity"]           #proximity of new words in title comparison which will result in infill words being included as well. 2 means 2-word 'gaps' of existing words between new words will be treated as 'new'
@@ -840,7 +839,7 @@ class PartLevels:
                          ## until multi-works functionality added
                 self.parts[workId]['name']= work
                 partial = False
-                if 'partial' in track_metadata['~performance_attributes']:               # treat the recording as work level 0 and the work of wich it is a partial recording as work level 1
+                if 'partial' in track_metadata['~performance_attributes']:               # treat the recording as work level 0 and the work of which it is a partial recording as work level 1
                     partial = True
                     parentId = workId
                     true_workId = workId
@@ -1788,8 +1787,12 @@ class PartLevels:
             ti_len = len(nopunc_ti)
             sub_len = ti_len * self.SUBSTRING_MATCH
             if self.DEBUG: log.debug("test sub....")
-            if self.test_sub(nopunc_mb, nopunc_ti, sub_len, 0):   # is there a substring of ti of length at least sub_len in mb?
-                return None                                         # in which case treat it as essentially the same
+            # if self.test_sub(nopunc_mb, nopunc_ti, sub_len, 0):   # is there a substring of ti of length at least sub_len in mb?
+            #     return None                                         # in which case treat it as essentially the same
+            lcs = longest_common_substring(nopunc_mb, nopunc_ti)
+            if self.INFO: log.info("Longest common substring is: %s. Sub_len is %s", lcs, sub_len)
+            if len(lcs) >= sub_len:
+                return None
             if self.DEBUG: log.debug("...done, ti =%s", ti)
         # remove duplicate successive words (and remove first word of title item if it duplicates last word of mb item)
         if ti:
@@ -2073,13 +2076,13 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         IntOption("setting", "cwp_retries", 6),
         TextOption("setting", "cea_orchestras", "orchestra, philharmonic, philharmonica, philharmoniker, musicians, academy, symphony, orkester"),
         TextOption("setting", "cea_choirs", "choir, choir vocals, chorus, singers, domchors, domspatzen, koor"),
-        TextOption("setting", "cea_groups", "ensemble, band, group, trio, quartet, quintet, sextet, septet, octet, chamber, consort, players, les "),
+        TextOption("setting", "cea_groups", "ensemble, band, group, trio, quartet, quintet, sextet, septet, octet, chamber, consort, players, les , the "),
         BoolOption("setting", "use_cache", True),
         IntOption("setting", "cwp_proximity", 2),
         IntOption("setting", "cwp_end_proximity", 1),
         IntOption("setting", "cwp_granularity", 1),
         IntOption("setting", "cwp_substring_match", 66),
-        TextOption("setting", "cwp_removewords", " part, act, scene, movement , movt, no., n., nr., book , the , a , la , le , un, une , el , il "),
+        TextOption("setting", "cwp_removewords", " (part), part, act, scene, movement , movt, no., n., nr., book , the , a , la , le , un, une , el , il "),
         TextOption("setting", "cwp_synonyms", "(1, one) / (2, two) / (3, three) / (&, and)"),
         
         BoolOption("setting", "cwp_titles", False),
@@ -2100,7 +2103,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
 
         BoolOption("setting", "cea_composer_album", True),
 
-        TextOption("setting", "cea_blank_tag", "artist, artistsort, albumartist, albumartistsort, album_artist, album_artist_sort"),
+        TextOption("setting", "cea_blank_tag", "artist, artistsort"),
         TextOption("setting", "cea_blank_tag_2", "performer:orchestra, performer:choir, performer:choir vocals"),
 
         TextOption("setting", "cea_source_1", "album_soloists"),
@@ -2159,12 +2162,12 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         TextOption("setting", "cea_tag_14", ""),
         BoolOption("setting", "cea_cond_14", False),
 
-        TextOption("setting", "cea_source_15", ""),
-        TextOption("setting", "cea_tag_15", ""),
+        TextOption("setting", "cea_source_15", "artist"),
+        TextOption("setting", "cea_tag_15", "artists"),
         BoolOption("setting", "cea_cond_15", False),
 
         TextOption("setting", "cea_source_16", "artist"),
-        TextOption("setting", "cea_tag_16", "artist, artists"),
+        TextOption("setting", "cea_tag_16", "artist"),
         BoolOption("setting", "cea_cond_16", True),
 
         BoolOption("setting", "cea_tag_sort", True),

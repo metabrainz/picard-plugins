@@ -1,5 +1,5 @@
 # General Information
-This is version 0.6.2 of "classical_extras". It has only been tested with FLAC and mp3 files.
+This is version 0.6.3 of "classical_extras". It has only been tested with FLAC and mp3 files.
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
@@ -11,6 +11,7 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 0.6.3: Bug fixes. Modified ui default options.
 Version 0.6.2: Bug fixes. More flexible handling of artists (can blank and then add back later). Modified ui default options.
 Version 0.6.1: Amended regex to permit non-Latin characters in work text.
 
@@ -20,7 +21,10 @@ Install the zip file in your plugins folder in the usual fashion
 # Usage
 After installation, go to the Options Page and modify choices as required. There are 3 tabs - "Artists", "Works and parts" and "Advanced". The sections below describe each of these. If the options provided do not allow sufficient flexibility for a user's need and they do not want to use scripting, then it may be possible to achieve the required result by running and saving twice (or more!) with different options each time. This is not recommended for more than a one-off - a script would be better.
 
-**Important**: It is recommended only to use the plugin on one release at a time, particularly if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" - use a tool such as SongKong for that and then use the plugin to enhance the results as required.
+**Important**: 
+1.  The plugin **will not work unless** you have enabled "Use release relationships" and "Use track relationships" in Picard->Options->Metadata.
+2.  It is recommended only to use the plugin on one release at a time, particularly if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" - use a tool such as SongKong for that and then use the plugin to enhance the results as required.
+3.  Keep a backup of your picard.ini file (AppData->Roaming->MusicBrainz) in case you erase your settings or Picard crashes and loses them for you.
 
 ## Artists tab
 There are four coloured sections as shown in the screen image below:
