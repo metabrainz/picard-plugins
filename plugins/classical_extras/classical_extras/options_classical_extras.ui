@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1006</width>
+    <width>1030</width>
     <height>883</height>
    </rect>
   </property>
@@ -52,8 +52,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>945</width>
-            <height>839</height>
+            <width>969</width>
+            <height>893</height>
            </rect>
           </property>
           <property name="acceptDrops">
@@ -80,11 +80,81 @@
                </widget>
               </item>
               <item>
+               <widget class="QCheckBox" name="cea_genres">
+                <property name="text">
+                 <string>Infer work types (map to genre using tag mapping or script as req'd)</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox_5">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(170, 170, 255);</string>
+             </property>
+             <property name="title">
+              <string>Principal artist options</string>
+             </property>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="3" column="4">
+               <widget class="QLineEdit" name="cea_orchestrator"/>
+              </item>
+              <item row="0" column="0">
                <widget class="QCheckBox" name="cea_composer_album">
                 <property name="text">
                  <string>Name album as &quot;Composer Last Name(s): Album Name&quot;</string>
                 </property>
                </widget>
+              </item>
+              <item row="1" column="0" rowspan="2" colspan="3">
+               <widget class="QCheckBox" name="cea_arrangers">
+                <property name="text">
+                 <string>Include arrangers from all work levels, plus instrument arrangers (with instrument annotation)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="label_46">
+                <property name="text">
+                 <string>Include &quot;concert master&quot; in performer tag as ...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="0">
+               <widget class="QLabel" name="label_44">
+                <property name="text">
+                 <string>Annotate chorus master in conductor tag with ...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="3">
+               <widget class="QLabel" name="label_45">
+                <property name="text">
+                 <string>Annotate orchestrator in arranger tag with ...</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="3" colspan="2">
+               <widget class="QCheckBox" name="cea_cyrillic">
+                <property name="text">
+                 <string>Fix cyrillic names (where possible and if not fixed by locale settings)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2" colspan="3">
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>      - NB You may also need to map the internal Classical Extras source(s) to the matching tag(s)</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="1">
+               <widget class="QLineEdit" name="cea_concertmaster"/>
+              </item>
+              <item row="3" column="1">
+               <widget class="QLineEdit" name="cea_chorusmaster"/>
               </item>
              </layout>
             </widget>
@@ -2160,46 +2230,6 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
              </layout>
             </widget>
            </item>
-           <item>
-            <widget class="QGroupBox" name="groupBox_5">
-             <property name="styleSheet">
-              <string notr="true">background-color: rgb(236, 255, 171);</string>
-             </property>
-             <property name="title">
-              <string>Other options</string>
-             </property>
-             <layout class="QGridLayout" name="gridLayout">
-              <item row="0" column="0">
-               <widget class="QCheckBox" name="cea_arrangers">
-                <property name="text">
-                 <string>Include arrangers from all work levels, plus instrument arrangers</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLabel" name="label_19">
-                <property name="text">
-                 <string>      - NB You may also need to map the internal Classical Extras source(s) to the matching tag(s)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QCheckBox" name="cea_cyrillic">
-                <property name="text">
-                 <string>Fix cyrillic names (where possible and if not fixed by locale settings)</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QCheckBox" name="cea_genres">
-                <property name="text">
-                 <string>Infer work types (map to genre using tag mapping or script as req'd)</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
           </layout>
          </widget>
         </widget>
@@ -3104,9 +3134,19 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
           <string notr="true">background-color: rgb(170, 170, 164);</string>
          </property>
          <property name="title">
-          <string>Save options in a tag?</string>
+          <string>Save plugin details and options in a tag?</string>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="label_41">
+            <property name="text">
+             <string>Tag name for plugin version</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="ce_version_tag"/>
+          </item>
           <item>
            <widget class="QLabel" name="label_36">
             <property name="layoutDirection">

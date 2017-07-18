@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.6.3'
+PLUGIN_VERSION = '0.6.4'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -34,6 +34,7 @@ import collections
 import re
 import unicodedata as ud
 import traceback
+import json
 
 ##########################
 # MODULE-WIDE COMPONENTS #
@@ -242,9 +243,9 @@ class ExtraArtists:
         self.GROUPS = options["cea_groups"].split(',')
         self.ENSEMBLE_TYPES = self.ORCHESTRAS + self.CHOIRS + self.GROUPS
 
-        self.alt_artists(album, track_metadata)
+        if self.DEBUG: log.debug("%s: add_artist_info", PLUGIN_NAME)
 
-        if self.DEBUG: log.debug("%s: LOAD NEW TRACK", PLUGIN_NAME)                   
+        self.alt_artists(album, track_metadata)
         tm = track_metadata
         track = album._new_tracks[-1]     # Jump through hoops to get track object!!
         self.track_listing.append(track)
@@ -262,17 +263,42 @@ class ExtraArtists:
             if self.WARNING: log.warning("%s: No _cea_album_track_composer_lastnames variable available for recording \"%s\".", PLUGIN_NAME, tm['title'])
             self.append_tag(track_metadata, '~cea_warning', 'No _cea_album_track_composer_lastnames variable available for recording')
         if 'recording' in trackXmlNode.children:
+            self.is_classical = True
             for record in trackXmlNode.children['recording']:
+
                 performerList = self.artist_process_metadata(track, record, 'instrument')
         #         # returns [(instrument, artist name, artist sort name} or None if no instruments found
                 if performerList:
                     if self.DEBUG: log.debug("%s: Instrument Performers: %s", PLUGIN_NAME, performerList)
                     self.set_performer(album, performerList, tm)
+
                 arrangerList = self.artist_process_metadata(track, record, 'instrument arranger')
         #         # returns {instrument, arranger name, arranger sort name} or None if no instrument arrangers found
                 if arrangerList:
                     if self.DEBUG: log.debug("%s: Instrument Arrangers: %s", PLUGIN_NAME, arrangerList)
                     self.set_arranger(album, arrangerList,tm)
+
+                if options['cea_orchestrator'] != "":    
+                    orchestratorList = self.artist_process_metadata(track, record, 'orchestrator')
+            #         # returns {None, orchestrator name, orchestrator sort name} or None if no orchestrators found
+                    if orchestratorList:
+                        if self.DEBUG: log.debug("%s: Orchestrators: %s", PLUGIN_NAME, orchestratorList)
+                        self.set_orchestrator(album, orchestratorList,tm)
+
+                if options['cea_chorusmaster'] != "":
+                    chorusmasterList = self.artist_process_metadata(track, record, 'chorus master')
+            #         # returns {None, chorus master name, chorus master sort name} or None if no chorus masters found
+                    if chorusmasterList:
+                        if self.DEBUG: log.debug("%s: Chorus Masters: %s", PLUGIN_NAME, chorusmasterList)
+                        self.set_chorusmaster(album, chorusmasterList,tm)
+
+                if options['cea_concertmaster'] != "":
+                    leaderList = self.artist_process_metadata(track, record, 'concertmaster')
+            #         # returns {None, leader name, leader sort name} or None if no leaders
+                    if leaderList:
+                        if self.DEBUG: log.debug("%s: Leaders: %s", PLUGIN_NAME, leaderList)
+                        self.set_leader(album, leaderList,tm)
+
         if track_metadata['tracknumber'] == track_metadata['totaltracks']:            #last track
             self.process_album(album)
 
@@ -455,10 +481,13 @@ class ExtraArtists:
     def artist_process_metadata(self, track, record, artistType):
         relationList = []
         if 'relation_list' in record.children:
-            if 'relation' in record.relation_list[0].children:
-                for relation_list_item in record.relation_list:
-                    relationList.append(relation_list_item.relation)
-                return self.artist_process_relations(relationList, artistType)
+            for relation_list_item in record.relation_list:
+                if 'target_type' in relation_list_item.attribs:
+                    if relation_list_item.attribs['target_type'] == 'artist':
+                        if 'relation' in relation_list_item.children:
+                            for relation_item in relation_list_item.relation:
+                                relationList.append(relation_item)
+            return self.artist_process_relations(relationList, artistType)
         else:
             if self.ERROR: log.error("%s: %r: MusicBrainz artist xml result not in correct format.",
                       PLUGIN_NAME, track)
@@ -471,25 +500,27 @@ class ExtraArtists:
 
     def artist_process_relations(self, relations, artistType):
         artists = []
-        for relation in relations:
-            for rel in relation:
-                if 'type' in rel.attribs:
-                    if rel.attribs['type'] == artistType:
-                        if 'direction' in rel.children:
-                            if rel.direction[0].text == 'backward':
-                                name = rel.artist[0].name[0].text
-                                sort_name = rel.artist[0].sort_name[0].text
-                                instrument_list = []
-                                if 'attribute_list' in rel.children:
-                                    for inst in rel.attribute_list[0].attribute:
-                                        if instrument_list:
-                                            instrument_list.append(inst.text)
-                                        else:
-                                            instrument_list = [inst.text]
-                                if instrument_list:
-                                    for instrument in instrument_list:
-                                        artist = (instrument, name, sort_name)
-                                        artists.append(artist)
+        for rel in relations:
+            if 'type' in rel.attribs:
+                if rel.attribs['type'] == artistType:
+                    if 'direction' in rel.children:
+                        if rel.direction[0].text == 'backward':
+                            name = rel.artist[0].name[0].text
+                            sort_name = rel.artist[0].sort_name[0].text
+                            instrument_list = []
+                            if 'attribute_list' in rel.children:
+                                for inst in rel.attribute_list[0].attribute:
+                                    if instrument_list:
+                                        instrument_list.append(inst.text)
+                                    else:
+                                        instrument_list = [inst.text]
+                            if instrument_list:
+                                for instrument in instrument_list:
+                                    artist = (instrument, name, sort_name)
+                                    artists.append(artist)
+                            else:
+                                artist = (None, name, sort_name)
+                                artists.append(artist)
         if artists:
             if self.DEBUG: log.debug("%s: Artists of type %s found: %s", PLUGIN_NAME, artistType, artists)                          #debug
         else:
@@ -505,6 +536,8 @@ class ExtraArtists:
             tm['~cea_version'] = PLUGIN_VERSION
             # set work-type before any tags are blanked
             if options['cea_genres']:
+                if self.is_classical:
+                    self.append_tag(tm, '~cea_work_type', 'Classical')
                 instrument = re.compile(r'.*\((.+)\)')
                 vocals = re.compile(r'.*\(((.*)vocals)\)')
                 if '~cea_ensembles' in tm:
@@ -635,21 +668,24 @@ class ExtraArtists:
                 self.cea_options['Classical Extras']['Artists options']['Tags to blank'] = ",".join([options['cea_blank_tag'] , options['cea_blank_tag_2']])
                 for i in range(0,16):
                     if options['cea_tag_'+str(i+1)] != "":
-                        self.cea_options['Classical Extras']['Artists options']['Line ' + str(i+1)]['Source'] = options['cea_source_' + str(i+1)]
-                        self.cea_options['Classical Extras']['Artists options']['Line ' + str(i+1)]['Tag'] = options['cea_tag' + str(i+1)]
-                        self.cea_options['Classical Extras']['Artists options']['Line ' + str(i+1)]['Conditional'] = options['cea_cond_' + str(i+1)]
-                self.cea_options['Classical Extras']['Artists options']['Populate sort tags'] = options['cea_tag_sort']
-                self.cea_options['Classical Extras']['Artists options']['Include arrangers'] = options['cea_arrangers']
-                self.cea_options['Classical Extras']['Artists options']['Infer work types'] = options['cea_genres']
-                self.cea_options['Classical Extras']['Artists options']['Fix cyrillic'] = options['cea_cyrillic']
-                self.cea_options['Classical Extras']['Artists options']['Orchestra strings'] = options['cea_orchestras']
-                self.cea_options['Classical Extras']['Artists options']['Choir strings'] = options['cea_choirs']
-                self.cea_options['Classical Extras']['Artists options']['Group strings'] = options['cea_groups']
-                self.append_tag(tm, options['cea_options_tag'], str(dict(self.cea_options)))
+                        self.cea_options['Classical Extras']['Artists options']['line ' + str(i+1)]['source'] = options['cea_source_' + str(i+1)]
+                        self.cea_options['Classical Extras']['Artists options']['line ' + str(i+1)]['tag'] = options['cea_tag_' + str(i+1)]
+                        self.cea_options['Classical Extras']['Artists options']['line ' + str(i+1)]['conditional'] = options['cea_cond_' + str(i+1)]
+                self.cea_options['Classical Extras']['Artists options']['populate sort tags'] = options['cea_tag_sort']
+                self.cea_options['Classical Extras']['Artists options']['include arrangers'] = options['cea_arrangers']
+                self.cea_options['Classical Extras']['Artists options']['infer work types'] = options['cea_genres']
+                self.cea_options['Classical Extras']['Artists options']['fix cyrillic'] = options['cea_cyrillic']
+                self.cea_options['Classical Extras']['Artists options']['orchestra strings'] = options['cea_orchestras']
+                self.cea_options['Classical Extras']['Artists options']['choir strings'] = options['cea_choirs']
+                self.cea_options['Classical Extras']['Artists options']['group strings'] = options['cea_groups']
+                if options['ce_version_tag'] and options['ce_version_tag'] != "":
+                    self.append_tag(tm, options['ce_version_tag'], str('Version ' + tm['~cea_version'] + ' of Classical Extras'))
+                if options['cea_options_tag'] and options['cea_options_tag'] != "":
+                    self.append_tag(tm, options['cea_options_tag'] + ':artists_options', json.loads(json.dumps(self.cea_options)))
             if self.ERROR and "~cea_error" in tm:
-                tm['001_ERRORS'] = tm['~cea_error']
+                self.append_tag(tm, '001_ERRORS', tm['~cea_error'])
             if self.WARNING and "~cea_warning" in tm:
-                tm['002_WARNINGS'] = tm['~cea_warning']
+                self.append_tag(tm, '002_WARNINGS', tm['~cea_warning'])
         self.track_listing = []
         if self.INFO: log.info("FINISHED Classical Extra Artists. Album: %s", track.album.metadata)
 
@@ -658,11 +694,12 @@ class ExtraArtists:
             if source not in tm[tag]:
                 if isinstance(tm[tag], basestring):
                     if self.DEBUG: log.debug("tm[tag]: %s", tm[tag])
-                    tm[tag]= [tm[tag], source]
+                    tm[tag] = [tm[tag], source]
                 else:
                     tm[tag].append(source)
         else:
-            tm[tag] = [source]
+            if tag and tag !="":
+                tm[tag] = [source]
 
     def set_performer(self, album, performerList, tm):
         for performer in performerList:
@@ -704,6 +741,75 @@ class ExtraArtists:
                 tm['~cea_arranger'] = tm['~cea_arranger'] + '; ' + details
             else:
                 tm['~cea_arranger'] = details
+
+    def set_orchestrator(self, album, orchestratorList,tm):
+        options = album.tagger.config.setting
+        if isinstance(tm['arranger'], basestring):
+            arrangerList = tm['arranger'].split(';')
+        else:
+            arrangerList = tm['arranger']
+        newList = arrangerList
+        for orchestrator in orchestratorList:
+            name = orchestrator[1]
+            sort_name = orchestrator[2]
+            if options['cea_cyrillic']:
+                if not only_roman_chars(name):
+                    name = remove_middle(unsort(sort_name))
+            details = name + ' (' + options['cea_orchestrator'] + ')'
+            if '~cea_orchestrator' in tm:
+                tm['~cea_orchestrator'] = tm['~cea_orchestrator'] + '; ' + details
+            else:
+                tm['~cea_orchestrator'] = details
+
+            for index, arranger in enumerate(arrangerList):
+                if name in arranger:
+                    newList[index] = details
+        tm['arranger'] = newList
+
+    def set_chorusmaster(self, album, chorusmasterList,tm):
+        options = album.tagger.config.setting
+        if isinstance(tm['conductor'], basestring):
+            conductorList = tm['conductor'].split(';')
+        else:
+            conductorList = tm['conductor']
+        newList = conductorList
+        for chorusmaster in chorusmasterList:
+            name = chorusmaster[1]
+            sort_name = chorusmaster[2]
+            if options['cea_cyrillic']:
+                if not only_roman_chars(name):
+                    name = remove_middle(unsort(sort_name))
+            details = name + ' (' + options['cea_chorusmaster'] + ')'
+            if '~cea_chorusmaster' in tm:
+                tm['~cea_chorusmaster'] = tm['~cea_chorusmaster'] + '; ' + details
+            else:
+                tm['~cea_chorusmaster'] = details
+
+            for index, conductor in enumerate(conductorList):
+                if name in conductor:
+                    newList[index] = details
+        tm['conductor'] = newList
+
+    def set_leader(self, album, leaderList,tm):
+        options = album.tagger.config.setting
+        for leader in leaderList:
+            name = leader[1]
+            sort_name = leader[2]
+            if options['cea_cyrillic']:
+                if not only_roman_chars(name):
+                    name = remove_middle(unsort(sort_name))
+            newkey = '%s:%s' % ('performer', options['cea_concertmaster'])
+            if self.DEBUG: log.debug("%s: SETTING PERFORMER. NEW KEY = %s", PLUGIN_NAME, newkey)
+            tm.add_unique(newkey, name)
+            details = name + ' (' + options['cea_concertmaster'] + ')'
+            if '~cea_leader' in tm:
+                tm['~cea_leader'] = tm['~cea_leader'] + '; ' + details
+            else:
+                tm['~cea_leader'] = details
+
+
+
+
 
 ##############
 ##############
@@ -1002,6 +1108,7 @@ class PartLevels:
                         if rel.direction[0].text == 'backward':
                             new_workIds.append(rel.work[0].id)
                             new_works.append(rel.work[0].title[0].text)
+
                 if rel.attribs['type'] == 'instrument arranger':
                     #if self.INFO: log.info("found INSTRUMENT ARRANGER")
                     if 'direction' in rel.children:
@@ -1010,6 +1117,16 @@ class PartLevels:
                             sort_name = rel.artist[0].sort_name[0].text
                             instrument = rel.attribute_list[0].attribute[0].text
                             artist = (instrument, name, sort_name)
+                            artists.append(artist)
+                            #if self.DEBUG: log.debug("ARTISTS %s", artists)
+
+                if rel.attribs['type'] == 'orchestrator':
+                    #if self.INFO: log.info("found orchestrator")
+                    if 'direction' in rel.children:
+                        if rel.direction[0].text == 'backward':
+                            name = rel.artist[0].name[0].text
+                            sort_name = rel.artist[0].sort_name[0].text
+                            artist = ('orchestrator', name, sort_name)
                             artists.append(artist)
                             #if self.DEBUG: log.debug("ARTISTS %s", artists)
 
@@ -1034,19 +1151,49 @@ class PartLevels:
         return itemsFound
 
     def set_arranger(self, album, arrangerList, tm):
+        orchestratorList = []
         for arranger in arrangerList:
             instrument = arranger[0]
+            if instrument == 'orchestrator':
+                orchestratorList.append(arranger)
+                break
             name = arranger[1]
             sort_name = arranger[2]
-            newkey = '%s:%s' % ('arranger', instrument)
-            tm.add_unique(newkey, name)
             tm['~cwp_arranger'] = name + ' (' + instrument + ')'
-            tm['~cwp_arranger_sort'] = sort_name
             if album.tagger.config.setting['cea_arrangers']:
+                newkey = '%s:%s' % ('arranger', instrument)
+                tm.add_unique(newkey, name)
+                tm['~cwp_arranger_sort'] = sort_name
+                # next bit is needed as Picard does not currently write out arranger:instrument tag in the same way as performer:instrument -i.e. it is not included in main arranger tag         
                 if 'arranger' in tm:
                     tm['arranger'] = tm['arranger'] + "; " + tm['~cwp_arranger']
                 else:
                     tm['arranger'] = tm['~cwp_arranger']
+        if orchestratorList:
+            self.set_orchestrator(album, orchestratorList,tm)
+
+    def set_orchestrator(self, album, orchestratorList,tm):
+        if isinstance(tm['arranger'], basestring):
+            arrangerList = tm['arranger'].split(';')
+        else:
+            arrangerList = tm['arranger']
+        newList = arrangerList
+        for orchestrator in orchestratorList:
+            name = orchestrator[1]
+            sort_name = orchestrator[2]
+            if album.tagger.config.setting['cea_cyrillic']:
+                if not only_roman_chars(name):
+                    name = remove_middle(unsort(sort_name))
+            details = name + ' (orch.)'
+            if '~cea_orchestrator' in tm:
+                tm['~cea_orchestrator'] = tm['~cea_orchestrator'] + '; ' + details
+            else:
+                tm['~cea_orchestrator'] = details
+
+            for index, arranger in enumerate(arrangerList):
+                if name in arranger:
+                    newList[index] = details
+        tm['arranger'] = newList
 
     def album_add_request(self, album):
         album._requests += 1
@@ -1121,7 +1268,7 @@ class PartLevels:
                     title_work_levels = 0
                     if '~cwp_title_work_levels' in tm:
                         title_work_levels = int(tm['~cwp_title_work_levels'])
-                    self.extend_metadata(track_meta, ref_height, title_work_levels)   # revise for new data
+                    self.extend_metadata(top_info, track_meta, ref_height, title_work_levels)   # revise for new data
                     self.publish_metadata(album, track_meta)
                 if self.DEBUG: log.debug("%s FINISHED TRACK PROCESSING FOR Top work id: %s", PLUGIN_NAME, topId)
         self.trackback[album].clear()
@@ -1260,9 +1407,9 @@ class PartLevels:
                                 tracks['tracknumber'].append(int(tm['tracknumber']))
                             else:
                                 tracks['tracknumber']=[int(tm['tracknumber'])]
-                self.derive_from_structure(tracks, height, depth, 'title')
+                self.derive_from_structure(top_info, tracks, height, depth, 'title')
                 if self.USE_LEVEL_0:
-                    self.derive_from_structure(tracks, height, depth, 'work')    #replace hierarchical works with those from work_0 (for consistency)
+                    self.derive_from_structure(top_info, tracks, height, depth, 'work')    #replace hierarchical works with those from work_0 (for consistency)
                 
           
                 if self.DEBUG: log.debug("Trackback result for %s = %s", parentId, tracks)
@@ -1273,7 +1420,7 @@ class PartLevels:
                 return None
         return response
 
-    def derive_from_structure(self, tracks, height, depth, name_type):
+    def derive_from_structure(self, top_info, tracks, height, depth, name_type):
         if 'track' in tracks:
             if self.DEBUG: log.debug("%s: Deriving info from structure", PLUGIN_NAME)
             if 'tracknumber' in tracks:
@@ -1352,7 +1499,8 @@ class PartLevels:
                     tm['~cwp' + meta_str + '_work_'+str(part_level)] = work
                     if part_level > 0 and name_type == "work":
                         if work == tm['~cwp' + meta_str + '_work_'+str(part_level - 1)]:
-                            tm['~cwp_X0_work_repeat'] = str(part_level)
+                            topId = top_info['id']
+                            self.parts[topId]['X0_work_repeat'] = str(part_level)
                     if part_level == 1:
                         movt = name[common_len:].strip().lstrip(":,.;- ")
                         if self.INFO: log.info("%s - movt = %s", name_type, movt)
@@ -1392,7 +1540,7 @@ class PartLevels:
                 works = work
             stripped_works = []
             for work in works:
-                strip = self.strip_parent_from_work(work, parent, part_level, True)
+                strip = self.strip_parent_from_work(work, parent, part_level, True, parentId)
                 stripped_works.append(strip[0])
                 if self.INFO: log.info("Full parent: %s, Parent: %s", strip[1], parent)
                 full_parent = strip[1]
@@ -1404,20 +1552,24 @@ class PartLevels:
                             tm['~cwp_work_top'] = full_parent
             tm['~cwp_part_' + str(part_level-1)]= stripped_works
             self.parts[workId]['stripped_name'] = stripped_works
-            if stripped_works == works:                          # no match found: nothing stripped
-                self.pending_strip[(track)][parentId]['childId'] = workId
-                self.pending_strip[(track)][parentId]['children'] = works
-                self.pending_strip[(track)][parentId]['part_level'] = part_level - 1
-            if workId in self.pending_strip[(track)]:
-                children = self.pending_strip[(track)][workId]['children']              # maybe more than one work name
-                stripped_works = []
-                for child in children:
-                    strip = self.strip_parent_from_work(child, parent, part_level, True)
-                    stripped_works.append(strip[0])
-                child_level = self.pending_strip[(track)][workId]['part_level']
-                tm['~cwp_part_' + str(child_level)] = stripped_works
-                childId = self.pending_strip[(track)][workId]['childId']
-                self.parts[childId]['stripped_name'] = stripped_works
+            # if stripped_works == works:                          # no match found: nothing stripped
+
+
+
+
+            #     self.pending_strip[(track)][parentId]['childId'] = workId
+            #     self.pending_strip[(track)][parentId]['children'] = works
+            #     self.pending_strip[(track)][parentId]['part_level'] = part_level - 1
+            # if workId in self.pending_strip[(track)]:
+            #     children = self.pending_strip[(track)][workId]['children']              # maybe more than one work name
+            #     stripped_works = []
+            #     for child in children:
+            #         strip = self.strip_parent_from_work(child, parent, part_level, True)
+            #         stripped_works.append(strip[0])
+            #     child_level = self.pending_strip[(track)][workId]['part_level']
+            #     tm['~cwp_part_' + str(child_level)] = stripped_works
+            #     childId = self.pending_strip[(track)][workId]['childId']
+            #     self.parts[childId]['stripped_name'] = stripped_works
         if self.DEBUG: log.debug("GOT TO END OF SET_METADATA")
 
     def derive_from_title(self, track, title):
@@ -1447,11 +1599,12 @@ class PartLevels:
 # SECTION 4 - Extend work metadata using titles #
 #################################################
 
-    def extend_metadata(self, track, ref_height, depth):
+    def extend_metadata(self, top_info, track, ref_height, depth):
         tm = track.metadata
         title_groupheading = None
         part_levels = int(tm['~cwp_part_levels'])
-        if self.USE_LEVEL_0 and '~cwp_X0_work_repeat' not in tm:
+        topId = top_info['id']
+        if self.USE_LEVEL_0 and 'X0_work_repeat' not in self.parts[topId]:                 #Only use work names based on level 0 text if it doesn't cause ambiguity
             if '~cwp_X0_part_0' in tm:
                 tm['~cwp_part_0'] = tm['~cwp_X0_part_0']
             for level in range(1, part_levels + 1):
@@ -1606,7 +1759,7 @@ class PartLevels:
         if self.INFO: log.info("mb = %s", mb)
         if not mb:
             return None
-        ti = title_item.strip()
+        ti = title_item.strip(" \"':;-.,")
         if self.INFO: log.info("ti = %s", ti)
         if not ti:
             return None
@@ -1622,7 +1775,7 @@ class PartLevels:
                 mb = p2.sub('',p1.sub('',mb)).strip()
                 ti = p2.sub('',p1.sub('',ti)).strip()
                 for prefix in removewords:
-                    prefix2 = str(prefix).lower()
+                    prefix2 = str(prefix).lower().lstrip()
                     if self.DEBUG: log.debug("checking prefix %s", prefix2)
                     if mb.lower().startswith(prefix2):
                         mb = mb[len(prefix2):]
@@ -1918,6 +2071,7 @@ class PartLevels:
         top_tags = [x.strip(' ') for x in top_tags]
 
         if self.DEBUG: log.debug("Done splits. gh_tags: %s, work_tags: %s, movt_inc_tags: %s, movt_exc_tags: %s, movt_no_tags: %s", gh_tags, work_tags, movt_inc_tags, movt_exc_tags, movt_no_tags)
+
         for tag in gh_tags + work_tags + movt_inc_tags + movt_exc_tags + movt_no_tags:
             tm[tag] = ""
         for tag in gh_tags:
@@ -1930,6 +2084,8 @@ class PartLevels:
                 self.append_tag(tm, tag, work, work_sep)
             else:
                 self.append_tag(tm, tag, work)
+            if '~cwp_part_levels' in tm and int(tm['~cwp_part_levels'])>0:
+                self.append_tag(tm,'show work movement','1') #for iTunes
         for tag in top_tags:
             tm[tag] = tm['~cwp_work_top'] or ""
         for tag in movt_inc_tags:
@@ -1954,24 +2110,27 @@ class PartLevels:
                     self.cwp_options['Classical Extras']['Works options']['Style'] = 'Extended'
                 self.cwp_options['Classical Extras']['Works options']['Work source'] = 'Hierarchy' if options['cwp_hierarchical_works'] \
                     else 'Level_0'
-            self.cwp_options['Classical Extras']['Works options']['Movement tag inc num'] = options['cwp_movt_tag_inc']
-            self.cwp_options['Classical Extras']['Works options']['Movement tag exc num'] = options['cwp_movt_tag_exc']
-            self.cwp_options['Classical Extras']['Works options']['Movement num tag'] = options['cwp_movt_no_tag']
-            self.cwp_options['Classical Extras']['Works options']['Multi-level work tag'] = options['cwp_work_tag_multi']
-            self.cwp_options['Classical Extras']['Works options']['Single level work tag'] = options['cwp_work_tag_single']
-            self.cwp_options['Classical Extras']['Works options']['Top level work tag'] = options['cwp_top_tag']
-            self.cwp_options['Classical Extras']['Works options']['In-string proximity trigger'] = options['cwp_proximity']
-            self.cwp_options['Classical Extras']['Works options']['End-string proximity trigger'] = options['cwp_end_proximity']
-            self.cwp_options['Classical Extras']['Works options']['Work-splitting'] = options['cwp_granularity']
-            self.cwp_options['Classical Extras']['Works options']['Similarity threshold'] = options['cwp_substring_match']
-            self.cwp_options['Classical Extras']['Works options']['Ignore prefixes'] = options['cwp_removewords']
-            self.cwp_options['Classical Extras']['Works options']['Synonyms'] = options['cwp_synonyms']
+            self.cwp_options['Classical Extras']['Works options']['movement tag inc num'] = options['cwp_movt_tag_inc']
+            self.cwp_options['Classical Extras']['Works options']['movement tag exc num'] = options['cwp_movt_tag_exc']
+            self.cwp_options['Classical Extras']['Works options']['movement num tag'] = options['cwp_movt_no_tag']
+            self.cwp_options['Classical Extras']['Works options']['multi-level work tag'] = options['cwp_work_tag_multi']
+            self.cwp_options['Classical Extras']['Works options']['single level work tag'] = options['cwp_work_tag_single']
+            self.cwp_options['Classical Extras']['Works options']['top level work tag'] = options['cwp_top_tag']
+            self.cwp_options['Classical Extras']['Works options']['in-string proximity trigger'] = options['cwp_proximity']
+            self.cwp_options['Classical Extras']['Works options']['end-string proximity trigger'] = options['cwp_end_proximity']
+            self.cwp_options['Classical Extras']['Works options']['work-splitting'] = options['cwp_granularity']
+            self.cwp_options['Classical Extras']['Works options']['similarity threshold'] = options['cwp_substring_match']
+            self.cwp_options['Classical Extras']['Works options']['ignore prefixes'] = options['cwp_removewords']
+            self.cwp_options['Classical Extras']['Works options']['synonyms'] = options['cwp_synonyms']
             if self.INFO: log.info("Options %s", self.cwp_options)
-            self.append_tag(tm, options['cwp_options_tag'], str(dict(self.cwp_options)))
+            if options['ce_version_tag'] and options['ce_version_tag'] != "":
+                self.append_tag(tm, options['ce_version_tag'], str('Version ' + tm['~cwp_version'] + ' of Classical Extras'))
+            if options['cwp_options_tag'] and options['cwp_options_tag'] != "":
+                self.append_tag(tm, options['cwp_options_tag'] + ':workparts_options', json.loads(json.dumps(self.cwp_options)))
         if self.ERROR and "~cwp_error" in tm:
-            tm['001_ERRORS'] = tm['~cwp_error']
+            self.append_tag(tm, '001_ERRORS', tm['~cwp_error'])
         if self.WARNING and "~cwp_warning" in tm:
-                tm['002_WARNINGS'] = tm['~cwp_warning']
+            self.append_tag(tm, '002_WARNINGS', tm['~cwp_warning'])
 
     def append_tag(self, tm, tag, source, sep = None):
         if self.DEBUG: log.debug("In append_tag. tag = %s, source = %s, sep =%s", tag, source, sep)
@@ -1986,23 +2145,27 @@ class PartLevels:
                     newtag = [tm[tag], source]
                 else:  
                     newtag = tm[tag].append(source)
-                tm[tag] = "".join(newtag)
+                if sep:
+                    tm[tag] = "".join(newtag)
+                else:
+                    tm[tag] = newtag
             if self.INFO: log.info("Updated tag (%s) is: %s", tag, tm[tag])
         else:
-            tm[tag] = [source]
-            if self.INFO: log.info("Newly created (%s) tag is: %s", tag, tm[tag])
-
+            if tag and tag != "":              
+                tm[tag] = [source]
+                if self.INFO: log.info("Newly created (%s) tag is: %s", tag, tm[tag])
 
 
 ################################################
 # SECTION 6 - Common string handling functions #
 ################################################
 
-    def strip_parent_from_work(self, work, parent, part_level, extend):             #extend=True is used to find "full_parent" names
+    def strip_parent_from_work(self, work, parent, part_level, extend, parentId=None):
+        #extend=True is used to find "full_parent" names and also (with parentId) to trigger recursion if unable to strip parent name from work
+        #extend=False is used when this routine is called for other purposes than strict work: parent relationships
         if self.DEBUG: log.debug("%s: STRIPPING HIGHER LEVEL WORK TEXT FROM PART NAMES", PLUGIN_NAME)
         full_parent = parent
-        punc_space = r'[\'!\"#$%&()*+,\-.\/:;<=>?@\[\]^_`{|}~]\s+'
-        clean_parent = re.sub(punc_space,' ',parent)                  # replace any punctuation followed by a space, with a space (to remove any inconsistent punctuation)
+        clean_parent = re.sub("(?u)\W",' ',parent)                  # replace any punctuation followed by a space, with a space (to remove any inconsistent punctuation) - (?u) specifies the re.UNICODE flag in sub
         pattern_parent = re.sub("\s","\W{0,2}", clean_parent)         # now allow the spaces to be filled with up to 2 non-letters
         if extend:
             pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"\w*)(\W*\s)(.*)"
@@ -2033,7 +2196,16 @@ class PartLevels:
                         stripped_work = m.group(4)
         else:
             if self.DEBUG: log.debug("No match...")                                          #debug
-            stripped_work = work
+            
+            if extend and parentId and parentId in self.works_cache:
+                if self.DEBUG: log.debug("Looking for match at next level up")
+                grandparentId = self.works_cache[parentId]
+                grandparent = self.parts[grandparentId]['name']
+                stripped_work = self.strip_parent_from_work(work, grandparent, part_level, True, grandparentId)[0]
+
+            else:
+                stripped_work = work
+
         if self.INFO: log.info("Work: %s", work)                                             #debug
         if self.INFO: log.info("Stripped work: %s", stripped_work)                           #debug
         return (stripped_work, full_parent)
@@ -2082,7 +2254,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         IntOption("setting", "cwp_end_proximity", 1),
         IntOption("setting", "cwp_granularity", 1),
         IntOption("setting", "cwp_substring_match", 66),
-        TextOption("setting", "cwp_removewords", " (part), part, act, scene, movement , movt, no., n., nr., book , the , a , la , le , un, une , el , il "),
+        TextOption("setting", "cwp_removewords", " part, act, scene, movement, movt, no., no , n., n , nr., nr , book , the , a , la , le , un , une , el , il , (part)"),
         TextOption("setting", "cwp_synonyms", "(1, one) / (2, two) / (3, three) / (&, and)"),
         
         BoolOption("setting", "cwp_titles", False),
@@ -2175,12 +2347,16 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         BoolOption("setting", "cea_arrangers", True),
         BoolOption("setting", "cea_cyrillic", True),
         BoolOption("setting", "cea_genres", True),
+        TextOption("setting", "cea_chorusmaster", "choirmaster"),
+        TextOption("setting", "cea_orchestrator", "orch."),
+        TextOption("setting", "cea_concertmaster", "leader"),
 
         BoolOption("setting", "log_error", True),
         BoolOption("setting", "log_warning", True),
         BoolOption("setting", "log_debug", False),
         BoolOption("setting", "log_info", False),
 
+        TextOption("setting", "ce_version_tag", ""),
         TextOption("setting", "cea_options_tag", ""),
         TextOption("setting", "cwp_options_tag", ""),
 
@@ -2296,12 +2472,16 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         self.ui.cea_arrangers.setChecked(self.config.setting["cea_arrangers"])
         self.ui.cea_cyrillic.setChecked(self.config.setting["cea_cyrillic"])
         self.ui.cea_genres.setChecked(self.config.setting["cea_genres"])
+        self.ui.cea_chorusmaster.setText(self.config.setting["cea_chorusmaster"])
+        self.ui.cea_orchestrator.setText(self.config.setting["cea_orchestrator"])
+        self.ui.cea_concertmaster.setText(self.config.setting["cea_concertmaster"])
 
         self.ui.log_error.setChecked(self.config.setting["log_error"])
         self.ui.log_warning.setChecked(self.config.setting["log_warning"])
         self.ui.log_debug.setChecked(self.config.setting["log_debug"])
         self.ui.log_info.setChecked(self.config.setting["log_info"])
 
+        self.ui.ce_version_tag.setText(self.config.setting["ce_version_tag"])
         self.ui.cea_options_tag.setText(self.config.setting["cea_options_tag"])
         self.ui.cwp_options_tag.setText(self.config.setting["cwp_options_tag"])
 
@@ -2409,12 +2589,16 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         self.config.setting["cea_arrangers"] = self.ui.cea_arrangers.isChecked()
         self.config.setting["cea_cyrillic"] = self.ui.cea_cyrillic.isChecked()
         self.config.setting["cea_genres"] = self.ui.cea_genres.isChecked()
+        self.config.setting["cea_chorusmaster"] = unicode(self.ui.cea_chorusmaster.text())
+        self.config.setting["cea_orchestrator"] = unicode(self.ui.cea_orchestrator.text())
+        self.config.setting["cea_concertmaster"] = unicode(self.ui.cea_concertmaster.text())
 
         self.config.setting["log_error"] = self.ui.log_error.isChecked()
         self.config.setting["log_warning"] = self.ui.log_warning.isChecked()
         self.config.setting["log_debug"] = self.ui.log_debug.isChecked()
         self.config.setting["log_info"] = self.ui.log_info.isChecked()
 
+        self.config.setting["ce_version_tag"] = unicode(self.ui.ce_version_tag.text())
         self.config.setting["cea_options_tag"] = unicode(self.ui.cea_options_tag.text())
         self.config.setting["cwp_options_tag"] = unicode(self.ui.cwp_options_tag.text())
 
