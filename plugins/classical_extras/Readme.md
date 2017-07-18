@@ -207,6 +207,9 @@ Finally, the tag _cwp_error is provided to supply warnings and error messages to
 - _cea_conductor : Alternative conductor name, based on sort name, to avoid non-latin language problems.
 - _cea_performer : An alternative to performer, based on the sort name (see note re non-Latin script below).
 - _cea_arranger : Instrument arranger for the recording (not created by Picard as standard). If the work and parts functionality has also been selected, it will include the arrangers of parent works, which Picard also currently omits.
+- _cea_orchestrator : An arranger (per Picard) who is included in the MB database as the orchestrator.
+- _cea_chorusmaster : A person who (per Picard) is a conductor, but is "chorus master" in the MB database (i.e. not necessarily conducting the performance).
+- _cea_concertmaster : The leader of the orchestra (not created by Picard as standard).
 
 Note re non-Latin characters: These can be avoided by using the Picard option (Options->Metadata "Translate artist names to this locale where possible"). This plugin provides an alternative which will always remove middle (patronymic) names from Cyrillic-script names (but does not deal fully with other non-Latin scripts). It is based on the sort names wherever possible, otherwise a Cyrillic-Latin transliteration is used. The Picard option only currently works properly for the Artist tag (where it uses the locale primary alias, which can be set to exclude patronyms) - other tags use the full sort name as the basis, which will generally include the patronym.
 

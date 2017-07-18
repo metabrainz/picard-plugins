@@ -278,7 +278,7 @@ class ExtraArtists:
                     if self.DEBUG: log.debug("%s: Instrument Arrangers: %s", PLUGIN_NAME, arrangerList)
                     self.set_arranger(album, arrangerList,tm)
 
-                if options['cea_orchestrator'] != "":    
+                if options['cea_orchestrator'] != "":
                     orchestratorList = self.artist_process_metadata(track, record, 'orchestrator')
             #         # returns {None, orchestrator name, orchestrator sort name} or None if no orchestrators found
                     if orchestratorList:
@@ -1164,7 +1164,7 @@ class PartLevels:
                 newkey = '%s:%s' % ('arranger', instrument)
                 tm.add_unique(newkey, name)
                 tm['~cwp_arranger_sort'] = sort_name
-                # next bit is needed as Picard does not currently write out arranger:instrument tag in the same way as performer:instrument -i.e. it is not included in main arranger tag         
+                # next bit is needed as Picard does not currently write out arranger:instrument tag in the same way as performer:instrument -i.e. it is not included in main arranger tag
                 if 'arranger' in tm:
                     tm['arranger'] = tm['arranger'] + "; " + tm['~cwp_arranger']
                 else:
@@ -2151,7 +2151,7 @@ class PartLevels:
                     tm[tag] = newtag
             if self.INFO: log.info("Updated tag (%s) is: %s", tag, tm[tag])
         else:
-            if tag and tag != "":              
+            if tag and tag != "":
                 tm[tag] = [source]
                 if self.INFO: log.info("Newly created (%s) tag is: %s", tag, tm[tag])
 
