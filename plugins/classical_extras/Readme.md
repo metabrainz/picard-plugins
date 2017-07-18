@@ -1,5 +1,5 @@
 # General Information
-This is version 0.6.3 of "classical_extras". It has only been tested with FLAC and mp3 files.
+This is version 0.6.4 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
@@ -11,8 +11,12 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 0.6.4: Write out version number to 'comment: classical_extras_version' tag. Provide default comment tags for writing ui options. Provide better m4a and iTunes compatibility (see notes). Added functionality for chorus master, orchestrator and concert master (leader). Re-arranged artist tab in ui. Various bug fixes.
+
 Version 0.6.3: Bug fixes. Modified ui default options.
+
 Version 0.6.2: Bug fixes. More flexible handling of artists (can blank and then add back later). Modified ui default options.
+
 Version 0.6.1: Amended regex to permit non-Latin characters in work text.
 
 # Installation
@@ -33,11 +37,26 @@ There are four coloured sections as shown in the screen image below:
 
 1. "Create extra artist metadata" should be selected otherwise this section will not run. This is the default.
 
-    "Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name if the name(s) does not already appear in the album name. MB style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
+	"Infer work types (map to genre using tag mapping or script as req'd)". This attempts to create a "work_type" tag based on information in the artist-related tags. It does not (currently) use the "work-type" data associated with MB works as this is not well populated and is under review at present. Values provided are:
+	Orchestral, Concerto, Instrumental, Voice, Choral, Opera, Duet, Aria, Song. For concerto and solo performances the instrument is also given where possible. If the track is a recorded work, the tag will also include "Classical". Use "work_type" as a source in the tag mapping section below section to (e.g.) map to the genre tag. For more complex treatment, use scripts.
 
-2. "Remove Picard-generated tags before applying subsequent actions?". Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options->Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive.
+2. "Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name if the name(s) does not already appear in the album name. MB style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
 
-3. "Tag mapping". This section permits the contents of any hidden variable or tag to be written to one or more tags.
+	"Fix cyrillic names (where possible and if not fixed by locale settings)" attempts to provide English version of composers, conductors and performers where the script is non-Latin and the relevant locale settings (Options->Metadata) have not fixed this. For performers, the tags are updated directly, but for composers and conductors, the original tag is left and can be updated by adding lines in the previous section (map composer->composer etc.)
+
+	"Include arrangers from all work levels, plus instrument arrangers". This will gather together any arranger information from the recording, work or parent works and place it in the "arranger" tag. If you want to add arrangers as composers, do so in the previous section. (Note that Picard does not natively pick up all arrangers)
+
+	"Annotate chorus master in conductor with ..." will place the specified text in brackets after the chorus master's name in the conductor tag (otherwise Picard will just include the name with any annotation in the MB database).
+
+	"Annotate orchestrator in arranger tag with ..." will place the specified text in brackets after the arranger's name in the arranger tag (otherwise Picard will just include the name with any annotation in the MB database).
+
+	"Include 'concert master' in performer tag as ..." will place the concertmaster's (leader's) name in a tag "performer:text" where the text is specified in the box. Picard does not normally provide this information. the text will be included in backets when the performer tag is written.
+
+	Please note that the use of the word "master" is the MusicBrainz term and is not intended to be gender-specific. Users can specify whatever text they please.
+
+3. "Remove Picard-generated tags before applying subsequent actions?". Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options->Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive.
+
+4. "Tag mapping". This section permits the contents of any hidden variable or tag to be written to one or more tags.
 
     * **Sources**:
 The most useful sources are available from the drop-down list and are as follows:
@@ -61,15 +80,6 @@ Any Picard tag names can also be typed in as sources. Hidden variables may also 
 
     * **Tags**:
 Enter the (comma-separated) tag names into which the sources should be written (case sensitive). Note that this will result in the source data being APPENDED in the tag - it will not overwrite the existing contents. Check "Conditional?" if the tag is only to be updated if it is previously blank. The lines will be applied in the order shown. Users should be able to achieve most requirements via a combination of blanking tags, using the right source order and "conditional" flags. For example, to overwrite a tag sourced from "composer" with "conductor", specify "conductor" first, then "composer" as conditional. Note that, for example, to demote the MB-supplied artist to only appear if no other listed choices are present, blank the artist tag and then add it as a conditional source at the end of the list.
-
-4. "Include arrangers from all work levels, plus instrument arrangers". This will gather together any arranger information from the recording, work or parent works and place it in the "arranger" tag. If you want to add arrangers as composers, do so in the previous section. (Note that Picard does not natively pick up all arrangers)
-
-"Infer work types (map to genre using tag mapping or script as req'd)". This attempts to create a "work_type" tag based on information in the artist-related tags. It does not (currently) use the "work-type" data associated with MB works as this is not well populated and is under review at present. Values provided are:
-Orchestral, Concerto, Instrumental, Voice, Choral, Opera, Duet, Aria, Song. For concerto and solo performances the instrument is also given where possible.
-
-Use "work_type" as a source in the previous section to (e.g.) map to the genre tag. For more complex treatment, use scripts.
-
-"Fix cyrillic names (where possible and if not fixed by locale settings)" attempts to provide English version of composers, conductors and performers where the script is non-Latin and the relevant locale settings (Options->Metadata) have not fixed this. For performers, the tags are updated directly, but for composers and conductors, the original tag is left and can be updated by adding lines in the previous section (map composer->composer etc.)
 
 ## Work and parts tab
 
@@ -104,6 +114,8 @@ There three coloured sections as shown in the screen print below:
       - "Tags for Movement - excluding embedded movt/part numbers". As below, but without the movement part/number prefix (if applicable)
       - "Tags for Movement - including embedded movt/part numbers". This tag(s) will contain the full lowest-level part name extracted from the lowest-level work name, according to the chosen tagging style.
 
+Note for iTunes users: iTunes and Picard do not work well together. iTunes can display work and movement for m4a(mp4) files, but Picard does not write the movement tag. To work round this, write the movement to the "subtitle" tag assuming that is not otherwise used, and use a simple Mp3tag action to convert it to MOVEMENTNAME before importing to iTunes. If you are writing to a FLAC file which will subsequently be converted to m4a then different tag names may be required; e.g. using dBpoweramp, write the movement to "movement name". In both cases use "work" for the work. To store the top_work, use "grouping" if writing directly to m4a, but "style" if writing to FLAC followed by dBpoweramp conversion. You can put multiple tags into the boxes described above so that your options are multi-purpose. N.B. if work tags are specified and the work has at least one level (i.e. at least work: movement), then the tag "show work movement" will be set to 1. This is used by iTunes to trigger the hierarchical display and should work both directly with m4a files and indirectly via files which are subsequently converted.
+
 ## Advanced tab
 
 Hopefully, this tab should not be much used - and even less in future versions. In any case, it should not need to be changed frequently. There are four sections as shown in the sceeen print below:
@@ -118,9 +130,13 @@ If it is important that only whole words are to be matched, be sure to include a
 
 	* **How title metadata should be included in extended metadata**. This subsection contains various parameters affecting the processing of strings in titles. Because titles are free-form, not all circumstances can be anticipated. Detailed documentation of these is beyond the scope of this Readme as the effects can be quite complex and subtle and may require an understanding of the plugin code (which is of course open-source) to acsertain them. If pure canonical works are used ("Use only metadata from canonical works" and, if necessary, "Full MusicBrainz work hierarchy" on the Works and parts tab, section 2) then this processing should be irrelevant, but no text from titles will be included.
 
-3. "Logging options". These options are in addition to the options chosen in Picard's "Help->View error/debug log" settings. They only affect messages written by this plugin. To enable debug messages to be shown, the flag needs to be set here and "Debug mode" needs to be turned on in the log. It is strongly advised to keep the "debug" and "info" flags unchecked unless debugging is required as they slow up processing significantly. The "error" and "warning" flags should be left checked, unless it is required to suppress messages written out to tags (the default is to write messages to the tags 001_ERRORS and 002_WARNINGS).
+3. "Logging options". These options are in addition to the options chosen in Picard's "Help->View error/debug log" settings. They only affect messages written by this plugin. To enable debug messages to be shown, the flag needs to be set here and "Debug mode" needs to be turned on in the log. It is strongly advised to keep the "debug" and "info" flags unchecked unless debugging is required as they slow up processing significantly and may even cause Picard to crash on large releases. The "error" and "warning" flags should be left checked, unless it is required to suppress messages written out to tags (the default is to write messages to the tags 001_ERRORS and 002_WARNINGS).
 
-4. "Save options in a tag?" can be used so that the user has a record of which options were selected to achieve the resulting tags. Note that the tags will be blanked first so this will only show the last options used on a particular file. The same tag can be used for both sets of options, resulting in a multi-valued tag. The tag contents are in Python directory format. In a future version, there **might** be functionality to read this tag and use the options therein.
+4. "Save plugin details and options in a tag?" can be used so that the user has a record of the version of Classical Extras which generated the tags and which options were selected to achieve the resulting tags. Note that the tags will be blanked first so this will only show the last options used on a particular file. 
+
+The same tag can be used for both sets of options, resulting in a multi-valued tag. 
+
+The tag contents are in json format. In a future version, there **might** be functionality to read this tag and use the options therein.
 
 # Information on hidden variables
 
@@ -194,6 +210,9 @@ Finally, the tag _cwp_error is provided to supply warnings and error messages to
 - _cea_conductor : Alternative conductor name, based on sort name, to avoid non-latin language problems.
 - _cea_performer : An alternative to performer, based on the sort name (see note re non-Latin script below).
 - _cea_arranger : Instrument arranger for the recording (not created by Picard as standard). If the work and parts functionality has also been selected, it will include the arrangers of parent works, which Picard also currently omits.
+- _cea_orchestrator : An arranger (per Picard) who is included in the MB database as the orchestrator.
+- _cea_chorusmaster : A person who (per Picard) is a conductor, but is "chorus master" in the MB database (i.e. not necessarily conducting the performance).
+- _cea_concertmaster : The leader of the orchestra (not created by Picard as standard).
 
 Note re non-Latin characters: These can be avoided by using the Picard option (Options->Metadata "Translate artist names to this locale where possible"). This plugin provides an alternative which will always remove middle (patronymic) names from Cyrillic-script names (but does not deal fully with other non-Latin scripts). It is based on the sort names wherever possible, otherwise a Cyrillic-Latin transliteration is used. The Picard option only currently works properly for the Artist tag (where it uses the locale primary alias, which can be set to exclude patronyms) - other tags use the full sort name as the basis, which will generally include the patronym.
 
