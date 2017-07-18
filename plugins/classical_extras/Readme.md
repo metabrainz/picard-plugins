@@ -12,8 +12,11 @@ If the Options Page does not provide sufficient flexibility, users familiar with
 
 ## Updates
 Version 0.6.4: Write out version number to 'comment: classical_extras_version' tag. Provide default comment tags for writing ui options. Provide better m4a and iTunes compatibility (see notes). Added functionality for chorus master, orchestrator and concert master (leader). Re-arranged artist tab in ui. Various bug fixes.
+
 Version 0.6.3: Bug fixes. Modified ui default options.
+
 Version 0.6.2: Bug fixes. More flexible handling of artists (can blank and then add back later). Modified ui default options.
+
 Version 0.6.1: Amended regex to permit non-Latin characters in work text.
 
 # Installation
