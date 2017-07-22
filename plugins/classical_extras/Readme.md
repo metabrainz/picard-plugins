@@ -1,5 +1,5 @@
 # General Information
-This is version 0.6.4 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
+This is version 0.6.5 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 0.6.5: Include ability to use multiple (concatenated) sources in tag mapping (see notes under "tag mapping"). All artist "sources" using hidden variables (_cea_...) are now consistently in the plural, to distinguish from standard tags. Note that if "album" is used as a source in tag mapping, it will now be the revised name, where composer prefixing is used. To use the original name, use "release" as the source. Also various bug fixes, notably to ensure that all arrangers get picked up for use in tag mapping.
+
 Version 0.6.4: Write out version number to 'comment: classical_extras_version' tag. Provide default comment tags for writing ui options. Provide better m4a and iTunes compatibility (see notes). Added functionality for chorus master, orchestrator and concert master (leader). Re-arranged artist tab in ui. Various bug fixes.
 
 Version 0.6.3: Bug fixes. Modified ui default options.
@@ -27,7 +29,7 @@ After installation, go to the Options Page and modify choices as required. There
 
 **Important**: 
 1.  The plugin **will not work unless** you have enabled "Use release relationships" and "Use track relationships" in Picard->Options->Metadata.
-2.  It is recommended only to use the plugin on one release at a time, particularly if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" - use a tool such as SongKong for that and then use the plugin to enhance the results as required.
+2.  It is recommended only to use the plugin on one release at a time, particularly if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" of untagged files - use a tool such as SongKong for that and then use the plugin to enhance the results as required. However, once you have tagged files (either in Picard or, say, SongKong) such that they all have MusicBrainz IDs, you should be able to re-tag multiple releases by dragging the containing folder into Picard; this is useful to pick up changed MusicBrainz data or if you change the Classical Extras version or options (but bear in mind that the "Works and parts" function will still take at least 1 second per track).
 3.  Keep a backup of your picard.ini file (AppData->Roaming->MusicBrainz) in case you erase your settings or Picard crashes and loses them for you.
 
 ## Artists tab
@@ -73,13 +75,17 @@ Most of the names are for artist data and are sourced from hidden variables (pre
       - support_performers : Sub-list of soloist_names who are NOT album artists
       - composers : Note that, if "Fix cyrillic names" in the last section is checked, this is based on sort name, to avoid non-latin language problems (if translation is not already made via locale choices).
       - conductors : Note that, if "Fix cyrillic names" in the last section is checked, this is based on sort name, to avoid non-latin language problems (if translation is not already made via locale choices).
-	  Note that the Classical Extras sources for composers and conductors are spelled in the plural (to differentiate from the native Picard tags)
+	  Note that the Classical Extras sources for all artist types are spelled in the plural (to differentiate from the native Picard tags).
 
-      The last item in the drop-down list is "work_type" which only has content if the "Infer work types" box in the last coloured section is checked.
+It is also possible to specify multiple sources which will be concatenated before being used to fill the mapped tags. Comma-separate the desired sources. The concatenated result **will only be applied if the contents of each of the sources is non-blank** (note that this constraint only applies where multiple sources are specified). No spaces will be added on concatenation, so these have to be added explicitly by concatenating "\ ".
+		For example: to add the leader's name in brackets to the tag with the performing orchestra, put "\(leader ,leaders,\)" in the source box and the tag containing the orchestra in the tag box. If there is no leader, the text will not be appended.
+
+      The last items in the drop-down list are "work_type" which only has content if the "Infer work types" box in the last coloured section is checked, and "release" which contains the album name before prefixing with composer last names is that option was chosen.
 Any Picard tag names can also be typed in as sources. Hidden variables may also be used. Any source names which are not recognised will be treated as string constants; blanks may also be used.
 
     * **Tags**:
 Enter the (comma-separated) tag names into which the sources should be written (case sensitive). Note that this will result in the source data being APPENDED in the tag - it will not overwrite the existing contents. Check "Conditional?" if the tag is only to be updated if it is previously blank. The lines will be applied in the order shown. Users should be able to achieve most requirements via a combination of blanking tags, using the right source order and "conditional" flags. For example, to overwrite a tag sourced from "composer" with "conductor", specify "conductor" first, then "composer" as conditional. Note that, for example, to demote the MB-supplied artist to only appear if no other listed choices are present, blank the artist tag and then add it as a conditional source at the end of the list.
+		Continuing the "leader" example above, that example places the leader text as an additional "artist" in the tag (with separating semi-colon). To completely replace the original orchestra name, blank the orchestra tag then re use it with the following source text: "performer:orchestra,\ (leader ,leaders,\)"
 
 ## Work and parts tab
 
@@ -188,6 +194,9 @@ One artist tag is set in this section:
 Finally, the tag _cwp_error is provided to supply warnings and error messages to the user. At present these are a warning if there is more than one work (only one parent will be followed) or if excessive "Service Unavailabilty" has caused some metadata to be omitted.
 
 ## Artists
+
+All the additional hidden variables for artists written by Classical Extras are prefixed by _cea_. Note that these are generally in the plural, whereas the standard tags are singular. If the user blanks a tag then the original value is stored in the singular with the _cea_ prefix. Thus _cea_arranger would be the contents of the Picard tag "arranger" before blanking, whereas _cea_arrangers is hidden variable created by Classical Extras.
+
 - _cea_soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be "soloists" in that they may be part of an ensemble.
 - _cea_soloist_names : Names of the above (i.e. no instruments).
 - _cea_soloists_sort : Sort_names of the above.
@@ -206,13 +215,13 @@ Finally, the tag _cwp_error is provided to supply warnings and error messages to
 - _cea_album_composer_lastnames : Last names of composers of ANY track on the album who are also album artists. This can be used to prefix the album name if required. (cf _cea_album_track_composer_lastnames)
 - _cea_support_performers : Sub-list of soloist_names who are NOT album artists
 - _cea_support_performers_sort : Sort_names of the above.
-- _cea_composer : Alternative composer name, based on sort name, to avoid non-latin language problems.
-- _cea_conductor : Alternative conductor name, based on sort name, to avoid non-latin language problems.
-- _cea_performer : An alternative to performer, based on the sort name (see note re non-Latin script below).
-- _cea_arranger : Instrument arranger for the recording (not created by Picard as standard). If the work and parts functionality has also been selected, it will include the arrangers of parent works, which Picard also currently omits.
-- _cea_orchestrator : An arranger (per Picard) who is included in the MB database as the orchestrator.
-- _cea_chorusmaster : A person who (per Picard) is a conductor, but is "chorus master" in the MB database (i.e. not necessarily conducting the performance).
-- _cea_concertmaster : The leader of the orchestra (not created by Picard as standard).
+- _cea_composers : Alternative composer name, based on sort name, to avoid non-latin language problems.
+- _cea_conductors : Alternative conductor name, based on sort name, to avoid non-latin language problems.
+- _cea_performers : An alternative to performer, based on the sort name (see note re non-Latin script below).
+- _cea_arrangers : Instrument arranger for the recording (not created by Picard as standard). If the work and parts functionality has also been selected, it will include the arrangers of parent works, which Picard also currently omits. These arrangers are stored separately as _cwp_arrangers.
+- _cea_orchestrators : An arranger (per Picard) who is included in the MB database as the orchestrator.
+- _cea_chorusmasters : A person who (per Picard) is a conductor, but is "chorus master" in the MB database (i.e. not necessarily conducting the performance).
+- _cea_concertmasters : The leader of the orchestra (not created by Picard as standard).
 
 Note re non-Latin characters: These can be avoided by using the Picard option (Options->Metadata "Translate artist names to this locale where possible"). This plugin provides an alternative which will always remove middle (patronymic) names from Cyrillic-script names (but does not deal fully with other non-Latin scripts). It is based on the sort names wherever possible, otherwise a Cyrillic-Latin transliteration is used. The Picard option only currently works properly for the Artist tag (where it uses the locale primary alias, which can be set to exclude patronyms) - other tags use the full sort name as the basis, which will generally include the patronym.
 
@@ -246,7 +255,7 @@ Leave the "title" tag unchanged or make it a combination of work and movement.
 Planned enhancements (among others) are 
 1. Include discrimination as to type of parts relationship (i.e. exclude irrelevant parents)
 2. If a work is an arrangement of another work, look for the parent works of that other work
-3. Find a better way of selecting parents where there is more than one (rather than just length of name as at present)
+3. Find a better way dealing with multiple parents (rather than just select the one with the longest name as at present)
 
 # Technical Matters
 Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to @dns_server for assistance in dealing with this and to @sophist for the albumartist_website code which I have used extensively. I have tried to add some more comments to help any others trying the same techniques.
