@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.6.4'
+PLUGIN_VERSION = '0.6.5'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -210,7 +210,72 @@ def longest_common_sequence(list1, list2, start=0):
                 seq = list1[k:i]
     return {'sequence': seq, 'length': longest}
 
-
+def map_tags(options, tm):
+    ERROR = options["log_error"]
+    WARNING = options["log_warning"]
+    DEBUG = options["log_debug"]
+    INFO = options["log_info"]
+    if (options['classical_extra_artists'] and '~cea_artists_complete' not in tm) or (options['classical_work_parts'] and '~cea_works_complete' not in tm):
+        return
+    sort_tags = options['cea_tag_sort']
+    for i in range(0,16):
+        tagline = options['cea_tag_' + str(i+1)].split(",")
+        sourceline = options['cea_source_' + str(i+1)].split(",")
+        conditional = options['cea_cond_' + str(i+1)]
+        if len(sourceline)>1:
+            source = "\\"
+            for source_itemx in sourceline:
+                source_item = source_itemx.strip()
+                source_itema = source_itemx.lstrip()
+                if INFO: log.info("Source_item: %s", source_item)
+                if "~cea_" + source_item in tm:
+                    si = tm['~cea_' + source_item]
+                elif source_item in tm:
+                    si = tm[source_item]
+                elif len(source_itema) > 0 and source_itema[0] == "\\":
+                    si = source_itema[1:]
+                else:
+                    si = ""
+                if si != "" and source != "":
+                    source = source + si
+                else:
+                    source = ""
+        else:
+            source = sourceline[0]
+        no_names_source =re.sub('(_names)$','s',source)
+        for item, tagx in enumerate(tagline):
+            tag = tagx.strip()
+            if tag == "composer" or tag == "artist" or tag == "albumartist" or tag == "trackartist":
+                sort = "sort"
+            else:
+                sort = "_sort"
+            if source == "composer" or source == "artist" or source == "albumartist" or source == "trackartist":
+                source_sort = "sort"
+            else:
+                source_sort = "_sort"
+            if DEBUG: log.debug("%s: Tag mapping: Line: %s, Source: %s, Tag: %s, no_names_source: %s, sort: %s, item %s",PLUGIN_NAME, i+1, source, tag, no_names_source, sort, item)
+            if not conditional or tm[tag] == "":
+                if "~cea_" + source in tm:
+                    if DEBUG: log.debug("cea")
+                    ExtraArtists().append_tag(tm, tag, tm['~cea_' + source])
+                    if sort_tags:
+                        if "~cea_" + no_names_source + source_sort in tm:
+                            if DEBUG: log.debug("cea sort")
+                            ExtraArtists().append_tag(tm, tag + sort, tm['~cea_' + no_names_source + source_sort])
+                elif source in tm:
+                    if DEBUG: log.debug("Picard")
+                    ExtraArtists().append_tag(tm, tag, tm[source])
+                    if sort_tags:
+                        if source + "_sort" in tm:
+                            if DEBUG: log.debug("Picard sort")
+                            ExtraArtists().append_tag(tm, tag + sort, tm[source + '_sort'])
+                elif len(source) > 0 and source[0] == "\\":
+                    ExtraArtists().append_tag(tm, tag, source[1:])
+                else:
+                    pass
+    if not DEBUG:
+        del tm['~cea_works_complete']
+        del tm['~cea_artists_complete']
 
 #################
 #################
@@ -278,26 +343,24 @@ class ExtraArtists:
                     if self.DEBUG: log.debug("%s: Instrument Arrangers: %s", PLUGIN_NAME, arrangerList)
                     self.set_arranger(album, arrangerList,tm)
 
-                if options['cea_orchestrator'] != "":
-                    orchestratorList = self.artist_process_metadata(track, record, 'orchestrator')
-            #         # returns {None, orchestrator name, orchestrator sort name} or None if no orchestrators found
-                    if orchestratorList:
-                        if self.DEBUG: log.debug("%s: Orchestrators: %s", PLUGIN_NAME, orchestratorList)
-                        self.set_orchestrator(album, orchestratorList,tm)
 
-                if options['cea_chorusmaster'] != "":
-                    chorusmasterList = self.artist_process_metadata(track, record, 'chorus master')
-            #         # returns {None, chorus master name, chorus master sort name} or None if no chorus masters found
-                    if chorusmasterList:
-                        if self.DEBUG: log.debug("%s: Chorus Masters: %s", PLUGIN_NAME, chorusmasterList)
-                        self.set_chorusmaster(album, chorusmasterList,tm)
+                orchestratorList = self.artist_process_metadata(track, record, 'orchestrator')
+        #         # returns {None, orchestrator name, orchestrator sort name} or None if no orchestrators found
+                if orchestratorList:
+                    if self.DEBUG: log.debug("%s: Orchestrators: %s", PLUGIN_NAME, orchestratorList)
+                    self.set_orchestrator(album, orchestratorList,tm)
 
-                if options['cea_concertmaster'] != "":
-                    leaderList = self.artist_process_metadata(track, record, 'concertmaster')
-            #         # returns {None, leader name, leader sort name} or None if no leaders
-                    if leaderList:
-                        if self.DEBUG: log.debug("%s: Leaders: %s", PLUGIN_NAME, leaderList)
-                        self.set_leader(album, leaderList,tm)
+                chorusmasterList = self.artist_process_metadata(track, record, 'chorus master')
+        #         # returns {None, chorus master name, chorus master sort name} or None if no chorus masters found
+                if chorusmasterList:
+                    if self.DEBUG: log.debug("%s: Chorus Masters: %s", PLUGIN_NAME, chorusmasterList)
+                    self.set_chorusmaster(album, chorusmasterList,tm)
+
+                leaderList = self.artist_process_metadata(track, record, 'concertmaster')
+        #         # returns {None, leader name, leader sort name} or None if no leaders
+                if leaderList:
+                    if self.DEBUG: log.debug("%s: Leaders: %s", PLUGIN_NAME, leaderList)
+                    self.set_leader(album, leaderList,tm)
 
         if track_metadata['tracknumber'] == track_metadata['totaltracks']:            #last track
             self.process_album(album)
@@ -530,7 +593,6 @@ class ExtraArtists:
     def process_album(self, album):
         options = album.tagger.config.setting
         blank_tags = options['cea_blank_tag'].split(",") + options['cea_blank_tag_2'].split(",")
-        sort_tags = options['cea_tag_sort']
         for track in self.track_listing:
             tm = track.metadata
             tm['~cea_version'] = PLUGIN_VERSION
@@ -609,48 +671,17 @@ class ExtraArtists:
                 if tag.strip() in tm:
                     tm['~cea_'+tag.strip()] = tm[tag.strip()]  # place blanked tags into hidden variables available for re-use
                     del tm[tag.strip()]
-            for i in range(0,16):
-                tagline = options['cea_tag_' + str(i+1)].split(",")
-                source = options['cea_source_' + str(i+1)].strip()
-                no_names_source =re.sub('(_names)$','s',source)
-                conditional = options['cea_cond_' + str(i+1)]
-                for item, tagx in enumerate(tagline):
-                    tag = tagx.strip()
-                    if tag == "composer" or tag == "artist" or tag == "albumartist" or tag == "trackartist":
-                        sort = "sort"
-                    else:
-                        sort = "_sort"
-                    if source == "composer" or source == "artist" or source == "albumartist" or source == "trackartist":
-                        source_sort = "sort"
-                    else:
-                        source_sort = "_sort"
-                    if self.DEBUG: log.debug("%s: Tag mapping: Line: %s, Source: %s, Tag: %s, no_names_source: %s, sort: %s, item %s",PLUGIN_NAME, i+1, source, tag, no_names_source, sort, item)
-                    if not conditional or tm[tag] == "":
-                        if "~cea_" + source in tm:
-                            if self.DEBUG: log.debug("cea")
-                            self.append_tag(tm, tag, tm['~cea_' + source])
-                            if sort_tags:
-                                if "~cea_" + no_names_source + source_sort in tm:
-                                    if self.DEBUG: log.debug("cea sort")
-                                    self.append_tag(tm, tag + sort, tm['~cea_' + no_names_source + source_sort])
-                        elif source in tm:
-                            if self.DEBUG: log.debug("Picard")
-                            self.append_tag(tm, tag, tm[source])
-                            if sort_tags:
-                                if source + "_sort" in tm:
-                                    if self.DEBUG: log.debug("Picard sort")
-                                    self.append_tag(tm, tag + sort, tm[source + '_sort'])
-                        elif len(source) > 0 and source[0] == "\\":
-                            self.append_tag(tm, tag, source[1:])
-                        else:
-                            pass
+
+            # arrangers / album
             if options['cea_arrangers']:
-                if '~cea_arranger' in tm:
+                if '~cea_arrangers' in tm:
                     if 'arranger' in tm:
-                        tm['arranger'] = tm['arranger'] + "; " + tm['~cea_arranger']
+                        if tm['~cea_arrangers'] not in tm['arranger']:
+                            tm['arranger'] = tm['arranger'] + "; " + tm['~cea_arrangers']
                     else:
-                        tm['arranger'] = tm['~cea_arranger']
+                        tm['arranger'] = tm['~cea_arrangers']
             if 'composer_lastnames' in self.album_artists[album]:
+                tm['~cea_release'] = tm['album']
                 last_names = self.album_artists[album]['composer_lastnames']
                 tm['~cea_album_composer_lastnames'] = last_names
                 if options['cea_composer_album']:
@@ -661,6 +692,12 @@ class ExtraArtists:
                     if len(new_last_names) > 0:
                         tm['album'] = "; ".join(new_last_names) + ": " + tm['album']
 
+            # process tag mapping
+            tm['~cea_artists_complete'] = "Y"
+            map_tags(options, tm)
+
+
+            # write out options and errors/warnings to tags
             if options['cea_options_tag'] != "":
                 self.cea_options = collections.defaultdict(lambda: collections.defaultdict(lambda: collections.defaultdict(dict)))
                 self.cea_options['Classical Extras']['Artists options']['Album prefix'] = 'Composer' if options['cea_composer_album'] \
@@ -693,7 +730,7 @@ class ExtraArtists:
         if tag in tm:
             if source not in tm[tag]:
                 if isinstance(tm[tag], basestring):
-                    if self.DEBUG: log.debug("tm[tag]: %s", tm[tag])
+                    #if self.DEBUG: log.debug("tm[tag]: %s", tm[tag])
                     tm[tag] = [tm[tag], source]
                 else:
                     tm[tag].append(source)
@@ -717,10 +754,10 @@ class ExtraArtists:
                     if self.DEBUG: log.debug("%s: SETTING PERFORMER. NEW KEY = %s", PLUGIN_NAME, newkey)
                     tm.add_unique(newkey, name)
                 details = name + ' (' + instrument +')'
-                if '~cea_performer' in tm:
-                    tm['~cea_performer'] = tm['~cea_performer'] + '; ' + details
+                if '~cea_performers' in tm:
+                    tm['~cea_performers'] = tm['~cea_performers'] + '; ' + details
                 else:
-                    tm['~cea_performer'] = details
+                    tm['~cea_performers'] = details
 
     def set_arranger(self, album, arrangerList,tm):
         for arranger in arrangerList:
@@ -737,10 +774,10 @@ class ExtraArtists:
                 details = name + ' (' + instrument +')'
             else:
                 details = name
-            if '~cea_arranger' in tm:
-                tm['~cea_arranger'] = tm['~cea_arranger'] + '; ' + details
+            if '~cea_arrangers' in tm:
+                tm['~cea_arrangers'] = tm['~cea_arrangers'] + '; ' + details
             else:
-                tm['~cea_arranger'] = details
+                tm['~cea_arrangers'] = details
 
     def set_orchestrator(self, album, orchestratorList,tm):
         options = album.tagger.config.setting
@@ -755,16 +792,25 @@ class ExtraArtists:
             if options['cea_cyrillic']:
                 if not only_roman_chars(name):
                     name = remove_middle(unsort(sort_name))
-            details = name + ' (' + options['cea_orchestrator'] + ')'
-            if '~cea_orchestrator' in tm:
-                tm['~cea_orchestrator'] = tm['~cea_orchestrator'] + '; ' + details
+            if options['cea_orchestrator'] != "":
+                details = name + ' (' + options['cea_orchestrator'] + ')'
             else:
-                tm['~cea_orchestrator'] = details
-
+                details = name
+            if '~cea_orchestrators' in tm:
+                if name not in tm['~cea_orchestrators']:
+                    tm['~cea_orchestrators'] = tm['~cea_orchestrators'] + '; ' + name
+            else:
+                tm['~cea_orchestrators'] = name
+            appendList = []
             for index, arranger in enumerate(arrangerList):
                 if name in arranger:
                     newList[index] = details
-        tm['arranger'] = newList
+                else:
+                    appendList.append(details)
+            for append_item in appendList:
+                newList.append(append_item)
+        if options['cea_orchestrator'] != "":
+            tm['arranger'] = newList
 
     def set_chorusmaster(self, album, chorusmasterList,tm):
         options = album.tagger.config.setting
@@ -779,16 +825,21 @@ class ExtraArtists:
             if options['cea_cyrillic']:
                 if not only_roman_chars(name):
                     name = remove_middle(unsort(sort_name))
-            details = name + ' (' + options['cea_chorusmaster'] + ')'
-            if '~cea_chorusmaster' in tm:
-                tm['~cea_chorusmaster'] = tm['~cea_chorusmaster'] + '; ' + details
+            if options['cea_chorusmaster'] != "":
+                details = name + ' (' + options['cea_chorusmaster'] + ')'
             else:
-                tm['~cea_chorusmaster'] = details
+                details = name
+            if '~cea_chorusmasters' in tm:
+                if name not in tm['~cea_chorusmasters']:
+                    tm['~cea_chorusmasters'] = tm['~cea_chorusmasters'] + '; ' + name
+            else:
+                tm['~cea_chorusmasters'] = name
 
             for index, conductor in enumerate(conductorList):
                 if name in conductor:
                     newList[index] = details
-        tm['conductor'] = newList
+        if options['cea_chorusmaster'] != "":        
+            tm['conductor'] = newList
 
     def set_leader(self, album, leaderList,tm):
         options = album.tagger.config.setting
@@ -800,12 +851,16 @@ class ExtraArtists:
                     name = remove_middle(unsort(sort_name))
             newkey = '%s:%s' % ('performer', options['cea_concertmaster'])
             if self.DEBUG: log.debug("%s: SETTING PERFORMER. NEW KEY = %s", PLUGIN_NAME, newkey)
-            tm.add_unique(newkey, name)
-            details = name + ' (' + options['cea_concertmaster'] + ')'
-            if '~cea_leader' in tm:
-                tm['~cea_leader'] = tm['~cea_leader'] + '; ' + details
+            if options['cea_concertmaster'] != "":
+                tm.add_unique(newkey, name)
+                details = name + ' (' + options['cea_concertmaster'] + ')'
             else:
-                tm['~cea_leader'] = details
+                details = name
+            if '~cea_leaders' in tm:
+                if name not in tm['~cea_leaders']:
+                    tm['~cea_leaders'] = tm['~cea_leaders'] + '; ' + name
+            else:
+                tm['~cea_leaders'] = name
 
 
 
@@ -1151,49 +1206,67 @@ class PartLevels:
         return itemsFound
 
     def set_arranger(self, album, arrangerList, tm):
+        options = album.tagger.config.setting
         orchestratorList = []
         for arranger in arrangerList:
             instrument = arranger[0]
             if instrument == 'orchestrator':
                 orchestratorList.append(arranger)
-                break
+                continue
             name = arranger[1]
             sort_name = arranger[2]
-            tm['~cwp_arranger'] = name + ' (' + instrument + ')'
-            if album.tagger.config.setting['cea_arrangers']:
+            if '~cea_arrangers' in tm:
+                if name not in '~cea_arrangers':
+                    tm['~cea_arrangers'] = tm['~cea_arrangers'] + '; ' + name + ' (' + instrument + ')'
+            else:
+                tm['~cea_arrangers'] = name + ' (' + instrument + ')'
+            if options['cea_arrangers']:
                 newkey = '%s:%s' % ('arranger', instrument)
                 tm.add_unique(newkey, name)
-                tm['~cwp_arranger_sort'] = sort_name
                 # next bit is needed as Picard does not currently write out arranger:instrument tag in the same way as performer:instrument -i.e. it is not included in main arranger tag
-                if 'arranger' in tm:
-                    tm['arranger'] = tm['arranger'] + "; " + tm['~cwp_arranger']
+                if '~cwp_arrangers' in tm:
+                    tm['~cwp_arrangers'] = tm['~cwp_arrangers'] + "; " + tm['~cea_arrangers']
                 else:
-                    tm['arranger'] = tm['~cwp_arranger']
+                    tm['~cwp_arrangers'] = tm['~cea_arrangers']
         if orchestratorList:
             self.set_orchestrator(album, orchestratorList,tm)
 
     def set_orchestrator(self, album, orchestratorList,tm):
+        options = album.tagger.config.setting
         if isinstance(tm['arranger'], basestring):
             arrangerList = tm['arranger'].split(';')
         else:
             arrangerList = tm['arranger']
         newList = arrangerList
+        orch_name_list = []
         for orchestrator in orchestratorList:
             name = orchestrator[1]
+            orch_name_list.append(name)
             sort_name = orchestrator[2]
             if album.tagger.config.setting['cea_cyrillic']:
                 if not only_roman_chars(name):
                     name = remove_middle(unsort(sort_name))
-            details = name + ' (orch.)'
-            if '~cea_orchestrator' in tm:
-                tm['~cea_orchestrator'] = tm['~cea_orchestrator'] + '; ' + details
+            if options['cea_orchestrator'] != "":
+                details = name + ' (' + options['cea_orchestrator'] +')'
             else:
-                tm['~cea_orchestrator'] = details
-
+                details = name
+            if '~cea_orchestrators' in tm:
+                if name not in tm['~cea_orchestrators']:
+                    tm['~cea_orchestrators'] = tm['~cea_orchestrators'] + '; ' + name
+            else:
+                tm['~cea_orchestrators'] = name
+            appendList = []
             for index, arranger in enumerate(arrangerList):
                 if name in arranger:
                     newList[index] = details
-        tm['arranger'] = newList
+                else:
+                    appendList.append(details)
+            for append_item in appendList:
+                newList.append(append_item)
+        if options['cea_orchestrator'] != "":
+            self.append_tag(tm, 'arranger:orchestrator', "; ".join(orch_name_list))
+            # next bit is needed as Picard does not currently write out arranger:instrument tag in the same way as performer:instrument -i.e. it is not included in main arranger tag
+            tm['~cwp_arrangers'] = newList
 
     def album_add_request(self, album):
         album._requests += 1
@@ -1552,24 +1625,6 @@ class PartLevels:
                             tm['~cwp_work_top'] = full_parent
             tm['~cwp_part_' + str(part_level-1)]= stripped_works
             self.parts[workId]['stripped_name'] = stripped_works
-            # if stripped_works == works:                          # no match found: nothing stripped
-
-
-
-
-            #     self.pending_strip[(track)][parentId]['childId'] = workId
-            #     self.pending_strip[(track)][parentId]['children'] = works
-            #     self.pending_strip[(track)][parentId]['part_level'] = part_level - 1
-            # if workId in self.pending_strip[(track)]:
-            #     children = self.pending_strip[(track)][workId]['children']              # maybe more than one work name
-            #     stripped_works = []
-            #     for child in children:
-            #         strip = self.strip_parent_from_work(child, parent, part_level, True)
-            #         stripped_works.append(strip[0])
-            #     child_level = self.pending_strip[(track)][workId]['part_level']
-            #     tm['~cwp_part_' + str(child_level)] = stripped_works
-            #     childId = self.pending_strip[(track)][workId]['childId']
-            #     self.parts[childId]['stripped_name'] = stripped_works
         if self.DEBUG: log.debug("GOT TO END OF SET_METADATA")
 
     def derive_from_title(self, track, title):
@@ -2098,6 +2153,21 @@ class PartLevels:
         for tag in movt_exc_tags:
             self.append_tag(tm, tag, movt)
 
+        # NB the next bit is part of the artist options, but needs to be written here because arrangers and orchestrators may have been associated with works not recordings
+        # The work-related arranger tag details have been stored in ~cwp_arrangers
+        # If the arranger tag was blanked in artist options, the previous details are in ~cea_arranger (note singular)
+        # It is possible that slightly unexpected results might occur with complex options owing to an inability to control the sequebnce of operations between the two sections of the plugin!
+
+        if '~cwp_arrangers' in tm and tm['~cwp_arrangers'] != "":
+            if options['cea_orchestrator'] != "" and '~cea_orchestrator' in tm and tm['~cea_orchestrator'] != "":
+                tm['arranger'] = tm['~cwp_arrangers']
+            else:
+                if options['cea_arrangers'] != "":
+                    self.append_tag(tm,'arranger',tm['~cwp_arrangers'])            
+        # carry out tag mapping
+        tm['~cea_works_complete'] = "Y"
+        map_tags(options, tm)
+
         if self.DEBUG: log.debug("Published metadata for %s", track)
         if options['cwp_options_tag'] != "":
             self.cwp_options = collections.defaultdict(lambda: collections.defaultdict(dict))
@@ -2131,6 +2201,8 @@ class PartLevels:
             self.append_tag(tm, '001_ERRORS', tm['~cwp_error'])
         if self.WARNING and "~cwp_warning" in tm:
             self.append_tag(tm, '002_WARNINGS', tm['~cwp_warning'])
+            
+
 
     def append_tag(self, tm, tag, source, sep = None):
         if self.DEBUG: log.debug("In append_tag. tag = %s, source = %s, sep =%s", tag, source, sep)
@@ -2314,7 +2386,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         TextOption("setting", "cea_tag_9", "artist, artists"),
         BoolOption("setting", "cea_cond_9", True),
 
-        TextOption("setting", "cea_source_10", "album"),
+        TextOption("setting", "cea_source_10", "release"),
         TextOption("setting", "cea_tag_10", "release_name"),
         BoolOption("setting", "cea_cond_10", False),
 
