@@ -8,15 +8,13 @@
 PLUGIN_NAME = 'wikidata-genre'
 PLUGIN_AUTHOR = 'Daniel Sobey, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'query wikidata to get genre tags'
-PLUGIN_VERSION = '0.3'
-PLUGIN_API_VERSIONS = ["0.9.0", "0.10", "0.15", "2.0"]
+PLUGIN_VERSION = '1.0'
+PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
 
 from picard import config, log
-from picard.metadata import register_album_metadata_processor
 from picard.metadata import register_track_metadata_processor
-from picard.webservice import XmlWebService
 from functools import partial
 import threading
 
@@ -34,7 +32,7 @@ class wikidata:
 
     def process_release(self, tagger, metadata, release):
 
-        self.xmlws = tagger.tagger.xmlws
+        self.ws = tagger.tagger.ws
         self.log = tagger.log
         item_id = dict.get(metadata, 'musicbrainz_releasegroupid')[0]
 
@@ -86,10 +84,10 @@ class wikidata:
 
             path = '/ws/2/%s/%s' % (type, item_id)
             queryargs = {"inc": "url-rels"}
-            self.xmlws.get(host, port, path,
+            self.ws.get(host, port, path,
                            partial(self.musicbrainz_release_lookup,
                                    item_id, metadata),
-                           xml=True, priority=False, important=False, queryargs=queryargs)
+                           parse_response_type="xml", priority=False, important=False, queryargs=queryargs)
 
     def musicbrainz_release_lookup(self, item_id, metadata, response, reply, error):
         found = False
@@ -138,9 +136,9 @@ class wikidata:
         item = wikidata_url.split('/')[4]
         path = "/wiki/Special:EntityData/" + item + ".rdf"
         log.info('WIKIDATA: fetching the folowing url wikidata.org%s' % path)
-        self.xmlws.get('www.wikidata.org', 443, path,
+        self.ws.get('www.wikidata.org', 443, path,
                        partial(self.parse_wikidata_response, item, item_id),
-                       xml=True, priority=False, important=False)
+                       parse_response_type="xml", priority=False, important=False)
 
     def parse_wikidata_response(self, item, item_id, response, reply, error):
         genre_entries = []
@@ -205,7 +203,7 @@ class wikidata:
         self.lock.release()
 
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
-        self.xmlws = album.tagger.xmlws
+        self.ws = album.tagger.ws
         self.log = album.log
         tagger = album
 
