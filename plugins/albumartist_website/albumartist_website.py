@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 PLUGIN_NAME = 'Album Artist Website'
-PLUGIN_AUTHOR = 'Sophist'
+PLUGIN_AUTHOR = 'Sophist, Sambhav Kothari'
 PLUGIN_DESCRIPTION = '''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
-PLUGIN_VERSION = '0.6'
-PLUGIN_API_VERSIONS = ["1.4.0", "2.0"]
+PLUGIN_VERSION = '1.0'
+PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -81,9 +81,9 @@ class AlbumArtistWebsite:
             port = config.setting["server_port"]
             path = "/ws/2/%s/%s" % ('artist', artistId)
             queryargs = {"inc": "url-rels"}
-            return album.tagger.xmlws.get(host, port, path,
+            return album.tagger.ws.get(host, port, path,
                         partial(self.website_process, artistId),
-                                xml=True, priority=True, important=False,
+                                parse_response_type="xml", priority=True, important=False,
                                 queryargs=queryargs)
 
     def website_process(self, artistId, response, reply, error):
