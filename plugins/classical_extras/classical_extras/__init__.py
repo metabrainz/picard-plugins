@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.6.5'
+PLUGIN_VERSION = '0.6.6'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -199,11 +199,14 @@ def longest_common_substring(s1, s2):
                m[x][y] = 0
    return s1[x_longest - longest: x_longest]
 
-def longest_common_sequence(list1, list2, start=0):
+def longest_common_sequence(list1, list2, minstart=0, maxstart =0):   #maxstart must be >= minstart. If they are equal then the start point is fixed.
+    if maxstart < minstart:
+        return(None,0)
     min_len = min(len(list1),len(list2))
     longest = 0
     seq = None
-    for k in range(start,min_len):
+    maxstart = min(maxstart,min_len) + 1
+    for k in range(minstart,maxstart):
         for i in range(k,min_len + 1):
             if list1[k:i] == list2[k:i] and i-k>longest:
                 longest = i-k
@@ -220,59 +223,62 @@ def map_tags(options, tm):
     sort_tags = options['cea_tag_sort']
     for i in range(0,16):
         tagline = options['cea_tag_' + str(i+1)].split(",")
-        sourceline = options['cea_source_' + str(i+1)].split(",")
+        source_group = options['cea_source_' + str(i+1)].split(",")
         conditional = options['cea_cond_' + str(i+1)]
-        if len(sourceline)>1:
-            source = "\\"
-            for source_itemx in sourceline:
-                source_item = source_itemx.strip()
-                source_itema = source_itemx.lstrip()
-                if INFO: log.info("Source_item: %s", source_item)
-                if "~cea_" + source_item in tm:
-                    si = tm['~cea_' + source_item]
-                elif source_item in tm:
-                    si = tm[source_item]
-                elif len(source_itema) > 0 and source_itema[0] == "\\":
-                    si = source_itema[1:]
-                else:
-                    si = ""
-                if si != "" and source != "":
-                    source = source + si
-                else:
-                    source = ""
-        else:
-            source = sourceline[0]
-        no_names_source =re.sub('(_names)$','s',source)
-        for item, tagx in enumerate(tagline):
-            tag = tagx.strip()
-            if tag == "composer" or tag == "artist" or tag == "albumartist" or tag == "trackartist":
-                sort = "sort"
+        for source_memberx in source_group:
+            source_member = source_memberx.strip()
+            sourceline = source_member.split("+")
+            if len(sourceline)>1:
+                source = "\\"
+                for source_itemx in sourceline:
+                    source_item = source_itemx.strip()
+                    source_itema = source_itemx.lstrip()
+                    if INFO: log.info("Source_item: %s", source_item)
+                    if "~cea_" + source_item in tm:
+                        si = tm['~cea_' + source_item]
+                    elif source_item in tm:
+                        si = tm[source_item]
+                    elif len(source_itema) > 0 and source_itema[0] == "\\":
+                        si = source_itema[1:]
+                    else:
+                        si = ""
+                    if si != "" and source != "":
+                        source = source + si
+                    else:
+                        source = ""
             else:
-                sort = "_sort"
-            if source == "composer" or source == "artist" or source == "albumartist" or source == "trackartist":
-                source_sort = "sort"
-            else:
-                source_sort = "_sort"
-            if DEBUG: log.debug("%s: Tag mapping: Line: %s, Source: %s, Tag: %s, no_names_source: %s, sort: %s, item %s",PLUGIN_NAME, i+1, source, tag, no_names_source, sort, item)
-            if not conditional or tm[tag] == "":
-                if "~cea_" + source in tm:
-                    if DEBUG: log.debug("cea")
-                    ExtraArtists().append_tag(tm, tag, tm['~cea_' + source])
-                    if sort_tags:
-                        if "~cea_" + no_names_source + source_sort in tm:
-                            if DEBUG: log.debug("cea sort")
-                            ExtraArtists().append_tag(tm, tag + sort, tm['~cea_' + no_names_source + source_sort])
-                elif source in tm:
-                    if DEBUG: log.debug("Picard")
-                    ExtraArtists().append_tag(tm, tag, tm[source])
-                    if sort_tags:
-                        if source + "_sort" in tm:
-                            if DEBUG: log.debug("Picard sort")
-                            ExtraArtists().append_tag(tm, tag + sort, tm[source + '_sort'])
-                elif len(source) > 0 and source[0] == "\\":
-                    ExtraArtists().append_tag(tm, tag, source[1:])
+                source = sourceline[0]
+            no_names_source =re.sub('(_names)$','s',source)
+            for item, tagx in enumerate(tagline):
+                tag = tagx.strip()
+                if tag == "composer" or tag == "artist" or tag == "albumartist" or tag == "trackartist":
+                    sort = "sort"
                 else:
-                    pass
+                    sort = "_sort"
+                if source == "composer" or source == "artist" or source == "albumartist" or source == "trackartist":
+                    source_sort = "sort"
+                else:
+                    source_sort = "_sort"
+                if DEBUG: log.debug("%s: Tag mapping: Line: %s, Source: %s, Tag: %s, no_names_source: %s, sort: %s, item %s",PLUGIN_NAME, i+1, source, tag, no_names_source, sort, item)
+                if not conditional or tm[tag] == "":
+                    if "~cea_" + source in tm:
+                        if DEBUG: log.debug("cea")
+                        ExtraArtists().append_tag(tm, tag, tm['~cea_' + source])
+                        if sort_tags:
+                            if "~cea_" + no_names_source + source_sort in tm:
+                                if DEBUG: log.debug("cea sort")
+                                ExtraArtists().append_tag(tm, tag + sort, tm['~cea_' + no_names_source + source_sort])
+                    elif source in tm:
+                        if DEBUG: log.debug("Picard")
+                        ExtraArtists().append_tag(tm, tag, tm[source])
+                        if sort_tags:
+                            if source + "_sort" in tm:
+                                if DEBUG: log.debug("Picard sort")
+                                ExtraArtists().append_tag(tm, tag + sort, tm[source + '_sort'])
+                    elif len(source) > 0 and source[0] == "\\":
+                        ExtraArtists().append_tag(tm, tag, source[1:])
+                    else:
+                        pass
     if not DEBUG:
         del tm['~cea_works_complete']
         del tm['~cea_artists_complete']
@@ -326,9 +332,9 @@ class ExtraArtists:
                 self.album_artists[album]['composer_lastnames'] = [composer_lastnames]
         else:
             if self.WARNING: log.warning("%s: No _cea_album_track_composer_lastnames variable available for recording \"%s\".", PLUGIN_NAME, tm['title'])
-            self.append_tag(track_metadata, '~cea_warning', 'No _cea_album_track_composer_lastnames variable available for recording')
+            self.append_tag(track_metadata, '~cea_warning', 'Composer for this track is not in album artists and will not be available to prefix album')
         if 'recording' in trackXmlNode.children:
-            self.is_classical = True
+            self.is_recording = True
             for record in trackXmlNode.children['recording']:
 
                 performerList = self.artist_process_metadata(track, record, 'instrument')
@@ -337,10 +343,10 @@ class ExtraArtists:
                     if self.DEBUG: log.debug("%s: Instrument Performers: %s", PLUGIN_NAME, performerList)
                     self.set_performer(album, performerList, tm)
 
-                arrangerList = self.artist_process_metadata(track, record, 'instrument arranger')
-        #         # returns {instrument, arranger name, arranger sort name} or None if no instrument arrangers found
+                arrangerList = self.artist_process_metadata(track, record, 'instrument arranger') + self.artist_process_metadata(track, record, 'arranger')
+        #         # returns {instrument, arranger name, arranger sort name} or None if no arrangers found
                 if arrangerList:
-                    if self.DEBUG: log.debug("%s: Instrument Arrangers: %s", PLUGIN_NAME, arrangerList)
+                    if self.DEBUG: log.debug("%s: Arrangers: %s", PLUGIN_NAME, arrangerList)
                     self.set_arranger(album, arrangerList,tm)
 
 
@@ -371,6 +377,11 @@ class ExtraArtists:
         soloists = []
         soloist_names=[]
         soloists_sort =[]
+        vocalists = []
+        instrumentalists = []
+        other_soloists = []
+        vocalist_names = []
+        instrumentalist_names = []
         ensembles = []
         ensemble_names = []
         ensembles_sort = []
@@ -421,8 +432,20 @@ class ExtraArtists:
                             album_ensembles.append(performername)
                     else:
                         soloists.append(performer)
+                        if "vocals" in subkey:
+                            vocalists.append(performer)
+                        elif subkey:
+                            instrumentalists.append(performer)
+                        else:
+                            other_soloists.append(performer)
                         if performername not in soloist_names:
                             soloist_names.append(performername)
+                            if "vocals" in subkey:
+                                vocalist_names.append(performername)
+                            elif subkey:
+                                instrumentalist_names.append(performername)
+                            else:
+                                pass
                         match=last.search(sort_field(stripsir(performername)))
                         if match:
                             performerlast = match.group(1)
@@ -456,15 +479,30 @@ class ExtraArtists:
                             if not subkey in self.ENSEMBLE_TYPES and not self.ensemble_type(performer):
                                 support_performers_sort.append(performer)
             if key == 'composer':
-                composers_sort = metadata['composersort'].split(';')
+                if self.DEBUG: log.debug("Setting composer names for: %s", values)
+                if isinstance(metadata['composersort'], basestring):
+                    composers_sort = metadata['composersort'].split(";")
+                else:
+                    composers_sort = metadata['composersort']
+                if isinstance(metadata['artists'], basestring):
+                    artist_names = metadata['artists'].split(";")
+                else:
+                    artist_names = metadata['artists']
+                if isinstance(metadata['~artists_sort'], basestring):
+                    artists_sort = metadata['~artists_sort'].split(";")
+                else:
+                    artists_sort = metadata['~artists_sort']
                 metadata['~cea_composers_sort'] = composers_sort
                 for index, composer in enumerate(values):
+                    if self.DEBUG: log.debug("Setting composer names")
                     composersort = composers_sort[index]
-                    match=last.search(composersort)
-                    if match:
-                        composerlast = match.group(1)
-                    else:
-                        composerlast = composersort
+                    artist_name = artist_names[index]
+                    artistsort = artists_sort[index]
+                    composerlast = composersort.split(",")[0]
+                    artistlast = artistsort.split(",")[0]
+                    if self.INFO: log.info("composer: %s, composerlast: %s, artist_name: %s, artistlast: %s", composer, composerlast, artist_name, artistlast)
+                    if artistlast == composerlast:
+                        composer = artist_name # because Picard locale option only works correctly on artists, not composers etc.
                     if not only_roman_chars(composer):
                         if album.tagger.config.setting['cea_cyrillic']:
                             composer = remove_middle(unsort(composersort))
@@ -476,8 +514,14 @@ class ExtraArtists:
                        album_composers.append(composer)
                        album_composers_sort.append(composersort)
                        album_composer_lastnames.append(composerlast)
+
         metadata['~cea_soloists'] = soloists
         metadata['~cea_soloist_names'] = soloist_names
+        metadata['~cea_vocalists'] = vocalists
+        metadata['~cea_vocalist_names'] = vocalist_names
+        metadata['~cea_instrumentalists'] = instrumentalists
+        metadata['~cea_instrumentalist_names'] = instrumentalist_names
+        metadata['~cea_other_soloists'] = other_soloists
         metadata['~cea_soloists_sort'] = soloists_sort
         metadata['~cea_ensembles'] = ensembles
         metadata['~cea_ensemble_names'] = ensemble_names
@@ -494,7 +538,11 @@ class ExtraArtists:
         metadata['~cea_support_performers'] = support_performers
         metadata['~cea_support_performers_sort'] = support_performers_sort
         metadata['~cea_composers'] = composers
+        if album.tagger.config.setting['cea_cyrillic']:
+            metadata['composer'] = composers
         metadata['~cea_conductors'] = conductors
+        if album.tagger.config.setting['cea_cyrillic']:
+            metadata['conductor'] = conductors
 
     def sort_performers(self, album, metadata):
         for key, values in metadata.rawitems():
@@ -598,7 +646,9 @@ class ExtraArtists:
             tm['~cea_version'] = PLUGIN_VERSION
             # set work-type before any tags are blanked
             if options['cea_genres']:
-                if self.is_classical:
+                if self.is_recording and options['classical_work_parts'] and \
+                    'artistsort' in tm and 'composersort' in tm and \
+                    tm['artistsort'].split(",")[0] == tm['composersort'].split(",")[0]:
                     self.append_tag(tm, '~cea_work_type', 'Classical')
                 instrument = re.compile(r'.*\((.+)\)')
                 vocals = re.compile(r'.*\(((.*)vocals)\)')
@@ -627,6 +677,12 @@ class ExtraArtists:
                                             self.append_tag(tm, '~cea_work_type', match2.group(2).strip().title())
                             elif len(soloists) == 2:
                                 self.append_tag(tm, '~cea_work_type', 'Duet')
+                                for i in range(0,2):
+                                    match = instrument.search(soloists[i])
+                                    if match:
+                                        if 'vocals' not in match.group(1).lower():
+                                            self.append_tag(tm, '~cea_work_type', 'Concerto')
+                                            self.append_tag(tm, '~cea_work_type', match.group(1).title())
 
                     if 'performer:choir' in tm or 'performer:choir vocals' in tm:
                         large = True
@@ -720,9 +776,9 @@ class ExtraArtists:
                 if options['cea_options_tag'] and options['cea_options_tag'] != "":
                     self.append_tag(tm, options['cea_options_tag'] + ':artists_options', json.loads(json.dumps(self.cea_options)))
             if self.ERROR and "~cea_error" in tm:
-                self.append_tag(tm, '001_ERRORS', tm['~cea_error'])
+                self.append_tag(tm, '001_errors', tm['~cea_error'])
             if self.WARNING and "~cea_warning" in tm:
-                self.append_tag(tm, '002_WARNINGS', tm['~cea_warning'])
+                self.append_tag(tm, '002_warnings', tm['~cea_warning'])
         self.track_listing = []
         if self.INFO: log.info("FINISHED Classical Extra Artists. Album: %s", track.album.metadata)
 
@@ -730,7 +786,6 @@ class ExtraArtists:
         if tag in tm:
             if source not in tm[tag]:
                 if isinstance(tm[tag], basestring):
-                    #if self.DEBUG: log.debug("tm[tag]: %s", tm[tag])
                     tm[tag] = [tm[tag], source]
                 else:
                     tm[tag].append(source)
@@ -761,16 +816,19 @@ class ExtraArtists:
 
     def set_arranger(self, album, arrangerList,tm):
         for arranger in arrangerList:
-            instrument = arranger[0].lower()
+            if arranger[0]:
+                instrument = arranger[0].lower()
+            else:
+                instrument = None
             name = arranger[1]
             sort_name = arranger[2]
             if album.tagger.config.setting['cea_cyrillic']:
                 if not only_roman_chars(name):
                     name = remove_middle(unsort(sort_name))
-            newkey = '%s:%s' % ('arranger', instrument)
-            if self.DEBUG: log.debug("NEW KEY = %s", newkey)
-            tm.add_unique(newkey, name)
             if instrument:
+                newkey = '%s:%s' % ('arranger', instrument)
+                if self.DEBUG: log.debug("NEW KEY = %s", newkey)
+                tm.add_unique(newkey, name)
                 details = name + ' (' + instrument +')'
             else:
                 details = name
@@ -838,7 +896,7 @@ class ExtraArtists:
             for index, conductor in enumerate(conductorList):
                 if name in conductor:
                     newList[index] = details
-        if options['cea_chorusmaster'] != "":        
+        if options['cea_chorusmaster'] != "":
             tm['conductor'] = newList
 
     def set_leader(self, album, leaderList,tm):
@@ -1057,30 +1115,30 @@ class PartLevels:
             self.publish_metadata(album, track)
 
     def work_add_track(self, album, track, workId, tries):
-        if self.DEBUG: log.debug("%s: ADDING WORK TO LOOKUP QUEUE", PLUGIN_NAME)                   #debug
+        if self.DEBUG: log.debug("%s: ADDING WORK TO LOOKUP QUEUE", PLUGIN_NAME)
         self.album_add_request(album)
             # to change the _requests variable to indicate that there are pending requests for this item and delay picard from finalizing the album
-        if self.DEBUG: log.debug("%s: Added lookup request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
+        if self.DEBUG: log.debug("%s: Added lookup request. Requests = %s", PLUGIN_NAME, album._requests)
         if self.works_queue.append(workId, (track, album)): # All work combos are queued, but only new workIds are passed to XML lookup
             host = config.setting["server_host"]
             port = config.setting["server_port"]
             path = "/ws/2/%s/%s" % ('work', workId)
             queryargs = {"inc": "work-rels+artist-rels"}
-            if self.DEBUG: log.debug("%s: Initiating XML lookup for %s......", PLUGIN_NAME, workId)   #debug
+            if self.DEBUG: log.debug("%s: Initiating XML lookup for %s......", PLUGIN_NAME, workId)
             return album.tagger.xmlws.get(host, port, path,
                         partial(self.work_process, workId, tries),
                                 xml=True, priority=True, important=False,
                                 queryargs=queryargs)
-        else:                                                                      #debug
-            if self.DEBUG: log.debug("%s: Work is already in queue: %s", PLUGIN_NAME, workId)      #debug
+        else:
+            if self.DEBUG: log.debug("%s: Work is already in queue: %s", PLUGIN_NAME, workId)
 
     def work_process(self, workId, tries, response, reply, error):
-        if self.DEBUG: log.debug("%s: work_process. LOOKING UP WORK: %s", PLUGIN_NAME, workId)                     #debug
+        if self.DEBUG: log.debug("%s: work_process. LOOKING UP WORK: %s", PLUGIN_NAME, workId)
         if error:
             if self.WARNING: log.warning("%s: %r: Network error retrieving work record", PLUGIN_NAME, workId)
             tuples = self.works_queue.remove(workId)
             for track, album in tuples:
-                if self.DEBUG: log.debug("%s: Removed request after network error. Requests = %s", PLUGIN_NAME, album._requests)   #debug
+                if self.DEBUG: log.debug("%s: Removed request after network error. Requests = %s", PLUGIN_NAME, album._requests)
                 if tries < self.MAX_RETRIES:
                     if self.DEBUG: log.debug("REQUEUEING...")
                     self.work_add_track(album, track, workId, tries + 1)
@@ -1093,7 +1151,7 @@ class PartLevels:
         for track, album in tuples:
             if workId not in self.work_listing[album]:
                 self.work_listing[album].append(workId)
-            if self.DEBUG: log.debug("%s Requests = %s", PLUGIN_NAME, album._requests)   #debug
+            if self.DEBUG: log.debug("%s Requests = %s", PLUGIN_NAME, album._requests)
         if self.DEBUG: log.debug("RESPONSE = %s", response)
         if workId in self.parts:
             metaList = self.work_process_metadata(workId, tuples, response)
@@ -1128,7 +1186,7 @@ class PartLevels:
             if album._requests == 1:                                  # Next remove will finalise album
                 self.process_album(album)                       # so do the final album-level processing before we go!
             self.album_remove_request(album)
-            if self.DEBUG: log.debug("%s: Removed request. Requests = %s", PLUGIN_NAME, album._requests)   #debug
+            if self.DEBUG: log.debug("%s: Removed request. Requests = %s", PLUGIN_NAME, album._requests)
         if self.DEBUG: log.debug("%s: End of work_process for workid %s", PLUGIN_NAME, workid)
 
     def work_process_metadata(self, workId, tuples, response):
@@ -1156,7 +1214,7 @@ class PartLevels:
         artists = []
         itemsFound = []
         for relation in relations:
-            #if self.INFO: log.info("%s Relation--> %s", PLUGIN_NAME, relation)
+            if self.INFO: log.info("%s Relation--> %s", PLUGIN_NAME, relation)
             for rel in relation:
                 if rel.attribs['type'] == 'parts':
                     if 'direction' in rel.children:
@@ -1164,8 +1222,19 @@ class PartLevels:
                             new_workIds.append(rel.work[0].id)
                             new_works.append(rel.work[0].title[0].text)
 
+                if rel.attribs['type'] == 'arranger':
+                    if self.INFO: log.info("found ARRANGER")
+                    if 'direction' in rel.children:
+                        if rel.direction[0].text == 'backward':
+                            name = rel.artist[0].name[0].text
+                            sort_name = rel.artist[0].sort_name[0].text
+                            instrument = None
+                            artist = (instrument, name, sort_name)
+                            artists.append(artist)
+                            if self.INFO: log.info("ARTISTS %s", artists)
+
                 if rel.attribs['type'] == 'instrument arranger':
-                    #if self.INFO: log.info("found INSTRUMENT ARRANGER")
+                    if self.INFO: log.info("found INSTRUMENT ARRANGER")
                     if 'direction' in rel.children:
                         if rel.direction[0].text == 'backward':
                             name = rel.artist[0].name[0].text
@@ -1173,17 +1242,18 @@ class PartLevels:
                             instrument = rel.attribute_list[0].attribute[0].text
                             artist = (instrument, name, sort_name)
                             artists.append(artist)
-                            #if self.DEBUG: log.debug("ARTISTS %s", artists)
+                            if self.INFO: log.info("ARTISTS %s", artists)
+
 
                 if rel.attribs['type'] == 'orchestrator':
-                    #if self.INFO: log.info("found orchestrator")
+                    if self.INFO: log.info("found ORCHESTRATOR")
                     if 'direction' in rel.children:
                         if rel.direction[0].text == 'backward':
                             name = rel.artist[0].name[0].text
                             sort_name = rel.artist[0].sort_name[0].text
                             artist = ('orchestrator', name, sort_name)
                             artists.append(artist)
-                            #if self.DEBUG: log.debug("ARTISTS %s", artists)
+                            if self.INFO: log.info("ARTISTS %s", artists)
 
         # just select one parent work to return (the longest named, as it is likely to be the lowest level)
         if new_workIds:
@@ -1215,14 +1285,20 @@ class PartLevels:
                 continue
             name = arranger[1]
             sort_name = arranger[2]
+            if instrument:
+                instrument_text = ' (' + instrument + ')'
+            else:
+                instrument_text = ""
             if '~cea_arrangers' in tm:
                 if name not in '~cea_arrangers':
-                    tm['~cea_arrangers'] = tm['~cea_arrangers'] + '; ' + name + ' (' + instrument + ')'
+                    tm['~cea_arrangers'] = tm['~cea_arrangers'] + '; ' + name + instrument_text
             else:
-                tm['~cea_arrangers'] = name + ' (' + instrument + ')'
+                tm['~cea_arrangers'] = name + instrument_text
             if options['cea_arrangers']:
-                newkey = '%s:%s' % ('arranger', instrument)
-                tm.add_unique(newkey, name)
+                if instrument:
+                    newkey = '%s:%s' % ('arranger', instrument)
+                    tm.add_unique(newkey, name)
+                    # (Only necessary to add instrument arrangers as Picard already has "plain" arrangers)
                 # next bit is needed as Picard does not currently write out arranger:instrument tag in the same way as performer:instrument -i.e. it is not included in main arranger tag
                 if '~cwp_arrangers' in tm:
                     tm['~cwp_arrangers'] = tm['~cwp_arrangers'] + "; " + tm['~cea_arrangers']
@@ -1333,7 +1409,7 @@ class PartLevels:
             answer = self.process_trackback(album, self.trackback[album][topId], ref_height, top_info)
             if answer:
                 tracks = answer[1]['track']
-                #if self.INFO: log.info("TRACKS: %s", tracks)
+                if self.INFO: log.info("TRACKS: %s", tracks)
                 work_part_levels = self.trackback[album][topId]['depth']
                 for track in tracks:
                     track_meta = track[0]
@@ -1422,11 +1498,24 @@ class PartLevels:
                         tm = track.metadata
                         if self.INFO: log.info("Track metadata = %s", tm)
                         tm['~cwp_workid_' + str(depth)] = workId
-                        tm['~cwp_work_' + str(depth)] = self.parts[workId]['name']
+                        # strip leading and trailing spaces from work names
+                        if isinstance(self.parts[workId]['name'], basestring):
+                            worktemp = self.parts[workId]['name'].strip()
+                        else:
+                            for index, it in enumerate(self.parts[workId]['name']):
+                                self.parts[workId]['name'][index]=it.strip()
+                            worktemp = self.parts[workId]['name']
+                        if isinstance(top_info['name'], basestring):
+                            toptemp = top_info['name'].strip()
+                        else:
+                            for index, it in enumerate(top_info['name']):
+                                top_info['name'][index]=it.strip()
+                            toptemp = top_info['name']
+                        tm['~cwp_work_' + str(depth)] = worktemp
                         tm['~cwp_part_levels'] = height
                         tm['~cwp_work_part_levels'] = top_info['levels']
                         tm['~cwp_workid_top'] = top_info['id']
-                        tm['~cwp_work_top'] = top_info['name']
+                        tm['~cwp_work_top'] = toptemp
                         tm['~cwp_single_work_album'] = top_info['single']
                         if self.INFO: log.info("Track metadata = %s", tm)
                         if 'track' in tracks:
@@ -1446,7 +1535,9 @@ class PartLevels:
                 height = trackback['height']
                 parentId = trackback['id']
                 parent = self.parts[parentId]['name']
+                width = 0
                 for child in trackback['children']:
+                    width += 1
                     if self.INFO: log.info("child trackback = %s", child)
                     answer = self.process_trackback(album_req, child, ref_height, top_info)
                     if answer:
@@ -1480,9 +1571,10 @@ class PartLevels:
                                 tracks['tracknumber'].append(int(tm['tracknumber']))
                             else:
                                 tracks['tracknumber']=[int(tm['tracknumber'])]
-                self.derive_from_structure(top_info, tracks, height, depth, 'title')
+
+                self.derive_from_structure(top_info, tracks, height, depth, width, 'title')
                 if self.USE_LEVEL_0:
-                    self.derive_from_structure(top_info, tracks, height, depth, 'work')    #replace hierarchical works with those from work_0 (for consistency)
+                    self.derive_from_structure(top_info, tracks, height, depth, width, 'work')    #replace hierarchical works with those from work_0 (for consistency)
                 
           
                 if self.DEBUG: log.debug("Trackback result for %s = %s", parentId, tracks)
@@ -1493,7 +1585,7 @@ class PartLevels:
                 return None
         return response
 
-    def derive_from_structure(self, top_info, tracks, height, depth, name_type):
+    def derive_from_structure(self, top_info, tracks, height, depth, width, name_type):
         if 'track' in tracks:
             if self.DEBUG: log.debug("%s: Deriving info from structure", PLUGIN_NAME)
             if 'tracknumber' in tracks:
@@ -1580,9 +1672,12 @@ class PartLevels:
                         tm['~cwp' + meta_str + '_part_0'] = movt
                     if self.INFO: log.info("%s Work part_level = %s", name_type, part_level)
                     if name_type == 'title':
-                        tm['~cwp' + meta_str + '_work_levels'] = depth
-                        tm['~cwp' + meta_str + '_part_levels'] =part_level
-                        if self.DEBUG: log.debug("Set new metadata for %s OK", name_type)
+                        if '~cwp_title_work_'+str(part_level-1) in tm and tm['~cwp_title_work_'+str(part_level)] == tm['~cwp_title_work_'+str(part_level-1)] and width == 1:
+                            pass     # don't count higher part-levels which are not distinct from lower ones when the parent work has only one child
+                        else:
+                            tm['~cwp_title_work_levels'] = depth
+                            tm['~cwp_title_part_levels'] =part_level
+                    if self.DEBUG: log.debug("Set new metadata for %s OK", name_type)
                 # set movement number
                 if name_type == 'title':                # so we only do it once
                     if part_level == 1:
@@ -1597,13 +1692,13 @@ class PartLevels:
 
 
     def set_metadata(self, part_level, workId, parentId, parent, track):
-        if self.DEBUG: log.debug("%s: SETTING METADATA FOR TRACK = %r, parent = %s, part_level = %s", PLUGIN_NAME, track, parent, part_level)                     #debug
+        if self.DEBUG: log.debug("%s: SETTING METADATA FOR TRACK = %r, parent = %s, part_level = %s", PLUGIN_NAME, track, parent, part_level)
         tm = track.metadata
         if parentId:
             if not isinstance(parent, basestring):
                 parent = parent[0]
             tm['~cwp_workid_' + str(part_level)] = parentId
-            tm['~cwp_work_' + str(part_level)] = parent
+            tm['~cwp_work_' + str(part_level)] = parent.strip()
             work = self.parts[workId]['name']                                          # maybe more than one work name
             if self.DEBUG: log.debug("Set work name to: %s", work)
             works = []
@@ -1618,11 +1713,11 @@ class PartLevels:
                 if self.INFO: log.info("Full parent: %s, Parent: %s", strip[1], parent)
                 full_parent = strip[1]
                 if full_parent != parent:
-                    tm['~cwp_work_' + str(part_level)]= full_parent
+                    tm['~cwp_work_' + str(part_level)]= full_parent.strip()
                     self.parts[parentId]['name'] = full_parent
                     if 'no_parent' in self.parts[parentId]:
                         if self.parts[parentId]['no_parent']:
-                            tm['~cwp_work_top'] = full_parent
+                            tm['~cwp_work_top'] = full_parent.strip()
             tm['~cwp_part_' + str(part_level-1)]= stripped_works
             self.parts[workId]['stripped_name'] = stripped_works
         if self.DEBUG: log.debug("GOT TO END OF SET_METADATA")
@@ -1658,29 +1753,40 @@ class PartLevels:
         tm = track.metadata
         title_groupheading = None
         part_levels = int(tm['~cwp_part_levels'])
+        work_part_levels = int(tm['~cwp_work_part_levels'])
+
+        ref_level = part_levels - ref_height              #previously: ref_height = work_part_levels - ref_level, where this ref-level is the level for the top-named work 
+        work_ref_level = work_part_levels - ref_height
+
         topId = top_info['id']
-        if self.USE_LEVEL_0 and 'X0_work_repeat' not in self.parts[topId]:                 #Only use work names based on level 0 text if it doesn't cause ambiguity
+        # replace works and parts by those derived from the level 0 work, where required, available and appropriate, but only use work names based on level 0 text if it doesn't cause ambiguity
+        if self.USE_LEVEL_0 and ('X0_work_repeat' not in self.parts[topId] or ('X0_work_repeat' in self.parts[topId] and int(self.parts[topId]['X0_work_repeat']) > work_ref_level )):
+            if 'X0_work_repeat' in self.parts[topId]:
+                if self.DEBUG: log.debug("Track: %s, Repeat level = %s, work_ref_level = %s", track, self.parts[topId]['X0_work_repeat'], work_ref_level)
             if '~cwp_X0_part_0' in tm:
                 tm['~cwp_part_0'] = tm['~cwp_X0_part_0']
             for level in range(1, part_levels + 1):
                 if '~cwp_X0_work_' + str(level) in tm:
                     tm['~cwp_work_' + str(level)] = tm['~cwp_X0_work_' + str(level)]
-        ## set up group heading and part
+        # set up group heading and part
         if self.DEBUG: log.debug("%s: Extending metadata for track: %s, ref_height: %s, depth: %s", PLUGIN_NAME, track, ref_height, depth)
         if self.INFO: log.info("Metadata = %s", tm)
         if part_levels > 0:
-            ref_level = part_levels - ref_height
+            
             if ref_level == 1:
                 groupheading = tm['~cwp_work_1']
                 work = tm['~cwp_work_1']
+                inter_work = ""
                 work_titles = tm['~cwp_title_work_1']
             elif ref_level == 2:
                 groupheading = tm['~cwp_work_2'] + ":: " + tm['~cwp_part_1']
                 work = tm['~cwp_work_2']
+                inter_work = tm['~cwp_part_1']
                 work_titles = tm['~cwp_title_work_2']
             elif ref_level >= 3:
                 groupheading = tm['~cwp_work_3'] + ":: " + tm['~cwp_part_2'] + ": " + tm['~cwp_part_1']
                 work = tm['~cwp_work_3']
+                inter_work = tm['~cwp_part_2'] + ": " + tm['~cwp_part_1']
                 work_titles = tm['~cwp_title_work_3']
             else:
                 groupheading = None
@@ -1688,6 +1794,7 @@ class PartLevels:
             tm['~cwp_groupheading'] = groupheading
             
             tm['~cwp_work'] = work
+            tm['~cwp_inter_work'] = inter_work
             tm['~cwp_title_work'] = work_titles
         if '~cwp_part_0' in tm:
             part = tm ['~cwp_part_0']
@@ -1698,36 +1805,39 @@ class PartLevels:
         if part_levels == 0:
             groupheading = tm['~cwp_work_0']
             work = groupheading
-        ## extend group heading from title metadata
+            inter_work = None
+        # extend group heading from title metadata
         if self.DEBUG: log.debug("Set groupheading OK")
         if groupheading:
             if '~cwp_title_work_levels' in tm:
                 title_depth = int(tm['~cwp_title_work_levels'])
                 if self.INFO: log.info("Title_depth: %s", title_depth)
-                diff_work = []
-                diff_part = []
+                diff_work = [""] * ref_level
+                diff_part = [""] * ref_level
                 tw_str_lower = 'x' # to avoid errors, reset before used
-                for d in range(1,title_depth+1):
+                max_d = min(ref_level, title_depth) + 1
+                for d in range(1,max_d):
                     tw_str = '~cwp_title_work_'+str(d)
                     if self.INFO: log.info("TW_STR = %s", tw_str)
                     if tw_str in tm:
                         title_work = tm[tw_str]
                         work = tm['~cwp_work_'+str(d)]
-                        diff_work.append(self.diff_pair(work, title_work))
+                        diff_work[d-1] = self.diff_pair(work, title_work)
                         if d > 1 and tw_str_lower in tm:
                             title_part = self.strip_parent_from_work(tm[tw_str_lower],tm[tw_str],0,False)[0].strip()
                             tm['~cwp_title_part_'+str(d-1)] = title_part
                             part_n = tm['~cwp_part_' + str(d-1)]
-                            diff_part.append(self.diff_pair(part_n,title_part))
+                            diff_part[d-1] = self.diff_pair(part_n,title_part) or ""
                     tw_str_lower = tw_str
                 if self.INFO: log.info("diff list for works: %s", diff_work)
                 if self.INFO: log.info("diff list for parts: %s", diff_part)
                 if not diff_work or len(diff_work) == 0:
                     if part_levels > 0:
                         ext_groupheading = groupheading
-                else:
+                else: 
                     if self.DEBUG: log.debug("Now calc extended groupheading...")
                     if self.INFO: log.info("depth = %s, ref_level = %s", depth, ref_level)
+                    if self.INFO: log.info("diff_work = %s, diff_part = %s", diff_work, diff_part)
                     if part_levels > 0 and depth >= 1:
                         addn_work = []
                         addn_part = []
@@ -1738,7 +1848,7 @@ class PartLevels:
                             else:
                                 addn_work.append("")
                         for stripped_part in diff_part:
-                            if stripped_part:
+                            if stripped_part and stripped_part != "":
                                 if self.INFO: log.info("Stripped part = %s", stripped_part)
                                 addn_part.append(" {" + stripped_part + "}")
                             else:
@@ -1747,32 +1857,40 @@ class PartLevels:
                             ext_groupheading = tm['~cwp_work_1'] + addn_work[0]
                             title_groupheading = tm['~cwp_title_work_1']
                             ext_work = tm['~cwp_work_1'] + addn_work[0]
+                            ext_inter_work = ""
                         elif ref_level == 2:
                             ext_groupheading = tm['~cwp_work_2'] + addn_work[1] + ":: " + tm['~cwp_part_1'] + addn_part[0]
                             title_groupheading = tm['~cwp_title_work_2'] + ":: " + tm['~cwp_title_part_1']
                             if self.DEBUG: log.debug("set title_groupheading at ref-level =2 as %s", title_groupheading)
                             if self.DEBUG: log.debug("based on title_work 2 = %s and title_part_1 = %s", tm['~cwp_title_work_2'], tm['~cwp_title_part_1'])
                             ext_work = tm['~cwp_work_2'] + addn_work[1]
+                            ext_inter_work = tm['~cwp_part_1'] + addn_part[0]
                         elif ref_level >= 3:
                             ext_groupheading = tm['~cwp_work_3'] + addn_work[2] + ":: " + tm['~cwp_part_2'] + addn_part[1] + ": " + tm['~cwp_part_1'] + addn_part[0]
                             title_groupheading = tm['~cwp_title_work_3'] + ":: " + tm['~cwp_title_part_2'] + ": " + tm['~cwp_title_part_1']
                             ext_work = tm['~cwp_work_3'] + addn_work[2]
+                            ext_inter_work = tm['~cwp_part_2'] + addn_part[1] + ": " + tm['~cwp_part_1'] + addn_part[0]
                     else:
                         ext_groupheading = groupheading           # title will be in part
                         ext_work = work
+                        ext_inter_work = inter_work
+
                     if self.DEBUG: log.debug("....groupheading done")
             else:
                 ext_groupheading = groupheading
                 title_groupheading = None
                 ext_work = work
+                ext_inter_work = inter_work
             if ext_groupheading:
                 if self.INFO: log.info("EXTENDED GROUPHEADING: %s", ext_groupheading)
                 tm['~cwp_extended_groupheading'] = ext_groupheading
                 tm['~cwp_extended_work'] = ext_work
+                if ext_inter_work and ext_inter_work != "":
+                    tm['~cwp_extended_inter_work'] = ext_inter_work
             if self.INFO: log.info("title_groupheading = %s", title_groupheading)
             if title_groupheading:
                 tm['~cwp_title_groupheading'] = title_groupheading
-        ## extend part from title metadata
+        # extend part from title metadata
         if self.DEBUG: log.debug("%s: Now extend part...(part = %s)", PLUGIN_NAME, part)
         if part:
             if '~cwp_title_part_0' in tm:
@@ -1807,6 +1925,239 @@ class PartLevels:
                     tm['~cwp_extended_part'] = movement           # title will be in part
         if self.DEBUG: log.debug("....done")
         return None
+
+    
+
+##########################################################
+# SECTION 5- Write metadata to tags according to options #
+##########################################################
+
+    def publish_metadata(self, album, track):
+        if self.DEBUG: log.debug("%s: IN PUBLISH METADATA for %s", PLUGIN_NAME, track)
+        options = album.tagger.config.setting
+        tm = track.metadata
+        tm['~cwp_version'] = PLUGIN_VERSION
+        if self.DEBUG: log.debug("Check options")
+        if options["cwp_titles"]:
+            if self.DEBUG: log.debug("titles")
+            part = tm['~cwp_title_part_0'] or tm['~cwp_title'] or tm['title']
+            groupheading = tm['~cwp_title_groupheading'] or ""                  # for multi-level work display
+            work = tm['~cwp_title_work'] or ""                                  # for single-level work display
+            inter_work = ""
+        elif options["cwp_works"]:
+            if self.DEBUG: log.debug("works")
+            part = tm['~cwp_part']
+            groupheading = tm['~cwp_groupheading'] or ""
+            work = tm['~cwp_work'] or ""
+            inter_work = tm['~cwp_inter_work'] or ""
+        elif options["cwp_extended"]:
+            if self.DEBUG: log.debug("extended")
+            part = tm['~cwp_extended_part']
+            groupheading = tm['~cwp_extended_groupheading'] or ""
+            work = tm['~cwp_extended_work'] or ""
+            inter_work = tm['~cwp_extended_inter_work'] or ""
+        if self.DEBUG: log.debug("Done options")
+        p1 = re.compile(r'^\W*\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b[\s|\.|:|,|;]', re.IGNORECASE)  # Matches Roman numerals with punctuation
+        p2 = re.compile(r'^\W*\d+[.):-]')             # Matches positive integers with punctuation
+        movt = part
+        for _ in range(0,5):                                                # in case of multiple levels
+            movt = p2.sub('',p1.sub('',movt)).strip()
+        if self.DEBUG: log.debug("Done movt")
+        movt_inc_tags = options["cwp_movt_tag_inc"].split(",")
+        movt_inc_tags = [x.strip(' ') for x in movt_inc_tags]
+        movt_exc_tags = options["cwp_movt_tag_exc"].split(",")
+        movt_exc_tags = [x.strip(' ') for x in movt_exc_tags]
+        movt_inc1_tags = options["cwp_movt_tag_inc1"].split(",")
+        movt_inc1_tags = [x.strip(' ') for x in movt_inc1_tags]
+        movt_exc1_tags = options["cwp_movt_tag_exc1"].split(",")
+        movt_exc1_tags = [x.strip(' ') for x in movt_exc1_tags]
+        movt_no_tags = options["cwp_movt_no_tag"].split(",")
+        movt_no_tags = [x.strip(' ') for x in movt_no_tags]
+        movt_no_sep = options["cwp_movt_no_sep"]
+        gh_tags = options["cwp_work_tag_multi"].split(",")
+        gh_tags = [x.strip(' ') for x in gh_tags]
+        gh_sep = options["cwp_multi_work_sep"]
+        work_tags = options["cwp_work_tag_single"].split(",")
+        work_tags = [x.strip(' ') for x in work_tags]
+        work_sep = options["cwp_single_work_sep"]
+        top_tags = options["cwp_top_tag"].split(",")
+        top_tags = [x.strip(' ') for x in top_tags]
+
+        if self.DEBUG: log.debug("Done splits. gh_tags: %s, work_tags: %s, movt_inc_tags: %s, movt_exc_tags: %s, movt_no_tags: %s", gh_tags, work_tags, movt_inc_tags, movt_exc_tags, movt_no_tags)
+
+        for tag in gh_tags + work_tags + movt_inc_tags + movt_exc_tags + movt_no_tags:
+            tm[tag] = ""
+        for tag in gh_tags:
+            if tag in movt_inc_tags + movt_exc_tags + movt_no_tags:
+                self.append_tag(tm, tag, groupheading, gh_sep)
+            else:
+                self.append_tag(tm, tag, groupheading)
+        for tag in work_tags:
+            if tag in movt_inc1_tags + movt_exc1_tags + movt_no_tags:
+                self.append_tag(tm, tag, work, work_sep)
+            else:
+                self.append_tag(tm, tag, work)
+            if '~cwp_part_levels' in tm and int(tm['~cwp_part_levels'])>0:
+                self.append_tag(tm,'show work movement','1') #for iTunes
+        for tag in top_tags:
+            tm[tag] = tm['~cwp_work_top'] or ""
+
+        for tag in movt_exc_tags:
+            self.append_tag(tm, tag, movt)
+        for tag in movt_inc_tags:
+            self.append_tag(tm, tag, part)
+
+        for tag in movt_inc1_tags:
+            if inter_work and inter_work != "":
+                if tag in movt_exc_tags + movt_inc_tags:
+                    if self.WARNING: log.warning("Tag %s will have multiple contents", tag)
+                    self.append_tag(tm,'~cwp_warning', 'Tag ' + tag + ' has multiple contents')
+                self.append_tag(tm, tag, inter_work + work_sep + " " + part)
+            else:
+                self.append_tag(tm, tag, part)
+        for tag in movt_exc1_tags:
+            if inter_work and inter_work != "":
+                if tag in movt_exc_tags + movt_inc_tags:
+                    if self.WARNING: log.warning("Tag %s will have multiple contents", tag)
+                    self.append_tag(tm,'~cwp_warning', 'Tag ' + tag + ' has multiple contents')
+                self.append_tag(tm, tag, inter_work + work_sep + " " + movt)
+            else:
+                self.append_tag(tm, tag, movt)
+
+        for tag in  movt_no_tags:
+            if tag in movt_inc_tags + movt_exc_tags:
+                self.append_tag(tm, tag, tm['~cwp_movt_num'], movt_no_sep)
+            else:
+                self.append_tag(tm, tag, tm['~cwp_movt_num'])
+
+        # NB the next bit is part of the artist options, but needs to be written here because arrangers and orchestrators may have been associated with works not recordings
+        # The work-related arranger tag details have been stored in ~cwp_arrangers
+        # If the arranger tag was blanked in artist options, the previous details are in ~cea_arranger (note singular)
+
+        if '~cwp_arrangers' in tm and tm['~cwp_arrangers'] != "":
+            if options['cea_orchestrator'] != "" and '~cea_orchestrator' in tm and tm['~cea_orchestrator'] != "":
+                tm['arranger'] = tm['~cwp_arrangers']
+            else:
+                if options['cea_arrangers'] != "":
+                    self.append_tag(tm,'arranger',tm['~cwp_arrangers'])            
+        # carry out tag mapping
+        tm['~cea_works_complete'] = "Y"
+        map_tags(options, tm)
+
+        if self.DEBUG: log.debug("Published metadata for %s", track)
+        if options['cwp_options_tag'] != "":
+            self.cwp_options = collections.defaultdict(lambda: collections.defaultdict(dict))
+            if options['cwp_titles']:
+                self.cwp_options['Classical Extras']['Works options']['Style'] = 'Titles'
+            else:
+                if options['cwp_works']:
+                    self.cwp_options['Classical Extras']['Works options']['Style'] = 'Works'
+                else:
+                    self.cwp_options['Classical Extras']['Works options']['Style'] = 'Extended'
+                self.cwp_options['Classical Extras']['Works options']['Work source'] = 'Hierarchy' if options['cwp_hierarchical_works'] \
+                    else 'Level_0'
+            self.cwp_options['Classical Extras']['Works options']['movement tag inc num'] = options['cwp_movt_tag_inc']
+            self.cwp_options['Classical Extras']['Works options']['movement tag exc num'] = options['cwp_movt_tag_exc']
+            self.cwp_options['Classical Extras']['Works options']['movement num tag'] = options['cwp_movt_no_tag']
+            self.cwp_options['Classical Extras']['Works options']['multi-level work tag'] = options['cwp_work_tag_multi']
+            self.cwp_options['Classical Extras']['Works options']['single level work tag'] = options['cwp_work_tag_single']
+            self.cwp_options['Classical Extras']['Works options']['top level work tag'] = options['cwp_top_tag']
+            self.cwp_options['Classical Extras']['Works options']['in-string proximity trigger'] = options['cwp_proximity']
+            self.cwp_options['Classical Extras']['Works options']['end-string proximity trigger'] = options['cwp_end_proximity']
+            self.cwp_options['Classical Extras']['Works options']['work-splitting'] = options['cwp_granularity']
+            self.cwp_options['Classical Extras']['Works options']['similarity threshold'] = options['cwp_substring_match']
+            self.cwp_options['Classical Extras']['Works options']['ignore prefixes'] = options['cwp_removewords']
+            self.cwp_options['Classical Extras']['Works options']['synonyms'] = options['cwp_synonyms']
+            if self.INFO: log.info("Options %s", self.cwp_options)
+            if options['ce_version_tag'] and options['ce_version_tag'] != "":
+                self.append_tag(tm, options['ce_version_tag'], str('Version ' + tm['~cwp_version'] + ' of Classical Extras'))
+            if options['cwp_options_tag'] and options['cwp_options_tag'] != "":
+                self.append_tag(tm, options['cwp_options_tag'] + ':workparts_options', json.loads(json.dumps(self.cwp_options)))
+        if self.ERROR and "~cwp_error" in tm:
+            self.append_tag(tm, '001_errors', tm['~cwp_error'])
+        if self.WARNING and "~cwp_warning" in tm:
+            self.append_tag(tm, '002_warnings', tm['~cwp_warning'])
+            
+
+
+    def append_tag(self, tm, tag, source, sep = None):
+        if self.DEBUG: log.debug("In append_tag. tag = %s, source = %s, sep =%s", tag, source, sep)
+        if sep:
+            if source and source != "":
+                source = source + sep 
+        if tag in tm:
+            if self.INFO: log.info("Existing tag (%s) to be updated: %s", tag, tm[tag])
+            if source not in tm[tag]:
+                if isinstance(tm[tag], basestring):
+                    if self.DEBUG: log.debug("tm[tag]: %s, separator = %s", tm[tag], sep)
+                    newtag = [tm[tag], source]
+                else:  
+                    newtag = tm[tag].append(source)
+                if sep:
+                    tm[tag] = "".join(newtag)
+                else:
+                    tm[tag] = newtag
+            if self.INFO: log.info("Updated tag (%s) is: %s", tag, tm[tag])
+        else:
+            if tag and tag != "":
+                tm[tag] = [source]
+                if self.INFO: log.info("Newly created (%s) tag is: %s", tag, tm[tag])
+
+
+################################################
+# SECTION 6 - Common string handling functions #
+################################################
+
+    def strip_parent_from_work(self, work, parent, part_level, extend, parentId=None):
+        #extend=True is used to find "full_parent" names and also (with parentId) to trigger recursion if unable to strip parent name from work
+        #extend=False is used when this routine is called for other purposes than strict work: parent relationships
+        if self.DEBUG: log.debug("%s: STRIPPING HIGHER LEVEL WORK TEXT FROM PART NAMES", PLUGIN_NAME)
+        full_parent = parent
+        clean_parent = re.sub("(?u)[\W]",' ',parent)                  # replace any punctuation or numbers, with a space (to remove any inconsistent punctuation and numbering) - (?u) specifies the re.UNICODE flag in sub
+        pattern_parent = re.sub("\s","\W{0,2}", clean_parent)  # now allow the spaces to be filled with up to 2 non-letters
+        if extend:
+            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"\w*)(\W*\s)(.*)"
+        else:
+            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"w*\W?)(.*)"
+        if self.INFO: log.info("Pattern parent: %s, Work: %s", pattern_parent, work)
+        p = re.compile(pattern_parent, re.IGNORECASE|re.UNICODE)
+        m = p.search(work)
+        if m:
+            if self.DEBUG: log.debug("Matched...")
+            if extend:
+                if m.group(1):
+                    stripped_work = m.group(1) + '...' + m.group(4)
+                else:
+                    stripped_work = m.group(4)
+            else:
+                if m.group(1):
+                    stripped_work = m.group(1) + '...' + m.group(3)
+                else:
+                    stripped_work = m.group(3)
+            if m.group(3) != ": " and extend:            # may not have a full work name in the parent (missing op. no. etc.)
+                if work.count(":") >= part_level:                  # no. of colons is consistent with "work: part" structure
+                    split_work = work.split(': ',1)
+                    stripped_work = split_work[1]
+                    full_parent = split_work[0]
+                    if len(full_parent) < len(parent):              # don't shorten parent names! (in case colon is mis-placed)
+                        full_parent = parent
+                        stripped_work = m.group(4)
+        else:
+            if self.DEBUG: log.debug("No match...")
+            
+            if extend and parentId and parentId in self.works_cache:
+                if self.DEBUG: log.debug("Looking for match at next level up")
+                grandparentId = self.works_cache[parentId]
+                grandparent = self.parts[grandparentId]['name']
+                stripped_work = self.strip_parent_from_work(work, grandparent, part_level, True, grandparentId)[0]
+
+            else:
+                stripped_work = work
+
+        if self.INFO: log.info("Work: %s", work)
+        if self.INFO: log.info("Stripped work: %s", stripped_work)
+        return (stripped_work, full_parent)
+
 
     def diff_pair(self, mb_item, title_item):
         if self.DEBUG: log.debug("%s: Inside DIFF_PAIR", PLUGIN_NAME)
@@ -1876,7 +2227,10 @@ class PartLevels:
             sub_len = int(ti_len)
             if self.INFO: log.info("sub len %s", sub_len)
             if self.DEBUG: log.debug("Initial test. nopunc_mb = %s, nopunc_ti = %s, sub_len = %s", nopunc_mb, nopunc_ti, sub_len)
-            if self.test_sub(nopunc_mb, nopunc_ti, sub_len, 0):
+            if self.DEBUG: log.debug("test sub....")
+            lcs = longest_common_substring(nopunc_mb, nopunc_ti)
+            if self.INFO: log.info("Longest common substring is: %s. Sub_len is %s", lcs, sub_len)
+            if len(lcs) >= sub_len:
                 return None
         except:
             log.error("Execution error in plugin %s: Error: %s, Line No.: %s", PLUGIN_NAME, sys.exc_info()[0], sys.exc_traceback.tb_lineno)
@@ -1995,8 +2349,6 @@ class PartLevels:
             ti_len = len(nopunc_ti)
             sub_len = ti_len * self.SUBSTRING_MATCH
             if self.DEBUG: log.debug("test sub....")
-            # if self.test_sub(nopunc_mb, nopunc_ti, sub_len, 0):   # is there a substring of ti of length at least sub_len in mb?
-            #     return None                                         # in which case treat it as essentially the same
             lcs = longest_common_substring(nopunc_mb, nopunc_ti)
             if self.INFO: log.info("Longest common substring is: %s. Sub_len is %s", lcs, sub_len)
             if len(lcs) >= sub_len:
@@ -2046,6 +2398,14 @@ class PartLevels:
                     ti = ti.replace("(", "")
                 if ")" in ti and "(" not in ti:
                     ti = ti.replace(")", "")
+                if "[" in ti and "]" not in ti:
+                    ti = ti.replace("[", "")
+                if "]" in ti and "[" not in ti:
+                    ti = ti.replace("]", "")
+                if "{" in ti and "}" not in ti:
+                    ti = ti.replace("{", "")
+                if "}" in ti and "{" not in ti:
+                    ti = ti.replace("}", "")
             if ti:
                 match_chars = [("(",")"),("[","]"),("{","}")]
                 last = len(ti) - 1
@@ -2057,230 +2417,6 @@ class PartLevels:
             return ti
         else:
             return None
-
-    def test_sub(self, strA, strB, sub_len, depth):
-        if strA.count(strB) > 0:
-            if self.INFO: log.info("FOUND: %s", strB)
-            return strB
-        else:
-            if depth < 16:     #to prevent excessive recursion, which can cause Picard to hang
-                depth += 1
-                if len(strB) <= sub_len:
-                    return None
-                strB1 = strB[1:]
-                test = self.test_sub(strA, strB1, sub_len, depth)
-                if not test:
-                    strB2 = strB[:-1]
-                    return self.test_sub(strA, strB2, sub_len, depth)
-                else:
-                    return test
-            else:
-                return None
-
-##########################################################
-# SECTION 5- Write metadata to tags according to options #
-##########################################################
-
-    def publish_metadata(self, album, track):
-        if self.DEBUG: log.debug("%s: IN PUBLISH METADATA for %s", PLUGIN_NAME, track)
-        options = album.tagger.config.setting
-        tm = track.metadata
-        tm['~cwp_version'] = PLUGIN_VERSION
-        if self.DEBUG: log.debug("Check options")
-        if options["cwp_titles"]:
-            if self.DEBUG: log.debug("titles")
-            part = tm['~cwp_title_part_0'] or tm['~cwp_title'] or tm['title']
-            groupheading = tm['~cwp_title_groupheading'] or ""                  # for multi-level work display
-            work = tm['~cwp_title_work'] or ""                                  # for single-level work display
-        elif options["cwp_works"]:
-            if self.DEBUG: log.debug("works")
-            part = tm['~cwp_part']
-            groupheading = tm['~cwp_groupheading'] or ""
-            work = tm['~cwp_work'] or ""
-        elif options["cwp_extended"]:
-            if self.DEBUG: log.debug("extended")
-            part = tm['~cwp_extended_part']
-            groupheading = tm['~cwp_extended_groupheading'] or ""
-            work = tm['~cwp_extended_work'] or ""
-        if self.DEBUG: log.debug("Done options")
-        p1 = re.compile(r'^\W*\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b[\s|\.|:|,|;]', re.IGNORECASE)  # Matches Roman numerals with punctuation
-        p2 = re.compile(r'^\W*\d+[.):-]')             # Matches positive integers with punctuation
-        movt = part
-        for _ in range(0,5):                                                # in case of multiple levels
-            movt = p2.sub('',p1.sub('',movt)).strip()
-        if self.DEBUG: log.debug("Done movt")
-        movt_inc_tags = options["cwp_movt_tag_inc"].split(",")
-        movt_inc_tags = [x.strip(' ') for x in movt_inc_tags]
-        movt_exc_tags = options["cwp_movt_tag_exc"].split(",")
-        movt_exc_tags = [x.strip(' ') for x in movt_exc_tags]
-        movt_no_tags = options["cwp_movt_no_tag"].split(",")
-        movt_no_tags = [x.strip(' ') for x in movt_no_tags]
-        movt_no_sep = options["cwp_movt_no_sep"]
-        gh_tags = options["cwp_work_tag_multi"].split(",")
-        gh_tags = [x.strip(' ') for x in gh_tags]
-        gh_sep = options["cwp_multi_work_sep"]
-        work_tags = options["cwp_work_tag_single"].split(",")
-        work_tags = [x.strip(' ') for x in work_tags]
-        work_sep = options["cwp_single_work_sep"]
-        top_tags = options["cwp_top_tag"].split(",")
-        top_tags = [x.strip(' ') for x in top_tags]
-
-        if self.DEBUG: log.debug("Done splits. gh_tags: %s, work_tags: %s, movt_inc_tags: %s, movt_exc_tags: %s, movt_no_tags: %s", gh_tags, work_tags, movt_inc_tags, movt_exc_tags, movt_no_tags)
-
-        for tag in gh_tags + work_tags + movt_inc_tags + movt_exc_tags + movt_no_tags:
-            tm[tag] = ""
-        for tag in gh_tags:
-            if tag in movt_inc_tags + movt_exc_tags + movt_no_tags:
-                self.append_tag(tm, tag, groupheading, gh_sep)
-            else:
-                self.append_tag(tm, tag, groupheading)
-        for tag in work_tags:
-            if tag in movt_inc_tags + movt_exc_tags + movt_no_tags:
-                self.append_tag(tm, tag, work, work_sep)
-            else:
-                self.append_tag(tm, tag, work)
-            if '~cwp_part_levels' in tm and int(tm['~cwp_part_levels'])>0:
-                self.append_tag(tm,'show work movement','1') #for iTunes
-        for tag in top_tags:
-            tm[tag] = tm['~cwp_work_top'] or ""
-        for tag in movt_inc_tags:
-            self.append_tag(tm, tag, part)
-        for tag in  movt_no_tags:
-            if tag in movt_inc_tags + movt_exc_tags:
-                self.append_tag(tm, tag, tm['~cwp_movt_num'], movt_no_sep)
-            else:
-                self.append_tag(tm, tag, tm['~cwp_movt_num'])
-        for tag in movt_exc_tags:
-            self.append_tag(tm, tag, movt)
-
-        # NB the next bit is part of the artist options, but needs to be written here because arrangers and orchestrators may have been associated with works not recordings
-        # The work-related arranger tag details have been stored in ~cwp_arrangers
-        # If the arranger tag was blanked in artist options, the previous details are in ~cea_arranger (note singular)
-        # It is possible that slightly unexpected results might occur with complex options owing to an inability to control the sequebnce of operations between the two sections of the plugin!
-
-        if '~cwp_arrangers' in tm and tm['~cwp_arrangers'] != "":
-            if options['cea_orchestrator'] != "" and '~cea_orchestrator' in tm and tm['~cea_orchestrator'] != "":
-                tm['arranger'] = tm['~cwp_arrangers']
-            else:
-                if options['cea_arrangers'] != "":
-                    self.append_tag(tm,'arranger',tm['~cwp_arrangers'])            
-        # carry out tag mapping
-        tm['~cea_works_complete'] = "Y"
-        map_tags(options, tm)
-
-        if self.DEBUG: log.debug("Published metadata for %s", track)
-        if options['cwp_options_tag'] != "":
-            self.cwp_options = collections.defaultdict(lambda: collections.defaultdict(dict))
-            if options['cwp_titles']:
-                self.cwp_options['Classical Extras']['Works options']['Style'] = 'Titles'
-            else:
-                if options['cwp_works']:
-                    self.cwp_options['Classical Extras']['Works options']['Style'] = 'Works'
-                else:
-                    self.cwp_options['Classical Extras']['Works options']['Style'] = 'Extended'
-                self.cwp_options['Classical Extras']['Works options']['Work source'] = 'Hierarchy' if options['cwp_hierarchical_works'] \
-                    else 'Level_0'
-            self.cwp_options['Classical Extras']['Works options']['movement tag inc num'] = options['cwp_movt_tag_inc']
-            self.cwp_options['Classical Extras']['Works options']['movement tag exc num'] = options['cwp_movt_tag_exc']
-            self.cwp_options['Classical Extras']['Works options']['movement num tag'] = options['cwp_movt_no_tag']
-            self.cwp_options['Classical Extras']['Works options']['multi-level work tag'] = options['cwp_work_tag_multi']
-            self.cwp_options['Classical Extras']['Works options']['single level work tag'] = options['cwp_work_tag_single']
-            self.cwp_options['Classical Extras']['Works options']['top level work tag'] = options['cwp_top_tag']
-            self.cwp_options['Classical Extras']['Works options']['in-string proximity trigger'] = options['cwp_proximity']
-            self.cwp_options['Classical Extras']['Works options']['end-string proximity trigger'] = options['cwp_end_proximity']
-            self.cwp_options['Classical Extras']['Works options']['work-splitting'] = options['cwp_granularity']
-            self.cwp_options['Classical Extras']['Works options']['similarity threshold'] = options['cwp_substring_match']
-            self.cwp_options['Classical Extras']['Works options']['ignore prefixes'] = options['cwp_removewords']
-            self.cwp_options['Classical Extras']['Works options']['synonyms'] = options['cwp_synonyms']
-            if self.INFO: log.info("Options %s", self.cwp_options)
-            if options['ce_version_tag'] and options['ce_version_tag'] != "":
-                self.append_tag(tm, options['ce_version_tag'], str('Version ' + tm['~cwp_version'] + ' of Classical Extras'))
-            if options['cwp_options_tag'] and options['cwp_options_tag'] != "":
-                self.append_tag(tm, options['cwp_options_tag'] + ':workparts_options', json.loads(json.dumps(self.cwp_options)))
-        if self.ERROR and "~cwp_error" in tm:
-            self.append_tag(tm, '001_ERRORS', tm['~cwp_error'])
-        if self.WARNING and "~cwp_warning" in tm:
-            self.append_tag(tm, '002_WARNINGS', tm['~cwp_warning'])
-            
-
-
-    def append_tag(self, tm, tag, source, sep = None):
-        if self.DEBUG: log.debug("In append_tag. tag = %s, source = %s, sep =%s", tag, source, sep)
-        if sep:
-            if source and source != "":
-                source = source + sep 
-        if tag in tm:
-            if self.INFO: log.info("Existing tag (%s) to be updated: %s", tag, tm[tag])
-            if source not in tm[tag]:
-                if isinstance(tm[tag], basestring):
-                    if self.DEBUG: log.debug("tm[tag]: %s, separator = %s", tm[tag], sep)
-                    newtag = [tm[tag], source]
-                else:  
-                    newtag = tm[tag].append(source)
-                if sep:
-                    tm[tag] = "".join(newtag)
-                else:
-                    tm[tag] = newtag
-            if self.INFO: log.info("Updated tag (%s) is: %s", tag, tm[tag])
-        else:
-            if tag and tag != "":
-                tm[tag] = [source]
-                if self.INFO: log.info("Newly created (%s) tag is: %s", tag, tm[tag])
-
-
-################################################
-# SECTION 6 - Common string handling functions #
-################################################
-
-    def strip_parent_from_work(self, work, parent, part_level, extend, parentId=None):
-        #extend=True is used to find "full_parent" names and also (with parentId) to trigger recursion if unable to strip parent name from work
-        #extend=False is used when this routine is called for other purposes than strict work: parent relationships
-        if self.DEBUG: log.debug("%s: STRIPPING HIGHER LEVEL WORK TEXT FROM PART NAMES", PLUGIN_NAME)
-        full_parent = parent
-        clean_parent = re.sub("(?u)\W",' ',parent)                  # replace any punctuation followed by a space, with a space (to remove any inconsistent punctuation) - (?u) specifies the re.UNICODE flag in sub
-        pattern_parent = re.sub("\s","\W{0,2}", clean_parent)         # now allow the spaces to be filled with up to 2 non-letters
-        if extend:
-            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"\w*)(\W*\s)(.*)"
-        else:
-            pattern_parent = "(.*\s|^)(\W*"+pattern_parent+"w*\W?)(.*)"
-        if self.INFO: log.info("Pattern parent: %s, Work: %s", pattern_parent, work)
-        p = re.compile(pattern_parent, re.IGNORECASE|re.UNICODE)
-        m = p.search(work)
-        if m:
-            if self.DEBUG: log.debug("Matched...")                                           #debug
-            if extend:
-                if m.group(1):
-                    stripped_work = m.group(1) + '...' + m.group(4)
-                else:
-                    stripped_work = m.group(4)
-            else:
-                if m.group(1):
-                    stripped_work = m.group(1) + '...' + m.group(3)
-                else:
-                    stripped_work = m.group(3)
-            if m.group(3) != ": " and extend:            # may not have a full work name in the parent (missing op. no. etc.)
-                if work.count(":") >= part_level:                  # no. of colons is consistent with "work: part" structure
-                    split_work = work.split(': ',1)
-                    stripped_work = split_work[1]
-                    full_parent = split_work[0]
-                    if len(full_parent) < len(parent):              # don't shorten parent names! (in case colon is mis-placed)
-                        full_parent = parent
-                        stripped_work = m.group(4)
-        else:
-            if self.DEBUG: log.debug("No match...")                                          #debug
-            
-            if extend and parentId and parentId in self.works_cache:
-                if self.DEBUG: log.debug("Looking for match at next level up")
-                grandparentId = self.works_cache[parentId]
-                grandparent = self.parts[grandparentId]['name']
-                stripped_work = self.strip_parent_from_work(work, grandparent, part_level, True, grandparentId)[0]
-
-            else:
-                stripped_work = work
-
-        if self.INFO: log.info("Work: %s", work)                                             #debug
-        if self.INFO: log.info("Stripped work: %s", stripped_work)                           #debug
-        return (stripped_work, full_parent)
 
     # Remove punctuation, spaces, capitals and accents for string comprisona
     def boil(self, s):
@@ -2312,21 +2448,19 @@ class ClassicalExtrasOptionsPage(OptionsPage):
     TITLE = "Classical Extras"
     PARENT = "plugins"
 
-    # Note - for the purposes of Options, the "Alternative Artists" and "Extra Artists" are combined (and the prefix caa used)
-
     options = [
         BoolOption("setting", "classical_work_parts", True),
         BoolOption("setting", "classical_extra_artists", True),
         IntOption("setting", "cwp_retries", 6),
         TextOption("setting", "cea_orchestras", "orchestra, philharmonic, philharmonica, philharmoniker, musicians, academy, symphony, orkester"),
         TextOption("setting", "cea_choirs", "choir, choir vocals, chorus, singers, domchors, domspatzen, koor"),
-        TextOption("setting", "cea_groups", "ensemble, band, group, trio, quartet, quintet, sextet, septet, octet, chamber, consort, players, les , the "),
+        TextOption("setting", "cea_groups", "ensemble, band, group, trio, quartet, quintet, sextet, septet, octet, chamber, consort, players, les ,the , quartett"),
         BoolOption("setting", "use_cache", True),
         IntOption("setting", "cwp_proximity", 2),
         IntOption("setting", "cwp_end_proximity", 1),
         IntOption("setting", "cwp_granularity", 1),
         IntOption("setting", "cwp_substring_match", 66),
-        TextOption("setting", "cwp_removewords", " part, act, scene, movement, movt, no., no , n., n , nr., nr , book , the , a , la , le , un , une , el , il , (part)"),
+        TextOption("setting", "cwp_removewords", " part, act, scene, movement, movt, no., no , n., n , nr., nr , book , the , a , la , le , un , une , el , il , (part), tableau, from "),
         TextOption("setting", "cwp_synonyms", "(1, one) / (2, two) / (3, three) / (&, and)"),
         
         BoolOption("setting", "cwp_titles", False),
@@ -2336,6 +2470,8 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         BoolOption("setting", "cwp_level0_works", True),
         TextOption("setting", "cwp_movt_tag_inc", "part"),
         TextOption("setting", "cwp_movt_tag_exc", "movement"),
+        TextOption("setting", "cwp_movt_tag_inc1", "movement name"),
+        TextOption("setting", "cwp_movt_tag_exc1", ""),
         TextOption("setting", "cwp_movt_no_tag", "movement_no"),
         TextOption("setting", "cwp_multi_work_sep", ": "),
         TextOption("setting", "cwp_single_work_sep", ": "),
@@ -2350,48 +2486,48 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         TextOption("setting", "cea_blank_tag", "artist, artistsort"),
         TextOption("setting", "cea_blank_tag_2", "performer:orchestra, performer:choir, performer:choir vocals"),
 
-        TextOption("setting", "cea_source_1", "album_soloists"),
+        TextOption("setting", "cea_source_1", "album_soloists, album_conductors, album_ensembles"),
         TextOption("setting", "cea_tag_1", "artist, artists"),
         BoolOption("setting", "cea_cond_1", True),
 
-        TextOption("setting", "cea_source_2", "album_conductors"),
+        TextOption("setting", "cea_source_2", "soloists, conductors, ensembles, album_composers, composers"),
         TextOption("setting", "cea_tag_2", "artist, artists"),
         BoolOption("setting", "cea_cond_2", True),
 
-        TextOption("setting", "cea_source_3", "album_ensembles"),
-        TextOption("setting", "cea_tag_3", "artist, artists"),
-        BoolOption("setting", "cea_cond_3", True),
+        TextOption("setting", "cea_source_3", "soloists"),
+        TextOption("setting", "cea_tag_3", "soloists, trackartist"),
+        BoolOption("setting", "cea_cond_3", False),
 
-        TextOption("setting", "cea_source_4", "soloists"),
-        TextOption("setting", "cea_tag_4", "artist, artists, soloists, trackartist"),
-        BoolOption("setting", "cea_cond_4", True),
+        TextOption("setting", "cea_source_4", "ensembles"),
+        TextOption("setting", "cea_tag_4", "ensembles"),
+        BoolOption("setting", "cea_cond_4", False),
 
-        TextOption("setting", "cea_source_5", "conductors"),
-        TextOption("setting", "cea_tag_5", "artist, artists"),
-        BoolOption("setting", "cea_cond_5", True),
+        TextOption("setting", "cea_source_5", "ensemble_names"),
+        TextOption("setting", "cea_tag_5", "band"),
+        BoolOption("setting", "cea_cond_5", False),
 
-        TextOption("setting", "cea_source_6", "ensembles"),
-        TextOption("setting", "cea_tag_6", "artist, artists, ensembles"),
-        BoolOption("setting", "cea_cond_6", True),
+        TextOption("setting", "cea_source_6", "release"),
+        TextOption("setting", "cea_tag_6", "release_name"),
+        BoolOption("setting", "cea_cond_6", False),
 
-        TextOption("setting", "cea_source_7", "album_composers"),
-        TextOption("setting", "cea_tag_7", "artist, artists"),
-        BoolOption("setting", "cea_cond_7", True),
+        TextOption("setting", "cea_source_7", "work_type"),
+        TextOption("setting", "cea_tag_7", "genre"),
+        BoolOption("setting", "cea_cond_7", False),
 
-        TextOption("setting", "cea_source_8", "ensemble_names"),
-        TextOption("setting", "cea_tag_8", "band"),
+        TextOption("setting", "cea_source_8", "artist"),
+        TextOption("setting", "cea_tag_8", "artists"),
         BoolOption("setting", "cea_cond_8", False),
 
-        TextOption("setting", "cea_source_9", "composers"),
-        TextOption("setting", "cea_tag_9", "artist, artists"),
+        TextOption("setting", "cea_source_9", "artist"),
+        TextOption("setting", "cea_tag_9", "artist"),
         BoolOption("setting", "cea_cond_9", True),
 
-        TextOption("setting", "cea_source_10", "release"),
-        TextOption("setting", "cea_tag_10", "release_name"),
+        TextOption("setting", "cea_source_10", "\Arr. + arrangers, \Orch. + orchestrators"),
+        TextOption("setting", "cea_tag_10", "composer"),
         BoolOption("setting", "cea_cond_10", False),
 
-        TextOption("setting", "cea_source_11", "work_type"),
-        TextOption("setting", "cea_tag_11", "genre"),
+        TextOption("setting", "cea_source_11", ""),
+        TextOption("setting", "cea_tag_11", ""),
         BoolOption("setting", "cea_cond_11", False),
 
         TextOption("setting", "cea_source_12", ""),
@@ -2406,13 +2542,13 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         TextOption("setting", "cea_tag_14", ""),
         BoolOption("setting", "cea_cond_14", False),
 
-        TextOption("setting", "cea_source_15", "artist"),
-        TextOption("setting", "cea_tag_15", "artists"),
+        TextOption("setting", "cea_source_15", ""),
+        TextOption("setting", "cea_tag_15", ""),
         BoolOption("setting", "cea_cond_15", False),
 
-        TextOption("setting", "cea_source_16", "artist"),
-        TextOption("setting", "cea_tag_16", "artist"),
-        BoolOption("setting", "cea_cond_16", True),
+        TextOption("setting", "cea_source_16", ""),
+        TextOption("setting", "cea_tag_16", ""),
+        BoolOption("setting", "cea_cond_16", False),
 
         BoolOption("setting", "cea_tag_sort", True),
 
@@ -2428,9 +2564,9 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         BoolOption("setting", "log_debug", False),
         BoolOption("setting", "log_info", False),
 
-        TextOption("setting", "ce_version_tag", ""),
-        TextOption("setting", "cea_options_tag", ""),
-        TextOption("setting", "cwp_options_tag", ""),
+        TextOption("setting", "ce_version_tag", "stamp"),
+        TextOption("setting", "cea_options_tag", "comment"),
+        TextOption("setting", "cwp_options_tag", "comment"),
 
 
     ]
@@ -2461,6 +2597,8 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         self.ui.cwp_level0_works.setChecked(self.config.setting["cwp_level0_works"])
         self.ui.cwp_movt_tag_inc.setText(self.config.setting["cwp_movt_tag_inc"])
         self.ui.cwp_movt_tag_exc.setText(self.config.setting["cwp_movt_tag_exc"])
+        self.ui.cwp_movt_tag_inc1.setText(self.config.setting["cwp_movt_tag_inc1"])
+        self.ui.cwp_movt_tag_exc1.setText(self.config.setting["cwp_movt_tag_exc1"])
         self.ui.cwp_movt_no_tag.setText(self.config.setting["cwp_movt_no_tag"])
         self.ui.cwp_work_tag_multi.setText(self.config.setting["cwp_work_tag_multi"])
         self.ui.cwp_work_tag_single.setText(self.config.setting["cwp_work_tag_single"])
@@ -2578,6 +2716,8 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         self.config.setting["cwp_level0_works"] = self.ui.cwp_level0_works.isChecked()
         self.config.setting["cwp_movt_tag_inc"] = unicode(self.ui.cwp_movt_tag_inc.text())
         self.config.setting["cwp_movt_tag_exc"] = unicode(self.ui.cwp_movt_tag_exc.text())
+        self.config.setting["cwp_movt_tag_inc1"] = unicode(self.ui.cwp_movt_tag_inc1.text())
+        self.config.setting["cwp_movt_tag_exc1"] = unicode(self.ui.cwp_movt_tag_exc1.text())
         self.config.setting["cwp_movt_no_tag"] = unicode(self.ui.cwp_movt_no_tag.text())
         self.config.setting["cwp_work_tag_multi"] = unicode(self.ui.cwp_work_tag_multi.text())
         self.config.setting["cwp_work_tag_single"] = unicode(self.ui.cwp_work_tag_single.text())

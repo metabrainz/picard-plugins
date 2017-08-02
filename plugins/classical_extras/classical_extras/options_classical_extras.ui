@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1030</width>
+    <width>1056</width>
     <height>883</height>
    </rect>
   </property>
@@ -32,7 +32,7 @@
       <string notr="true">background-color: rgb(170, 170, 127);</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -51,8 +51,8 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-74</y>
-            <width>969</width>
+            <y>-70</y>
+            <width>995</width>
             <height>893</height>
            </rect>
           </property>
@@ -247,15 +247,34 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                 </item>
                 <item>
                  <widget class="QComboBox" name="cea_source_1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: rgb(255, 221, 116);</string>
                   </property>
                   <property name="editable">
                    <bool>true</bool>
                   </property>
+                  <property name="sizeAdjustPolicy">
+                   <enum>QComboBox::AdjustToContents</enum>
+                  </property>
                   <item>
                    <property name="text">
                     <string/>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
                    </property>
                   </item>
                   <item>
@@ -406,6 +425,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   </item>
                   <item>
                    <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>album_soloists</string>
                    </property>
                   </item>
@@ -548,6 +577,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   <item>
                    <property name="text">
                     <string/>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
                    </property>
                   </item>
                   <item>
@@ -698,6 +737,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   </item>
                   <item>
                    <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>album_soloists</string>
                    </property>
                   </item>
@@ -840,6 +889,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   <item>
                    <property name="text">
                     <string/>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
                    </property>
                   </item>
                   <item>
@@ -990,6 +1049,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   </item>
                   <item>
                    <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>album_soloists</string>
                    </property>
                   </item>
@@ -1132,6 +1201,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   <item>
                    <property name="text">
                     <string/>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
                    </property>
                   </item>
                   <item>
@@ -1282,6 +1361,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   </item>
                   <item>
                    <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>album_soloists</string>
                    </property>
                   </item>
@@ -1424,6 +1513,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   <item>
                    <property name="text">
                     <string/>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
                    </property>
                   </item>
                   <item>
@@ -1574,6 +1673,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   </item>
                   <item>
                    <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>album_soloists</string>
                    </property>
                   </item>
@@ -1716,6 +1825,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   <item>
                    <property name="text">
                     <string/>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
                    </property>
                   </item>
                   <item>
@@ -1866,6 +1985,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   </item>
                   <item>
                    <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>album_soloists</string>
                    </property>
                   </item>
@@ -2008,6 +2137,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   <item>
                    <property name="text">
                     <string/>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
                    </property>
                   </item>
                   <item>
@@ -2158,6 +2297,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   </item>
                   <item>
                    <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>album_soloists</string>
                    </property>
                   </item>
@@ -2304,6 +2453,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   </item>
                   <item>
                    <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
                     <string>album_soloists</string>
                    </property>
                   </item>
@@ -2446,6 +2605,16 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                   <item>
                    <property name="text">
                     <string/>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>album_soloists, album_conductors, album_ensembles</string>
+                   </property>
+                  </item>
+                  <item>
+                   <property name="text">
+                    <string>soloists, conductors, ensembles, album_composers, composers</string>
                    </property>
                   </item>
                   <item>
@@ -2931,7 +3100,7 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
              <item>
               <widget class="QLabel" name="label_2">
                <property name="text">
-                <string>(In this format, intermediate works will not be displayed - use the two-level format if you wish to display them, but note that this will ceate new work)</string>
+                <string>(Intermediate works will not be displayed:- Either 1. use the 2-level format if you wish to display them, but note that this will ceate new work, or 2. include them in the movement [see below])</string>
                </property>
               </widget>
              </item>
@@ -3058,6 +3227,39 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
               </layout>
              </item>
              <item>
+              <widget class="QFrame" name="frame">
+               <property name="frameShape">
+                <enum>QFrame::StyledPanel</enum>
+               </property>
+               <property name="frameShadow">
+                <enum>QFrame::Raised</enum>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_5">
+                <item>
+                 <widget class="QLabel" name="label_49">
+                  <property name="text">
+                   <string>Use different movement tags if required...</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_47">
+                  <property name="text">
+                   <string>for use with multi-level work tags</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="label_48">
+                  <property name="text">
+                   <string>for use with1-level work tags (intermediate works will prefix movement)</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
               <layout class="QHBoxLayout" name="_11">
                <property name="spacing">
                 <number>6</number>
@@ -3083,6 +3285,13 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                </item>
                <item>
                 <widget class="QLineEdit" name="cwp_movt_tag_exc">
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(255, 221, 116);</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="cwp_movt_tag_exc1">
                  <property name="styleSheet">
                   <string notr="true">background-color: rgb(255, 221, 116);</string>
                  </property>
@@ -3123,6 +3332,13 @@ font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
                </item>
                <item>
                 <widget class="QLineEdit" name="cwp_movt_tag_inc">
+                 <property name="styleSheet">
+                  <string notr="true">background-color: rgb(255, 221, 116);</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="cwp_movt_tag_inc1">
                  <property name="styleSheet">
                   <string notr="true">background-color: rgb(255, 221, 116);</string>
                  </property>
