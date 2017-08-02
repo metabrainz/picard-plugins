@@ -2468,18 +2468,18 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         BoolOption("setting", "cwp_extended", True),
         BoolOption("setting", "cwp_hierarchical_works", False),
         BoolOption("setting", "cwp_level0_works", True),
-        TextOption("setting", "cwp_movt_tag_inc", "part"),
+        TextOption("setting", "cwp_movt_tag_inc", "part, movement name, subtitle"),
         TextOption("setting", "cwp_movt_tag_exc", "movement"),
-        TextOption("setting", "cwp_movt_tag_inc1", "movement name"),
+        TextOption("setting", "cwp_movt_tag_inc1", ""),
         TextOption("setting", "cwp_movt_tag_exc1", ""),
         TextOption("setting", "cwp_movt_no_tag", "movement_no"),
         TextOption("setting", "cwp_multi_work_sep", ": "),
         TextOption("setting", "cwp_single_work_sep", ": "),
         TextOption("setting", "cwp_movt_no_sep", ". "),
 
-        TextOption("setting", "cwp_work_tag_multi", "groupheading"),
-        TextOption("setting", "cwp_work_tag_single", "grouping"),
-        TextOption("setting", "cwp_top_tag", "top_work"),
+        TextOption("setting", "cwp_work_tag_multi", "groupheading, work"),
+        TextOption("setting", "cwp_work_tag_single", ""),
+        TextOption("setting", "cwp_top_tag", "top_work, style, grouping"),
 
         BoolOption("setting", "cea_composer_album", True),
 
