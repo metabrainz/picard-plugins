@@ -223,9 +223,9 @@ def map_tags(options, tm):
     # set arranger tag as required
     if options['cea_arrangers']:
         if '~cea_arrangers' in tm:
-            append_tag(tm, 'arranger', tm['~cea_arrangers'])
+            ExtraArtists().append_tag(tm, 'arranger', tm['~cea_arrangers'])
         if '~cea_orchestrators' in tm:
-            append_tag(tm, 'arranger', tm['~cea_orchestrators'])
+            ExtraArtists().append_tag(tm, 'arranger', tm['~cea_orchestrators'])
     # line-by-line tag mapping
     sort_tags = options['cea_tag_sort']
     for i in range(0,16):
