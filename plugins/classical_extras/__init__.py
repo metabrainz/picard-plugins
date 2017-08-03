@@ -503,13 +503,14 @@ class ExtraArtists:
                 for index, composer in enumerate(values):
                     if self.DEBUG: log.debug("Setting composer names")
                     composersort = composers_sort[index]
-                    artist_name = artist_names[index]
-                    artistsort = artists_sort[index]
                     composerlast = composersort.split(",")[0]
-                    artistlast = artistsort.split(",")[0]
-                    if self.INFO: log.info("composer: %s, composerlast: %s, artist_name: %s, artistlast: %s", composer, composerlast, artist_name, artistlast)
-                    if artistlast == composerlast:
-                        composer = artist_name # because Picard locale option only works correctly on artists, not composers etc.
+                    if index < len(artist_names) and index < len(artists_sort):
+                        artist_name = artist_names[index]
+                        artistsort = artists_sort[index]
+                        artistlast = artistsort.split(",")[0]
+                        if self.INFO: log.info("composer: %s, composerlast: %s, artist_name: %s, artistlast: %s", composer, composerlast, artist_name, artistlast)
+                        if artistlast == composerlast:
+                            composer = artist_name # because Picard locale option only works correctly on artists, not composers etc.
                     if not only_roman_chars(composer):
                         if album.tagger.config.setting['cea_cyrillic']:
                             composer = remove_middle(unsort(composersort))
@@ -563,7 +564,7 @@ class ExtraArtists:
                 metadata['~cea_conductors_sort'] = conductorsort
             if not key.startswith('performer'):
                 continue
-            mainkey, subkey = key.split(':', 1)
+            _, subkey = key.split(':', 1) # mainkey not used
             performersort = []
             for performer in values:
                 if album.tagger.config.setting['cea_cyrillic']:
@@ -1776,7 +1777,6 @@ class PartLevels:
                 groupheading = None
                 title_groupheading = None
             tm['~cwp_groupheading'] = groupheading
-            
             tm['~cwp_work'] = work
             tm['~cwp_inter_work'] = inter_work
             tm['~cwp_title_work'] = work_titles
