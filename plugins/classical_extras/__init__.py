@@ -465,7 +465,7 @@ class ExtraArtists:
                             if not subkey in self.ENSEMBLE_TYPES and not self.ensemble_type(performername):
                                 support_performers.append(performer)
             if key.startswith('~performer_sort'):
-                mainkey, subkey = key.split(':', 1)
+                _, subkey = key.split(':', 1)  # mainkey not used
                 for performer in values:
                     if subkey in self.ENSEMBLE_TYPES or self.ensemble_type(performer):
                         ensembles_sort.append(performer)
@@ -1757,7 +1757,6 @@ class PartLevels:
         if self.DEBUG: log.debug("%s: Extending metadata for track: %s, ref_height: %s, depth: %s", PLUGIN_NAME, track, ref_height, depth)
         if self.INFO: log.info("Metadata = %s", tm)
         if part_levels > 0:
-            
             if ref_level == 1:
                 groupheading = tm['~cwp_work_1']
                 work = tm['~cwp_work_1']
@@ -2063,7 +2062,7 @@ class PartLevels:
                 if isinstance(tm[tag], basestring):
                     if self.DEBUG: log.debug("tm[tag]: %s, separator = %s", tm[tag], sep)
                     newtag = [tm[tag], source]
-                else:  
+                else:
                     newtag = tm[tag].append(source)
                 if sep:
                     tm[tag] = "".join(newtag)
