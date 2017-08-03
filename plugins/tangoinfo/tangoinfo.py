@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 PLUGIN_NAME = "Tango.info Adapter"
-PLUGIN_AUTHOR = "Felix Elsner"
+PLUGIN_AUTHOR = "Felix Elsner, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """
 <p>Load genre, date and vocalist tags from the online database
 <a href"http://tango.info">tango.info</a>.</p>
@@ -8,8 +8,8 @@ PLUGIN_DESCRIPTION = """
 it does not cause unnecessary server load for either MusicBrainz.org
 or tango.info</p>
 """
-PLUGIN_VERSION = "0.1.5"
-PLUGIN_API_VERSIONS = ["1.3.0", "1.4.0", "2.0"]
+PLUGIN_VERSION = "1.0"
+PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -142,9 +142,9 @@ class TangoInfoTagger:
             path = '/%s' % (barcode)
 
             # Call website_process as a partial func
-            return album.tagger.xmlws.get(host, port, path,
+            return album.tagger.ws.get(host, port, path,
                         partial(self.website_process, barcode, zeros),
-                        xml=False, priority=False, important=False)
+                        parse_response_type=None, priority=False, important=False)
 
     def website_process(self, barcode, zeros, response, reply, error):
 

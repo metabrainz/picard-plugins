@@ -20,12 +20,11 @@
 PLUGIN_NAME = 'fanart.tv cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
-import json
 import traceback
 from functools import partial
 from PyQt5.QtCore import QUrl
@@ -34,7 +33,8 @@ from picard import config, log
 from picard.coverart.providers import CoverArtProvider, register_cover_art_provider
 from picard.coverart.image import CoverArtImage
 from picard.ui.options import register_options_page, OptionsPage
-from picard.config import TextOption, BoolOption
+from picard.util import load_json
+from picard.config import TextOption
 from picard.plugins.fanarttv.ui_options_fanarttv import Ui_FanartTvOptionsPage
 
 FANART_HOST = "webservice.fanart.tv"
@@ -81,7 +81,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
                      "client_key": QUrl.toPercentEncoding(self._client_key),
                      }
         log.debug("CoverArtProviderFanartTv.queue_downloads: %s" % path)
-        self.album.tagger.xmlws.download(
+        self.album.tagger.ws.download(
             FANART_HOST,
             FANART_PORT,
             path,
@@ -107,7 +107,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
             error_level("Problem requesting metadata in fanart.tv plugin: %s", error)
         else:
             try:
-                response = json.loads(data)
+                response = load_json(data)
                 release = response["albums"][release_group_id]
 
                 if "albumcover" in release:
