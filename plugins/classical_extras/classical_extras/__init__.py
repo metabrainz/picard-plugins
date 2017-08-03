@@ -214,8 +214,8 @@ def longest_common_sequence(list1, list2, minstart=0, maxstart =0):   #maxstart 
     return {'sequence': seq, 'length': longest}
 
 def map_tags(options, tm):
-    ERROR = options["log_error"]
-    WARNING = options["log_warning"]
+    # ERROR = options["log_error"] # Not currently used
+    # WARNING = options["log_warning"] # Not currently used
     DEBUG = options["log_debug"]
     INFO = options["log_info"]
     if (options['classical_extra_artists'] and '~cea_artists_complete' not in tm) or (options['classical_work_parts'] and '~cea_works_complete' not in tm):
@@ -419,7 +419,7 @@ class ExtraArtists:
                        album_conductors.append(conductor)
                        album_conductors_sort.append(conductorsort[index])
             if key.startswith('performer'):
-                mainkey, subkey = key.split(':', 1)
+                _, subkey = key.split(':', 1) # mainkey not currently used
                 for performer in values:
                     if not only_roman_chars(performer):
                         if album.tagger.config.setting['cea_cyrillic']:
@@ -912,9 +912,10 @@ class ExtraArtists:
             if self.DEBUG: log.debug("%s: SETTING PERFORMER. NEW KEY = %s", PLUGIN_NAME, newkey)
             if options['cea_concertmaster'] != "":
                 tm.add_unique(newkey, name)
-                details = name + ' (' + options['cea_concertmaster'] + ')'
-            else:
-                details = name
+            # #details variable not currently used
+            #     details = name + ' (' + options['cea_concertmaster'] + ')'
+            # else:
+            #     details = name
             if '~cea_leaders' in tm:
                 if name not in tm['~cea_leaders']:
                     tm['~cea_leaders'] = tm['~cea_leaders'] + '; ' + name
@@ -1203,7 +1204,7 @@ class PartLevels:
             else:
                 if self.ERROR: log.error("%s: %r: MusicBrainz work xml result not in correct format - %s",
                           PLUGIN_NAME, workId, response)
-                for track, album in tuples:
+                for track, _ in tuples:   # album not currently used
                     tm = track.metadata
                     self.append_tag(tm, '~cwp_error', 'MusicBrainz work xml result not in correct format for work id: ' + str(workId))
         return None
@@ -1628,7 +1629,6 @@ class PartLevels:
                 if common_len > 0:
                     if self.INFO: log.info("Use %s info for track: %s", name_type, track_meta)
                     name = tracks[name_type][i]
-                    
                     work = name[:common_len]
                     work = work.rstrip(":,.;- ")
                     removewords = self.REMOVEWORDS.split(',')
@@ -1819,7 +1819,7 @@ class PartLevels:
                 if not diff_work or len(diff_work) == 0:
                     if part_levels > 0:
                         ext_groupheading = groupheading
-                else: 
+                else:
                     if self.DEBUG: log.debug("Now calc extended groupheading...")
                     if self.INFO: log.info("depth = %s, ref_level = %s", depth, ref_level)
                     if self.INFO: log.info("diff_work = %s, diff_part = %s", diff_work, diff_part)
