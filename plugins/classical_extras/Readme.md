@@ -1,5 +1,5 @@
 # General Information
-This is version 0.6.6 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
+This is version 0.7 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 0.7: Bug fixes. Pull request issued for this version.
+
 Version 0.6.6: Bug fixes and algorithm improvements. Allow multiple sources for a tag (each will be appended) and use + as separator for concantenating sources, not a comma, to distinguish from the use of comma to separate multiples. Provide additional hidden variables ("sources") for vocalists and instrumentalists. Option to include intermediate work levels in a movement tag (for systems which cannot display multiple work levels).
 
 Version 0.6.5: Include ability to use multiple (concatenated) sources in tag mapping (see notes under "tag mapping"). All artist "sources" using hidden variables (_cea_...) are now consistently in the plural, to distinguish from standard tags. Note that if "album" is used as a source in tag mapping, it will now be the revised name, where composer prefixing is used. To use the original name, use "release" as the source. Also various bug fixes, notably to ensure that all arrangers get picked up for use in tag mapping.
@@ -37,7 +39,7 @@ After installation, go to the Options Page and modify choices as required. There
 ## Artists tab
 There are four coloured sections as shown in the screen image below:
 
-![Artist options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/artist_options.jpg)
+![Artist options](http://i.imgur.com/sKAe38y.jpg)
 
 1. "Create extra artist metadata" should be selected otherwise this section will not run. This is the default.
 
@@ -103,7 +105,7 @@ There are four coloured sections as shown in the screen image below:
 ## Work and parts tab
 
 There three coloured sections as shown in the screen print below:
-![Works and parts options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/work_parts_options.jpg)
+![Works and parts options](http://i.imgur.com/6iXgWFP.jpg)
 
 1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
 
@@ -116,7 +118,7 @@ There three coloured sections as shown in the screen print below:
       - "Use only metadata from canonical works". The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will be in the language of the release.
       - "Use canonical work metadata enhanced with title text". This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations - see image below for an example (using the Muso library manager).
 
-      ![Respighi](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/Respighi.jpg)
+      ![Respighi](http://i.imgur.com/QqulDPG.jpg)
 
     * **Source of canonical work text**. Where either of the second two options above are chosen, there is a further choice to be made:
       - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast, JB 1:112", not "Má vlast".
@@ -144,7 +146,7 @@ There three coloured sections as shown in the screen print below:
 ## Advanced tab
 
 Hopefully, this tab should not be much used - and even less in future versions. In any case, it should not need to be changed frequently. There are four sections as shown in the sceeen print below:
-![Advanced options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/advanced_options.jpg)
+![Advanced options](http://i.imgur.com/VezMj9Y.jpg)
 
 1. "Artists". This has only one subsection - "Ensemble strings" - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the "Artists" tab as sources for any required tags. 
 If it is important that only whole words are to be matched, be sure to include a space after the string.
