@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.6.6'
+PLUGIN_VERSION = '0.7'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -220,6 +220,13 @@ def map_tags(options, tm):
     INFO = options["log_info"]
     if (options['classical_extra_artists'] and '~cea_artists_complete' not in tm) or (options['classical_work_parts'] and '~cea_works_complete' not in tm):
         return
+    # set arranger tag as required
+    if options['cea_arrangers']:
+        if '~cea_arrangers' in tm:
+            append_tag(tm, 'arranger', tm['~cea_arrangers'])
+        if '~cea_orchestrators' in tm:
+            append_tag(tm, 'arranger', tm['~cea_orchestrators'])
+    # line-by-line tag mapping
     sort_tags = options['cea_tag_sort']
     for i in range(0,16):
         tagline = options['cea_tag_' + str(i+1)].split(",")
@@ -728,14 +735,8 @@ class ExtraArtists:
                     tm['~cea_'+tag.strip()] = tm[tag.strip()]  # place blanked tags into hidden variables available for re-use
                     del tm[tag.strip()]
 
-            # arrangers / album
-            if options['cea_arrangers']:
-                if '~cea_arrangers' in tm:
-                    if 'arranger' in tm:
-                        if tm['~cea_arrangers'] not in tm['arranger']:
-                            tm['arranger'] = tm['arranger'] + "; " + tm['~cea_arrangers']
-                    else:
-                        tm['arranger'] = tm['~cea_arrangers']
+            # album
+
             if 'composer_lastnames' in self.album_artists[album]:
                 tm['~cea_release'] = tm['album']
                 last_names = self.album_artists[album]['composer_lastnames']
@@ -1222,38 +1223,22 @@ class PartLevels:
                             new_workIds.append(rel.work[0].id)
                             new_works.append(rel.work[0].title[0].text)
 
-                if rel.attribs['type'] == 'arranger':
-                    if self.INFO: log.info("found ARRANGER")
+                if rel.attribs['type'] == 'arranger' or rel.attribs['type'] == 'instrument arranger' or rel.attribs['type'] == 'orchestrator':
+                    if self.INFO: log.info("Found %s", rel.attribs['type'])
                     if 'direction' in rel.children:
                         if rel.direction[0].text == 'backward':
                             name = rel.artist[0].name[0].text
                             sort_name = rel.artist[0].sort_name[0].text
-                            instrument = None
+                            if rel.attribs['type'] == 'arranger':
+                                instrument = None
+                            elif rel.attribs['type'] == 'orchestrator':
+                                instrument = 'orchestrator'
+                            else:
+                                instrument = rel.attribute_list[0].attribute[0].text
                             artist = (instrument, name, sort_name)
                             artists.append(artist)
                             if self.INFO: log.info("ARTISTS %s", artists)
 
-                if rel.attribs['type'] == 'instrument arranger':
-                    if self.INFO: log.info("found INSTRUMENT ARRANGER")
-                    if 'direction' in rel.children:
-                        if rel.direction[0].text == 'backward':
-                            name = rel.artist[0].name[0].text
-                            sort_name = rel.artist[0].sort_name[0].text
-                            instrument = rel.attribute_list[0].attribute[0].text
-                            artist = (instrument, name, sort_name)
-                            artists.append(artist)
-                            if self.INFO: log.info("ARTISTS %s", artists)
-
-
-                if rel.attribs['type'] == 'orchestrator':
-                    if self.INFO: log.info("found ORCHESTRATOR")
-                    if 'direction' in rel.children:
-                        if rel.direction[0].text == 'backward':
-                            name = rel.artist[0].name[0].text
-                            sort_name = rel.artist[0].sort_name[0].text
-                            artist = ('orchestrator', name, sort_name)
-                            artists.append(artist)
-                            if self.INFO: log.info("ARTISTS %s", artists)
 
         # just select one parent work to return (the longest named, as it is likely to be the lowest level)
         if new_workIds:
@@ -1280,30 +1265,32 @@ class PartLevels:
         orchestratorList = []
         for arranger in arrangerList:
             instrument = arranger[0]
-            if instrument == 'orchestrator':
-                orchestratorList.append(arranger)
-                continue
             name = arranger[1]
+            orig_name = arranger[1]
             sort_name = arranger[2]
+            if options['cea_cyrillic']:
+                if not only_roman_chars(name):
+                    name = remove_middle(unsort(sort_name))
+
+            if instrument == 'orchestrator':
+                orchestratorList.append([instrument, name, sort_name])
+                continue
+
             if instrument:
                 instrument_text = ' (' + instrument + ')'
             else:
                 instrument_text = ""
-            if '~cea_arrangers' in tm:
-                if name not in '~cea_arrangers':
-                    tm['~cea_arrangers'] = tm['~cea_arrangers'] + '; ' + name + instrument_text
-            else:
-                tm['~cea_arrangers'] = name + instrument_text
+            for tag in ['~cea_arrangers', '~cwp_arrangers']:
+                if tag in tm:
+                    if name not in tm[tag] and orig_name not in tm[tag]:
+                        tm[tag] = tm[tag] + '; ' + name + instrument_text
+                else:
+                    tm[tag] = name + instrument_text
             if options['cea_arrangers']:
                 if instrument:
                     newkey = '%s:%s' % ('arranger', instrument)
                     tm.add_unique(newkey, name)
                     # (Only necessary to add instrument arrangers as Picard already has "plain" arrangers)
-                # next bit is needed as Picard does not currently write out arranger:instrument tag in the same way as performer:instrument -i.e. it is not included in main arranger tag
-                if '~cwp_arrangers' in tm:
-                    tm['~cwp_arrangers'] = tm['~cwp_arrangers'] + "; " + tm['~cea_arrangers']
-                else:
-                    tm['~cwp_arrangers'] = tm['~cea_arrangers']
         if orchestratorList:
             self.set_orchestrator(album, orchestratorList,tm)
 
@@ -1575,8 +1562,6 @@ class PartLevels:
                 self.derive_from_structure(top_info, tracks, height, depth, width, 'title')
                 if self.USE_LEVEL_0:
                     self.derive_from_structure(top_info, tracks, height, depth, width, 'work')    #replace hierarchical works with those from work_0 (for consistency)
-                
-          
                 if self.DEBUG: log.debug("Trackback result for %s = %s", parentId, tracks)
                 response = parentId, tracks
                 if self.DEBUG: log.debug("%s LEAVING PROCESS_TRACKBACK depth %s Response = %s", PLUGIN_NAME, depth, response)
@@ -1613,7 +1598,7 @@ class PartLevels:
                         else:
                             common_subset = ""
                             common_len = 0
-                    else:    
+                    else:
                         common_subset = name_list[0]
                     if self.INFO: log.info("%s is single-track work. common_subset is set to %s", tracks['track'][0][0], common_subset)
                     if common_subset:
@@ -1755,7 +1740,7 @@ class PartLevels:
         part_levels = int(tm['~cwp_part_levels'])
         work_part_levels = int(tm['~cwp_work_part_levels'])
 
-        ref_level = part_levels - ref_height              #previously: ref_height = work_part_levels - ref_level, where this ref-level is the level for the top-named work 
+        ref_level = part_levels - ref_height              #previously: ref_height = work_part_levels - ref_level, where this ref-level is the level for the top-named work
         work_ref_level = work_part_levels - ref_height
 
         topId = top_info['id']
@@ -2004,25 +1989,22 @@ class PartLevels:
 
         for tag in movt_exc_tags:
             self.append_tag(tm, tag, movt)
+
         for tag in movt_inc_tags:
             self.append_tag(tm, tag, part)
 
-        for tag in movt_inc1_tags:
+        for tag in movt_inc1_tags + movt_exc1_tags:
+            if tag in movt_inc1_tags:
+                pt = part
+            else:
+                pt = movt
             if inter_work and inter_work != "":
                 if tag in movt_exc_tags + movt_inc_tags:
                     if self.WARNING: log.warning("Tag %s will have multiple contents", tag)
                     self.append_tag(tm,'~cwp_warning', 'Tag ' + tag + ' has multiple contents')
-                self.append_tag(tm, tag, inter_work + work_sep + " " + part)
+                self.append_tag(tm, tag, inter_work + work_sep + " " + pt)
             else:
-                self.append_tag(tm, tag, part)
-        for tag in movt_exc1_tags:
-            if inter_work and inter_work != "":
-                if tag in movt_exc_tags + movt_inc_tags:
-                    if self.WARNING: log.warning("Tag %s will have multiple contents", tag)
-                    self.append_tag(tm,'~cwp_warning', 'Tag ' + tag + ' has multiple contents')
-                self.append_tag(tm, tag, inter_work + work_sep + " " + movt)
-            else:
-                self.append_tag(tm, tag, movt)
+                self.append_tag(tm, tag, pt)
 
         for tag in  movt_no_tags:
             if tag in movt_inc_tags + movt_exc_tags:
@@ -2030,16 +2012,6 @@ class PartLevels:
             else:
                 self.append_tag(tm, tag, tm['~cwp_movt_num'])
 
-        # NB the next bit is part of the artist options, but needs to be written here because arrangers and orchestrators may have been associated with works not recordings
-        # The work-related arranger tag details have been stored in ~cwp_arrangers
-        # If the arranger tag was blanked in artist options, the previous details are in ~cea_arranger (note singular)
-
-        if '~cwp_arrangers' in tm and tm['~cwp_arrangers'] != "":
-            if options['cea_orchestrator'] != "" and '~cea_orchestrator' in tm and tm['~cea_orchestrator'] != "":
-                tm['arranger'] = tm['~cwp_arrangers']
-            else:
-                if options['cea_arrangers'] != "":
-                    self.append_tag(tm,'arranger',tm['~cwp_arrangers'])            
         # carry out tag mapping
         tm['~cea_works_complete'] = "Y"
         map_tags(options, tm)
@@ -2084,7 +2056,7 @@ class PartLevels:
         if self.DEBUG: log.debug("In append_tag. tag = %s, source = %s, sep =%s", tag, source, sep)
         if sep:
             if source and source != "":
-                source = source + sep 
+                source = source + sep
         if tag in tm:
             if self.INFO: log.info("Existing tag (%s) to be updated: %s", tag, tm[tag])
             if source not in tm[tag]:
@@ -2175,24 +2147,21 @@ class PartLevels:
         removewords = self.REMOVEWORDS.split(',')
         if self.INFO: log.info("Removewords = %s", removewords)
         #remove numbers, roman numerals, part etc and punctuation from the start
-        try:
-            if self.DEBUG: log.debug("checking prefixes")
-            for i in range(0,5):                                                # in case of multiple levels
-                mb = p2.sub('',p1.sub('',mb)).strip()
-                ti = p2.sub('',p1.sub('',ti)).strip()
-                for prefix in removewords:
-                    prefix2 = str(prefix).lower().lstrip()
-                    if self.DEBUG: log.debug("checking prefix %s", prefix2)
-                    if mb.lower().startswith(prefix2):
-                        mb = mb[len(prefix2):]
-                    if ti.lower().startswith(prefix2):
-                        ti = ti[len(prefix2):]
-                mb = mb.strip()
-                ti = ti.strip()
-                if self.INFO: log.info("pairs after prefix strip iteration %s. mb = %s, ti = %s", i, mb, ti)
-            if self.DEBUG: log.debug("Prefixes checked")
-        except:
-            if self.ERROR: log.error("Execution error in plugin %s: Error: %s, Line No.: %s", PLUGIN_NAME, sys.exc_info()[0], sys.exc_traceback.tb_lineno)
+        if self.DEBUG: log.debug("checking prefixes")
+        for i in range(0,5):                                                # in case of multiple levels
+            mb = p2.sub('',p1.sub('',mb)).strip()
+            ti = p2.sub('',p1.sub('',ti)).strip()
+            for prefix in removewords:
+                prefix2 = str(prefix).lower().lstrip()
+                if self.DEBUG: log.debug("checking prefix %s", prefix2)
+                if mb.lower().startswith(prefix2):
+                    mb = mb[len(prefix2):]
+                if ti.lower().startswith(prefix2):
+                    ti = ti[len(prefix2):]
+            mb = mb.strip()
+            ti = ti.strip()
+            if self.INFO: log.info("pairs after prefix strip iteration %s. mb = %s, ti = %s", i, mb, ti)
+        if self.DEBUG: log.debug("Prefixes checked")
         # replace synonyms
         strsyns = self.SYNONYMS.split('/')
         synonyms = []
@@ -2205,35 +2174,31 @@ class PartLevels:
         if self.INFO: log.info("Synonyms: %s", synonyms)
         ti_test = ti
         mb_test = mb
-        try:
-            for key, equiv in synonyms:
-                key = ' ' + key + ' '
-                equiv = ' ' + equiv + ' '
-                if self.INFO: log.info("key %s, equiv %s", key, equiv)
-                mb_test = mb_test.replace(key, equiv)
-                ti_test = ti_test.replace(key, equiv)
-                if self.DEBUG: log.debug("Replaced synonyms mb = %s, ti = %s", mb_test, ti_test)
-        except:
-            if self.ERROR: log.error("Execution error in plugin %s: Error: %s, Line No.: %s", PLUGIN_NAME, sys.exc_info()[0], sys.exc_traceback.tb_lineno)
+        for key, equiv in synonyms:
+            key = ' ' + key + ' '
+            equiv = ' ' + equiv + ' '
+            if self.INFO: log.info("key %s, equiv %s", key, equiv)
+            mb_test = mb_test.replace(key, equiv)
+            ti_test = ti_test.replace(key, equiv)
+            if self.DEBUG: log.debug("Replaced synonyms mb = %s, ti = %s", mb_test, ti_test)
         # check if the title item is wholly part of the mb item
-        try:
-            if self.DEBUG: log.debug("Testing if ti in mb. ti = %s, mb = %s", ti_test, mb_test)
-            nopunc_ti = self.boil(ti_test)
-            if self.INFO: log.info("nopunc_ti =%s", nopunc_ti)
-            nopunc_mb = self.boil(mb_test)
-            if self.INFO: log.info("nopunc_mb =%s", nopunc_mb)
-            ti_len = len(nopunc_ti)
-            if self.INFO: log.info("ti len %s", ti_len)
-            sub_len = int(ti_len)
-            if self.INFO: log.info("sub len %s", sub_len)
-            if self.DEBUG: log.debug("Initial test. nopunc_mb = %s, nopunc_ti = %s, sub_len = %s", nopunc_mb, nopunc_ti, sub_len)
-            if self.DEBUG: log.debug("test sub....")
-            lcs = longest_common_substring(nopunc_mb, nopunc_ti)
-            if self.INFO: log.info("Longest common substring is: %s. Sub_len is %s", lcs, sub_len)
-            if len(lcs) >= sub_len:
-                return None
-        except:
-            log.error("Execution error in plugin %s: Error: %s, Line No.: %s", PLUGIN_NAME, sys.exc_info()[0], sys.exc_traceback.tb_lineno)
+
+        if self.DEBUG: log.debug("Testing if ti in mb. ti = %s, mb = %s", ti_test, mb_test)
+        nopunc_ti = self.boil(ti_test)
+        if self.INFO: log.info("nopunc_ti =%s", nopunc_ti)
+        nopunc_mb = self.boil(mb_test)
+        if self.INFO: log.info("nopunc_mb =%s", nopunc_mb)
+        ti_len = len(nopunc_ti)
+        if self.INFO: log.info("ti len %s", ti_len)
+        sub_len = int(ti_len)
+        if self.INFO: log.info("sub len %s", sub_len)
+        if self.DEBUG: log.debug("Initial test. nopunc_mb = %s, nopunc_ti = %s, sub_len = %s", nopunc_mb, nopunc_ti, sub_len)
+        if self.DEBUG: log.debug("test sub....")
+        lcs = longest_common_substring(nopunc_mb, nopunc_ti)
+        if self.INFO: log.info("Longest common substring is: %s. Sub_len is %s", lcs, sub_len)
+        if len(lcs) >= sub_len:
+            return None
+
         # try and strip the canonical item from the title item (only a full strip affects the outcome)
         if len(nopunc_mb) > 0:
             ti_new = self.strip_parent_from_work(ti_test,mb_test,0,False)[0]
