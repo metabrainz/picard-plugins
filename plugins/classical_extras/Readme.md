@@ -39,7 +39,7 @@ After installation, go to the Options Page and modify choices as required. There
 ## Artists tab
 There are four coloured sections as shown in the screen image below:
 
-![Artist options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/artist_options.jpg)
+![Artist options](http://imgur.com/sKAe38y)
 
 1. "Create extra artist metadata" should be selected otherwise this section will not run. This is the default.
 
@@ -105,7 +105,7 @@ There are four coloured sections as shown in the screen image below:
 ## Work and parts tab
 
 There three coloured sections as shown in the screen print below:
-![Works and parts options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/work_parts_options.jpg)
+![Works and parts options](http://imgur.com/6iXgWFP)
 
 1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
 
@@ -118,7 +118,7 @@ There three coloured sections as shown in the screen print below:
       - "Use only metadata from canonical works". The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will be in the language of the release.
       - "Use canonical work metadata enhanced with title text". This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations - see image below for an example (using the Muso library manager).
 
-      ![Respighi](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/Respighi.jpg)
+      ![Respighi](http://imgur.com/QqulDPG)
 
     * **Source of canonical work text**. Where either of the second two options above are chosen, there is a further choice to be made:
       - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast, JB 1:112", not "Má vlast".
@@ -146,7 +146,7 @@ There three coloured sections as shown in the screen print below:
 ## Advanced tab
 
 Hopefully, this tab should not be much used - and even less in future versions. In any case, it should not need to be changed frequently. There are four sections as shown in the sceeen print below:
-![Advanced options](https://github.com/MetaTunes/picard-plugins/blob/master/plugins/classical_extras/advanced_options.jpg)
+![Advanced options](http://imgur.com/VezMj9Y)
 
 1. "Artists". This has only one subsection - "Ensemble strings" - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the "Artists" tab as sources for any required tags. 
 If it is important that only whole words are to be matched, be sure to include a space after the string.

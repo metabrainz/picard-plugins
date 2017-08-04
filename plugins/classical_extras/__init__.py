@@ -293,7 +293,7 @@ def map_tags(options, tm):
 def append_tag(tm, tag, source):
     #if INFO: log.info("Tag mapping - Appending: %s to %s", source, tag)
     if tag in tm:
-        if str(source) not in tm[tag]:
+        if source.replace(u'\u2010', u'-') not in tm[tag]:
             if isinstance(tm[tag], basestring):
                 tm[tag] = [tm[tag], source]
             else:
@@ -799,7 +799,7 @@ class ExtraArtists:
     def append_tag(self, tm, tag, source):
         if self.INFO: log.info("Extra Artists - appending %s to %s", source, tag)
         if tag in tm:
-            if str(source) not in tm[tag]:
+            if source.replace(u'\u2010', u'-') not in tm[tag]:
                 if isinstance(tm[tag], basestring):
                     tm[tag] = [tm[tag], source]
                 else:
@@ -2077,7 +2077,7 @@ class PartLevels:
                 source = source + sep
         if tag in tm:
             if self.INFO: log.info("Existing tag (%s) to be updated: %s", tag, tm[tag])
-            if str(source) not in tm[tag]:
+            if source.replace(u'\u2010', u'-') not in tm[tag]:
                 if isinstance(tm[tag], basestring):
                     if self.DEBUG: log.debug("tm[tag]: %s, separator = %s", tm[tag], sep)
                     newtag = [tm[tag], source]
