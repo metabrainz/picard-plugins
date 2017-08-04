@@ -223,9 +223,9 @@ def map_tags(options, tm):
     # set arranger tag as required
     if options['cea_arrangers']:
         if '~cea_arrangers' in tm:
-            ExtraArtists().append_tag(tm, 'arranger', tm['~cea_arrangers'])
+            append_tag(tm, 'arranger', tm['~cea_arrangers'])
         if '~cea_orchestrators' in tm:
-            ExtraArtists().append_tag(tm, 'arranger', tm['~cea_orchestrators'])
+            append_tag(tm, 'arranger', tm['~cea_orchestrators'])
     # line-by-line tag mapping
     sort_tags = options['cea_tag_sort']
     for i in range(0,16):
@@ -270,25 +270,37 @@ def map_tags(options, tm):
                 if not conditional or tm[tag] == "":
                     if "~cea_" + source in tm:
                         if DEBUG: log.debug("cea")
-                        ExtraArtists().append_tag(tm, tag, tm['~cea_' + source])
+                        append_tag(tm, tag, tm['~cea_' + source])
                         if sort_tags:
                             if "~cea_" + no_names_source + source_sort in tm:
                                 if DEBUG: log.debug("cea sort")
-                                ExtraArtists().append_tag(tm, tag + sort, tm['~cea_' + no_names_source + source_sort])
+                                append_tag(tm, tag + sort, tm['~cea_' + no_names_source + source_sort])
                     elif source in tm:
                         if DEBUG: log.debug("Picard")
-                        ExtraArtists().append_tag(tm, tag, tm[source])
+                        append_tag(tm, tag, tm[source])
                         if sort_tags:
                             if source + "_sort" in tm:
                                 if DEBUG: log.debug("Picard sort")
-                                ExtraArtists().append_tag(tm, tag + sort, tm[source + '_sort'])
+                                append_tag(tm, tag + sort, tm[source + '_sort'])
                     elif len(source) > 0 and source[0] == "\\":
-                        ExtraArtists().append_tag(tm, tag, source[1:])
+                        append_tag(tm, tag, source[1:])
                     else:
                         pass
     if not DEBUG:
         del tm['~cea_works_complete']
         del tm['~cea_artists_complete']
+
+def append_tag(tm, tag, source):
+    #if INFO: log.info("Tag mapping - Appending: %s to %s", source, tag)
+    if tag in tm:
+        if str(source) not in tm[tag]:
+            if isinstance(tm[tag], basestring):
+                tm[tag] = [tm[tag], source]
+            else:
+                tm[tag].append(source)
+    else:
+        if tag and tag !="":
+            tm[tag] = [source]
 
 #################
 #################
@@ -785,8 +797,9 @@ class ExtraArtists:
         if self.INFO: log.info("FINISHED Classical Extra Artists. Album: %s", track.album.metadata)
 
     def append_tag(self, tm, tag, source):
+        if self.INFO: log.info("Extra Artists - appending %s to %s", source, tag)
         if tag in tm:
-            if source not in tm[tag]:
+            if str(source) not in tm[tag]:
                 if isinstance(tm[tag], basestring):
                     tm[tag] = [tm[tag], source]
                 else:
@@ -796,6 +809,7 @@ class ExtraArtists:
                 tm[tag] = [source]
 
     def set_performer(self, album, performerList, tm):
+        if self.DEBUG: log.debug("Extra Artists - set_performer")
         for performer in performerList:
             if performer[0]:
                 instrument = performer[0].lower()
@@ -817,6 +831,7 @@ class ExtraArtists:
                     tm['~cea_performers'] = details
 
     def set_arranger(self, album, arrangerList,tm):
+        if self.DEBUG: log.debug("Extra Artists - set_arranger")
         for arranger in arrangerList:
             if arranger[0]:
                 instrument = arranger[0].lower()
@@ -840,6 +855,7 @@ class ExtraArtists:
                 tm['~cea_arrangers'] = details
 
     def set_orchestrator(self, album, orchestratorList,tm):
+        if self.DEBUG: log.debug("Extra Artists - set_orchestrator")
         options = album.tagger.config.setting
         if isinstance(tm['arranger'], basestring):
             arrangerList = tm['arranger'].split(';')
@@ -873,6 +889,7 @@ class ExtraArtists:
             tm['arranger'] = newList
 
     def set_chorusmaster(self, album, chorusmasterList,tm):
+        if self.DEBUG: log.debug("Extra Artists - set_chorusmaster")
         options = album.tagger.config.setting
         if isinstance(tm['conductor'], basestring):
             conductorList = tm['conductor'].split(';')
@@ -902,6 +919,7 @@ class ExtraArtists:
             tm['conductor'] = newList
 
     def set_leader(self, album, leaderList,tm):
+        if self.DEBUG: log.debug("Extra Artists - set_leader")
         options = album.tagger.config.setting
         for leader in leaderList:
             name = leader[1]
@@ -1335,9 +1353,11 @@ class PartLevels:
 
     def album_add_request(self, album):
         album._requests += 1
+        if self.INFO: log.info("album requests: %s", album._requests)
 
     def album_remove_request(self, album):
         album._requests -= 1
+        if self.INFO: log.info("album requests: %s", album._requests)
         album._finalize_loading(None)
 
 
@@ -2057,7 +2077,7 @@ class PartLevels:
                 source = source + sep
         if tag in tm:
             if self.INFO: log.info("Existing tag (%s) to be updated: %s", tag, tm[tag])
-            if source not in tm[tag]:
+            if str(source) not in tm[tag]:
                 if isinstance(tm[tag], basestring):
                     if self.DEBUG: log.debug("tm[tag]: %s, separator = %s", tm[tag], sep)
                     newtag = [tm[tag], source]
