@@ -1910,7 +1910,6 @@ class PartLevels:
         if self.DEBUG: log.debug("....done")
         return None
 
-    
 
 ##########################################################
 # SECTION 5- Write metadata to tags according to options #
@@ -2048,7 +2047,7 @@ class PartLevels:
             self.append_tag(tm, '001_errors', tm['~cwp_error'])
         if self.WARNING and "~cwp_warning" in tm:
             self.append_tag(tm, '002_warnings', tm['~cwp_warning'])
-            
+
 
 
     def append_tag(self, tm, tag, source, sep = None):
@@ -2115,7 +2114,7 @@ class PartLevels:
                         stripped_work = m.group(4)
         else:
             if self.DEBUG: log.debug("No match...")
-            
+
             if extend and parentId and parentId in self.works_cache:
                 if self.DEBUG: log.debug("Looking for match at next level up")
                 grandparentId = self.works_cache[parentId]
@@ -2426,7 +2425,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         IntOption("setting", "cwp_substring_match", 66),
         TextOption("setting", "cwp_removewords", " part, act, scene, movement, movt, no., no , n., n , nr., nr , book , the , a , la , le , un , une , el , il , (part), tableau, from "),
         TextOption("setting", "cwp_synonyms", "(1, one) / (2, two) / (3, three) / (&, and)"),
-        
+
         BoolOption("setting", "cwp_titles", False),
         BoolOption("setting", "cwp_works", False),
         BoolOption("setting", "cwp_extended", True),
@@ -2576,7 +2575,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
 
         self.ui.cea_blank_tag.setText(self.config.setting["cea_blank_tag"])
         self.ui.cea_blank_tag_2.setText(self.config.setting["cea_blank_tag_2"])
-        
+
         self.ui.cea_source_1.setEditText(self.config.setting["cea_source_1"])
         self.ui.cea_tag_1.setText(self.config.setting["cea_tag_1"])
         self.ui.cea_cond_1.setChecked(self.config.setting["cea_cond_1"])
