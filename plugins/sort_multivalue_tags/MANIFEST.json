@@ -1,0 +1,12 @@
+{
+  "PLUGIN_VERSION": "0.3",
+  "PLUGIN_AUTHOR": "Sophist",
+  "PLUGIN_DESCRIPTION": "\nThis plugin sorts multi-value tags e.g. Performers alphabetically.<br /><br />\nNote: Some multi-value tags are excluded for the following reasons:\n<ol>\n<li>Sequence is important e.g. Artists</li>\n<li>The sequence of one tag is linked to the sequence of another e.g. Label and Catalogue number.</li>\n</ol>\n",
+  "PLUGIN_API_VERSIONS": [
+    "0.15",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Sort Multi-Value Tags",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0"
+}

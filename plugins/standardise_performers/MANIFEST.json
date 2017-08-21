@@ -1,0 +1,18 @@
+{
+  "PLUGIN_VERSION": "0.2",
+  "PLUGIN_AUTHOR": "Sophist",
+  "PLUGIN_DESCRIPTION": "Splits multi-instrument performer tags into single\ninstruments and combines names so e.g. (from 10cc by 10cc track 1):\n<pre>\nPerformer [acoustic guitar, bass, dobro, electric guitar and tambourine]: Graham Gouldman\nPerformer [acoustic guitar, electric guitar, grand piano and synthesizer]: Lol Creme\nPerformer [electric guitar, moog and slide guitar]: Eric Stewart\n</pre>\nbecomes:\n<pre>\nPerformer [acoustic guitar]: Graham Gouldman; Lol Creme\nPerformer [bass]: Graham Gouldman\nPerformer [dobro]: Graham Gouldman\nPerformer [electric guitar]: Eric Stewart; Graham Gouldman; Lol Creme\nPerformer [grand piano]: Lol Creme\nPerformer [moog]: Eric Stewart\nPerformer [slide guitar]: Eric Stewart\nPerformer [synthesizer]: Lol Creme\nPerformer [tambourine]: Graham Gouldman\n</pre>\n",
+  "PLUGIN_API_VERSIONS": [
+    "0.15.0",
+    "0.15.1",
+    "0.16.0",
+    "1.0.0",
+    "1.1.0",
+    "1.2.0",
+    "1.3.0",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Standardise Performers",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0"
+}

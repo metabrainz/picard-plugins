@@ -1,0 +1,11 @@
+{
+  "PLUGIN_VERSION": "1.0",
+  "PLUGIN_AUTHOR": "Javier Kohen, Sambhav Kothari",
+  "PLUGIN_DESCRIPTION": "Capitalize First Character In Every Word Of A Title",
+  "PLUGIN_API_VERSIONS": [
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Title Case",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0"
+}

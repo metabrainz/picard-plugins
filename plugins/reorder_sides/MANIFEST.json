@@ -1,0 +1,11 @@
+{
+  "PLUGIN_VERSION": "1.0",
+  "PLUGIN_AUTHOR": "David Mandelberg, Sambhav Kothari",
+  "PLUGIN_DESCRIPTION": "  Split mediums and re-order sides to match side order rather than\n  medium order. E.g., if a release has two mediums with track numbers\n  <em>A1, A2, ..., D1, D2, ...</em> and <em>B1, B2, ..., C1, C2,\n  ...</em>, this plugin will split the release into four mediums and\n  reorder the new mediums so that the track numbers are <em>A1, A2,\n  ..., B1, B2, ..., C1, C2, ..., D1, D2, ...</em>\n\n  This is primarily intended to make vinyl records designed for record\n  changers\n  (https://en.wikipedia.org/wiki/Record_changer#Automatic_sequencing)\n  play in the correct order.",
+  "PLUGIN_API_VERSIONS": [
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Re-order sides of a release",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-3.0.html",
+  "PLUGIN_LICENSE": "GPL-3.0"
+}

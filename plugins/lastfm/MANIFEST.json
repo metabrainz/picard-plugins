@@ -1,0 +1,11 @@
+{
+  "PLUGIN_VERSION": "0.4",
+  "PLUGIN_AUTHOR": "Luk\u00e1\u0161 Lalinsk\u00fd",
+  "PLUGIN_DESCRIPTION": "Use tags from Last.fm as genre.",
+  "PLUGIN_API_VERSIONS": [
+    "0.15"
+  ],
+  "PLUGIN_NAME": "Last.fm",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0 or later"
+}

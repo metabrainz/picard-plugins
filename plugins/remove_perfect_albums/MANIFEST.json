@@ -1,0 +1,12 @@
+{
+  "PLUGIN_VERSION": "0.2",
+  "PLUGIN_AUTHOR": "ichneumon, hrglgrmpf",
+  "PLUGIN_DESCRIPTION": "Remove all perfectly matched albums from the selection.",
+  "PLUGIN_API_VERSIONS": [
+    "0.15",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Remove Perfect Albums",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0"
+}

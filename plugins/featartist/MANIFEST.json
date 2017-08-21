@@ -1,0 +1,15 @@
+{
+  "PLUGIN_VERSION": "0.3",
+  "PLUGIN_AUTHOR": "Lukas Lalinsky, Bryan Toth",
+  "PLUGIN_DESCRIPTION": "Removes feat. artists from track titles.  Substitution is case insensitive.",
+  "PLUGIN_API_VERSIONS": [
+    "0.9.0",
+    "0.10",
+    "0.15",
+    "0.16",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Feat. Artists Removed",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0 or later"
+}

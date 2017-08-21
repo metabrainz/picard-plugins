@@ -1,0 +1,14 @@
+{
+  "PLUGIN_VERSION": "1.3",
+  "PLUGIN_AUTHOR": "Elliot Chance",
+  "PLUGIN_DESCRIPTION": "Appends information to EPs and Singles",
+  "PLUGIN_API_VERSIONS": [
+    "0.9.0",
+    "0.10",
+    "0.15",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Release Type",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0 or later"
+}

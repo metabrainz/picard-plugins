@@ -1,0 +1,11 @@
+{
+  "PLUGIN_VERSION": "1.0",
+  "PLUGIN_AUTHOR": "Len Joubert, Sambhav Kothari",
+  "PLUGIN_DESCRIPTION": "Calculate Moodbars for selected files and albums.",
+  "PLUGIN_API_VERSIONS": [
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Moodbars",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0"
+}

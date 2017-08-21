@@ -1,0 +1,11 @@
+{
+  "PLUGIN_VERSION": "1.0",
+  "PLUGIN_AUTHOR": "Felix Elsner, Sambhav Kothari",
+  "PLUGIN_DESCRIPTION": "\n<p>Load genre, date and vocalist tags from the online database\n<a href\"http://tango.info\">tango.info</a>.</p>\n<p>This plugin uses web scraping, but only once per album. In so doing\nit does not cause unnecessary server load for either MusicBrainz.org\nor tango.info</p>\n",
+  "PLUGIN_API_VERSIONS": [
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Tango.info Adapter",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0"
+}

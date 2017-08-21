@@ -1,0 +1,15 @@
+{
+  "PLUGIN_VERSION": "0.1",
+  "PLUGIN_AUTHOR": "Anderson Mesquita <andersonvom@trysometinghere>",
+  "PLUGIN_DESCRIPTION": "Replaces accented and otherwise non-ASCII characters\nwith a somewhat equivalent version of their ASCII counterparts. This allows old\ndevices to be able to display song artists and titles somewhat correctly,\ninstead of displaying weird or blank symbols. It's an attempt to do a little\nbetter than Musicbrainz's native \"Replace non-ASCII characters\" option.",
+  "PLUGIN_API_VERSIONS": [
+    "0.9",
+    "0.10",
+    "0.11",
+    "0.15",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Non-ASCII Equivalents",
+  "PLUGIN_LICENSE_URL": "https://gnu.org/licenses/gpl.html",
+  "PLUGIN_LICENSE": "GPLv3"
+}

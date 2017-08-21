@@ -1,0 +1,14 @@
+{
+  "PLUGIN_VERSION": "0.1",
+  "PLUGIN_AUTHOR": "Lukas Lalinsky",
+  "PLUGIN_DESCRIPTION": "Moves disc numbers and subtitles from album titles to separate tags. For example:<br/>\n<em>\"Aerial (disc 1: A Sea of Honey)\"</em>\n<ul>\n    <li>album = <em>\"Aerial\"</em></li>\n    <li>discnumber = <em>\"1\"</em></li>\n    <li>discsubtitle = <em>\"A Sea of Honey\"</em></li>\n</ul>",
+  "PLUGIN_API_VERSIONS": [
+    "0.9.0",
+    "0.10",
+    "0.15",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Disc Numbers",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0 or later"
+}

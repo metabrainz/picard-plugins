@@ -1,0 +1,12 @@
+{
+  "PLUGIN_VERSION": "0.1",
+  "PLUGIN_AUTHOR": "Philipp Wolfer",
+  "PLUGIN_DESCRIPTION": "Allows loading selected tracks as non-album tracks. Useful for tagging single tracks where you do not care about the album.",
+  "PLUGIN_API_VERSIONS": [
+    "1.4.0",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Load as non-album track",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0"
+}
