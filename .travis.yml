@@ -3,4 +3,6 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
+install:
+  - pip install  git+https://github.com/metabrainz/picard-plugin-tools.git
 script: python test.py
