@@ -1,0 +1,11 @@
+{
+  "PLUGIN_VERSION": "1.0",
+  "PLUGIN_AUTHOR": "Luk\u00e1\u0161 Lalinsk\u00fd, Sambhav Kothari",
+  "PLUGIN_DESCRIPTION": "Generate cuesheet (.cue file) from an album.",
+  "PLUGIN_API_VERSIONS": [
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Generate Cuesheet",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0 or later"
+}

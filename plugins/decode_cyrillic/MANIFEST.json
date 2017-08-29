@@ -1,0 +1,12 @@
+{
+  "PLUGIN_VERSION": "1.0",
+  "PLUGIN_AUTHOR": "aeontech",
+  "PLUGIN_DESCRIPTION": "\nThis plugin helps you quickly convert mis-encoded cyrillic Windows-1251 tags \nto proper UTF-8 encoded strings. If your track/album names look something like\n\"A\u0300e\u0308e\u0300n\u0303a\u0300 a\u0302 n\u0303o\u0300\u203aa\u0300i\u0301a\u030a \u00f7o\u0301a\u0308a\u030an\u0303\", run this plugin from the context menu\nbefore running the \"Lookup\" or \"Scan\" tools\n",
+  "PLUGIN_API_VERSIONS": [
+    "1.0",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Decode Cyrillic",
+  "PLUGIN_LICENSE_URL": "https://opensource.org/licenses/MIT",
+  "PLUGIN_LICENSE": "MIT"
+}

@@ -1,0 +1,18 @@
+{
+  "PLUGIN_VERSION": "1.1",
+  "PLUGIN_AUTHOR": "Wieland Hoffmann",
+  "PLUGIN_DESCRIPTION": "\nAdds a $keep() function to delete all tags except the ones that you want.\nTags beginning with `musicbrainz_` are kept automatically, as are tags\nbeginning with `_`.",
+  "PLUGIN_API_VERSIONS": [
+    "0.15.0",
+    "0.15.1",
+    "0.16.0",
+    "1.0.0",
+    "1.1.0",
+    "1.2.0",
+    "1.3.0",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Keep tags",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0 or later"
+}

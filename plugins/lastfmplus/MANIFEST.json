@@ -1,0 +1,11 @@
+{
+  "PLUGIN_VERSION": "0.14",
+  "PLUGIN_AUTHOR": "RifRaf, Luk\u00e1\u0161 Lalinsk\u00fd, voiceinsideyou",
+  "PLUGIN_DESCRIPTION": "Uses folksonomy tags from Last.fm to<br/>\n* Sort music into major and minor genres based on configurable genre \"whitelists\"<br/>\n* Add \"mood\", \"occasion\" and other custom categories<br/>\n* Add \"original release year\" and \"decade\" tags, as well as populate blank dates.",
+  "PLUGIN_API_VERSIONS": [
+    "0.15"
+  ],
+  "PLUGIN_NAME": "Last.fm.Plus",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0 or later"
+}

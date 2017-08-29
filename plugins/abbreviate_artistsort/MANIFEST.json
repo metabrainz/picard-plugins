@@ -1,0 +1,12 @@
+{
+  "PLUGIN_VERSION": "0.2",
+  "PLUGIN_AUTHOR": "Sophist",
+  "PLUGIN_DESCRIPTION": "Abbreviate Artist-Sort and Album-Artist-Sort Tags.\ne.g. \"Vivaldi, Antonio\" becomes \"Vivaldi, A.\"\nThis is particularly useful for classical albums that can have a long list of artists.\n%artistsort% is abbreviated into %_artistsort_abbrev% and\n%albumartistsort% is abbreviated into %_albumartistsort_abbrev%.",
+  "PLUGIN_API_VERSIONS": [
+    "1.0",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Abbreviate artist-sort",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0"
+}

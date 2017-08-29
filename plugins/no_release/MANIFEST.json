@@ -1,0 +1,11 @@
+{
+  "PLUGIN_VERSION": "0.1",
+  "PLUGIN_AUTHOR": "Johannes Wei\u00dfl",
+  "PLUGIN_DESCRIPTION": "Do not store specific release information in releases of unknown origin.",
+  "PLUGIN_API_VERSIONS": [
+    "0.15"
+  ],
+  "PLUGIN_NAME": "No release",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0 or later"
+}

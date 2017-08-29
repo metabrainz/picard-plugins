@@ -1,0 +1,18 @@
+{
+  "PLUGIN_VERSION": "1.0",
+  "PLUGIN_AUTHOR": "Wieland Hoffmann",
+  "PLUGIN_DESCRIPTION": "\nAdds padded disc- and tracknumbers so the length of all disc- and tracknumbers\nis the same. They are stored in the `_paddedtracknumber` and `_paddeddiscnumber`\ntags.",
+  "PLUGIN_API_VERSIONS": [
+    "0.15.0",
+    "0.15.1",
+    "0.16.0",
+    "1.0.0",
+    "1.1.0",
+    "1.2.0",
+    "1.3.0",
+    "2.0"
+  ],
+  "PLUGIN_NAME": "Padded disc and tracknumbers",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.html",
+  "PLUGIN_LICENSE": "GPL-2.0 or later"
+}

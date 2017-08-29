@@ -1,0 +1,11 @@
+{
+  "PLUGIN_VERSION": "1.0",
+  "PLUGIN_AUTHOR": "Sophist, Sambhav Kothari",
+  "PLUGIN_DESCRIPTION": "Add's the following tags:\n<ul>\n<li>Key (in ID3v2.3 format)</li>\n<li>Beats Per Minute (BPM)</li>\n</ul>\nfrom the AcousticBrainz database.<br/><br/>\nNote: This plugin requires Picard 1.4.",
+  "PLUGIN_API_VERSIONS": [
+    "2.0"
+  ],
+  "PLUGIN_NAME": "AcousticBrainz Tonal-Rhythm",
+  "PLUGIN_LICENSE_URL": "https://www.gnu.org/licenses/gpl-2.0.txt",
+  "PLUGIN_LICENSE": "GPL-2.0"
+}
