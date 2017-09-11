@@ -32,7 +32,7 @@ class wikidata:
 
     def process_release(self, tagger, metadata, release):
 
-        self.ws = tagger.tagger.ws
+        self.ws = tagger.tagger.webservice
         self.log = tagger.log
         item_id = dict.get(metadata, 'musicbrainz_releasegroupid')[0]
 
@@ -203,7 +203,7 @@ class wikidata:
         self.lock.release()
 
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
-        self.ws = album.tagger.ws
+        self.ws = album.tagger.webservice
         self.log = album.log
         tagger = album
 
