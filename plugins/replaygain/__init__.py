@@ -1,23 +1,20 @@
 # -*- coding: utf-8 -*-
-
-# Changelog:
-#   [2008-03-14] Initial version with support for Ogg Vorbis, FLAC and MP3
-
 PLUGIN_NAME = "ReplayGain"
 PLUGIN_AUTHOR = "Philipp Wolfer"
 PLUGIN_DESCRIPTION = """Calculate ReplayGain for selected files and albums."""
 PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]
+PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 
 from collections import defaultdict
+from functools import partial
 from subprocess import check_call
 from picard.album import Album, NatAlbum
 from picard.track import Track
 from picard.file import File
-from picard.util import encode_filename, decode_filename, partial, thread
+from picard.util import encode_filename, decode_filename, thread
 from picard.ui.options import register_options_page, OptionsPage
 from picard.config import TextOption
 from picard.ui.itemviews import (BaseAction, register_file_action,
@@ -34,18 +31,19 @@ REPLAYGAIN_COMMANDS = {
 }
 
 
-def calculate_replay_gain_for_files(files, format, tagger):
+def calculate_replay_gain_for_files(files, format_, tagger):
     """Calculates the replay gain for a list of files in album mode."""
-    file_list = ['%s' % encode_filename(f.filename) for f in files]
+    file_list = [encode_filename(f.filename) for f in files]
 
-    if format in REPLAYGAIN_COMMANDS \
-        and tagger.config.setting[REPLAYGAIN_COMMANDS[format][0]]:
-        command = tagger.config.setting[REPLAYGAIN_COMMANDS[format][0]]
-        options = tagger.config.setting[REPLAYGAIN_COMMANDS[format][1]].split(' ')
-        tagger.log.debug('%s %s %s' % (command, ' '.join(options), decode_filename(' '.join(file_list))))
+    if format_ in REPLAYGAIN_COMMANDS \
+        and tagger.config.setting[REPLAYGAIN_COMMANDS[format_][0]]:
+        command = tagger.config.setting[REPLAYGAIN_COMMANDS[format_][0]]
+        options = tagger.config.setting[REPLAYGAIN_COMMANDS[format_][1]].split(' ')
+        tagger.log.debug('%s %s %s', command, ' '.join(options),
+                         decode_filename(b' '.join(file_list)))
         check_call([command] + options + file_list)
     else:
-        raise Exception('ReplayGain: Unsupported format %s' % (format))
+        raise Exception('ReplayGain: Unsupported format %s' % (format_))
 
 
 class ReplayGain(BaseAction):
@@ -118,8 +116,8 @@ class AlbumGain(BaseAction):
         )
         filelist = [t.linked_files[0] for t in album.tracks if t.is_linked()]
 
-        for format, files in self.split_files_by_type(filelist).iteritems():
-            calculate_replay_gain_for_files(files, format, self.tagger)
+        for format_, files in self.split_files_by_type(filelist).items():
+            calculate_replay_gain_for_files(files, format_, self.tagger)
 
     def _calculate_natgain(self, natalbum):
         """Calculates the replaygain"""
