@@ -142,7 +142,7 @@ class TangoInfoTagger:
             path = '/%s' % (barcode)
 
             # Call website_process as a partial func
-            return album.tagger.ws.get(host, port, path,
+            return album.tagger.webservice.get(host, port, path,
                         partial(self.website_process, barcode, zeros),
                         parse_response_type=None, priority=False, important=False)
 

@@ -81,7 +81,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
                      "client_key": QUrl.toPercentEncoding(self._client_key),
                      }
         log.debug("CoverArtProviderFanartTv.queue_downloads: %s" % path)
-        self.album.tagger.ws.download(
+        self.album.tagger.webservice.download(
             FANART_HOST,
             FANART_PORT,
             path,
