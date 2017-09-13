@@ -48,7 +48,7 @@ class AcousticBrainz_Key:
             log.debug("%s: Add AcusticBrainz request for %s (%s)", PLUGIN_NAME, track_metadata['title'], recordingId)
             self.album_add_request(album)
             path = "/%s/low-level" % recordingId
-            return album.tagger.ws.get(
+            return album.tagger.webservice.get(
                         ACOUSTICBRAINZ_HOST,
                         ACOUSTICBRAINZ_PORT,
                         path,

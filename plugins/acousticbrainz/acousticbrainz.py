@@ -60,7 +60,7 @@ def result(album, metadata, data, reply, error):
 
 
 def process_track(album, metadata, release, track):
-    album.tagger.ws.download(
+    album.tagger.webservice.download(
         ACOUSTICBRAINZ_HOST,
         ACOUSTICBRAINZ_PORT,
         "/%s/high-level" % (metadata["musicbrainz_recordingid"]),

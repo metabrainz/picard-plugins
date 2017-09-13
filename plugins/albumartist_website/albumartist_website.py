@@ -81,7 +81,7 @@ class AlbumArtistWebsite:
             port = config.setting["server_port"]
             path = "/ws/2/%s/%s" % ('artist', artistId)
             queryargs = {"inc": "url-rels"}
-            return album.tagger.ws.get(host, port, path,
+            return album.tagger.webservice.get(host, port, path,
                         partial(self.website_process, artistId),
                                 parse_response_type="xml", priority=True, important=False,
                                 queryargs=queryargs)
