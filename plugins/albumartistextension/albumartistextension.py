@@ -53,30 +53,25 @@ def add_artist_std_name(album, album_metadata, release_metadata):
             if 'joinphrase' in ncredit:
                 tempPhrase = ncredit['joinphrase']
             else:
-                log.error("%s: %r: Missing 'artist-credit.joinphrase' in release metadata.",
-                        PLUGIN_NAME, albumid)
+                metadataerror(albumid, 'artist-credit.joinphrase')
             # Check if there is a 'name' specified.
             if 'name' in ncredit:
                 tempCredName = ncredit['name']
             else:
-                log.error("%s: %r: Missing 'artist-credit.name' in release metadata.",
-                        PLUGIN_NAME, albumid)
+                metadataerror(albumid, 'artist-credit.name')
             # Check if there is an 'artist' specified.
             if 'artist' in ncredit:
                 # Check if there is a 'name' specified.
                 if 'name' in ncredit['artist']:
                     tempStdName = ncredit['artist']['name']
                 else:
-                    log.error("%s: %r: Missing 'artist-credit.artist.name' in release metadata.",
-                            PLUGIN_NAME, albumid)
+                    metadataerror(albumid, 'artist-credit.artist.name')
                 if 'sort-name' in ncredit['artist']:
                     tempSortName = ncredit['artist']['sort-name']
                 else:
-                    log.error("%s: %r: Missing 'artist-credit.artist.sort-name' in release metadata.",
-                            PLUGIN_NAME, albumid)
+                    metadataerror(albumid, 'artist-credit.artist.sort-name')
             else:
-                log.error("%s: %r: Missing 'artist-credit.artist' in release metadata.",
-                        PLUGIN_NAME, albumid)
+                metadataerror(albumid, 'artist-credit.artist')
             stdArtist += tempStdName + tempPhrase
             credArtist += tempCredName + tempPhrase
             sortArtist += tempSortName + tempPhrase
@@ -86,17 +81,21 @@ def add_artist_std_name(album, album_metadata, release_metadata):
                 album_metadata["~aaeSortPrimaryAlbumArtist"] = tempSortName
             aCount += 1
     else:
-        log.error("%s: %r: Missing 'artist-credit' in release metadata: %s",
-                PLUGIN_NAME, albumid, release_metadata)
-    if len(stdArtist) > 0:
+        metadataerror(albumid, 'artist-credit')
+    if stdArtist:
         album_metadata["~aaeStdAlbumArtists"] = stdArtist
-    if len(credArtist) > 0:
+    if credArtist:
         album_metadata["~aaeCredAlbumArtists"] = credArtist
-    if len(sortArtist) > 0:
+    if sortArtist:
         album_metadata["~aaeSortAlbumArtists"] = sortArtist
-    if aCount > 0:
+    if aCount:
         album_metadata["~aaeAlbumArtistCount"] = aCount
     return None
+
+
+def metadataerror(album_id, metadata_element):
+    log.error("%s: %r: Missing '%s' in release metadata.",
+            PLUGIN_NAME, album_id, metadata_element)
 
 # Register the plugin to run at a LOW priority so that other plugins that
 # modify the contents of the _albumartists and _albumartists_sort lists can
