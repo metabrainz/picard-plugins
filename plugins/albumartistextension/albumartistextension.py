@@ -33,72 +33,71 @@ from picard.metadata import register_album_metadata_processor
 from picard.plugin import PluginPriority
 
 def add_artist_std_name(album, album_metadata, release_metadata):
-    albumid = release_metadata['id']
+    album_id = release_metadata['id']
     # Test for valid metadata node for the release
     if 'artist-credit' in release_metadata:
         # Initialize variables to default values
-        credArtist = ""
-        stdArtist = ""
-        sortArtist = ""
-        aCount = 0
+        cred_artist = ""
+        std_artist = ""
+        sort_artist = ""
+        artist_count = 0
         # The 'artist-credit' key should always be there.
         # This check is to avoid a runtime error if it doesn't exist for some reason.
-        for ncredit in release_metadata['artist-credit']:
+        for artist_credit in release_metadata['artist-credit']:
             # Initialize temporary variables for each loop.
-            tempStdName = ""
-            tempCredName = ""
-            tempSortName = ""
-            tempPhrase = ""
+            temp_std_name = ""
+            temp_cred_name = ""
+            temp_sort_name = ""
+            temp_phrase = ""
             # Check if there is a 'joinphrase' specified.
-            if 'joinphrase' in ncredit:
-                tempPhrase = ncredit['joinphrase']
+            if 'joinphrase' in artist_credit:
+                temp_phrase = artist_credit['joinphrase']
             else:
-                metadataerror(albumid, 'artist-credit.joinphrase')
+                metadata_error(album_id, 'artist-credit.joinphrase')
             # Check if there is a 'name' specified.
-            if 'name' in ncredit:
-                tempCredName = ncredit['name']
+            if 'name' in artist_credit:
+                temp_cred_name = artist_credit['name']
             else:
-                metadataerror(albumid, 'artist-credit.name')
+                metadata_error(album_id, 'artist-credit.name')
             # Check if there is an 'artist' specified.
-            if 'artist' in ncredit:
+            if 'artist' in artist_credit:
                 # Check if there is a 'name' specified.
-                if 'name' in ncredit['artist']:
-                    tempStdName = ncredit['artist']['name']
+                if 'name' in artist_credit['artist']:
+                    temp_std_name = artist_credit['artist']['name']
                 else:
-                    metadataerror(albumid, 'artist-credit.artist.name')
-                if 'sort-name' in ncredit['artist']:
-                    tempSortName = ncredit['artist']['sort-name']
+                    metadata_error(album_id, 'artist-credit.artist.name')
+                if 'sort-name' in artist_credit['artist']:
+                    temp_sort_name = artist_credit['artist']['sort-name']
                 else:
-                    metadataerror(albumid, 'artist-credit.artist.sort-name')
+                    metadata_error(album_id, 'artist-credit.artist.sort-name')
             else:
-                metadataerror(albumid, 'artist-credit.artist')
-            stdArtist += tempStdName + tempPhrase
-            credArtist += tempCredName + tempPhrase
-            sortArtist += tempSortName + tempPhrase
-            if aCount < 1:
-                album_metadata["~aaeStdPrimaryAlbumArtist"] = tempStdName
-                album_metadata["~aaeCredPrimaryAlbumArtist"] = tempCredName
-                album_metadata["~aaeSortPrimaryAlbumArtist"] = tempSortName
-            aCount += 1
+                metadata_error(album_id, 'artist-credit.artist')
+            std_artist += temp_std_name + temp_phrase
+            cred_artist += temp_cred_name + temp_phrase
+            sort_artist += temp_sort_name + temp_phrase
+            if artist_count < 1:
+                album_metadata["~aaeStdPrimaryAlbumArtist"] = temp_std_name
+                album_metadata["~aaeCredPrimaryAlbumArtist"] = temp_cred_name
+                album_metadata["~aaeSortPrimaryAlbumArtist"] = temp_sort_name
+            artist_count += 1
     else:
-        metadataerror(albumid, 'artist-credit')
-    if stdArtist:
-        album_metadata["~aaeStdAlbumArtists"] = stdArtist
-    if credArtist:
-        album_metadata["~aaeCredAlbumArtists"] = credArtist
-    if sortArtist:
-        album_metadata["~aaeSortAlbumArtists"] = sortArtist
-    if aCount:
-        album_metadata["~aaeAlbumArtistCount"] = aCount
+        metadata_error(album_id, 'artist-credit')
+    if std_artist:
+        album_metadata["~aaeStdAlbumArtists"] = std_artist
+    if cred_artist:
+        album_metadata["~aaeCredAlbumArtists"] = cred_artist
+    if sort_artist:
+        album_metadata["~aaeSortAlbumArtists"] = sort_artist
+    if artist_count:
+        album_metadata["~aaeAlbumArtistCount"] = artist_count
     return None
 
 
-def metadataerror(album_id, metadata_element):
+def metadata_error(album_id, metadata_element):
     log.error("%s: %r: Missing '%s' in release metadata.",
             PLUGIN_NAME, album_id, metadata_element)
 
 # Register the plugin to run at a LOW priority so that other plugins that
-# modify the contents of the _albumartists and _albumartists_sort lists can
-# complete their processing and this plugin is working with the latest
-# updated data.
+# modify the artist information can complete their processing and this plugin
+# is working with the latest updated data.
 register_album_metadata_processor(add_artist_std_name, priority=PluginPriority.LOW)
