@@ -76,7 +76,6 @@ class FixedTrack:
 
 class FixTrackNumsUsingTitles(BaseAction):
   NAME = 'Fix track numbers using titles'
-  
   TITLE_REGEX = re.compile(r"[^\d\-]+") # Only digits and '-' allowed
   
   def callback(self,objs):
