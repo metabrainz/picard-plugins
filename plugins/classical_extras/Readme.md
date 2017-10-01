@@ -1,5 +1,5 @@
 # General Information
-This is version 0.7 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
+This is version 0.8 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 0.8: Handle multiple recordings and/or multiple parents of a work. Handle multiple albumartist composers for one track. Option to use "credited as" name for artists (inc. performers and composers) who are "release artist" or "track artist". Option to exclude "solo" from instrument types. Option to over-ride plugin options with those used when the album was last saved. Option to keep (and append to) specified existing file tags - furthermore if "is_classical" is present, the work-type variable will include "Classical". Option to use (and write) SongKong-compatible work tags (saves processing time if SongKong is used to pre-process large numbers of files). Include the work (and its parents) of which a work is an arrangement (as a "pseudo-parent"). Include medleys in movement/part description (as [Medley of:...] or other descriptor specified in options). Allow for multiple parents of recordings and works (and multiple parents of those) - multiples are given as multiple tag instances, where permitted, otherwise separated by semi-colons. Option as to whether to include parent works where the relationship attribute is "part of collection". Plus bug fixes too numerous to mention!
+
 Version 0.7: Bug fixes. Pull request issued for this version.
 
 Version 0.6.6: Bug fixes and algorithm improvements. Allow multiple sources for a tag (each will be appended) and use + as separator for concantenating sources, not a comma, to distinguish from the use of comma to separate multiples. Provide additional hidden variables ("sources") for vocalists and instrumentalists. Option to include intermediate work levels in a movement tag (for systems which cannot display multiple work levels).
@@ -32,14 +34,15 @@ Install the zip file in your plugins folder in the usual fashion
 After installation, go to the Options Page and modify choices as required. There are 3 tabs - "Artists", "Works and parts" and "Advanced". The sections below describe each of these. If the options provided do not allow sufficient flexibility for a user's need and they do not want to use scripting, then it may be possible to achieve the required result by running and saving twice (or more!) with different options each time. This is not recommended for more than a one-off - a script would be better.
 
 **Important**: 
-1.  The plugin **will not work unless** you have enabled "Use release relationships" and "Use track relationships" in Picard->Options->Metadata.
-2.  It is recommended only to use the plugin on one release at a time, particularly if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" of untagged files - use a tool such as SongKong for that and then use the plugin to enhance the results as required. However, once you have tagged files (either in Picard or, say, SongKong) such that they all have MusicBrainz IDs, you should be able to re-tag multiple releases by dragging the containing folder into Picard; this is useful to pick up changed MusicBrainz data or if you change the Classical Extras version or options (but bear in mind that the "Works and parts" function will still take at least 1 second per track and **make sure you do not have "debug" or "info" logging turned on** - in the "Advanced" tab).
+1.  The plugin **will not work fully unless** you have enabled "Use release relationships" and "Use track relationships" in Picard->Options->Metadata. However, if the MusicBrainz database has conflicting data between track and release relationships, then disable the option for the incorrect data (but preferably fix the incorrect data using "Edit relationships" in MusicBrainz!).
+2.  It is recommended only to use the plugin on one or a few release(s) at a time, particularly for initial tagging and if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" of untagged files - use a tool such as SongKong for that and then use the plugin to enhance the results as required. However, once you have tagged files (either in Picard or, say, SongKong) such that they all at least have MusicBrainz IDs, you should be able to re-tag multiple releases by dragging the containing folder into Picard; this is useful to pick up changed MusicBrainz data or if you change the Classical Extras version or options (but bear in mind that the "Works and parts" function will still take at least 1 second per track and **make sure you have "debug" or "info" logging turned OFF** - in the "Advanced" tab).
+3.  If you are just changing option settings then you can usually "use cache" (see "work and parts" tab section 1) to avoid the 1-second per work delay. However, if the works data in MusicBrainz has been changed then obviously you will need to do a full look-up, so disable cache. If the work structure has been fundamentally changed (i.e. a different hierarchy of existing works) - either within the MusicBrainz database or by selecting/deselecting the "include collection relations", partial" or "arrangements" options - then you will need to quit and restart Picard to correctly pick up the new structure.
 3.  Keep a backup of your picard.ini file (AppData->Roaming->MusicBrainz) in case you erase your settings or Picard crashes and loses them for you.
 
 ## Artists tab
 There are four coloured sections as shown in the screen image below:
 
-![Artist options](http://i.imgur.com/sKAe38y.jpg)
+![Artist options](https://i.imgur.com/bqPyQH9.jpg)
 
 1. "Create extra artist metadata" should be selected otherwise this section will not run. This is the default.
 
@@ -48,9 +51,13 @@ There are four coloured sections as shown in the screen image below:
 
 2. "Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name. MB style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
 
-	"Fix cyrillic names (where possible and if not fixed by locale settings)" attempts to provide English version of composers, conductors and performers where the script is non-Latin and the relevant locale settings (Options->Metadata) have not fixed this. Note that the standard Picard tags may be amended if this option is chosen (the default).
+  "Include arrangers from all work levels, plus instrument arrangers". This will gather together any arranger information from the recording, work or parent works and place it in the "arranger" tag, with a subkey as appropriate. All arrangers (except orchestrators who are dealt with separately) will also be put in the _cea_arrangers hidden variable. If you want to add arrangers as composers, do so in the tag mapping section - see below. (Note that Picard does not natively pick up all arrangers)
 
-	"Include arrangers from all work levels, plus instrument arrangers". This will gather together any arranger information from the recording, work or parent works and place it in the "arranger" tag, with a subkey as appropriate. All arrangers (except orchestrators who are dealt with separately) will also be put in the _cea_arrangers hidden variable. If you want to add arrangers as composers, do so in the tag mapping section - see below. (Note that Picard does not natively pick up all arrangers)
+  "Do not include 'solo' as an instrument type". MusicBrainz permits the use of "solo" as an instrument type although, for classical music, its use is fairly rare - usually only if explicitly stated as a "solo" on the the sleevenotes. Picard treats it as an "instrument", leading to the slightly odd tag "performer:bassoon and solo" (for example) rather than "performer:bassoon solo" or just "performer:bassoon". Classical Extras provides the option to exclude "solo" (the default).
+
+  "Use 'credited as' name for performers who are also 'recording artist' ". Normally, if an artist entity is edited (e.g. name changed) then that edit appears in all relationships, so (for example) performer names will be changed. However, MusicBrainz associates an artist (or more than one) with a recording and provides for a "credited as" name which is specific to this recording. Select this option to use any such "credited as" names instead of the names given by the performer relationship (this is the default).
+
+  "Fix cyrillic names (where possible and if not fixed by locale settings)" attempts to provide English version of composers, conductors and performers where the script is non-Latin and the relevant locale settings (Options->Metadata) have not fixed this. Note that the standard Picard tags may be amended if this option is chosen (the default).
 
 	"Annotate chorus master in conductor with ..." will place the specified text in brackets after the chorus master's name in the conductor tag (otherwise Picard will just include the name with any annotation in the MB database).
 
@@ -60,9 +67,12 @@ There are four coloured sections as shown in the screen image below:
 
 	Please note that the use of the word "master" is the MusicBrainz term and is not intended to be gender-specific. Users can specify whatever text they please.
 
-3. "Remove Picard-generated tags before applying subsequent actions?". Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options->Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive.
 
-4. "Tag mapping". This section permits the contents of any hidden variable or tag to be written to one or more tags.
+3. "Keep file tags": This refers to the tags which already exist on files which have been matched to MusicBrainz in the right-hand panel, not the tags generated by Picard from the MusicBrainz database. Normally, Picard cannot process these tags - either it will overwrite them (if it creates a similarly named tag), clear them (if 'Clear existing tags' is specified in the main Options->Tags screen) or keep them (if 'Preserve these tags...' is specified after the 'Clear existing tags' option). Classical Extras allows a further option - for the tags to be appended to in the tag mapping section (see below). List file tags which will be appended to rather than over-written by tag mapping (NB this will keep tags even if "Clear existing tags" is selected on main options). In addition, certain existing tags may be used by Classical Extras - in particular "is_classical" (which is set by SongKong to 1 if the track is deemed to be classical, based on an extensive database) is used to add 'classical' to the variable "_cea_worktype", if "Infer work types" is selected in the first section.
+
+4. "Remove Picard-generated tags before applying subsequent actions?". Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options->Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive.
+
+5. "Tag mapping". This section permits the contents of any hidden variable or tag to be written to one or more tags.
 
     * **Sources**:
 	The most useful sources are available from the drop-down list and are as follows:
@@ -102,16 +112,30 @@ There are four coloured sections as shown in the screen image below:
 
 	Continuing the "leader" example above, that example places the leader text as an additional performer in the tag (with separating semi-colon). To completely replace the original orchestra name, blank the orchestra tag then re use it with the following source text: "performer:orchestra,\ (leader ,leaders,\\)"
 
+  More complex operations can be built using tagger scripts. These can be set to run conditionally by setting a tag or hidden variable in this section and then testing it in the script.
+
 ## Work and parts tab
 
-There three coloured sections as shown in the screen print below:
-![Works and parts options](http://i.imgur.com/6iXgWFP.jpg)
+There five coloured sections as shown in the screen print below:
+![Works and parts options](https://i.imgur.com/znCtgu7.jpg)
 
 1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
 
-    "Use cache (if available)" prevents excessive look-ups of the MB database. Every look-up of a parent work needs to be performed separately (hopefully the MB database might make this easier some day). Network usage constraints by MB means that each look-up takes a minimum of 1 second. Once a release has been looked-up, the works are retained in cache, significantly reducing the time required if, say, the options are changed and the data refreshed. However, if the user edits the works in the MB database then the cache will need to be turned off temporarily for the refresh to find the new/changed works.
+    "Include collection relationships" (selected by default) will include parent works where the relationship has the attribute 'part of collection'. See [Discussion](https://community.metabrainz.org/t/levels-in-the-structure-of-works/293047/109) for the background to this. Note that only "work" entity types will be included, not "series" entities. If this option is changed, it will not take effect on releases already loaded in Picard - you will need to quit and restart. 
 
-2. "Tagging style". This section determines how the hierarchy of works will be sourced.
+    "Use cache (if available)" prevents excessive look-ups of the MB database. Every look-up of a parent work needs to be performed separately (hopefully the MB database might make this easier some day). Network usage constraints by MB means that each look-up takes a minimum of 1 second. Once a release has been looked-up, the works are retained in cache, significantly reducing the time required if, say, the options are changed and the data refreshed. However, if the user edits the works in the MB database then the cache will need to be turned off temporarily for the refresh to find the new/changed works. Also some types of work (e.g. arrangements) will require a full look-up if options have been changed.
+
+2. "SongKong-compatible tag usage".
+
+    "Use work tags on file (no look up on MB) if Use Cache selected": This will enable the existing work tags on the file to be used in preference to looking up on MusicBrainz, if those tags are SongKong-compatible. If present, this can speed up processing considerably, but obviously any new data on MusicBrainz will be missed. For the option to operate, "Use cache" also needs to be selected. Although faster, some of the subtleties of a full look-up may be missed - for example, parent works which are arrangements will not be highlighted as such, some arrangers or composers of original works may be omitted and some medley information may be missed.
+
+    "Write SongKong-compatible work tags" does what it says. These can then be used by the previous option, if the release is subsequently reloaded into Picard, to speed things up (assuming the reload was not to pick up new work data).
+
+    The default for both these options is unchecked.
+
+    Note that Picard and SongKong use the tag musicbrainz_workid to mean different things. If Picard has overwritten the SongKong tag (not a problem if this plugin is used) then a warning will be given and the works will be looked up on MusicBrainz. Also note that once a release is loaded, subsequent refreshes will use the cache (if option is ticked) in preference to the file tags.
+
+3. "Tagging style". This section determines how the hierarchy of works will be sourced.
 
     * **Works source**: There are 3 options for determing the principal source of the works metadata
       - "Use only metadata from title text". The plugin will attempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.
@@ -126,27 +150,43 @@ There three coloured sections as shown in the screen print below:
 
 **Strategy for setting style:** *It is suggested that you start with "extended/enhanced" style and the "Consistent with lowest level work description" as the source (this is the default). If this does not give acceptable results, try switching to "Full MusicBrainz work hierarchy". If the "enhanced" details in curly brackets (from the track title) give odd results then switch the style to "canonical works" only. Any remaining oddities are then probably in the MusicBrainz data, which may require editing.*
 
-3. "Tags to create" sets the names of the tags that will be created from the sources described above. All these tags will be blanked before filling as specified. Tags specified against more than one source will have later sources appended in the sequence specified, separated by separators as specified.
+4. "Tags to create" sets the names of the tags that will be created from the sources described above. All these tags will be blanked before filling as specified. Tags specified against more than one source will have later sources appended in the sequence specified, separated by separators as specified.
 
     * **Work tags**:
       - "Tags for Work - for software with 2-level capability". Some software (notably Muso) can display a 2-level work hierarchy as well as the work-movement hierarchy. This tag can be use to store the 2-level work name (a double colon :: is used to separate the levels within the tag).
       - "Tags for Work - for software with 1-level capability". Software which can display a movement and work (but no higher levels) could use any tags specified here. Note that if there are multiple work levels, the intermediate levels will not be tagged. Users wanting all the information should use the tags from the previous option (but it may cause some breaks in the display if levels change) - alternatively the missing work levels can be included in a movement tag (see below).
-      - "Tags for top-level (canonical) work". This is the top-level work held in MB. This can be useful for cataloguing and searching (if the library software is capabale).
+      - "Tags for top-level (canonical) work". This is the top-level work held in MB. This can be useful for cataloguing and searching (if the library software is capable).
 
     * **Movement/Part tags**:
-      - "Tags for(computed) movement number". This is not necessarily the embedded movt/part number, but is the sequence number of the movement within its parent work **on the current release**.
-      - "Tags for Movement - excluding embedded movt/part numbers". As below, but without the movement part/number prefix (if applicable)
-      - "Tags for Movement - including embedded movt/part numbers". This tag(s) will contain the full lowest-level part name extracted from the lowest-level work name, according to the chosen tagging style.
-      An option is also provided for tags which are to include any intermediate work levels which are missing from a single-level work tag. Use different tag names for these, from the multi-level version, otherwise both versions will be appended, creating a multi-valued tag (a warning will be given).
+      (a) "Tags for(computed) movement number". This is not necessarily the embedded movt/part number, but is the sequence number of the movement within its parent work **on the current release**.
+      (b) "Tags for Movement - excluding embedded movt/part numbers". As below, but without the movement part/number prefix (if applicable)
+      (c) "Tags for Movement - including embedded movt/part numbers". This tag(s) will contain the full lowest-level part name extracted from the lowest-level work name, according to the chosen tagging style.
+      (d) For options (b) and (c), there tags can either be filled "for use with multi-level work tags" or "for use with 1-level work tags (intermediate works will prefix movement)" - or different tags for each column.  The latter option will include any intermediate work levels which are missing from a single-level work tag. Use different tag names for these, from the multi-level version, otherwise both versions will be appended, creating a multi-valued tag (a warning will be given).
+      Note that if a tag is included in (a) and either of (b) or (c), the movement number will be prepended at the beginning of the tag, followed by the selected separator.
 
-**Strategy for setting tags:** *It is suggested that initially you just use the multi-level work tag and related movement tags, even if your software only has a single-level work capability. This may result in work names being repeated in work headings, but may look better than the alternative of having work names repeated in movement names (this is the default). If this does not look good you can then compare it with the alternative approach and change as required for specific releases. If your software does not have any "work" capability, then you can still get the full work details by, for example, specifying "title" as both a work and a movement tag.*
+**Strategy for setting tags:** *It is suggested that initially you just use the multi-level work tag and related movement tags, even if your software only has a single-level work capability. This may result in work names being repeated in work headings, but may look better than the alternative of having work names repeated in movement names. This is the default.* 
+
+*If this does not look good you can then compare it with the alternative approach and change as required for specific releases. If your software does not have any "work" capability, then you can still get the full work details by, for example, specifying "title" as both a work and a movement tag.*
+
+5. "Partial recordings, arrangements and medleys" gives various options where recordings are not just simply of a named complete work.
+
+    * **Partial recordings**:
+      If this option is selected, partial recordings will be treated as a sub-part of the whole recording and will have the related text included in its name. Note that this text is at the end of the canonical name, but the latter will probably be stripped from the sub-part as it duplicates the recording work name; any title text will be appended to the whole. Note that, if "Consistent with lowest level work description" is chosen in section 3, the text may be treated as a "prefix" similar to those in the "Advanced" tab. If this eliminates other similar prefixes and has unwanted effects, then either change the desired text slightly (e.g. surround with brackets) or use the "Full MusicBrainz work hierarchy" option in section 3.
+
+    * **Arrangements**:
+      If this option is selected, works which are arrangements of other works will have the latter treated in the same manner as "parent" works, except that the arrangement work name will be prefixed by the text provided.
+      
+    **Important note:** *If the Partial or Arrangement options are changed (i.e. selected/deselected) then quit and restart Picard as the work structure is fundamentally different. If the related text (only) is changed then the release can simply be refreshed.*
+
+    * **Medleys**
+      These can occur in two ways in MusicBrainz: (a) the recording is described as a "medley of" a number of works and (b) the track is described as (more than one) "medley including a recording of" a work. See [Homecoming](https://musicbrainz.org/release/393913a2-7fde-4ed5-8be6-ca5c2c0ccf0d) for examples of both (tracks 8, 9 and 11). In the first case, the specified text will be included in brackets after the work name, whereas in the second case, the track will be treated as a recording of multiple works and the specified text will appear in the parent work name.
 
 **Note for iTunes users:** *iTunes and Picard do not work well together. iTunes can display work and movement for m4a(mp4) files, but Picard does not write the movement tag. To work round this, write the movement to the "subtitle" tag assuming that is not otherwise used, and use a simple Mp3tag action to convert it to MOVEMENTNAME before importing to iTunes. If you are writing to a FLAC file which will subsequently be converted to m4a then different tag names may be required; e.g. using dBpoweramp, write the movement to "movement name". In both cases use "work" for the work. To store the top_work, use "grouping" if writing directly to m4a, but "style" if writing to FLAC followed by dBpoweramp conversion. You can put multiple tags into the boxes described above so that your options are multi-purpose. N.B. if work tags are specified and the work has at least one level (i.e. at least work: movement), then the tag "show work movement" will be set to 1. This is used by iTunes to trigger the hierarchical display and should work both directly with m4a files and indirectly via files which are subsequently converted.*
 
 ## Advanced tab
 
 Hopefully, this tab should not be much used - and even less in future versions. In any case, it should not need to be changed frequently. There are four sections as shown in the sceeen print below:
-![Advanced options](http://i.imgur.com/VezMj9Y.jpg)
+![Advanced options](https://i.imgur.com/UeNLuw1.jpg)
 
 1. "Artists". This has only one subsection - "Ensemble strings" - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the "Artists" tab as sources for any required tags. 
 If it is important that only whole words are to be matched, be sure to include a space after the string.
@@ -161,7 +201,11 @@ If it is important that only whole words are to be matched, be sure to include a
 
 4. "Save plugin details and options in a tag?" can be used so that the user has a record of the version of Classical Extras which generated the tags and which options were selected to achieve the resulting tags. Note that the tags will be blanked first so this will only show the last options used on a particular file. The same tag can be used for both sets of options, resulting in a multi-valued tag. 
 
-    The tag contents are in json format. In a future version, there **might** be functionality to read this tag and use the options therein.
+The tag contents are in dict format. These tags can then be used to over-ride the displayed options subsequently (see below).
+
+5. "Over-ride plugin options displayed in UI with options from local file tags". If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride.
+
+The last checkbox, "Overwrite options in Options Pages", is for **VERY CAREFUL USE ONLY**. It will cause any options read from the saved tags (if the relevant box has been ticked) to over-write the options on the plugin Options Page UI. The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, to prevent inadvertant use. Far better is to make a **backup copy** of the picard.ini file.
 
 # Information on hidden variables
 
@@ -265,7 +309,8 @@ SongKong users may wish to map the _cwp variables to tags produced by SongKong i
 - _cwp_workid_0 => musicbrainz_work_composition_id
 - _cwp_work_n => musicbrainz_work_part_leveln, for n = 1..6
 - _cwp_workid_n => musicbrainz_work_part_leveln_id, for n = 1..6
-- _cwp_work_top => musicbrainz_work 
+- _cwp_work_top => musicbrainz_work
+These mappings are carried out automatically if the relevant options on the "Work and parts" tab are selected.
 In addition, _cwp_title_work and _cwp_title_part_0 are intended to be equivalent to SongKong's work and part tags.
 (N.B. Full consistency between SongKong and Picard may also require the modification of Artist and related tags via a script, or the preservation of the related file tags)
 
@@ -280,10 +325,12 @@ Leave the "title" tag unchanged or make it a combination of work and movement.
 
 # Possible Enhancements
 Planned enhancements (among others) are 
-1. Include discrimination as to type of parts relationship (i.e. exclude irrelevant parents)
-2. If a work is an arrangement of another work, look for the parent works of that other work (possibly)
-3. Find a better way dealing with multiple parents (rather than just select the one with the longest name as at present)
+1. Include information regarding dates (e.g. date composed, recording date).
+2. Improved genre capability.
 
 # Technical Matters
 Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to @dns_server for assistance in dealing with this and to @sophist for the albumartist_website code which I have used extensively. I have tried to add some more comments to help any others trying the same techniques.
+
+Also, the documentation of the XML lookup (tagger.xmlws) is virtually non-existent. The response is an XmlNode object (not a dict, although it is represented as one). Each node has a name with {attribs, text, children} values. The structure is more clearly understood if the web-based lookup is used (which is well documented) as this gives an XML response. I wrote a function (parse_data) to parse XmlNode objects, or lists thereof for a (parameterised) hierarchy of nodes (and optional attribs value tests) in order to extract required data from the response. This may be of use to other plugin authors.
+
 A variety of releases were used to test this plugin, but there may still be bugs, so further testing is welcome. The following release was particularly complex and useful for testing: https://musicbrainz.org/release/ec519fde-94ee-4812-9717-659d91be11d4
