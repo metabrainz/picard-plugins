@@ -11,7 +11,18 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
-Version 0.8: Handle multiple recordings and/or multiple parents of a work. Handle multiple albumartist composers for one track. Option to use "credited as" name for artists (inc. performers and composers) who are "release artist" or "track artist". Option to exclude "solo" from instrument types. Option to over-ride plugin options with those used when the album was last saved. Option to keep (and append to) specified existing file tags - furthermore if "is_classical" is present, the work-type variable will include "Classical". Option to use (and write) SongKong-compatible work tags (saves processing time if SongKong is used to pre-process large numbers of files). Include the work (and its parents) of which a work is an arrangement (as a "pseudo-parent"). Include medleys in movement/part description (as [Medley of:...] or other descriptor specified in options). Allow for multiple parents of recordings and works (and multiple parents of those) - multiples are given as multiple tag instances, where permitted, otherwise separated by semi-colons. Option as to whether to include parent works where the relationship attribute is "part of collection". Plus bug fixes too numerous to mention!
+Version 0.8: Handle multiple recordings and/or multiple parents of a work. 
+Handle multiple albumartist composers for one track. 
+Option to use "credited as" name for artists (inc. performers and composers) who are "release artist" or "track artist". 
+Option to exclude "solo" from instrument types. 
+Option to over-ride plugin options with those used when the album was last saved. 
+Option to keep (and append to) specified existing file tags - furthermore if "is_classical" is present, the work-type variable will include "Classical". 
+Option to use (and write) SongKong-compatible work tags (saves processing time if SongKong is used to pre-process large numbers of files). 
+Include the work (and its parents) of which a work is an arrangement (as a "pseudo-parent"). 
+Include medleys in movement/part description (as [Medley of:...] or other descriptor specified in options). 
+Allow for multiple parents of recordings and works (and multiple parents of those) - multiples are given as multiple tag instances, where permitted, otherwise separated by semi-colons. 
+Option as to whether to include parent works where the relationship attribute is "part of collection". 
+Plus minor enhancements and bug fixes too numerous to mention!
 
 Version 0.7: Bug fixes. Pull request issued for this version.
 
