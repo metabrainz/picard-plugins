@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.8'
+PLUGIN_VERSION = '0.8.1'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -76,7 +76,7 @@ def plugin_options(type):
          'default': 'ensemble, band, group, trio, quartet, quintet, sextet, septet, octet, chamber, consort, players, '
                     'les ,the , quartett'
          },
-        {'option': 'cea_composer_album',
+        {'option': '',
          'name': 'Album prefix',
          'value': 'Composer',
          'type': 'Boolean',
@@ -227,6 +227,11 @@ def plugin_options(type):
          'name': 'synonyms',
          'type': 'Text',
          'default': '(1, one) / (2, two) / (3, three) / (&, and)'
+         },
+        {'option': 'cwp_replacements',
+         'name': 'replacements',
+         'type': 'Text',
+         'default': '(words to be replaced, replacement words) / (please blank me, ) / (etc, etc)'
          },
         {'option': 'cwp_titles',
          'name': 'Style',
@@ -420,7 +425,7 @@ def option_settings(config_settings):
     options = {}
     for option in plugin_options('artists') + plugin_options('tag') \
             + plugin_options('workparts') + plugin_options('other'):
-        options[option['option']] = config_settings[option['option']]
+        options[option['option']] = copy.deepcopy(config_settings[option['option']])
     return options
 
 
@@ -576,6 +581,22 @@ def swap_prefix(performer):
         return match.group(2) + ", " + match.group(1)
     else:
         return performer
+
+
+def replace_roman_numerals(s):
+    # replaces roman numerals include in s, where followed by punctuation, by digits
+    p = re.compile(
+        r'\b(M{0,4}(CM|CD|D?)?C{0,3}(XC|XL|L?)?X{0,3}(IX|IV|V?)?I{0,3})\b(\.|:|,|;|$)',
+        #  was r'(^|\s)(\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b)(\W|\s|$)',
+        re.IGNORECASE | re.UNICODE)  # Matches Roman numerals (+ ensure non-Latin chars treated as word chars)
+    romans = p.findall(s)
+    for roman in romans:
+        if roman[0]:
+            numerals = str(roman[0])
+            digits = str(from_roman(numerals))
+            to_replace = roman[0] + r'(\.|:|,|;|$)'
+            s = re.sub(to_replace, digits, s)
+    return s
 
 
 def from_roman(s):
@@ -778,37 +799,46 @@ def sort_suffix(tag):
 
 
 def append_tag(tm, tag, source):
-    if source and len(source) > 0:
-        if isinstance(source, basestring):
-            source = source.replace(u'\u2010', u'-')
-            source = source.split(';')
-        if tag in tm:
-            for source_item in source:
-                if source_item not in tm[tag]:
-                    if not isinstance(tm[tag], list):
-                        tag_list = tm[tag].split('; ')
-                        tag_list.append(source_item)
-                        tm[tag] = tag_list
-                        # Picard will have converted it from list to string
-                    else:
-                        tm[tag].append(source_item)
-        else:
-            if tag and tag != "":
-                if isinstance(source, list):
-                    for source_item in source:
-                        if tag not in tm:
-                            tm[tag] = [source_item]
+    if tag:
+        log.debug('appending source: %s to tag: %s (source is type %s)', source, tag, type(source))
+        if source and len(source) > 0:
+            if isinstance(source, basestring):
+                source = source.replace(u'\u2010', u'-')
+                source = source.replace(u'\u2019', u"'")
+                source = source.split(';')
+            if tag in tm:
+                for source_item in source:
+                    if isinstance(source_item, basestring):
+                        source_item = source_item.replace(u'\u2010', u'-')
+                    if source_item not in tm[tag]:
+                        if not isinstance(tm[tag], list):
+                            tag_list = tm[tag].split('; ')
+                            tag_list.append(source_item)
+                            tm[tag] = tag_list
+                            # Picard will have converted it from list to string
                         else:
-                            if not isinstance(tm[tag], list):
-                                tag_list = tm[tag].split('; ')
-                                tag_list.append(source_item)
-                                tm[tag] = tag_list
+                            tm[tag].append(source_item)
+            else:
+                if tag and tag != "":
+                    if isinstance(source, list):
+                        for source_item in source:
+                            if isinstance(source_item, basestring):
+                                source_item = source_item.replace(u'\u2010', u'-')
+                                source_item = source_item.replace(u'\u2019', u"'")
+
+                            if tag not in tm:
+                                tm[tag] = [source_item]
                             else:
-                                tm[tag].append(source_item)
-                else:
-                    tm[tag] = [source]
-                    # probably makes no difference to specify a list as Picard will convert the tag to string,
-                    # but do it anyway
+                                if not isinstance(tm[tag], list):
+                                    tag_list = tm[tag].split('; ')
+                                    tag_list.append(source_item)
+                                    tm[tag] = tag_list
+                                else:
+                                    tm[tag].append(source_item)
+                    else:
+                        tm[tag] = [source]
+                        # probably makes no difference to specify a list as Picard will convert the tag to string,
+                        # but do it anyway
 
 
 def parse_data(options, obj, response_list, *match):
@@ -938,7 +968,7 @@ class ExtraArtists:
         # collection of artists to be applied at album level
         self.track_listing = []
         self.options = collections.defaultdict(dict)
-        # currently active Classical Extras options
+        # collection of Classical Extras options
 
     def add_artist_info(
             self,
@@ -984,7 +1014,6 @@ class ExtraArtists:
             for music_file in album.tagger.files:
                 new_metadata = album.tagger.files[music_file].metadata
                 orig_metadata = album.tagger.files[music_file].orig_metadata
-                # if options["cea_override"]:
                 if 'musicbrainz_trackid' in new_metadata and 'musicbrainz_trackid' in tm:
                     if new_metadata['musicbrainz_trackid'] == tm['musicbrainz_trackid']:
                         # find the tag with the options
@@ -1032,6 +1061,19 @@ class ExtraArtists:
                                         append_tag(tm, '~cwp_info_options', opt + ' = ' + str(opt_dict[opt]))
 
         self.track_listing.append(track)
+        # fix odd hyphens in names for consistency
+        field_types = ['~albumartists', '~albumartists_sort']
+        for field_type in field_types:
+            if field_type in tm:
+                field = tm[field_type]
+                if isinstance(field, list):
+                    for x, it in enumerate(field):
+                        field[x] = it.replace(u'\u2010', u'-')
+                elif isinstance(field, basestring):
+                    field = field.replace(u'\u2010', u'-')
+                else:
+                    pass
+                tm[field_type] = field
 
         track_artist_credit_list = get_artist_credit(options, trackXmlNode)
         if track_artist_credit_list:
@@ -1231,7 +1273,8 @@ class ExtraArtists:
                     performer = performer + perftype
                     if subkey in self.ENSEMBLE_TYPES or self.ensemble_type(
                             performername):
-                        ensembles.append(performer)
+                        if performer not in ensembles:
+                            ensembles.append(performer)
                         if performername not in ensemble_names:
                             ensemble_names.append(performername)
                         if performername in metadata['~albumartists'] or swap_prefix(
@@ -1239,19 +1282,25 @@ class ExtraArtists:
                             '~albumartists_sort']:
                             album_ensembles.append(performername)
                     else:
-                        soloists.append(performer)
+                        if performer not in soloists:
+                            soloists.append(performer)
                         if "vocals" in subkey:
-                            vocalists.append(performer)
+                            if performer not in vocalists:
+                                vocalists.append(performer)
                         elif subkey:
-                            instrumentalists.append(performer)
+                            if performer not in instrumentalists:
+                                instrumentalists.append(performer)
                         else:
-                            other_soloists.append(performer)
+                            if performer not in other_soloists:
+                                other_soloists.append(performer)
                         if performername not in soloist_names:
                             soloist_names.append(performername)
                             if "vocals" in subkey:
-                                vocalist_names.append(performername)
+                                if performer not in vocalist_names:
+                                    vocalist_names.append(performername)
                             elif subkey:
-                                instrumentalist_names.append(performername)
+                                if performer not in instrumentalist_names:
+                                    instrumentalist_names.append(performername)
                             else:
                                 pass
                         match = last.search(
@@ -1261,22 +1310,25 @@ class ExtraArtists:
                         else:
                             performerlast = sort_field(stripsir(performername))
                         if stripsir(performername) in metadata['~albumartists'] or performerlast in metadata[
-                            '~albumartists_sort'] \
+                            '~albumartists_sort']\
                                 or stripsir(performername) in metadata['~albumartists_sort']:
                             album_soloists.append(performername)
                         else:
                             if subkey not in self.ENSEMBLE_TYPES and not self.ensemble_type(
                                     performername):
-                                support_performers.append(performer)
+                                if performer not in support_performers:
+                                    support_performers.append(performer)
             if key.startswith('~performer_sort'):
                 _, subkey = key.split(':', 1)  # mainkey not used
                 for performer in values:
                     if subkey in self.ENSEMBLE_TYPES or self.ensemble_type(
                             performer):
-                        ensembles_sort.append(performer)
+                        if performer not in ensembles_sort:
+                            ensembles_sort.append(performer)
                         if performer in metadata['~albumartists_sort'] or unsort(
                                 performer) in metadata['~albumartists']:  # in case of sort differences
-                            album_ensembles_sort.append(performer)
+                            if performer not in album_ensembles_sort:
+                                album_ensembles_sort.append(performer)
                     else:
                         if performer not in soloists_sort:  # performer might appear more than once if on multiple instruments
                             soloists_sort.append(performer)
@@ -1986,9 +2038,6 @@ class PartLevels:
         self.WARNING = options["log_warning"]
         self.DEBUG = options["log_debug"]
         self.INFO = options["log_info"]
-        self.PARTIAL_TEXT = options["cwp_partial_text"] + ' '
-        self.ARRANGEMENTS_TEXT = options["cwp_arrangements_text"] + ' '
-        self.MEDLEY_TEXT = options["cwp_medley_text"] + ' '
 
         tm = track_metadata
         if options["cwp_override"] or options["cwp_use_sk"]:
@@ -2111,7 +2160,6 @@ class PartLevels:
                                     log.debug('Options overridden for option = %s',
                                               wp_opt['option'] + ' = ' + str(options[wp_opt['option']]))
                                 append_tag(tm, '~cwp_info_options', opt + ' = ' + str(options_dict[opt]))
-
         # Continue?
         if not options["classical_work_parts"]:
             return
@@ -2121,32 +2169,32 @@ class PartLevels:
         self.MAX_RETRIES = options["cwp_retries"]
         # Proportion of a string to be matched to a (usually larger) string for
         # it to be considered essentially similar
-        self.SUBSTRING_MATCH = float(options["cwp_substring_match"]) / 100
+        # self.SUBSTRING_MATCH = float(options["cwp_substring_match"]) / 100
         self.USE_CACHE = options["use_cache"]
         # splitting for matching of parents. 1 = split in two, 2 = split in
         # three etc.
-        self.GRANULARITY = options["cwp_granularity"]
+        # self.GRANULARITY = options["cwp_granularity"]
         # proximity of new words in title comparison which will result in
         # infill words being included as well. 2 means 2-word 'gaps' of
         # existing words between new words will be treated as 'new'
-        self.PROXIMITY = options["cwp_proximity"]
+        # self.PROXIMITY = options["cwp_proximity"]
         # proximity measure to be used when infilling to the end of the title
-        self.END_PROXIMITY = options["cwp_end_proximity"]
-        self.USE_LEVEL_0 = options["cwp_level0_works"]
-        self.REMOVEWORDS = options["cwp_removewords"]
-        if options["cwp_partial"] and self.PARTIAL_TEXT and self.PARTIAL_TEXT != "" and self.USE_LEVEL_0:
-            self.REMOVEWORDS += ", " + self.PARTIAL_TEXT  # Explanation:
+        # self.END_PROXIMITY = options["cwp_end_proximity"]
+        # self.USE_LEVEL_0 = options["cwp_level0_works"]
+        # self.REMOVEWORDS = options["cwp_removewords"]
+        if options["cwp_partial"] and options["cwp_partial_text"] and options["cwp_level0_works"]:
+            options["cwp_removewords"] += ", " + options["cwp_partial_text"] + ' '  # Explanation:
         # If "Partial" is selected then the level 0 work name will have PARTIAL_TEXT appended to it.
         # If a recording is split across several tracks then each sub-part (quasi-movement) will have the same name
         # (with the PARTIAL_TEXT added). If level 0 is used to source work names then the level 1 work name will be
         # changed to be this repeated name and will therefore also include PARTIAL_TEXT.
         # So we need to add PARTIAL_TEXT to the prefixes list to ensure it is excluded from the level 1  work name.
-        self.SYNONYMS = options["cwp_synonyms"]
-
+        # self.SYNONYMS = options["cwp_synonyms"]
+        # self.REPLACEMENTS = options["cwp_replacements"]
         if self.DEBUG:
             log.debug("%s: LOAD NEW TRACK: :%s", PLUGIN_NAME, track)
-        if self.INFO:
-            log.info("trackXmlNode: %s", trackXmlNode)
+        # if self.INFO:
+        #     log.info("trackXmlNode: %s", trackXmlNode) #  Only use with small releases
         # fix titles which include composer name
         composersort = dict.get(track_metadata, 'composersort', [])
         composerlastnames = []
@@ -2210,7 +2258,7 @@ class PartLevels:
 
                         works = []
                         for w in work:
-                            partwork = w  # + ": " + self.PARTIAL_TEXT
+                            partwork = w  # + ": " + options["cwp_partial_text"] + ' '
                             works.append(partwork)
 
                         if self.DEBUG:
@@ -2246,6 +2294,10 @@ class PartLevels:
                     workId_list_p.append(w['id'])
                     work_list_p += w['titles']
                     attribute_list_p += w['attributes']
+            # de-duplicate work names
+            work_list = list(collections.OrderedDict.fromkeys(work_list)) # list(set()) won't work as need to retain order
+            work_list_p =  list(collections.OrderedDict.fromkeys(work_list_p))
+
             workId_tuple = tuple(workId_list)
             workId_tuple_p = tuple(workId_list_p)
             if workId_tuple not in self.parts or not self.USE_CACHE:
@@ -2472,12 +2524,18 @@ class PartLevels:
                             self.parts[new_ids] = self.parts[prev_ids]
                             del self.parts[prev_ids]
                             self.parts[new_ids]['name'] = add_list_uniquely(prev_name, parents)
+                            parentIds = new_id_list
 
                         else:
                             self.works_cache[wid] = parentIds
                             self.parts[wid]['parent'] = parentIds
                             self.parts[tuple(parentIds)]['name'] = parents
                             self.work_listing[album].append(tuple(parentIds))
+
+                        # de-duplicate the parent names
+                            self.parts[tuple(parentIds)]['name'] = \
+                                list(collections.OrderedDict.fromkeys(self.parts[tuple(parentIds)]['name']))
+                            # list(set()) won't work as need to retain order
                         if self.DEBUG:
                             log.debug('%s: added parent ids to work_listing: %s, [Requests = %s]', PLUGIN_NAME,
                                       parentIds, album._requests)
@@ -3038,27 +3096,29 @@ class PartLevels:
                             else:
                                 tracks['tracknumber'] = [
                                     int(tm['tracknumber'])]
-
-                self.derive_from_structure(
-                    top_info, tracks, height, depth, width, 'title')
-                if self.USE_LEVEL_0:
-                    # replace hierarchical works with those from work_0 (for
-                    # consistency)
-                    self.derive_from_structure(
-                        top_info, tracks, height, depth, width, 'work')
-                if self.DEBUG:
-                    log.debug("Trackback result for %s = %s", parentId, tracks)
-                response = parentId, tracks
-                if self.DEBUG:
-                    log.debug(
-                        "%s LEAVING PROCESS_TRACKBACK depth %s Response = %s",
-                        PLUGIN_NAME,
-                        depth,
-                        response)
-                return response
+                if tracks and 'track' in tracks:
+                    track = tracks['track'][0][0]
+                    # NB this will only be the first track of tracks, but its options will be used for the structure
+                    self.derive_from_structure(top_info, tracks, height, depth, width, 'title')
+                    if self.options[track]["cwp_level0_works"]:
+                        # replace hierarchical works with those from work_0 (for
+                        # consistency)
+                        self.derive_from_structure(
+                            top_info, tracks, height, depth, width, 'work')
+                    if self.DEBUG:
+                        log.debug("Trackback result for %s = %s", parentId, tracks)
+                    response = parentId, tracks
+                    if self.DEBUG:
+                        log.debug(
+                            "%s LEAVING PROCESS_TRACKBACK depth %s Response = %s",
+                            PLUGIN_NAME,
+                            depth,
+                            response)
+                    return response
+                else:
+                    return None
             else:
                 return None
-        return response
 
     def derive_from_structure(
             self,
@@ -3069,8 +3129,9 @@ class PartLevels:
             width,
             name_type):
         if 'track' in tracks:
+            track = tracks['track'][0][0]
             if self.DEBUG:
-                log.debug("%s: Deriving info from structure", PLUGIN_NAME)
+                log.debug("%s: Deriving info for %s from structure for track %s", PLUGIN_NAME, name_type, track)
             if 'tracknumber' in tracks:
                 sorted_tracknumbers = sorted(tracks['tracknumber'])
             else:
@@ -3088,14 +3149,13 @@ class PartLevels:
                     track_height = tracks['track'][0][1]
                     if track_height - height > 0:  # part_level
                         if name_type == 'title':
-                            track = tracks['track'][0][0]
                             if self.DEBUG:
                                 log.debug(
                                     "Single track work. Deriving directly from title text: %s", track)
                             tm = track.metadata
                             mb = tm['~cwp_work_0']
                             ti = name_list[0]
-                            diff = self.diff_pair(tm, mb, ti)
+                            diff = self.diff_pair(track, tm, mb, ti)
                             if diff:
                                 common_subset = self.derive_from_title(track, diff)[
                                     0]
@@ -3138,10 +3198,10 @@ class PartLevels:
                     log.debug(
                         "checked for common sequence - length is %s",
                         common_len)
-            for i, track in enumerate(tracks['track']):
-                track_meta = track[0]
+            for i, track_item in enumerate(tracks['track']):
+                track_meta = track_item[0]
                 tm = track_meta.metadata
-                part_level = track[1] - height
+                part_level = track_item[1] - height
                 if common_len > 0:
                     if self.INFO:
                         log.info(
@@ -3151,7 +3211,7 @@ class PartLevels:
                     name = tracks[name_type][i]
                     work = name[:common_len]
                     work = work.rstrip(":,.;- ")
-                    removewords = self.REMOVEWORDS.split(',')
+                    removewords = self.options[track]["cwp_removewords"].split(',')
                     if self.DEBUG:
                         log.debug(
                             "Removewords (in %s) = %s",
@@ -3244,7 +3304,7 @@ class PartLevels:
                         parent = '; '.join(parent)  # in case it is a list - make sure it is a string
                     if not isinstance(work, basestring):
                         work = '; '.join(work)
-                    diff = self.diff_pair(tm, parent, work)
+                    diff = self.diff_pair(track, tm, parent, work)
                     if diff == None:
                         diff = ""
                     strip = [diff, parent]
@@ -3300,6 +3360,16 @@ class PartLevels:
 
     def extend_metadata(self, top_info, track, ref_height, depth):
         tm = track.metadata
+        if self.DEBUG:
+            log.debug(
+                "%s: Extending metadata for track: %s, ref_height: %s, depth: %s",
+                PLUGIN_NAME,
+                track,
+                ref_height,
+                depth)
+        if self.INFO:
+            log.info("Metadata = %s", tm)
+
         title_groupheading = None
         part_levels = int(tm['~cwp_part_levels'])
         work_part_levels = int(tm['~cwp_work_part_levels'])
@@ -3313,7 +3383,7 @@ class PartLevels:
         # replace works and parts by those derived from the level 0 work, where
         # required, available and appropriate, but only use work names based on
         # level 0 text if it doesn't cause ambiguity
-        if self.USE_LEVEL_0 and (
+        if self.options[track]["cwp_level0_works"] and (
                         'X0_work_repeat' not in self.parts[topId] or (
                                 'X0_work_repeat' in self.parts[topId] and int(
                             self.parts[topId]['X0_work_repeat']) > work_ref_level)):
@@ -3331,24 +3401,26 @@ class PartLevels:
                     tm['~cwp_work_' +
                        str(level)] = tm['~cwp_X0_work_' + str(level)]
 
+        vanilla_part = tm['~cwp_part_0']  # before embellishing with partial / arrangement etc
+
         ## Fix text for arrangements, partials and medleys (Done here so that cache can be used)
-        if self.options[track]['cwp_arrangements'] and self.ARRANGEMENTS_TEXT != "":
+        if self.options[track]['cwp_arrangements'] and self.options[track]["cwp_arrangements_text"]:
             for lev in range(0, ref_level):  # top level will not be an arrangement else there would be a higher level
                 tup_id = eval(tm['~cwp_workid_' + str(lev)])  # needs to be a tuple to match
                 if 'arrangement' in self.parts[tup_id] and self.parts[tup_id]['arrangement']:
                     update_list = ['~cwp_work_', '~cwp_part_']
-                    if self.USE_LEVEL_0 and '~cwp_X0_work_' + str(lev) in tm:
+                    if self.options[track]["cwp_level0_works"] and '~cwp_X0_work_' + str(lev) in tm:
                         update_list += ['~cwp_X0_work_', '~cwp_X0_part_']
                     for item in update_list:
-                        tm[item + str(lev)] = self.ARRANGEMENTS_TEXT + tm[item + str(lev)]
+                        tm[item + str(lev)] = self.options[track]["cwp_arrangements_text"] + ' ' + tm[item + str(lev)]
 
-        if self.options[track]['cwp_partial'] and self.PARTIAL_TEXT != "":
+        if self.options[track]['cwp_partial'] and self.options[track]["cwp_partial_text"]:
             if '~cwp_workid_0' in tm:
                 # tm['~cwp_workid_0_orig'] = tm['~cwp_workid_0']
                 work0_id = eval(tm['~cwp_workid_0'])
                 if 'partial' in self.parts[work0_id] and self.parts[work0_id]['partial']:
                     update_list = ['~cwp_work_0', '~cwp_part_0']
-                    if self.USE_LEVEL_0 and '~cwp_X0_work_0' in tm:
+                    if self.options[track]["cwp_level0_works"] and '~cwp_X0_work_0' in tm:
                         update_list += ['~cwp_X0_work_0', '~cwp_X0_part_0']
                     for item in update_list:
                         if len(work0_id) > 1 and isinstance(tm[item], basestring):
@@ -3357,10 +3429,10 @@ class PartLevels:
                             meta_item = tm[item]
                         if isinstance(meta_item, list):
                             for ind, w in enumerate(meta_item):
-                                meta_item[ind] = self.PARTIAL_TEXT + w
+                                meta_item[ind] = self.options[track]["cwp_partial_text"] + ' ' + w
                             tm[item] = meta_item
                         else:
-                            tm[item] = self.PARTIAL_TEXT + tm[item]
+                            tm[item] = self.options[track]["cwp_partial_text"] + ' ' + tm[item]
 
         # fix "type 1" medley text
         if self.options[track]['cwp_medley']:
@@ -3368,48 +3440,26 @@ class PartLevels:
                 tup_id = eval(tm['~cwp_workid_' + str(lev)])
                 if 'medley_list' in self.parts[tup_id]:
                     medley_list = self.parts[tup_id]['medley_list']
-                    tm['~cwp_work_' + str(lev)] += " (" + self.MEDLEY_TEXT + ', '.join(medley_list) + ")"
+                    tm['~cwp_work_' + str(lev)] += " (" + self.options[track]["cwp_medley_text"] + ' ' + ', '.join(medley_list) + ")"
 
         ## set up group heading and part
-        if self.DEBUG:
-            log.debug(
-                "%s: Extending metadata for track: %s, ref_height: %s, depth: %s",
-                PLUGIN_NAME,
-                track,
-                ref_height,
-                depth)
-        if self.INFO:
-            log.info("Metadata = %s", tm)
+
         if part_levels > 0:
-            if ref_level == 1:
-                groupheading = tm['~cwp_work_1']
-                work = tm['~cwp_work_1']
-                inter_work = ""
-                work_titles = tm['~cwp_title_work_1']
-            elif ref_level == 2:
-                groupheading = tm['~cwp_work_2'] + ":: " + tm['~cwp_part_1']
-                work = tm['~cwp_work_2']
-                inter_work = tm['~cwp_part_1']
-                work_titles = tm['~cwp_title_work_2']
-            elif ref_level >= 3:
-                if ref_level > 3:
-                    highest_work = ""
-                    for i in range(3, ref_level):
-                        highest_work = ': ' + tm['~cwp_part_' + str(i)] + highest_work
-                    highest_work = tm['~cwp_work_' + str(ref_level)] + highest_work
-                groupheading = highest_work + ":: " + \
-                               tm['~cwp_part_2'] + ": " + tm['~cwp_part_1']
-                work = tm['~cwp_work_3']
-                inter_work = tm['~cwp_part_2'] + ": " + tm['~cwp_part_1']
-                work_titles = tm['~cwp_title_work_3']
-            else:
-                groupheading = None
-                title_groupheading = None
-                work = None
-                inter_work = None
-                work_titles = None
+
+            groupheading = tm['~cwp_work_1']
+            work = tm['~cwp_work_' + str(ref_level)]
+            inter_work = ""
+            work_titles = tm['~cwp_title_work_' + str(ref_level)]
+            if ref_level > 1:
+                for r in range(1, ref_level):
+                    if inter_work:
+                        inter_work = ': ' + inter_work
+                    inter_work = tm['~cwp_part_' + str(r)] + inter_work
+                groupheading = tm['~cwp_work_' + str(ref_level)] + ':: ' + inter_work
+
         else:
             groupheading = tm['~cwp_work_0']
+            title_groupheading = tm['~cwp_title_work_0']
             work = groupheading
             inter_work = None
             work_titles = None
@@ -3423,8 +3473,8 @@ class PartLevels:
 
         # fix medley text for "type 2" medleys
         if self.parts[eval(tm['~cwp_workid_0'])]['medley'] and self.options[track]['cwp_medley']:
-            if self.MEDLEY_TEXT != "":
-                groupheading = self.MEDLEY_TEXT + groupheading
+            if self.options[track]["cwp_medley_text"]:
+                groupheading = self.options[track]["cwp_medley_text"] + ' ' + groupheading
 
         tm['~cwp_groupheading'] = groupheading
         tm['~cwp_work'] = work
@@ -3434,7 +3484,14 @@ class PartLevels:
             log.debug("Groupheading set to: %s", groupheading)
         # extend group heading from title metadata
         if groupheading:
+            ext_groupheading = groupheading
+            title_groupheading = None
+            ext_work = work
+            ext_inter_work = inter_work
+            inter_title_work = ""
+
             if '~cwp_title_work_levels' in tm:
+
                 title_depth = int(tm['~cwp_title_work_levels'])
                 if self.INFO:
                     log.info("Title_depth: %s", title_depth)
@@ -3449,14 +3506,14 @@ class PartLevels:
                     if tw_str in tm:
                         title_work = tm[tw_str]
                         work = tm['~cwp_work_' + str(d)]
-                        diff_work[d - 1] = self.diff_pair(tm, work, title_work)
+                        diff_work[d - 1] = self.diff_pair(track, tm, work, title_work)
                         if d > 1 and tw_str_lower in tm:
                             title_part = self.strip_parent_from_work(
                                 tm[tw_str_lower], tm[tw_str], 0, False)[0].strip()
                             tm['~cwp_title_part_' + str(d - 1)] = title_part
                             part_n = tm['~cwp_part_' + str(d - 1)]
                             diff_part[d -
-                                      1] = self.diff_pair(tm, part_n, title_part) or ""
+                                      1] = self.diff_pair(track, tm, part_n, title_part) or ""
                     tw_str_lower = tw_str
                 if self.INFO:
                     log.info("diff list for works: %s", diff_work)
@@ -3470,7 +3527,7 @@ class PartLevels:
                         log.debug("Now calc extended groupheading...")
                     if self.INFO:
                         log.info(
-                            "depth = %s, ref_level = %s", depth, ref_level)
+                            "depth = %s, ref_level = %s, title_depth = %s", depth, ref_level, title_depth)
                     if self.INFO:
                         log.info(
                             "diff_work = %s, diff_part = %s",
@@ -3495,68 +3552,48 @@ class PartLevels:
                                 addn_part.append(" {" + stripped_part + "}")
                             else:
                                 addn_part.append("")
-                        if ref_level == 1:
-                            ext_groupheading = tm['~cwp_work_1'] + addn_work[0]
-                            title_groupheading = tm['~cwp_title_work_1']
-                            ext_work = tm['~cwp_work_1'] + addn_work[0]
-                            ext_inter_work = ""
-                        elif ref_level == 2:
-                            ext_groupheading = tm['~cwp_work_2'] + addn_work[1] + \
-                                               ":: " + tm['~cwp_part_1'] + addn_part[0]
-                            title_groupheading = tm['~cwp_title_work_2'] + \
-                                                 ":: " + tm['~cwp_title_part_1']
-                            if self.DEBUG:
-                                log.debug(
-                                    "set title_groupheading at ref-level =2 as %s",
-                                    title_groupheading)
-                            if self.DEBUG:
-                                log.debug(
-                                    "based on title_work 2 = %s and title_part_1 = %s",
-                                    tm['~cwp_title_work_2'],
-                                    tm['~cwp_title_part_1'])
-                            ext_work = tm['~cwp_work_2'] + addn_work[1]
-                            ext_inter_work = tm['~cwp_part_1'] + addn_part[0]
-                        elif ref_level >= 3:
-                            highest_work = tm['~cwp_work_3']
-                            if ref_level > 3:
-                                highest_work = ""
-                                highest_title_work = ""
-                                for i in range(3, ref_level):
-                                    highest_work = ': ' + tm['~cwp_part_' + str(i)] + highest_work
-                                    highest_title_work = ': ' + tm['~cwp_title_part_' + str(i)] + highest_title_work
-                                highest_work = tm['~cwp_work_' + str(ref_level)] + highest_work
-                                highest_title_work = tm['~cwp_title_work_' + str(ref_level)] + highest_title_work
-                            ext_groupheading = highest_work + addn_work[2] + ":: " + \
-                                               tm['~cwp_part_2'] + addn_part[1] + ": " + tm['~cwp_part_1'] + addn_part[
-                                                   0]
-                            title_groupheading = highest_title_work + ":: " + \
-                                                 tm['~cwp_title_part_2'] + ": " + tm['~cwp_title_part_1']
-                            ext_work = highest_work + addn_work[2]
-                            ext_inter_work = tm['~cwp_part_2'] + addn_part[1] + \
-                                             ": " + tm['~cwp_part_1'] + addn_part[0]
+                        if self.INFO:
+                            log.info("addn_work = %s, addn_part = %s", addn_work, addn_part)
+                        ext_groupheading = tm['~cwp_work_1'] + addn_work[0]
+                        ext_work = tm['~cwp_work_' + str(ref_level)] + addn_work[ref_level-1]
+                        ext_inter_work = ""
+                        inter_title_work = ""
+                        title_groupheading = tm['~cwp_title_work_1']
+                        if ref_level > 1:
+                            for r in range(1, ref_level):
+                                if ext_inter_work:
+                                    ext_inter_work = ': ' + ext_inter_work
+                                ext_inter_work = tm['~cwp_part_' + str(r)] + addn_part[r-1] + ext_inter_work
+                            ext_groupheading = tm['~cwp_work_' + str(ref_level)] + addn_work[ref_level-1] + ':: ' + ext_inter_work
+                        if title_depth > 1:
+                            for r in range(1, min(title_depth, ref_level)):
+                                if inter_title_work:
+                                    inter_title_work = ': ' + inter_title_work
+                                inter_title_work = tm['~cwp_title_part_' + str(r)] + addn_part[r-1] + inter_title_work
+                            title_groupheading = tm['~cwp_title_work_' + str(min(title_depth, ref_level))] + addn_work[min(title_depth, ref_level)-1] + ':: ' + inter_title_work
+
                     else:
                         ext_groupheading = groupheading  # title will be in part
                         ext_work = work
                         ext_inter_work = inter_work
+                        inter_title_work = ""
 
                     if self.DEBUG:
-                        log.debug("....groupheading done")
-            else:
-                ext_groupheading = groupheading
-                title_groupheading = None
-                ext_work = work
-                ext_inter_work = inter_work
-            if ext_groupheading:
-                if self.INFO:
-                    log.info("EXTENDED GROUPHEADING: %s", ext_groupheading)
-                tm['~cwp_extended_groupheading'] = ext_groupheading
-                tm['~cwp_extended_work'] = ext_work
-                if ext_inter_work and ext_inter_work != "":
-                    tm['~cwp_extended_inter_work'] = ext_inter_work
+                        log.debug(".... ext_groupheading done")
+
+        if ext_groupheading:
             if self.INFO:
-                log.info("title_groupheading = %s", title_groupheading)
+                log.info("EXTENDED GROUPHEADING: %s", ext_groupheading)
+            tm['~cwp_extended_groupheading'] = ext_groupheading
+            tm['~cwp_extended_work'] = ext_work
+            if ext_inter_work:
+                tm['~cwp_extended_inter_work'] = ext_inter_work
+            if inter_title_work:
+                tm['~cwp_inter_title_work'] = inter_title_work
             if title_groupheading:
                 tm['~cwp_title_groupheading'] = title_groupheading
+                if self.INFO:
+                    log.info("title_groupheading = %s", title_groupheading)
         # extend part from title metadata
         if self.DEBUG:
             log.debug("%s: Now extend part...(part = %s)", PLUGIN_NAME, part)
@@ -3565,8 +3602,10 @@ class PartLevels:
                 movement = tm['~cwp_title_part_0']
             else:
                 movement = tm['~cwp_title'] or tm['title']
-            diff = self.diff_pair(tm, tm['~cwp_work_0'], movement)
-            # compare with the full work name, not the stripped one
+            diff = self.diff_pair(track, tm, tm['~cwp_work_0'], movement)
+            # compare with the full work name, not the stripped one unless it results in nothing
+            if not diff and not vanilla_part:
+                diff = self.diff_pair(track, tm, part, movement)
             if self.INFO:
                 log.info("DIFF PART - MOVT. ti =%s", diff)
             diff2 = diff
@@ -3575,7 +3614,7 @@ class PartLevels:
                     if self.parts[eval(tm['~cwp_workid_0'])]['partial']:
                         no_diff = False
                     else:
-                        diff2 = self.diff_pair(tm, tm['~cwp_work_1'], diff)
+                        diff2 = self.diff_pair(track, tm, tm['~cwp_work_1'], diff)
                         if diff2:
                             no_diff = False
                         else:
@@ -3631,7 +3670,7 @@ class PartLevels:
             groupheading = tm['~cwp_title_groupheading'] or ""
             # for single-level work display
             work = tm['~cwp_title_work'] or ""
-            inter_work = ""
+            inter_work = tm['~cwp_inter_title_work'] or ""
         elif options["cwp_works"]:
             if self.DEBUG:
                 log.debug("works")
@@ -3705,14 +3744,6 @@ class PartLevels:
         for tag in top_tags:
             if '~cwp_work_top' in tm:
                 self.append_tag(tm, tag, tm['~cwp_work_top'])
-                #     if isinstance(tm['~cwp_work_top'], list):
-                #         tm[tag]=[]
-                #         for w in tm['~cwp_work_top']:
-                #             tm[tag].append(w)
-                #     else:
-                #         tm[tag] = tm['~cwp_work_top'] or ""
-                # else:
-                #     tm[tag] = ""
 
         for tag in movt_no_tags:
             self.append_tag(tm, tag, tm['~cwp_movt_num'])
@@ -3910,7 +3941,7 @@ class PartLevels:
             log.info("Stripped work: %s", stripped_work)
         return (stripped_work, full_parent)
 
-    def diff_pair(self, tm, mb_item, title_item):
+    def diff_pair(self, track, tm, mb_item, title_item):
         if self.DEBUG:
             log.debug("%s: Inside DIFF_PAIR", PLUGIN_NAME)
         mb = mb_item.strip()
@@ -3935,7 +3966,7 @@ class PartLevels:
         # Matches positive integers with punctuation
         p2 = re.compile(r'^\W*\d+[.):-]')
         # remove certain words from the comparison
-        removewords = self.REMOVEWORDS.split(',')
+        removewords = self.options[track]["cwp_removewords"].split(',')
         if self.INFO:
             log.info("Removewords = %s", removewords)
         # remove numbers, roman numerals, part etc and punctuation from the
@@ -3964,33 +3995,69 @@ class PartLevels:
                     ti)
         if self.DEBUG:
             log.debug("Prefixes checked")
-        # replace synonyms
-        strsyns = self.SYNONYMS.split('/')
+
+        #  replacements
+        strreps = self.options[track]["cwp_replacements"].split('/')
+        replacements = []
+        for rep in strreps:
+            tupr = rep.strip(' ()').split(',')
+            if len(tupr) == 2:
+                for i, t in enumerate(tupr):
+                    tupr[i] = t.strip("' ").strip('"')
+                tupr = tuple(tupr)
+                replacements.append(tupr)
+            else:
+                if self.ERROR:
+                    log.error('Error in replacement format for replacement %s', rep)
+                self.append_tag(tm, '~cwp_error', 'Error in replacement format for replacement ' + rep)
+        if self.INFO:
+            log.info("Replacement: %s", replacements)
+
+        #  synonyms
+        strsyns = self.options[track]["cwp_synonyms"].split('/')
         synonyms = []
         for syn in strsyns:
             tup = syn.strip(' ()').split(',')
             if len(tup) == 2:
                 for i, t in enumerate(tup):
-                    tup[i] = t.strip("' ")
-                tup = tuple(tup)
-                synonyms.append(tup)
+                    tup[i] = t.strip("' ").strip('"')
+                    if re.findall(r'[^\w|\&]+', tup[i], re.UNICODE):
+                        if self.ERROR:
+                            log.error('Synonyms must be single words without punctuation - error in %s', tup[i])
+                        self.append_tag(tm, '~cwp_error',
+                                        'Synonyms must be single words without punctuation - error in ' + tup[i])
+                        tup[i] = "**BAD**"
+                if "**BAD**" in tup:
+                    continue
+                else:
+                    tup = tuple(tup)
+                    synonyms.append(tup)
             else:
                 if self.ERROR:
                     log.error('Error in synonmym format for synonym %s', syn)
                 self.append_tag(tm, '~cwp_error', 'Error in synonym format for synonym ' + syn)
         if self.INFO:
             log.info("Synonyms: %s", synonyms)
-        ti_test = ti
-        mb_test = mb
+
+        # fix replacements and synonyms
+
+        for key, equiv in replacements:
+            if self.INFO:
+                log.info("key %s, equiv %s", key, equiv)
+            esc_key = re.escape(key)
+            key_pattern = '\\b' + esc_key + '\\b'
+            ti = re.sub(key_pattern, equiv, ti)
+            if self.DEBUG:
+                log.debug(
+                    "Replaced replacements, ti = %s", ti)
+        # Replace Roman numerals as per synonyms
+        ti_test = replace_roman_numerals(ti)
+        mb_test = replace_roman_numerals(mb)
+        if self.INFO:
+            log.info('Replaced Roman numerals. mb_test = %s, ti_test = %s', mb_test, ti_test)
         for key, equiv in synonyms:
             if self.INFO:
                 log.info("key %s, equiv %s", key, equiv)
-            # mb_test = mb_test.replace(key, equiv)
-            # clean_key = re.sub("(?u)[\W]", ' ', key)
-            # key_list = clean_key.split()
-            # for i, key_item in enumerate(key_list):
-            #     key_list[i] = '\b' + key_item + '\b'
-            #     key_pattern = '\W'.join(key_list)
             esc_key = re.escape(key)
             key_pattern = '\\b' + esc_key + '\\b'
             mb_test = re.sub(key_pattern, equiv, mb_test)
@@ -3998,14 +4065,15 @@ class PartLevels:
             # ti_test = ti_test.replace(key, equiv)
             if self.DEBUG:
                 log.debug(
-                    "Replaced synonyms mb = %s, ti = %s",
+                    "Replaced synonyms mb_test = %s, ti_test = %s",
                     mb_test,
                     ti_test)
+
         # check if the title item is wholly part of the mb item
 
         if self.DEBUG:
             log.debug(
-                "Testing if ti in mb. ti = %s, mb = %s",
+                "Testing if ti in mb. ti_test = %s, mb_test = %s",
                 ti_test,
                 mb_test)
         nopunc_ti = self.boil(ti_test)
@@ -4043,7 +4111,7 @@ class PartLevels:
             ti_new = self.strip_parent_from_work(ti_test, mb_test, 0, False)[0]
             if ti_new == ti_test:
                 mb_list = re.split(
-                    r';\s|:\s|\.\s|\-\s', mb_test, self.GRANULARITY)
+                    r';\s|:\s|\.\s|\-\s', mb_test, self.options[track]["cwp_granularity"])
                 if self.DEBUG:
                     log.debug("mb_list = %s", mb_list)
                 if mb_list:
@@ -4077,41 +4145,49 @@ class PartLevels:
             "le"]
         if self.DEBUG:
             log.debug(
-                "Check before splitting: mb = %s, ti = %s",
+                "Check before splitting: mb_test = %s, ti_test = %s",
                 mb_test,
                 ti_test)
-        ti_list = re.split(' ', ti)
-        ti_test_list = re.split(' ', ti_test)
-        if len(ti_list) != len(ti_test_list):
-            # should not be necessary, but just in case to avoid index errors
-            # (only difference should be synonyms)
-            ti_list = ti_test_list
-        mb_list2 = re.split(' ', mb_test)
+        ti_list = re.findall(r"\b\w+?\b|\B\&\B", ti, re.UNICODE)
+        # allow ampersands and non-latin characters as word characters
+        ti_list_punc = re.findall(r"[^\w|\&]+", ti, re.UNICODE)
+        ti_test_list = re.findall(r"\b\w+?\b|\B\&\B", ti_test, re.UNICODE)
+        if ti_list_punc:
+            if ti_list_punc[0][0]== ti[0]:
+                # list begins with punc
+                ti_list.insert(0, '')
+                ti_test_list.insert(0, '')
+        if len(ti_list_punc) < len(ti_list):
+            ti_list_punc.append('')
+        ti_zip_list = zip(ti_list, ti_list_punc)
+
+        # len(ti_list) should be = len(ti_test_list) as only difference should be synonyms which are each one word
+            # ti_list = ti_test_list
+        mb_list2 = re.findall(r"\b\w+?\b|\B\&\B", mb_test, re.UNICODE)
         for index, mb_bit2 in enumerate(mb_list2):
-            if self.INFO:
-                log.info("mb_bit2 %s, boiled bit2: %s, index: %s",
-                         mb_bit2, self.boil(mb_bit2), index)
             mb_list2[index] = self.boil(mb_bit2)
-            if self.INFO:
-                log.info("mb_list2[%s] = %s", index, mb_list2[index])
+            if self.DEBUG:
+                log.debug("mb_list2[%s] = %s", index, mb_list2[index])
         ti_new = []
         ti_comp_list = []
         ti_rich_list = []
         i = 0
-        for i, ti_bit in enumerate(ti_list):
-            ti_bit_test = ti_test_list[i]
+        for i, ti_bit_test in enumerate(ti_test_list):
+            # NB ti_bit_test is a tuple
+            if i <= len(ti_list) - 1:
+                ti_bit = ti_zip_list[i]
+            else:
+                ti_bit = ('', '')
             if self.INFO:
-                log.info("i = %s, ti_bit = %s", i, ti_bit)
+                log.info("i = %s, ti_bit_test = %s, ti_bit = %s", i, ti_bit_test, ti_bit)
             # Boolean to indicate whether ti_bit is a new word
             ti_rich_list.append((ti_bit, True))
-            if self.INFO:
-                log.info("ti_bit %s", ti_bit)
             if self.boil(ti_bit_test) in mb_list2:
                 words += 1
                 ti_rich_list[i] = (ti_bit, False)
             else:
-                if ti_bit.lower() not in nonWords:
-                    ti_comp_list.append(ti_bit)
+                if ti_bit_test.lower() not in nonWords and re.findall(r'\w',ti_bit[0], re.UNICODE):
+                    ti_comp_list.append(ti_bit[0])
         if self.INFO:
             log.info("words %s", words)
         if self.INFO:
@@ -4126,7 +4202,7 @@ class PartLevels:
             if n:
                 s += 1
                 index = i
-                change = t
+                change = t # NB this is a tuple
         if s == 1:
             if 0 < index < len(ti_rich_list) - 1:
                 # ignore singleton new words in middle of title
@@ -4138,8 +4214,8 @@ class PartLevels:
                 ti_rich_list,
                 len(ti_rich_list))
         if s > 0:
-            p = self.PROXIMITY
-            d = self.PROXIMITY - self.END_PROXIMITY
+            p = self.options[track]["cwp_proximity"]
+            d = self.options[track]["cwp_proximity"] - self.options[track]["cwp_end_proximity"]
             for i, (ti_bit, new) in enumerate(ti_rich_list):
                 if not new:
                     if self.DEBUG:
@@ -4159,7 +4235,7 @@ class PartLevels:
                                 if j <= p - d:
                                     ti_rich_list[i] = (ti_bit, True)
                 else:
-                    p = self.PROXIMITY
+                    p = self.options[track]["cwp_proximity"]
                 if not ti_rich_list[i][1]:
                     p -= 1
         if self.DEBUG:
@@ -4173,13 +4249,29 @@ class PartLevels:
         if nothing_new:
             return None
         else:
-            for (ti_bit, new) in ti_rich_list:
+            new_prev = False
+            for i, (ti_bit, new) in enumerate(ti_rich_list):
                 if self.DEBUG:
                     log.debug("Create new for %s?", ti_bit)
                 if new:
                     if self.DEBUG:
                         log.debug("Yes for %s", ti_bit)
-                    ti_new.append(ti_bit)
+                    if not new_prev:
+                        if i > 0:
+                            # check to see if the last char of the prev punctuation group needs to be added first
+                            if len(ti_rich_list[i - 1][0][1]) > 1:
+                                ti_new.append(ti_rich_list[i - 1][0][1][-1])  # i.e. ti_bit[1][-1] of previous loop
+                    ti_new.append(ti_bit[0])
+                    if  len(ti_bit[1]) > 1:
+                        if i < len(ti_rich_list) - 1:
+                            if ti_rich_list[i + 1][1]:
+                                ti_new.append(ti_bit[1])
+                            else:
+                                ti_new.append(ti_bit[1][:-1])
+                        else:
+                            ti_new.append(ti_bit[1])
+                    else:
+                        ti_new.append(ti_bit[1])
                     if self.DEBUG:
                         log.debug(
                             "appended %s. ti_new is now %s", ti_bit, ti_new)
@@ -4187,12 +4279,13 @@ class PartLevels:
                     if self.DEBUG:
                         log.debug("Not for %s", ti_bit)
                     if new != new_prev:
-                        ti_new.append('...')
+                        ti_new.append('... ')
+
                 new_prev = new
         if ti_new:
             if self.INFO:
                 log.info("ti_new %s", ti_new)
-            ti = ' '.join(ti_new)
+            ti = ''.join(ti_new)
             if self.INFO:
                 log.info("New text from title = %s", ti)
         else:
@@ -4204,7 +4297,7 @@ class PartLevels:
             nopunc_ti = self.boil(ti)
             nopunc_mb = self.boil(mb)
             ti_len = len(nopunc_ti)
-            sub_len = ti_len * self.SUBSTRING_MATCH
+            sub_len = ti_len * float(self.options[track]["cwp_substring_match"]) / 100
             if self.DEBUG:
                 log.debug("test sub....")
             lcs = longest_common_substring(nopunc_mb, nopunc_ti)
@@ -4221,20 +4314,19 @@ class PartLevels:
         # item if it duplicates last word of mb item)
         if ti:
             ti_list_new = re.split(' ', ti)
+            ti_list_ref = ti_list_new
             ti_bit_prev = None
-            for i, ti_bit in enumerate(ti_list_new):
+            for i, ti_bit in enumerate(ti_list_ref):
                 if ti_bit != "...":
 
                     if i > 1:
                         if self.boil(ti_bit) == self.boil(ti_bit_prev):
-                            ti_bit_prev = ti_list_new[i]
+                            #ti_bit_prev = ti_list_new[i]
                             dup = ti_list_new.pop(i)
                             if self.DEBUG:
                                 log.debug("...removed dup %s", dup)
-                        else:
-                            ti_bit_prev = ti_list_new[i]
-                    else:
-                        ti_bit_prev = ti_list_new[i]
+
+                ti_bit_prev = ti_bit
 
             if self.INFO:
                 log.info("1st word of ti = %s. Last word of mb = %s",
@@ -4297,39 +4389,26 @@ class PartLevels:
     def boil(self, s):
         if self.DEBUG:
             log.debug("boiling %s", s)
-        p = re.compile(
-            r'(^|\s)(\bM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})\b)(\W|\s|$)',
-            re.IGNORECASE)  # Matches Roman numerals
-        romans = p.findall(s)
-        for roman in romans:
-            if len(roman) > 1:
-                numerals = str(roman[1])
-                digits = str(from_roman(numerals))
-                s = s.replace(numerals, digits)
+        s = s.lower()
         if isinstance(s, str):
             s = s.decode('unicode_escape')
-
-        s = s.replace(
-            'sch',
-            'sh').replace(
-            u'\xdfe',
-            'ss').replace(
-            'sz',
-            'ss').replace(
-            u'\u0153',
-            'oe').replace(
-            'oe',
-            'o').replace(
-            'ue',
-            'u').replace(
-            'ae',
-            'a')
+        s = s.replace('sch', 'sh')\
+            .replace(u'\xdfe','ss')\
+            .replace('sz','ss')\
+            .replace(u'\u0153','oe')\
+            .replace('oe','o')\
+            .replace(u'\u00fc','ue')\
+            .replace('ue','u')\
+            .replace('ae','a')
         punc = re.compile(r'\W*')
         s = ''.join(
             c for c in ud.normalize(
                 'NFD',
                 s) if ud.category(c) != 'Mn')
-        return punc.sub('', s).strip().lower().rstrip("s'")
+        boiled = punc.sub('', s).strip().lower().rstrip("s'")
+        if self.DEBUG:
+            log.debug("boiled result = %s", boiled)
+        return boiled
 
     # Remove certain keywords
     def remove_words(self, query, stopwords):

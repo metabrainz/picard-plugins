@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\Mark\Documents\Mark's documents\Music\Picard\Classical Extras development\classical_extras\options_classical_extras.ui'
 #
-# Created: Sun Oct 01 16:00:19 2017
+# Created: Wed Oct 04 23:37:54 2017
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -1395,7 +1395,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName(_fromUtf8("scrollArea_2"))
         self.scrollAreaWidgetContents_2 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 972, 856))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 972, 877))
         self.scrollAreaWidgetContents_2.setObjectName(_fromUtf8("scrollAreaWidgetContents_2"))
         self.verticalLayout_18 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_18.setObjectName(_fromUtf8("verticalLayout_18"))
@@ -1566,6 +1566,13 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.cwp_synonyms.setStyleSheet(_fromUtf8("background-color: rgb(203, 182, 175);"))
         self.cwp_synonyms.setObjectName(_fromUtf8("cwp_synonyms"))
         self.verticalLayout_2.addWidget(self.cwp_synonyms)
+        self.label_16 = QtGui.QLabel(self.run_options_3a)
+        self.label_16.setObjectName(_fromUtf8("label_16"))
+        self.verticalLayout_2.addWidget(self.label_16)
+        self.cwp_replacements = QtGui.QLineEdit(self.run_options_3a)
+        self.cwp_replacements.setStyleSheet(_fromUtf8("background-color: rgb(203, 182, 175);"))
+        self.cwp_replacements.setObjectName(_fromUtf8("cwp_replacements"))
+        self.verticalLayout_2.addWidget(self.cwp_replacements)
         self.verticalLayout.addWidget(self.run_options_3a)
         self.verticalLayout_18.addWidget(self.run_options_3)
         self.groupBox_6 = QtGui.QGroupBox(self.scrollAreaWidgetContents_2)
@@ -1658,7 +1665,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setBuddy(self.cwp_retries)
 
         self.retranslateUi(ClassicalExtrasOptionsPage)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QObject.connect(self.cwp_titles, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setDisabled)
         QtCore.QObject.connect(self.cwp_works, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
         QtCore.QObject.connect(self.cwp_extended, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
@@ -2204,7 +2211,8 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Proportion of a string to be matched to a (usually larger) string for it to be considered essentially similar (default = 66%)</p></body></html>", None))
         self.cwp_substring_match.setSuffix(_translate("ClassicalExtrasOptionsPage", "%", None))
         self.cwp_removewords_2.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Prefixes to be ignored in comparison (case insensitive, comma separated)<br/>To prevent a prefix from being ignored when extending metadata for title info, precede with a space. <br/>To ensure only whole words are removed, follow with a space.</p></body></html>", None))
-        self.cwp_synonyms_2.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Synonyms and replacements - must be written as tuples separated by forward slashes - e.g (a,b) / (c,d)<br/>This has two effects:</p><p>1. \'a\' and \'b\' will be treated as similar when comparing works/parts and titles</p><p>2.\' b\' will replace \'a\' in title text used to extend work/part text.</p><p>To remove words or a phrase, simply put the word or phrase in the first part of the tuple and leave the second blank - e.g. (I don\'t want to see this phrase, )</p><p>N.B. The matching of \'a\' is case-sensitive. DO NOT USE COMMAS IN ANY PHRASE.</p></body></html>", None))
+        self.cwp_synonyms_2.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p><strong>Synonyms and replacements</strong> - must be written as tuples separated by forward slashes - e.g (a,b) / (c,d)<p>DO NOT USE COMMAS IN ANY PHRASE. N.B. The matching of \'a\' is case-sensitive</p>As SYNONYMS \'a\' and \'b\' will be treated as similar when comparing works/parts and titles. The text in tags will be unaltered.<br/> Both a and b must be single words with no punctuation:-</p></body></html>", None))
+        self.label_16.setText(_translate("ClassicalExtrasOptionsPage", "<html><p>For REMOVALS/REPLACEMENTS - These will result in the \"extended\" text in tags being changed<br/>Put the word or phrase in the first part of the tuple and leave the second blank - e.g. (I don\'t want to see this phrase, ) <br/>or put the replacement word(s) in the second part:-</p></html>", None))
         self.groupBox_6.setTitle(_translate("ClassicalExtrasOptionsPage", "Logging options*", None))
         self.log_error.setText(_translate("ClassicalExtrasOptionsPage", "Error", None))
         self.log_warning.setText(_translate("ClassicalExtrasOptionsPage", "Warning", None))

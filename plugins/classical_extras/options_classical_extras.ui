@@ -38,7 +38,7 @@
       <string notr="true">background-color: rgb(170, 170, 127);</string>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -3968,7 +3968,7 @@ text-decoration: underline;</string>
             <x>0</x>
             <y>0</y>
             <width>972</width>
-            <height>856</height>
+            <height>877</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -4291,12 +4291,26 @@ text-decoration: underline;</string>
                  <item>
                   <widget class="QLabel" name="cwp_synonyms_2">
                    <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Synonyms and replacements - must be written as tuples separated by forward slashes - e.g (a,b) / (c,d)&lt;br/&gt;This has two effects:&lt;/p&gt;&lt;p&gt;1. 'a' and 'b' will be treated as similar when comparing works/parts and titles&lt;/p&gt;&lt;p&gt;2.' b' will replace 'a' in title text used to extend work/part text.&lt;/p&gt;&lt;p&gt;To remove words or a phrase, simply put the word or phrase in the first part of the tuple and leave the second blank - e.g. (I don't want to see this phrase, )&lt;/p&gt;&lt;p&gt;N.B. The matching of 'a' is case-sensitive. DO NOT USE COMMAS IN ANY PHRASE.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;strong&gt;Synonyms and replacements&lt;/strong&gt; - must be written as tuples separated by forward slashes - e.g (a,b) / (c,d)&lt;p&gt;DO NOT USE COMMAS IN ANY PHRASE. N.B. The matching of 'a' is case-sensitive&lt;/p&gt;As SYNONYMS 'a' and 'b' will be treated as similar when comparing works/parts and titles. The text in tags will be unaltered.&lt;br/&gt; Both a and b must be single words with no punctuation:-&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QLineEdit" name="cwp_synonyms">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: rgb(203, 182, 175);</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_16">
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;p&gt;For REMOVALS/REPLACEMENTS - These will result in the &quot;extended&quot; text in tags being changed&lt;br/&gt;Put the word or phrase in the first part of the tuple and leave the second blank - e.g. (I don't want to see this phrase, ) &lt;br/&gt;or put the replacement word(s) in the second part:-&lt;/p&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="cwp_replacements">
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(203, 182, 175);</string>
                    </property>
