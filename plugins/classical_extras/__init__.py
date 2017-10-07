@@ -76,7 +76,7 @@ def plugin_options(type):
          'default': 'ensemble, band, group, trio, quartet, quintet, sextet, septet, octet, chamber, consort, players, '
                     'les ,the , quartett'
          },
-        {'option': '',
+        {'option': 'cea_composer_album',
          'name': 'Album prefix',
          'value': 'Composer',
          'type': 'Boolean',
