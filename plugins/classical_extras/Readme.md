@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 0.8.2: Improved algorithms, especially when names from "lowest level work" are used as source. Warning messages issued if this choice has been over-ridden because the lowest-level work name does not reflect the full structure and higher-level work names have been used to flesh it out. Plus a few minor bug fixes.
+
 Version 0.8.1: Bug fixes and minor enhancements - including revison and extension of "synonyms" section on the "advanced" tab.
 
 Version 0.8: Handle multiple recordings and/or multiple parents of a work. 

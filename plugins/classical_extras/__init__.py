@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.8.1'
+PLUGIN_VERSION = '0.8.2'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -78,7 +78,7 @@ def plugin_options(type):
          },
         {'option': 'cea_composer_album',
          'name': 'Album prefix',
-         'value': 'Composer',
+         # 'value': 'Composer', # Can't use 'value' if there is only one option, otherwise False will revert to default
          'type': 'Boolean',
          'default': True
          },
@@ -1534,7 +1534,7 @@ class ExtraArtists:
                 log.info(
                     "Check the details on MusicBrainz. XML returned is as follows:")
             if self.INFO:
-                log.error(record)
+                log.info(record)
             self.append_tag(
                 track.metadata,
                 '~cea_error',
@@ -3105,6 +3105,7 @@ class PartLevels:
                         # consistency)
                         self.derive_from_structure(
                             top_info, tracks, height, depth, width, 'work')
+
                     if self.DEBUG:
                         log.debug("Trackback result for %s = %s", parentId, tracks)
                     response = parentId, tracks
@@ -3128,10 +3129,12 @@ class PartLevels:
             depth,
             width,
             name_type):
+        topId = top_info['id']
         if 'track' in tracks:
             track = tracks['track'][0][0]
+            single_work_track = False  # default
             if self.DEBUG:
-                log.debug("%s: Deriving info for %s from structure for track %s", PLUGIN_NAME, name_type, track)
+                log.debug("%s: Deriving info for %s from structure for tracks %s", PLUGIN_NAME, name_type, tracks['track'])
             if 'tracknumber' in tracks:
                 sorted_tracknumbers = sorted(tracks['tracknumber'])
             else:
@@ -3141,11 +3144,13 @@ class PartLevels:
             common_len = 0
             common_subset = None
             if name_type in tracks:
+                meta_str = "_title" if name_type == 'title' else "_X0"
                 name_list = tracks[name_type]
                 if self.DEBUG:
                     log.debug("%s list %s", name_type, name_list)
                 # only one track in this work so try and extract using colons
                 if len(name_list) == 1:
+                    single_work_track = True
                     track_height = tracks['track'][0][1]
                     if track_height - height > 0:  # part_level
                         if name_type == 'title':
@@ -3201,6 +3206,7 @@ class PartLevels:
             for i, track_item in enumerate(tracks['track']):
                 track_meta = track_item[0]
                 tm = track_meta.metadata
+                top_level = int(tm['~cwp_part_levels'])
                 part_level = track_item[1] - height
                 if common_len > 0:
                     if self.INFO:
@@ -3232,14 +3238,42 @@ class PartLevels:
                         log.info("work after prefix strip %s", work)
                     if self.DEBUG:
                         log.debug("Prefixes checked")
-                    meta_str = "_title" if name_type == 'title' else "_X0"
+
                     tm['~cwp' + meta_str + '_work_' + str(part_level)] = work
+
                     if part_level > 0 and name_type == "work":
                         if work == tm['~cwp' + meta_str +
                                 '_work_' + str(part_level - 1)]:
-                            topId = top_info['id']
-                            self.parts[topId]['X0_work_repeat'] = str(
-                                part_level)
+                            # repeated name - so use hierarchy instead
+                            tm['~cwp' + meta_str + '_work_' + str(part_level)] = tm['~cwp_work_' + str(part_level)]
+                            tm['~cwp' + meta_str + '_part_' + str(part_level - 1)] = \
+                                self.strip_parent_from_work(tm['~cwp' + meta_str + '_work_' + str(part_level - 1)],
+                                                            tm['~cwp_work_' + str(part_level)], part_level, True)[0]
+                            self.level0_warn(tm, part_level)
+                        else:
+                            if '~cwp' + meta_str + '_work_' + str(part_level - 1) in tm and tm['~cwp' + meta_str + '_work_' + str(part_level - 1)]:
+                                tm['~cwp' + meta_str + '_part_' + str(part_level - 1)] = \
+                                    self.strip_parent_from_work(tm['~cwp' + meta_str + '_work_' + str(part_level - 1)],
+                                                                work, part_level, True)[0]
+                        # top-down action
+                        for level in reversed(range(0, part_level)):  # fix lower levels for lack of breaks
+                            if self.INFO:
+                                log.info('level = %s', level)
+                            if '~cwp' + meta_str + '_work_' + str(level) not in tm:
+                                if level == 0:
+                                    tm['~cwp' + meta_str + '_work_' + str(level)] = tm['~cwp' + '_work_' + str(level)]
+                                    tm['~cwp' + meta_str + '_part_' + str(level)] = \
+                                        self.strip_parent_from_work(tm['~cwp' + meta_str + '_work_' + str(level)],
+                                                                    tm['~cwp' + meta_str + '_work_' + str(level + 1)],
+                                                                    level, True)[0]
+                                else:
+                                    tm['~cwp' + meta_str + '_work_' + str(level)] = tm['~cwp_work_' + str(level)]
+                                    self.level0_warn(tm, level)
+                                    tm['~cwp' + meta_str + '_part_' + str(level)] =  \
+                                        self.strip_parent_from_work(tm['~cwp' + meta_str + '_work_' + str(level)],
+                                                                    tm['~cwp' + meta_str + '_work_' + str(level + 1)],
+                                                                    level, True)[0]
+
                     if part_level == 1:
                         movt = name[common_len:].strip().lstrip(":,.;- ")
                         if self.INFO:
@@ -3259,6 +3293,22 @@ class PartLevels:
                             tm['~cwp_title_part_levels'] = part_level
                     if self.DEBUG:
                         log.debug("Set new metadata for %s OK", name_type)
+                else:
+                    if self.INFO:
+                        log.info('single track work - indicator = %s. track = %s, part_level = %s, top_level = %s',
+                              single_work_track,
+                              track_item,
+                              part_level, top_level)
+                    if  part_level >= top_level:  # so it won't be covered by top-down action
+                        if name_type == 'work':
+                            for level in range(0, part_level +1 ):  # fill in the missing work names from the canonical list
+                                if '~cwp' + meta_str + '_work_' + str(level) not in tm:
+                                    tm['~cwp' + meta_str + '_work_' + str(level)] = tm['~cwp_work_' + str(level)]
+                                if '~cwp' + meta_str + '_part_' + str(level) not in tm and '~cwp_part_' + str(level) in tm:
+                                    tm['~cwp' + meta_str + '_part_' + str(level)] = tm['~cwp_part_' + str(level)]
+                                    if level > 0:
+                                        self.level0_warn(tm, level)
+
                 # set movement number
                 if name_type == 'title':  # so we only do it once
                     if part_level == 1:
@@ -3270,6 +3320,13 @@ class PartLevels:
                         else:
                             posn = i + 1
                         tm['~cwp_movt_num'] = str(posn)
+
+    def level0_warn(self, tm, level):
+        if self.WARNING:
+            log.warning('%s: Unable to use level 0 as work name source in level %s - using hierarchy instead',
+                        PLUGIN_NAME, level)
+            self.append_tag(tm, '~cwp_warning', 'Unable to use level 0 as work name source in level ' + str(
+                level) + ' - using hierarchy instead')
 
     def set_metadata(self, part_level, workId, parentId, parent, track):
         if self.DEBUG:
@@ -3383,23 +3440,7 @@ class PartLevels:
         # replace works and parts by those derived from the level 0 work, where
         # required, available and appropriate, but only use work names based on
         # level 0 text if it doesn't cause ambiguity
-        if self.options[track]["cwp_level0_works"] and (
-                        'X0_work_repeat' not in self.parts[topId] or (
-                                'X0_work_repeat' in self.parts[topId] and int(
-                            self.parts[topId]['X0_work_repeat']) > work_ref_level)):
-            if 'X0_work_repeat' in self.parts[topId]:
-                if self.DEBUG:
-                    log.debug(
-                        "Track: %s, Repeat level = %s, work_ref_level = %s",
-                        track,
-                        self.parts[topId]['X0_work_repeat'],
-                        work_ref_level)
-            if '~cwp_X0_part_0' in tm:
-                tm['~cwp_part_0'] = tm['~cwp_X0_part_0']
-            for level in range(1, part_levels + 1):
-                if '~cwp_X0_work_' + str(level) in tm:
-                    tm['~cwp_work_' +
-                       str(level)] = tm['~cwp_X0_work_' + str(level)]
+
 
         vanilla_part = tm['~cwp_part_0']  # before embellishing with partial / arrangement etc
 
@@ -3416,7 +3457,6 @@ class PartLevels:
 
         if self.options[track]['cwp_partial'] and self.options[track]["cwp_partial_text"]:
             if '~cwp_workid_0' in tm:
-                # tm['~cwp_workid_0_orig'] = tm['~cwp_workid_0']
                 work0_id = eval(tm['~cwp_workid_0'])
                 if 'partial' in self.parts[work0_id] and self.parts[work0_id]['partial']:
                     update_list = ['~cwp_work_0', '~cwp_part_0']
@@ -3442,34 +3482,56 @@ class PartLevels:
                     medley_list = self.parts[tup_id]['medley_list']
                     tm['~cwp_work_' + str(lev)] += " (" + self.options[track]["cwp_medley_text"] + ' ' + ', '.join(medley_list) + ")"
 
+        part = []
+        work = []
+        for level in range(0, part_levels):
+            part.append(tm['~cwp_part_' + str(level)])
+            work.append(tm['~cwp_work_' + str(level)])
+        work.append(tm['~cwp_work_' + str(part_levels)])
+
+        ## Use level_0-derived names if applicable
+        if self.options[track]["cwp_level0_works"]:
+            for level in range(0, part_levels + 1):
+                if '~cwp_X0_work_' + str(level) in tm:
+                    work[level] = tm['~cwp_X0_work_' + str(level)]
+                else:
+                    if level != 0:
+                        work[level] = ''
+                if part and len(part) > level:
+                    if '~cwp_X0_part_' + str(level) in tm:
+                        part[level] = tm['~cwp_X0_part_' + str(level)]
+                    else:
+                        if level != 0:
+                            part[level] = ''
+
         ## set up group heading and part
 
         if part_levels > 0:
 
-            groupheading = tm['~cwp_work_1']
-            work = tm['~cwp_work_' + str(ref_level)]
+            groupheading = work[1]
+            work_main = work[ref_level]
             inter_work = ""
             work_titles = tm['~cwp_title_work_' + str(ref_level)]
             if ref_level > 1:
                 for r in range(1, ref_level):
                     if inter_work:
                         inter_work = ': ' + inter_work
-                    inter_work = tm['~cwp_part_' + str(r)] + inter_work
-                groupheading = tm['~cwp_work_' + str(ref_level)] + ':: ' + inter_work
+                    inter_work = part[r] + inter_work
+                groupheading = work[ref_level] + ':: ' + inter_work
 
         else:
-            groupheading = tm['~cwp_work_0']
+            groupheading = work[0]
             title_groupheading = tm['~cwp_title_work_0']
-            work = groupheading
+            work_main = groupheading
             inter_work = None
             work_titles = None
 
         if '~cwp_part_0' in tm:
-            part = tm['~cwp_part_0']
-            tm['~cwp_part'] = part
+            part_main = part[0]
+            tm['~cwp_part'] = part_main
         else:
-            part = tm['~cwp_work_0']
-            tm['~cwp_part'] = part
+            part_main = work[0]
+            tm['~cwp_part'] = part_main
 
         # fix medley text for "type 2" medleys
         if self.parts[eval(tm['~cwp_workid_0'])]['medley'] and self.options[track]['cwp_medley']:
@@ -3477,7 +3539,7 @@ class PartLevels:
                 groupheading = self.options[track]["cwp_medley_text"] + ' ' + groupheading
 
         tm['~cwp_groupheading'] = groupheading
-        tm['~cwp_work'] = work
+        tm['~cwp_work'] = work_main
         tm['~cwp_inter_work'] = inter_work
         tm['~cwp_title_work'] = work_titles
         if self.DEBUG:
@@ -3486,7 +3548,7 @@ class PartLevels:
         if groupheading:
             ext_groupheading = groupheading
             title_groupheading = None
-            ext_work = work
+            ext_work = work_main
             ext_inter_work = inter_work
             inter_title_work = ""
 
@@ -3505,13 +3567,13 @@ class PartLevels:
                         log.info("TW_STR = %s", tw_str)
                     if tw_str in tm:
                         title_work = tm[tw_str]
-                        work = tm['~cwp_work_' + str(d)]
-                        diff_work[d - 1] = self.diff_pair(track, tm, work, title_work)
+                        work_main = work[d]
+                        diff_work[d - 1] = self.diff_pair(track, tm, work_main, title_work)
                         if d > 1 and tw_str_lower in tm:
                             title_part = self.strip_parent_from_work(
                                 tm[tw_str_lower], tm[tw_str], 0, False)[0].strip()
                             tm['~cwp_title_part_' + str(d - 1)] = title_part
-                            part_n = tm['~cwp_part_' + str(d - 1)]
+                            part_n = part[d - 1]
                             diff_part[d -
                                       1] = self.diff_pair(track, tm, part_n, title_part) or ""
                     tw_str_lower = tw_str
@@ -3554,8 +3616,8 @@ class PartLevels:
                                 addn_part.append("")
                         if self.INFO:
                             log.info("addn_work = %s, addn_part = %s", addn_work, addn_part)
-                        ext_groupheading = tm['~cwp_work_1'] + addn_work[0]
-                        ext_work = tm['~cwp_work_' + str(ref_level)] + addn_work[ref_level-1]
+                        ext_groupheading = work[1] + addn_work[0]
+                        ext_work = work[ref_level] + addn_work[ref_level-1]
                         ext_inter_work = ""
                         inter_title_work = ""
                         title_groupheading = tm['~cwp_title_work_1']
@@ -3563,8 +3625,8 @@ class PartLevels:
                             for r in range(1, ref_level):
                                 if ext_inter_work:
                                     ext_inter_work = ': ' + ext_inter_work
-                                ext_inter_work = tm['~cwp_part_' + str(r)] + addn_part[r-1] + ext_inter_work
-                            ext_groupheading = tm['~cwp_work_' + str(ref_level)] + addn_work[ref_level-1] + ':: ' + ext_inter_work
+                                ext_inter_work = part[r] + addn_part[r-1] + ext_inter_work
+                            ext_groupheading = work[ref_level] + addn_work[ref_level-1] + ':: ' + ext_inter_work
                         if title_depth > 1:
                             for r in range(1, min(title_depth, ref_level)):
                                 if inter_title_work:
@@ -3574,38 +3636,38 @@ class PartLevels:
 
                     else:
                         ext_groupheading = groupheading  # title will be in part
-                        ext_work = work
+                        ext_work = work_main
                         ext_inter_work = inter_work
                         inter_title_work = ""
 
                     if self.DEBUG:
                         log.debug(".... ext_groupheading done")
 
-        if ext_groupheading:
-            if self.INFO:
-                log.info("EXTENDED GROUPHEADING: %s", ext_groupheading)
-            tm['~cwp_extended_groupheading'] = ext_groupheading
-            tm['~cwp_extended_work'] = ext_work
-            if ext_inter_work:
-                tm['~cwp_extended_inter_work'] = ext_inter_work
-            if inter_title_work:
-                tm['~cwp_inter_title_work'] = inter_title_work
-            if title_groupheading:
-                tm['~cwp_title_groupheading'] = title_groupheading
+            if ext_groupheading:
                 if self.INFO:
-                    log.info("title_groupheading = %s", title_groupheading)
+                    log.info("EXTENDED GROUPHEADING: %s", ext_groupheading)
+                tm['~cwp_extended_groupheading'] = ext_groupheading
+                tm['~cwp_extended_work'] = ext_work
+                if ext_inter_work:
+                    tm['~cwp_extended_inter_work'] = ext_inter_work
+                if inter_title_work:
+                    tm['~cwp_inter_title_work'] = inter_title_work
+                if title_groupheading:
+                    tm['~cwp_title_groupheading'] = title_groupheading
+                    if self.INFO:
+                        log.info("title_groupheading = %s", title_groupheading)
         # extend part from title metadata
         if self.DEBUG:
-            log.debug("%s: Now extend part...(part = %s)", PLUGIN_NAME, part)
-        if part:
+            log.debug("%s: Now extend part...(part = %s)", PLUGIN_NAME, part_main)
+        if part_main:
             if '~cwp_title_part_0' in tm:
                 movement = tm['~cwp_title_part_0']
             else:
                 movement = tm['~cwp_title'] or tm['title']
-            diff = self.diff_pair(track, tm, tm['~cwp_work_0'], movement)
+            diff = self.diff_pair(track, tm, work[0], movement)
             # compare with the full work name, not the stripped one unless it results in nothing
             if not diff and not vanilla_part:
-                diff = self.diff_pair(track, tm, part, movement)
+                diff = self.diff_pair(track, tm, part_main, movement)
             if self.INFO:
                 log.info("DIFF PART - MOVT. ti =%s", diff)
             diff2 = diff
@@ -3614,7 +3676,7 @@ class PartLevels:
                     if self.parts[eval(tm['~cwp_workid_0'])]['partial']:
                         no_diff = False
                     else:
-                        diff2 = self.diff_pair(track, tm, tm['~cwp_work_1'], diff)
+                        diff2 = self.diff_pair(track, tm, work[1], diff)
                         if diff2:
                             no_diff = False
                         else:
@@ -3633,19 +3695,24 @@ class PartLevels:
                     log.info('setting no_diff = %s', no_diff)
             if no_diff:
                 if part_levels > 0:
-                    tm['~cwp_extended_part'] = part
+                    tm['~cwp_extended_part'] = part_main
                 else:
-                    tm['~cwp_extended_part'] = tm['~cwp_work_0']
+                    tm['~cwp_extended_part'] = work[0]
                     if tm['~cwp_extended_groupheading']:
                         del tm['~cwp_extended_groupheading']
             else:
                 if part_levels > 0:
                     stripped_movt = diff2.strip()
-                    tm['~cwp_extended_part'] = part + \
+                    tm['~cwp_extended_part'] = part_main + \
                                                " {" + stripped_movt + "}"
                 else:
                     # title will be in part
                     tm['~cwp_extended_part'] = movement
+        # remove unwanted groupheadings (needed them up to now for adding extensions)
+        if '~cwp_groupheading' in tm and tm['~cwp_groupheading'] == tm['~cwp_part']:
+            del tm['~cwp_groupheading']
+        if '~cwp_title_groupheading' in tm and tm['~cwp_title_groupheading'] == tm['~cwp_title_part']:
+            del tm['~cwp_title_groupheading']
         if self.DEBUG:
             log.debug("....done")
         return None
@@ -3838,15 +3905,15 @@ class PartLevels:
                         json.dumps(
                             self.cwp_options)))
         if self.ERROR and "~cwp_error" in tm:
-            if '001_errors' in tm:
-                del tm['001_errors']
+            # if '001_errors' in tm:
+            #     del tm['001_errors']
             self.append_tag(tm, '001_errors', tm['~cwp_error'])
         if self.WARNING and "~cwp_warning" in tm:
-            if '002_warnings' in tm:
-                del tm['002_warnings']
+            # if '002_warnings' in tm:
+            #     del tm['002_warnings']
             self.append_tag(tm, '002_warnings', tm['~cwp_warning'])
-        if '003_information:options_overridden' in tm:
-            del tm['003_information:options_overridden']
+        # if '003_information:options_overridden' in tm:
+        #     del tm['003_information:options_overridden']
         self.append_tag(tm, '003_information:options_overridden', tm['~cwp_info_options'])
 
     def append_tag(self, tm, tag, source, sep=None):
@@ -3857,6 +3924,12 @@ class PartLevels:
                 source,
                 sep)
         append_tag(tm, tag, source)
+        if self.DEBUG:
+            log.debug(
+                "Appended. Resulting contents of tag: %s are: %s",
+                tag,
+                tm[tag]
+            )
 
     ################################################
     # SECTION 6 - Common string handling functions #
