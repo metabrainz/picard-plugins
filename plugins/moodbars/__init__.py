@@ -2,15 +2,16 @@
 
 # Changelog:
 #   [2015-09-24] Initial version with support for Ogg Vorbis, FLAC, WAV and MP3, tested MP3 and FLAC
+#   [2017-11-20] Amended for Picard 2.x and Python 3.x+
 
 PLUGIN_NAME = u"Moodbars"
 PLUGIN_AUTHOR = u"Len Joubert"
 PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums."""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["0.10", "0.15", "0.16"]
-#PLUGIN_INCOMPATIBLE_PLATFORMS = [
+PLUGIN_VERSION = "2.2"
+PLUGIN_API_VERSIONS = ["2.0"]
+# PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
 import os.path
@@ -19,7 +20,8 @@ from subprocess import check_call
 from picard.album import Album, NatAlbum
 from picard.track import Track
 from picard.file import File
-from picard.util import encode_filename, decode_filename, partial, thread
+from functools import partial
+from picard.util import encode_filename, decode_filename, thread
 from picard.ui.options import register_options_page, OptionsPage
 from picard.config import TextOption
 from picard.ui.itemviews import (BaseAction, register_file_action,
@@ -38,22 +40,39 @@ MOODBAR_COMMANDS = {
 
 def generate_moodbar_for_files(files, format, tagger):
     """Generate the moodfiles for a list of files in album mode."""
+    # python3 list for subprocess
+    command_to_execute = []
     file_list = ['%s' % encode_filename(f.filename) for f in files]
     for mood_file in file_list:
         new_filename = os.path.join(os.path.dirname(
             mood_file), '.' + os.path.splitext(os.path.basename(mood_file))[0] + '.mood')
         # file format to make it compaitble with Amarok and hidden in linux
-        file_list_mood = ['%s' % new_filename]
+        file_list_mood = ['%s' % new_filename[2:]]
+        file_list_music = ['%s' %
+                           (decode_filename(file_list[0]))[2:].strip("'")]
+       # tagger.log.debug('My debug new_filename >>>  %s' %
+       # (str(new_filename)[2:]))
 
     if format in MOODBAR_COMMANDS \
             and tagger.config.setting[MOODBAR_COMMANDS[format][0]]:
         command = tagger.config.setting[MOODBAR_COMMANDS[format][0]]
         options = tagger.config.setting[
             MOODBAR_COMMANDS[format][1]].split(' ')
-#        tagger.log.debug('My debug >>>  %s' % (file_list_mood))
-        tagger.log.debug(
-            '%s %s %s %s' % (command, decode_filename(' '.join(file_list)), ' '.join(options), decode_filename(' '.join(file_list_mood))))
-        check_call([command] + file_list + options + file_list_mood)
+        # tagger.log.debug('My debug file_list_mood >>>  %s' % (file_list_mood))
+        # tagger.log.debug('My debug file_list >>>  %s' % (file_list_music))
+        # tagger.log.debug('My debug command >>>  %s' % (command))
+        # tagger.log.debug('My debug options >>>  %s' % (options))
+        # tagger.log.debug(
+        #    '%s %s %s %s' % (command, decode_filename(' '.join(file_list)), ' '.join(options), decode_filename(' '.join(file_list_mood))))
+        # command args order corrected for new moodbar
+        command_to_execute.append(command)
+        command_to_execute = command_to_execute + options
+        command_to_execute.append(file_list_mood[0])
+        command_to_execute = command_to_execute + file_list_music
+        tagger.log.debug('Debug moodbar command to execute >>>  %s' %
+                         (command_to_execute))
+        check_call(command_to_execute)
+        # check_call([command] + options + file_list_mood + file_list)
     else:
         raise Exception('Moodbar: Unsupported format %s' % (format))
 
@@ -127,13 +146,13 @@ class MoodbarOptionsPage(OptionsPage):
             self.config.setting["moodbar_wav_command"])
 
     def save(self):
-        self.config.setting["moodbar_vorbis_command"] = unicode(
+        self.config.setting["moodbar_vorbis_command"] = str(
             self.ui.vorbis_command.text())
-        self.config.setting["moodbar_mp3_command"] = unicode(
+        self.config.setting["moodbar_mp3_command"] = str(
             self.ui.mp3_command.text())
-        self.config.setting["moodbar_flac_command"] = unicode(
+        self.config.setting["moodbar_flac_command"] = str(
             self.ui.flac_command.text())
-        self.config.setting["moodbar_wav_command"] = unicode(
+        self.config.setting["moodbar_wav_command"] = str(
             self.ui.wav_command.text())
 
 register_file_action(MoodBar())
