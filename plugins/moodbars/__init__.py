@@ -3,7 +3,7 @@
 # Changelog:
 #   [2015-09-24] Initial version with support for Ogg Vorbis, FLAC, WAV and MP3, tested MP3 and FLAC
 #   [2017-11-21] Amended to Python3 & Qt5
-#   [2017-11-21] removed unicode, 
+#   [2017-11-21] removed unicode, replaced str with string_ and untrusted input on check_call addressed 
 
 PLUGIN_NAME = "Moodbars"
 PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
@@ -71,7 +71,7 @@ def generate_moodbar_for_files(files, format, tagger):
         command_to_execute = command_to_execute + file_list_music
         tagger.log.debug('My debug command to execute >>>  %s' %
                          (command_to_execute))
-        check_call(command_to_execute)
+        check_call(command_to_execute, shell=False)
         # check_call([command] + options + file_list_mood + file_list)
     else:
         raise Exception('Moodbar: Unsupported format %s' % (format))
