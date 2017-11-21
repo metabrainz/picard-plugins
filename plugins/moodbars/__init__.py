@@ -5,7 +5,7 @@
 #   [2017-11-21] Amended to Python3 & Qt5
 
 PLUGIN_NAME = u"Moodbars"
-PLUGIN_AUTHOR = u"Len Joubert"
+PLUGIN_AUTHOR = u"Len Joubert, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums."""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
