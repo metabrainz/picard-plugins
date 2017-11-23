@@ -3,21 +3,21 @@
 PLUGIN_NAME = u'Classical Extras'
 PLUGIN_AUTHOR = u'Mark Evens'
 PLUGIN_DESCRIPTION = u'''This plugin contains 3 classes:
-
+<br /><br />
 I. ("EXTRA ARTISTS") Create sorted fields for all performers. Creates a number of variables with alternative values for "artists" and "artist".
 Creates an ensemble variable for all ensemble-type performers.
 Also creates matching sort fields for artist and artists.
 Additionally create tags for artist types which are not normally created in Picard - particularly for classical music (notably instrument arrangers).
-
+<br /><br />
 II. ("WORK PARTS") Create tags for the hierarchy of works which contain a given track recording - particularly for classical music'
 Variables provided for each work level, with implied part names
 Mixed metadata provided including work and title elements
-
+<br /><br />
 III. ("OPTIONS") Allows the user to set various options including what tags will be written (otherwise the classes above will just write outputs to "hidden variables")
-
+<br /><br />
 See Readme file for full details.
 '''
-PLUGIN_VERSION = '0.7'
+PLUGIN_VERSION = '0.8'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
