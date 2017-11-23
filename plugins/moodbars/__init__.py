@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 # Changelog:
-#   [2015-09-24] Initial version with support for Ogg Vorbis, FLAC, WAV and MP3, tested MP3 and FLAC
-#   [2017-11-21] Amended to Python3 & Qt5
-#   [2017-11-21] removed unicode, replaced str with string_ and untrusted input on check_call addressed 
+# [2015-09-24] Initial version with support for Ogg Vorbis, FLAC, WAV and MP3, tested MP3 and FLAC
+# [2017-11-21] Amended to Python3 & Qt5
+# [2017-11-21] removed unicode, replaced str with string_ and untrusted input on check_call addressed
 
 PLUGIN_NAME = "Moodbars"
 PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
@@ -56,12 +56,12 @@ def generate_moodbar_for_files(files, format, tagger):
         command = tagger.config.setting[MOODBAR_COMMANDS[format][0]]
         options = tagger.config.setting[
             MOODBAR_COMMANDS[format][1]].split(' ')
-        #tagger.log.debug('My debug file_list_mood >>>  %s' %
+        # tagger.log.debug('My debug file_list_mood >>>  %s' %
         #    (file_list_mood))
         #tagger.log.debug('My debug file_list >>>  %s' % (file_list_music))
         #tagger.log.debug('My debug command >>>  %s' % (command))
         #tagger.log.debug('My debug options >>>  %s' % (options))
-        #tagger.log.debug(
+        # tagger.log.debug(
         #    '%s %s %s %s' % (command, decode_filename(' '.join(file_list)), ' '.join(options), decode_filename(' '.join(file_list_mood))))
         # command args order corrected for new moodbar
         command_to_execute.append(command)
