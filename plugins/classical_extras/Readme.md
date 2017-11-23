@@ -1,5 +1,5 @@
 # General Information
-This is version 0.7 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
+This is version 0.8 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types can have access to them.
@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 0.8: Tweak description to improve display.
+
 Version 0.7: Bug fixes. Pull request issued for this version.
 
 Version 0.6.6: Bug fixes and algorithm improvements. Allow multiple sources for a tag (each will be appended) and use + as separator for concantenating sources, not a comma, to distinguish from the use of comma to separate multiples. Provide additional hidden variables ("sources") for vocalists and instrumentalists. Option to include intermediate work levels in a movement tag (for systems which cannot display multiple work levels).
