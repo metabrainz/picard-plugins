@@ -68,7 +68,7 @@
             <x>0</x>
             <y>-154</y>
             <width>1046</width>
-            <height>1017</height>
+            <height>1025</height>
            </rect>
           </property>
           <property name="acceptDrops">
@@ -678,16 +678,6 @@
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_14">
                  <item>
-                  <widget class="QCheckBox" name="cea_composer_album">
-                   <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                   </property>
-                   <property name="text">
-                    <string>Name album as &quot;Composer Last Name(s): Album Name&quot;</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
                   <widget class="QCheckBox" name="cea_arrangers">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -697,6 +687,16 @@
                    </property>
                    <property name="text">
                     <string>Modify host tags to include all annotations (see =&gt;)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="cea_composer_album">
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                   <property name="text">
+                    <string>Name album as &quot;Composer Last Name(s): Album Name&quot;</string>
                    </property>
                   </widget>
                  </item>
@@ -729,9 +729,35 @@
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter text to appear in annotations. Do not use any quotation marks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="title">
-                 <string>Annotations - arranger types</string>
+                 <string>Annotations - writers and arrangers</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_21">
+                 <item>
+                  <widget class="QFrame" name="frame_17">
+                   <property name="frameShape">
+                    <enum>QFrame::StyledPanel</enum>
+                   </property>
+                   <property name="frameShadow">
+                    <enum>QFrame::Raised</enum>
+                   </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_30">
+                    <item>
+                     <widget class="QLabel" name="label_56">
+                      <property name="text">
+                       <string>Writer</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLineEdit" name="cea_writer">
+                      <property name="styleSheet">
+                       <string notr="true">background-color: rgb(229, 229, 255);</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
                  <item>
                   <widget class="QFrame" name="frame_16">
                    <property name="frameShape">
@@ -5771,11 +5797,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>160</x>
-     <y>217</y>
+     <y>63</y>
     </hint>
     <hint type="destinationlabel">
      <x>146</x>
-     <y>407</y>
+     <y>253</y>
     </hint>
    </hints>
   </connection>
@@ -5787,11 +5813,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>244</x>
-     <y>214</y>
+     <y>60</y>
     </hint>
     <hint type="destinationlabel">
      <x>601</x>
-     <y>407</y>
+     <y>253</y>
     </hint>
    </hints>
   </connection>
@@ -5803,11 +5829,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>244</x>
-     <y>267</y>
+     <y>113</y>
     </hint>
     <hint type="destinationlabel">
      <x>91</x>
-     <y>407</y>
+     <y>253</y>
     </hint>
    </hints>
   </connection>
@@ -5819,11 +5845,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>218</x>
-     <y>308</y>
+     <y>154</y>
     </hint>
     <hint type="destinationlabel">
      <x>122</x>
-     <y>407</y>
+     <y>253</y>
     </hint>
    </hints>
   </connection>
@@ -5835,11 +5861,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>358</x>
-     <y>496</y>
+     <y>342</y>
     </hint>
     <hint type="destinationlabel">
      <x>923</x>
-     <y>457</y>
+     <y>303</y>
     </hint>
    </hints>
   </connection>
@@ -5851,11 +5877,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1037</x>
-     <y>480</y>
+     <y>326</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
-     <y>503</y>
+     <y>349</y>
     </hint>
    </hints>
   </connection>
@@ -6123,7 +6149,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>90</x>
-     <y>964</y>
+     <y>818</y>
     </hint>
     <hint type="destinationlabel">
      <x>512</x>
@@ -6139,7 +6165,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>74</x>
-     <y>69</y>
+     <y>-85</y>
     </hint>
     <hint type="destinationlabel">
      <x>85</x>
@@ -6155,11 +6181,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>45</x>
-     <y>66</y>
+     <y>-88</y>
     </hint>
     <hint type="destinationlabel">
      <x>44</x>
-     <y>445</y>
+     <y>291</y>
     </hint>
    </hints>
   </connection>
@@ -6171,7 +6197,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>118</x>
-     <y>66</y>
+     <y>-88</y>
     </hint>
     <hint type="destinationlabel">
      <x>115</x>
@@ -6187,7 +6213,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>136</x>
-     <y>64</y>
+     <y>-90</y>
     </hint>
     <hint type="destinationlabel">
      <x>141</x>
@@ -6203,7 +6229,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>290</x>
-     <y>68</y>
+     <y>-86</y>
     </hint>
     <hint type="destinationlabel">
      <x>552</x>
@@ -6219,7 +6245,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>290</x>
-     <y>68</y>
+     <y>-86</y>
     </hint>
     <hint type="destinationlabel">
      <x>552</x>
@@ -6235,7 +6261,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>290</x>
-     <y>68</y>
+     <y>-86</y>
     </hint>
     <hint type="destinationlabel">
      <x>552</x>
@@ -6363,7 +6389,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>290</x>
-     <y>68</y>
+     <y>-86</y>
     </hint>
     <hint type="destinationlabel">
      <x>543</x>
@@ -6395,11 +6421,43 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>434</x>
-     <y>62</y>
+     <y>-92</y>
     </hint>
     <hint type="destinationlabel">
      <x>559</x>
-     <y>63</y>
+     <y>-91</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cea_arrangers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_9</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>85</x>
+     <y>483</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>451</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cea_arrangers</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox_28</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>224</x>
+     <y>487</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>737</x>
+     <y>441</y>
     </hint>
    </hints>
   </connection>

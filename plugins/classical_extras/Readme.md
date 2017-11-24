@@ -74,7 +74,7 @@ There are five coloured sections as shown in the screen image below:
   The bottom box then (a) allows a choice as to whether aliases will over-ride as-cedited names or vice versa and (b) whether if there are still some names in non-Latin script, whether these should be replaced (this will always remove middle [patronymic] names from Cyrillic-script names [but does not deal fully with other non-Latin scripts]; it is based on the sort names wherever possible).
 
   Note that **none of this processing affects the contents of the "artist or "album_artist" tags**. These tags may be either writer-type or performer-type. Their contents are determined by the standard Picard options "translate artist names" and "use standardized artist names" in Options-->Metadata. If "translate name" is selected, the name will be the alias or (if no alias) the 'unsorted' sort-name; otherwise the name will be the MusicBrainz name if "use standardized artist names" is selected or the as-credited name (if available) if it is not selected.
-
+file:///C:/Users/Public/Music/muso/html/orig.png
 3. "Recording artist options".
   In MusicBrainz, the recording artist may be different from the track artist. For classical music, the MusicBrainz guidelines state that the track artist should be the composer; however the recording artist(s) is/are usually the principal performer(s).
   Classical Extras puts the recording artists into 'hidden variables' (as a minimum) using the chosen naming convention.
@@ -86,24 +86,33 @@ There are five coloured sections as shown in the screen image below:
 
 
 4. "Other artist options".
-  Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name. MusicBrainz style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
+  "Modify host tags to include all annotations" (Previously called "Include arrangers from all work levels"). This will gather together, for example any arranger-type information from the recording, work or parent works and place it in the "arranger" tag ('host' tag), with the annotation (see below) in brackets. All arranger types will also be put in a hidden variable, e.g. _cwp_orchestrators. The table below shows the artist types, host tag and hidden variable for each artist type.
 
-  "Include arrangers from all work levels, plus instrument arrangers". This will gather together any arranger information from the recording, work or parent works and place it in the "arranger" tag, with a subkey as appropriate. All arrangers (except orchestrators who are dealt with separately) will also be put in the _cea_arrangers hidden variable. If you want to add arrangers as composers, do so in the tag mapping section - see below. (Note that Picard does not natively pick up all arrangers, but that the plugin will, provided the "Works and parts" section is run.)
+  | Artist type | Host tag | Hidden variable |
+  | --- | --- | --- |
+  | writer | composer | writers |
+  | lyricist | lyricist | lyricists |
+  | librettist | lyricist | librettists |
+  | revised by | arranger | revisors |
+  | translator | lyricist | translators |
+  | arranger | arranger | arrangers |
+  | reconstructed by | arranger | reconstructors |
+  | orchestrator | arranger | orchestrators |
+  | instrument arranger | arranger | arrangers (with instrument type in brackets) |
+  | vocal arranger | arranger | arrangers (with voice type in brackets) |
+
+  If you want to be more selective in what is included in host tags, then disable this option and use the tag mapping section to get the data from the hidden variables. If you want to add arrangers as composers, do so in the tag mapping section - see below. 
+
+  (Note that Picard does not natively pick up all arrangers, but that the plugin will, provided the "Works and parts" section is run.)
+
+  "Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name. MusicBrainz style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
+
 
   "Do not write 'lyricist' tag if no vocal performers". Hopefully self-evident. This applies to both the Picard 'lyricist' tag and the internal plugin hidden variable '_cwp_lyricists'. Note that the plugin will search for lyricists at all work levels, but will stop after finding the first one (unless that was just a translator).
 
   "Do not include 'solo' as an instrument type". MusicBrainz permits the use of "solo" as an instrument type although, for classical music, its use should be fairly rare - usually only if explicitly stated as a "solo" on the the sleevenotes. Picard treats it as an "instrument", leading to the slightly odd tag "performer:bassoon and solo" (for example) rather than "performer:bassoon solo" or just "performer:bassoon". Classical Extras provides the option to exclude "solo" (the default).
 
-	"Annotations": The chosen text will be used to annotate the artist type within the specified tag (either in brackets and/or as a sub-key), namely:
-
-    chorus master: conductor
-    concert master: performers
-    lyricist: lyricist
-    librettist: lyricist
-    orchestrator: arranger
-    reconstructed by: arranger
-    revised by: arranger
-    translator: lyricist
+	"Annotations": The chosen text will be used to annotate the artist type within the host tag (see table above for host tags), but only if "Modify host tags" is selected.
 
 	Please note that the use of the word "master" is the MusicBrainz term and is not intended to be gender-specific. Users can specify whatever text they please.
 

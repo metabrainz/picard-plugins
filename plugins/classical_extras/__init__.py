@@ -385,6 +385,11 @@ def plugin_options(type):
          'type': 'Text',
          'default': 'libretto'
          },
+        {'option': 'cea_writer',
+         'name': 'writer',
+         'type': 'Text',
+         'default': 'writer'
+         },
         {'option': 'cea_arranger',
          'name': 'arranger',
          'type': 'Text',
@@ -864,24 +869,30 @@ def set_work_artists(self, album, track, writerList, tm, count):
     """
 
     options = self.options[track]
-    caller = 'ExtraArtists' if not options['classical_work_parts'] else 'PartLevels'
+    if not options['classical_work_parts']:
+        caller = 'ExtraArtists'
+        pre = '~cea'
+    else:
+        caller = 'PartLevels'
+        pre = '~cwp'
     if self.DEBUG:
         log.debug('%s, Class: %s: in set_work_artists for track %s. Count (level) is %s', PLUGIN_NAME, caller, track, count)
     # tag strings are a tuple (Picard tag, cwp tag, Picard sort tag, cwp sort tag) (NB this is modelled on set_performer)
-    tag_strings = {'writer': ('composer', '~cwp_writers', 'composersort', '~cwp_writers_sort'),
-                   'composer': ('composer', '~cwp_composers', 'composersort', '~cwp_composers_sort'),
-                   'lyricist': ('lyricist', '~cwp_lyricists', None, '~cwp_lyricists_sort'),
-                   'librettist': ('lyricist', '~cwp_lyricists', None, '~cwp_lyricists_sort'),
-                   'revised by': ('arranger', '~cwp_arrangers', 'arranger_sort', '~cwp_arrangers_sort'),
-                   'translator': ('lyricist', '~cwp_lyricists', None, '~cwp_lyricists_sort'),
-                   'reconstructed by': ('arranger', '~cwp_arrangers', 'arranger_sort', '~cwp_arrangers_sort'),
-                   'arranger': ('arranger', '~cwp_arrangers', 'arranger_sort', '~cwp_arrangers_sort'),
-                   'instrument arranger': ('arranger', '~cwp_arrangers', 'arranger_sort', '~cwp_arrangers_sort'),
-                   'orchestrator': ('arranger', '~cwp_arrangers', 'arranger_sort', '~cwp_arrangers_sort'),
-                   'vocal arranger': ('arranger', '~cwp_arrangers', 'arranger_sort', '~cwp_arrangers_sort')
+    tag_strings = {'writer': ('composer', pre + '_writers', 'composersort', pre + '_writers_sort'),
+                   'composer': ('composer', pre + '_composers', 'composersort', pre + '_composers_sort'),
+                   'lyricist': ('lyricist', pre + '_lyricists', None, pre + '_lyricists_sort'),
+                   'librettist': ('lyricist', pre + '_librettists', None, pre + '_librettists_sort'),
+                   'revised by': ('arranger', pre + '_revisors', 'arranger_sort', pre + '_revisors_sort'),
+                   'translator': ('lyricist', pre + '_translators', None, pre + '_translators_sort'),
+                   'reconstructed by': ('arranger', pre + '_reconstructors', 'arranger_sort', pre + '_reconstructors_sort'),
+                   'arranger': ('arranger', pre + '_arrangers', 'arranger_sort', pre + '_arrangers_sort'),
+                   'instrument arranger': ('arranger', pre + '_arrangers', 'arranger_sort', pre + '_arrangers_sort'),
+                   'orchestrator': ('arranger', pre + '_orchestrators', 'arranger_sort', pre + '_orchestrators_sort'),
+                   'vocal arranger': ('arranger', pre + '_arrangers', 'arranger_sort', pre + '_arrangers_sort')
                    }
     # insertions lists artist types where names in the main Picard tags may be updated for annotations
-    insertions = ['lyricist',
+    insertions = ['writer',
+                  'lyricist',
                   'librettist',
                   'revised by',
                   'translator',
@@ -916,7 +927,8 @@ def set_work_artists(self, album, track, writerList, tm, count):
                 arr_inst = options['cea_arranger']
         else:
             arr_inst = instrument
-        annotations = {'lyricist': options['cea_lyricist'],
+        annotations = {'writer': options['cea_writer'],
+                       'lyricist': options['cea_lyricist'],
                        'librettist': options['cea_librettist'],
                        'revised by': options['cea_revised'],
                        'translator': options['cea_translator'],
@@ -969,22 +981,23 @@ def set_work_artists(self, album, track, writerList, tm, count):
                     name = remove_middle(unsort(sort_name))
                     # Only remove middle name where the existing
                     # performer is in non-latin script
-            cwp_name = name
+            annotated_name = name
 
             # add annotations and write performer tags
             if writer_type in annotations:
                 if annotations[writer_type]:
-                    cwp_name += ' (' + annotations[writer_type] + ')'
+                    annotated_name += ' (' + annotations[writer_type] + ')'
+            if instrument:
+                instrumented_name = name + ' (' + instrument + ')'
+            else:
+                instrumented_name = name
 
             if writer_type in insertions and options['cea_arrangers']:
-                self.append_tag(tm, tag, cwp_name)
-            else:
-                self.append_tag(tm, tag, name)
-            # if old_name2 and name != old_name2:
-            #     self.remove_tag(tm, tag, old_name2)
+                self.append_tag(tm, tag, annotated_name)
+
             if sort_tag:
                 self.append_tag(tm, sort_tag, sort_name)
-            self.append_tag(tm, cwp_tag, cwp_name)
+            self.append_tag(tm, cwp_tag, instrumented_name)
 
             if cwp_sort_tag:
                 self.append_tag(tm, cwp_sort_tag, sort_name)
@@ -1422,6 +1435,14 @@ def map_tags(options, tm):
             del tm['~cea_works_complete']
         if '~cea_artists_complete' in tm:
             del tm['~cea_artists_complete']
+        del_list = []
+        for t in tm:
+            log.error(' t is: %r', t)
+            if 'ce_tag_cleared' in t:
+                del_list.append(t)
+        for t in del_list:
+            del tm[t]
+            log.error('cleared')
 
     # if options over-write enabled, remove it after processing one album
     options['ce_options_overwrite'] = False
@@ -2295,11 +2316,11 @@ class ExtraArtists:
                        'vocal': ('performer:', '~cea_performers', 'performer_sort', '~cea_performers_sort'),
                        'performing orchestra': ('performer:orchestra', '~cea_ensembles', 'band_sort', '~cea_ensembles_sort'),
                        'conductor': ('conductor', '~cea_conductors', 'conductor_sort', '~cea_conductors_sort'),
-                       'chorus master': ('conductor', '~cea_conductors', 'conductor_sort', '~cea_conductors_sort'),
-                       'concertmaster': ('performer', '~cea_performers', 'performer_sort', '~cea_performers_sort'),
+                       'chorus master': ('conductor', '~cea_choirmasters', 'conductor_sort', '~cea_choirmasters_sort'),
+                       'concertmaster': ('performer', '~cea_concertmasters', 'performer_sort', '~cea_concertmasters_sort'),
                        'arranger': ('arranger', '~cea_arrangers', 'arranger_sort', '~cea_arrangers_sort'),
                        'instrument arranger': ('arranger', '~cea_arrangers', 'arranger_sort', '~cea_arrangers_sort'),
-                       'orchestrator': ('arranger', '~cea_arrangers', 'arranger_sort', '~cea_arrangers_sort'),
+                       'orchestrator': ('arranger', '~cea_orchestrators', 'arranger_sort', '~cea_orchestrators_sort'),
                        'vocal arranger': ('arranger', '~cea_arrangers', 'arranger_sort', '~cea_arrangers_sort')
                        }
         # insertions lists artist types where names in the main Picard tags may be updated for annotations
@@ -2398,23 +2419,26 @@ class ExtraArtists:
                         name = remove_middle(unsort(sort_name))
                             # Only remove middle name where the existing
                             # performer is in non-latin script
-                cea_name = name
-
+                annotated_name = name
+                if instrument:
+                    instrumented_name = name + ' (' + instrument + ')'
+                else:
+                    instrumented_name = name
                 # add annotations and write performer tags
                 if artist_type in annotations:
                     if annotations[artist_type]:
-                        cea_name += ' (' + annotations[artist_type] + ')'
+                        annotated_name += ' (' + annotations[artist_type] + ')'
                     else:
                         if self.WARNING:
                             log.warning('%s: No annotation (instrument) available for artist_type %s. Performer = %s. Track is %s',
                                         PLUGIN_NAME, artist_type, performer[2], track)
                 if artist_type in insertions and options['cea_arrangers']:
-                    self.append_tag(tm, tag, cea_name)
+                    self.append_tag(tm, tag, annotated_name)
                 else:
                     self.append_tag(tm, tag, name)
                 if sort_tag:
                     self.append_tag(tm, sort_tag, sort_name)
-                self.append_tag(tm, cea_tag, cea_name)
+                self.append_tag(tm, cea_tag, instrumented_name)
                 if cea_sort_tag:
                     self.append_tag(tm, cea_sort_tag, sort_name)
 
@@ -2422,24 +2446,24 @@ class ExtraArtists:
                 if  artist_type == 'performing orchestra' or (instrument and instrument in self.ENSEMBLE_TYPES) \
                         or self.ensemble_type(name):
                     performer_type = 'ensembles'
-                    self.append_tag(tm, '~cea_ensembles', cea_name)
+                    self.append_tag(tm, '~cea_ensembles', instrumented_name)
                     self.append_tag(tm, '~cea_ensemble_names', name)
                     self.append_tag(tm, '~cea_ensembles_sort', sort_name)
                 elif artist_type in ['performer', 'instrument', 'vocal']:
                     performer_type = 'soloists'
-                    self.append_tag(tm, '~cea_soloists', cea_name)
+                    self.append_tag(tm, '~cea_soloists', instrumented_name)
                     self.append_tag(tm, '~cea_soloist_names', name)
                     self.append_tag(tm, '~cea_soloists_sort', sort_name)
                     if artist_type == "vocal":
-                        self.append_tag(tm, '~cea_vocalists', cea_name)
+                        self.append_tag(tm, '~cea_vocalists', instrumented_name)
                         self.append_tag(tm, '~cea_vocalist_names', name)
                         self.append_tag(tm, '~cea_vocalists_sort', sort_name)
                     elif instrument:
-                        self.append_tag(tm, '~cea_instrumentalists', cea_name)
+                        self.append_tag(tm, '~cea_instrumentalists', instrumented_name)
                         self.append_tag(tm, '~cea_instrumentalist_names', name)
                         self.append_tag(tm, '~cea_instrumentalists_sort', sort_name)
                     else:
-                        self.append_tag(tm, '~cea_other_soloists', cea_name)
+                        self.append_tag(tm, '~cea_other_soloists', instrumented_name)
                         self.append_tag(tm, '~cea_other_soloist_names', name)
                         self.append_tag(tm, '~cea_other_soloists_sort', sort_name)
 
@@ -2452,7 +2476,7 @@ class ExtraArtists:
                        self.append_tag(tm, cea_album_sort_tag, sort_name)
                     else:
                         if performer_type:
-                            self.append_tag(tm, '~cea_support_performers', cea_name)
+                            self.append_tag(tm, '~cea_support_performers', instrumented_name)
                             self.append_tag(tm, '~cea_support_performer_names', name)
                             self.append_tag(tm, '~cea_support_performers_sort', sort_name)
 
