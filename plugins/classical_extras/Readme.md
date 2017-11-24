@@ -6,7 +6,7 @@ This plugin is particularly designed to assist with tagging of classical music s
 
 It has two components "Extra Artists" and "Work Parts" which can be used independently or together. "Work Parts" will take at least as many seconds to process as there are works to look up (owing to MB throttling) so users who only want the extra artist information and not the work details may turn it off.
 
-All hidden variables produced by this plugin are prefixed with "_cwp_" or  "_cea_" depending on which component of the plugin created them. Full details of these variables are given in a later section.
+All hidden metadata variables produced by this plugin are prefixed with "_cwp_" or  "_cea_" depending on which component of the plugin created them. Full details of these variables are given in a later section.
 Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which can be added to / modified / deleted according to user requirements. 
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
@@ -50,7 +50,7 @@ Version 0.6.1: Amended regex to permit non-Latin characters in work text.
 Install the zip file in your plugins folder in the usual fashion
 
 # Usage
-After installation, go to the Options Page and modify choices as required. There are 3 tabs - "Artists", "Works and parts" and "Advanced". The sections below describe each of these. If the options provided do not allow sufficient flexibility for a user's need and they do not want to use scripting, then it may be possible to achieve the required result by running and saving twice (or more!) with different options each time. This is not recommended for more than a one-off - a script would be better.
+After installation, go to the Options Page and modify choices as required. There are 4 tabs - "Artists", "Tag mapping", Works and parts" and "Advanced". The sections below describe each of these. If the options provided do not allow sufficient flexibility for a user's need (hopefully unlikely!) and they do not want to use scripting, then it may be possible to achieve the required result by running and saving twice (or more!) with different options each time. This is not recommended for more than a one-off - a script would be better.
 
 **Important**: 
 1.  The plugin **may not work fully unless** you have enabled "Use release relationships" and "Use track relationships" in Picard->Options->Metadata. However, it may be that the MusicBrainz database has conflicting data between track and release relationships, in which case fix the incorrect data using "Edit relationships" in MusicBrainz.
@@ -148,7 +148,7 @@ Note that the "Create extra artist metadata" option needs to be selected on the 
 
     * **Sources**:
 	The most useful sources are available from the drop-down list and are as follows:
-	Most of the names are for artist data and are sourced from hidden variables (prefixed with "_cea_" or "_cwp_").
+
       - soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be "soloists" in that they may be part of an ensemble.
       - soloist_names : Names of the above (i.e. no instruments).
       - vocalists / instrumentalists / other_soloists : Soloists who are vocalists, instrumentalists or not specified respectively.
@@ -168,7 +168,7 @@ Note that the "Create extra artist metadata" option needs to be selected on the 
       - leaders : AKA concertmasters.
       - chorusmasters : as distinct from conductors (chorus masters may rehearse the choir but not conduct the performance).
 
-	   Note that the Classical Extras sources for all artist types are spelled in the plural (to differentiate from the native Picard tags).
+	   Note that the Classical Extras sources for all artist types are spelled in the plural (to differentiate from the native Picard tags). Most of the names are for artist data and are sourced from hidden variables (prefixed with "_cea_" or "_cwp_"). In specifying the source, the prefix is not necessary - e.g. "arrangers" will pick up all data in _cea_arrangers and _cwp_arrangers (covering those with recording and work relationships respectively). Using the prefix will only get the specific variable.
 
 	   In addition, the drop-down contains some typical combinations of multiple sources (see note on multiple sources below).
 
