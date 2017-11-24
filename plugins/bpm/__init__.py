@@ -50,7 +50,7 @@ def get_file_bpm(self, path):
 
     samplerate, buf_size, hop_size = bpm_slider_settings[
         BPMOptionsPage.config.setting["bpm_slider_parameter"]]
-    mediasource = source(path.encode("utf-8"), samplerate, hop_size)
+    mediasource = source(path, samplerate, hop_size)
     samplerate = mediasource.samplerate
     beattracking = tempo("specdiff", buf_size, hop_size, samplerate)
     # List of beats, in samples
