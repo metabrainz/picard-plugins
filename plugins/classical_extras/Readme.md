@@ -74,7 +74,7 @@ There are five coloured sections as shown in the screen image below:
   The bottom box then (a) allows a choice as to whether aliases will over-ride as-cedited names or vice versa and (b) whether if there are still some names in non-Latin script, whether these should be replaced (this will always remove middle [patronymic] names from Cyrillic-script names [but does not deal fully with other non-Latin scripts]; it is based on the sort names wherever possible).
 
   Note that **none of this processing affects the contents of the "artist or "album_artist" tags**. These tags may be either writer-type or performer-type. Their contents are determined by the standard Picard options "translate artist names" and "use standardized artist names" in Options-->Metadata. If "translate name" is selected, the name will be the alias or (if no alias) the 'unsorted' sort-name; otherwise the name will be the MusicBrainz name if "use standardized artist names" is selected or the as-credited name (if available) if it is not selected.
-file:///C:/Users/Public/Music/muso/html/orig.png
+
 3. "Recording artist options".
   In MusicBrainz, the recording artist may be different from the track artist. For classical music, the MusicBrainz guidelines state that the track artist should be the composer; however the recording artist(s) is/are usually the principal performer(s).
   Classical Extras puts the recording artists into 'hidden variables' (as a minimum) using the chosen naming convention.
