@@ -11,11 +11,13 @@ PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums."""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
-#PLUGIN_INCOMPATIBLE_PLATFORMS = [
+# PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
+from aubio import source, tempo
+from numpy import median, diff
 from collections import defaultdict
 from functools import partial
 from subprocess import check_call
@@ -28,8 +30,6 @@ from picard.config import TextOption, IntOption
 from picard.ui.itemviews import (BaseAction, register_file_action,
                                  register_album_action)
 from picard.plugins.bpm.ui_options_bpm import Ui_BPMOptionsPage
-from aubio import source, tempo
-from numpy import median, diff
 
 
 bpm_slider_settings = {
