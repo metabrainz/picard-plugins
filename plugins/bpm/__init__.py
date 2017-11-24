@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 # Changelog:
-#   [2015-09-15] Initial version
+# [2015-09-15] Initial version
+# [2017-11-24] Qt5, Python3 for Picard-plugins branch 2
 # Dependancies:
-#   aubio, numpy
+# aubio, numpy
 #
 
 PLUGIN_NAME = "BPM Analyzer"
 PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
-PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums."""
+PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums. Linux only version with dependancy on Aubio and Numpy"""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 PLUGIN_VERSION = "1.1"
