@@ -1349,8 +1349,9 @@ def map_tags(options, tm):
     if options['cea_no_lyricists'] and 'vocals' not in tm['~cea_performers']:
         if 'lyricist' in tm:
             del tm['lyricist']
-        if '~cwp_lyricists' in tm:
-            del tm['~cwp_lyricists']
+    for lyricist_tag in ['lyricists', 'librettists', 'translators']:
+        if '~cwp_' + lyricist_tag in tm:
+            del tm['~cwp_' + lyricist_tag]
 
     sort_tags = options['cea_tag_sort']
     for i in range(0, 16):

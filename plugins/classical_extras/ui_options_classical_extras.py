@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\Mark\Documents\Mark's documents\Music\Picard\Classical Extras development\classical_extras\options_classical_extras.ui'
 #
-# Created: Fri Nov 24 11:36:31 2017
+# Created: Sun Nov 26 20:03:49 2017
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -56,7 +56,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, -154, 1046, 1025))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1046, 1025))
         self.scrollAreaWidgetContents.setAcceptDrops(False)
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.verticalLayout_13 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
@@ -87,7 +87,6 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_43.setObjectName(_fromUtf8("label_43"))
         self.verticalLayout_13.addWidget(self.label_43)
         self.groupBox_23 = QtGui.QGroupBox(self.scrollAreaWidgetContents)
-        self.groupBox_23.setWhatsThis(_fromUtf8(""))
         self.groupBox_23.setStyleSheet(_fromUtf8("background-color: rgb(19, 186, 161);"))
         self.groupBox_23.setObjectName(_fromUtf8("groupBox_23"))
         self.formLayout_3 = QtGui.QFormLayout(self.groupBox_23)
@@ -1391,7 +1390,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName(_fromUtf8("scrollArea_3"))
         self.scrollAreaWidgetContents_3 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, -149, 1046, 1012))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 1046, 1012))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -2113,14 +2112,15 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.cea_genres.setText(_translate("ClassicalExtrasOptionsPage", "Infer work types (map to genre using tag mapping or script as req\'d)", None))
         self.label_22.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>The next section does not change the contents or &quot;artist&quot; or &quot;album artist&quot; tags - it only affects writer (composer etc.) and peformer tags, by using as-credited/alias names from the artist data for the release.</p></body></html>", None))
         self.label_43.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p><span style=\" font-weight:600; font-style:italic;\">The naming style for artist tags is set in the main Picard Options-&gt;Metadata section</span></p></body></html>", None))
-        self.groupBox_23.setTitle(_translate("ClassicalExtrasOptionsPage", "Writer/performer naming options", None))
+        self.groupBox_23.setWhatsThis(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>&quot;Work-artists&quot; are types such as composer, writer, arranger and lyricist who belong to the MusicBrainz Work-Artist relationship</p><p>&quot;Performers&quot; are types such as performer and conductor who belong to the MusicBrainz Recording-Artist relationship</p></body></html>", None))
+        self.groupBox_23.setTitle(_translate("ClassicalExtrasOptionsPage", "Work-artist/performer naming options", None))
         self.groupBox_24.setTitle(_translate("ClassicalExtrasOptionsPage", "MusicBrainz standard names and Aliases", None))
         self.cea_no_aliases.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Do not use aliases (but may be replaced by as-credited name)</p></body></html>", None))
         self.cea_no_aliases.setText(_translate("ClassicalExtrasOptionsPage", "Use MB standard names", None))
-        self.cea_aliases.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Alias will only be available for use if the writer/performer is also a release artist, recording artist or track artist.</p></body></html>", None))
-        self.cea_aliases.setText(_translate("ClassicalExtrasOptionsPage", "Use alias for all writers/performers", None))
-        self.cea_aliases_composer.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Only use alias (if available) for writer-type artists (writers, composers, arrangers, lyricists etc.)</p></body></html>", None))
-        self.cea_aliases_composer.setText(_translate("ClassicalExtrasOptionsPage", "Use alias for writer-type artists only", None))
+        self.cea_aliases.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Alias will only be available for use if the work-artist/performer is also a release artist, recording artist or track artist.</p></body></html>", None))
+        self.cea_aliases.setText(_translate("ClassicalExtrasOptionsPage", "Use alias for all work-artists/performers", None))
+        self.cea_aliases_composer.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Only use alias (if available) for work-artists (writers, composers, arrangers, lyricists etc.)</p></body></html>", None))
+        self.cea_aliases_composer.setText(_translate("ClassicalExtrasOptionsPage", "Use alias for work-artists only", None))
         self.groupBox_25.setTitle(_translate("ClassicalExtrasOptionsPage", "Sub-options", None))
         self.cea_alias_overrides.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Alias (if it exists) will over-ride as-credited</p></body></html>", None))
         self.cea_alias_overrides.setText(_translate("ClassicalExtrasOptionsPage", "Alias over-rides credited-as", None))
@@ -2132,7 +2132,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.groupBox_7.setTitle(_translate("ClassicalExtrasOptionsPage", "Credited-as options:-", None))
         self.groupBox_26.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Select the source for \'as-credited\' names - whether these are applied depends on the sub-options choices.</p></body></html>", None))
         self.groupBox_26.setTitle(_translate("ClassicalExtrasOptionsPage", "Names to use...", None))
-        self.cea_group_credited.setText(_translate("ClassicalExtrasOptionsPage", "Use \"credited as\" name for writers/performers who are release group artists", None))
+        self.cea_group_credited.setText(_translate("ClassicalExtrasOptionsPage", "Use \"credited as\" name for work-artists/performers who are release group artists", None))
         self.cea_credited.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p><br/></p></body></html>", None))
         self.cea_credited.setText(_translate("ClassicalExtrasOptionsPage", "and/or release artists", None))
         self.cea_release_relationship_credited.setText(_translate("ClassicalExtrasOptionsPage", "and/or release relationship artists", None))
@@ -2144,7 +2144,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.groupBox_27.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Select the tag types where any \'as-credited\' names will be applied - whether these are applied depends on the sub-options choices.</p></body></html>", None))
         self.groupBox_27.setTitle(_translate("ClassicalExtrasOptionsPage", "Places to use them ...", None))
         self.cea_performer_credited.setText(_translate("ClassicalExtrasOptionsPage", "Use for performing artists", None))
-        self.cea_composer_credited.setText(_translate("ClassicalExtrasOptionsPage", "Use for writers/composers etc.", None))
+        self.cea_composer_credited.setText(_translate("ClassicalExtrasOptionsPage", "Use for work-artists", None))
         self.groupBox_29.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Select recording artist options (see &quot;What\'s this&quot;)</p></body></html>", None))
         self.groupBox_29.setWhatsThis(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>In MusicBrainz, the recording artist may be different from the track artist. For classical music, the MusicBrainz guidelines state that the track artist should be the composer; however the recording artist(s) is/are usually the principal performer(s).</p><p>Classical Extras puts the recording artists into \'hidden variables\' (as a minimum) using the chosen naming convention.</p><p>There is also option to allow you to replace the track artist by the recording artist (or to merge them). The chosen action will be applied to the \'artist\', \'artists\', \'artistsort\' and \'artists_sort\' tags. Note that \'artist\' is a single-valued string whereas \'artists\' is a list and may be multi-valued. Lists are properly merged, but because the \'artist\' string may have different join-phrases etc, a merged tag may have the recording artist(s) in brackets after the track artist(s).</p></body></html>", None))
         self.groupBox_29.setTitle(_translate("ClassicalExtrasOptionsPage", "Recording artist options", None))

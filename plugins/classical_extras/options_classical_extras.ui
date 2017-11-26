@@ -66,7 +66,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-154</y>
+            <y>0</y>
             <width>1046</width>
             <height>1025</height>
            </rect>
@@ -134,13 +134,13 @@
            <item>
             <widget class="QGroupBox" name="groupBox_23">
              <property name="whatsThis">
-              <string/>
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;Work-artists&amp;quot; are types such as composer, writer, arranger and lyricist who belong to the MusicBrainz Work-Artist relationship&lt;/p&gt;&lt;p&gt;&amp;quot;Performers&amp;quot; are types such as performer and conductor who belong to the MusicBrainz Recording-Artist relationship&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="styleSheet">
               <string notr="true">background-color: rgb(19, 186, 161);</string>
              </property>
              <property name="title">
-              <string>Writer/performer naming options</string>
+              <string>Work-artist/performer naming options</string>
              </property>
              <layout class="QFormLayout" name="formLayout_3">
               <property name="fieldGrowthPolicy">
@@ -165,20 +165,20 @@
                  <item>
                   <widget class="QRadioButton" name="cea_aliases">
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alias will only be available for use if the writer/performer is also a release artist, recording artist or track artist.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Alias will only be available for use if the work-artist/performer is also a release artist, recording artist or track artist.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
-                    <string>Use alias for all writers/performers</string>
+                    <string>Use alias for all work-artists/performers</string>
                    </property>
                   </widget>
                  </item>
                  <item>
                   <widget class="QRadioButton" name="cea_aliases_composer">
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only use alias (if available) for writer-type artists (writers, composers, arrangers, lyricists etc.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only use alias (if available) for work-artists (writers, composers, arrangers, lyricists etc.)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
-                    <string>Use alias for writer-type artists only</string>
+                    <string>Use alias for work-artists only</string>
                    </property>
                   </widget>
                  </item>
@@ -251,7 +251,7 @@
                        <enum>Qt::RightToLeft</enum>
                       </property>
                       <property name="text">
-                       <string>Use &quot;credited as&quot; name for writers/performers who are release group artists</string>
+                       <string>Use &quot;credited as&quot; name for work-artists/performers who are release group artists</string>
                       </property>
                      </widget>
                     </item>
@@ -349,7 +349,7 @@
                        <enum>Qt::RightToLeft</enum>
                       </property>
                       <property name="text">
-                       <string>Use for writers/composers etc.</string>
+                       <string>Use for work-artists</string>
                       </property>
                      </widget>
                     </item>
@@ -4072,7 +4072,7 @@ alternate-background-color: rgb(135, 157, 255);</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-149</y>
+            <y>0</y>
             <width>1046</width>
             <height>1012</height>
            </rect>
