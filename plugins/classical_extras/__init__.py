@@ -17,7 +17,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 
 See Readme file for full details.
 """
-PLUGIN_VERSION = '0.8.4'
+PLUGIN_VERSION = '0.8.5'
 PLUGIN_API_VERSIONS = ["1.4.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -851,10 +851,22 @@ def get_artists(log_options, relations, relation_type):
             else:
                 instrument_list = parse_data(log_options, type_item, [],
                                              'direction.text:backward', 'attribute_list', 'attribute', 'text')
-                if not instrument_list and artist_type == 'vocal':
-                    instrument_list = ['vocals']
-            artist = (artist_type, instrument_list, artist_name_list, artist_sort_name_list)
+                if artist_type == 'vocal':
+                    if not instrument_list:
+                        instrument_list = ['vocals']
+                    elif not any('vocals' in x for x in instrument_list):
+                        instrument_list.append('vocals')
+            if instrument_list:
+                instrument_sort = 3
+                s_key = {'lead vocals': 1, 'solo': 2, 'guest': 4, 'additional': 5}
+                for inst in s_key:
+                    if inst in instrument_list:
+                        instrument_sort = s_key[inst]
+            else:
+                instrument_sort= 0
+            artist = (artist_type, instrument_list, artist_name_list, artist_sort_name_list, instrument_sort)
             artists.append(artist)
+            artists = sorted(artists, key = lambda x: (x[3], x[4], x[0]))  # Sorted by sort name then instrument_sort then artist type
     return artists
 
 def set_work_artists(self, album, track, writerList, tm, count):
@@ -994,6 +1006,8 @@ def set_work_artists(self, album, track, writerList, tm, count):
 
             if writer_type in insertions and options['cea_arrangers']:
                 self.append_tag(tm, tag, annotated_name)
+            else:
+                self.append_tag(tm, tag, name)
 
             if sort_tag:
                 self.append_tag(tm, sort_tag, sort_name)
@@ -1343,8 +1357,7 @@ def map_tags(options, tm):
                 last_name = last_name.strip()
                 new_last_names.append(last_name)
             if len(new_last_names) > 0:
-                tm['album'] = "; ".join(
-                    new_last_names) + ": " + tm['album']
+                tm['album'] = "; ".join(new_last_names) + ": " + tm['album']
 
     if options['cea_no_lyricists'] and 'vocals' not in tm['~cea_performers']:
         if 'lyricist' in tm:
@@ -1438,12 +1451,12 @@ def map_tags(options, tm):
             del tm['~cea_artists_complete']
         del_list = []
         for t in tm:
-            log.error(' t is: %r', t)
+            # log.error(' t is: %r', t)
             if 'ce_tag_cleared' in t:
                 del_list.append(t)
         for t in del_list:
             del tm[t]
-            log.error('cleared')
+            # log.error('cleared')
 
     # if options over-write enabled, remove it after processing one album
     options['ce_options_overwrite'] = False
@@ -1660,17 +1673,17 @@ def composer_last_names (self, tm, album):
             atc_list = tm['~cea_album_track_composer_lastnames']
         for atc_item in atc_list:
             composer_lastnames = atc_item.strip()
+            track_length = time_to_secs(tm['~length'])
             if album in self.album_artists:
                 if 'composer_lastnames' in self.album_artists[album]:
                     if composer_lastnames not in self.album_artists[album]['composer_lastnames']:
-                        self.album_artists[album]['composer_lastnames'].append(
-                            composer_lastnames)
+                        self.album_artists[album]['composer_lastnames'][composer_lastnames] = {'length': track_length}
+                    else:
+                        self.album_artists[album]['composer_lastnames'][composer_lastnames]['length'] += track_length
                 else:
-                    self.album_artists[album]['composer_lastnames'] = [
-                        composer_lastnames]
+                    self.album_artists[album]['composer_lastnames'][composer_lastnames] = {'length': track_length}
             else:
-                self.album_artists[album]['composer_lastnames'] = [
-                    composer_lastnames]
+                self.album_artists[album]['composer_lastnames'][composer_lastnames] = {'length': track_length}
     else:
         if self.WARNING:
             log.warning(
@@ -1733,7 +1746,25 @@ def interpret(tag):
     else:
         return tag
 
+def time_to_secs(a):
+    ax = a.split(':')
+    ax = ax[::-1]
+    t = 0
+    for i, x in enumerate(ax):
+        t += int(x) * (60 ** i)
+    return t
 
+def seq_last_names(self, album):
+    ln = []
+    if album in self.album_artists and 'composer_lastnames' in self.album_artists[album]:
+        for x in self.album_artists[album]['composer_lastnames']:
+            if 'length' in self.album_artists[album]['composer_lastnames'][x]:
+                ln.append([x, self.album_artists[album]['composer_lastnames'][x]['length']])
+            else:
+                return []
+        ln = sorted(ln, key = lambda a: a[1])
+        ln = ln[::-1]
+    return [a[0] for a in ln]
 
 #################
 #################
@@ -2229,7 +2260,7 @@ class ExtraArtists:
             if not options['classical_work_parts']:
                 # log.error('track: %s, self.album_artists[album]: %s', track, self.album_artists[album])
                 if 'composer_lastnames' in self.album_artists[album]:
-                    last_names = self.album_artists[album]['composer_lastnames']
+                    last_names = seq_last_names(self, album)
                     self.append_tag(tm, '~cea_album_composer_lastnames', last_names)
             # otherwise this is done in the workparts class, which has all composer info
 
@@ -2306,8 +2337,8 @@ class ExtraArtists:
         self.append_tag(tm, tag, new_source)
 
     def set_performer(self, album, track, performerList, tm):
-        # performerList is in format [(artist_type, [instrument list],[name list],[sort_name list]),(.....etc]
-        # credit_list is in format [(credited name, MB name, sort name), (...etc] and details credited recording artists
+        # performerList is in format [(artist_type, [instrument list],[name list],[sort_name list], instrument_sort),(.....etc]
+        # Sorted by sort name then instrument_sort then artist type
         if self.DEBUG:
             log.debug("Extra Artists - set_performer")
         options = self.options[track]
@@ -2328,26 +2359,59 @@ class ExtraArtists:
         # (not for performer types as Picard will write performer:inst as Performer name (inst) )
         insertions = ['chorus master', 'arranger', 'instrument arranger', 'orchestrator', 'vocal arranger']
 
+        # 1st remove all existing performer tags
+        del_list = []
+        for meta in tm:
+            if 'performer' in meta:
+                del_list.append(meta)
+        for del_item in del_list:
+            del tm[del_item]
+        last_artist = []
+        artist_inst = []
+        artist_inst_list = {}
         for performer in performerList:
             artist_type = performer[0]
             if artist_type not in tag_strings:
                 return None
-            performing_artist = False if artist_type in ['arranger', 'instrument arranger', 'orchestrator', 'vocal arranger'] else True
             if performer[1]:
-                old_inst = " and ".join(performer[1]).lower()
-                inst_list = performer[1][:]
-                # need to take a copy of the list otherwise (because of list mutability) the old list gets changed too!
+                inst_list = performer[1]
                 if options['cea_no_solo']:
-                    if 'solo' in inst_list:
-                        inst_list.remove('solo')
-                        if 'performer:' + old_inst in tm:
-                            del tm['performer:' + old_inst]
-                instrument = ", ".join(inst_list)
+                    for attrib in ['solo', 'guest', 'additional']:
+                        if attrib in inst_list:
+                            inst_list.remove(attrib)
+                instrument = " ".join(inst_list)
+                if performer[3] == last_artist:
+                    artist_inst.append(instrument)
+                else:
+                    artist_inst = [instrument]
+                    last_artist = performer[3]
+                # log.error('artist_inst for %s is %s', performer[3], artist_inst)
+                instrument = ", ".join(artist_inst)
             else:
                 instrument = None
             if artist_type == 'performing orchestra':
                 instrument = 'orchestra'
-
+            artist_inst_list[tuple(performer[3])] = instrument
+            # log.error('artist_inst_list for %s is %s', performer[3], artist_inst_list)
+        for performer in performerList:
+            artist_type = performer[0]
+            if artist_type not in tag_strings:
+                return None
+            if True:  # There may be an option here, Currently groups instruments by artist - alternative has been tested if require
+                instrument = artist_inst_list[tuple(performer[3])]
+            else:
+                if performer[1]:
+                    inst_list = performer[1]
+                    if options['cea_no_solo']:
+                        for attrib in ['solo', 'guest', 'additional']:
+                            if attrib in inst_list:
+                                inst_list.remove(attrib)
+                    instrument = " ".join(inst_list)
+                else:
+                    instrument = None
+                if artist_type == 'performing orchestra':
+                    instrument = 'orchestra'
+            performing_artist = False if artist_type in ['arranger', 'instrument arranger', 'orchestrator', 'vocal arranger'] else True
             sub_strings = {'instrument': instrument,
                            'vocal': instrument  #,
                            # 'instrument arranger': instrument,
@@ -4310,7 +4374,7 @@ class PartLevels:
         tm['~cwp_version'] = PLUGIN_VERSION
         # album composers needed by map_tags (set in set_work_artists)
         if 'composer_lastnames' in self.album_artists[album]:
-            last_names = self.album_artists[album]['composer_lastnames']
+            last_names = seq_last_names(self, album)
             self.append_tag(tm, '~cea_album_composer_lastnames', last_names)
 
         if self.DEBUG:

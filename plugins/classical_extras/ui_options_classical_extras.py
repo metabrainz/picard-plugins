@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\Mark\Documents\Mark's documents\Music\Picard\Classical Extras development\classical_extras\options_classical_extras.ui'
 #
-# Created: Sun Nov 26 23:36:11 2017
+# Created: Wed Nov 29 10:37:57 2017
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -1390,7 +1390,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName(_fromUtf8("scrollArea_3"))
         self.scrollAreaWidgetContents_3 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 1046, 1012))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 971, 1012))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1784,7 +1784,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName(_fromUtf8("scrollArea_2"))
         self.scrollAreaWidgetContents_2 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 1046, 877))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 693, 877))
         self.scrollAreaWidgetContents_2.setObjectName(_fromUtf8("scrollAreaWidgetContents_2"))
         self.verticalLayout_18 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_18.setObjectName(_fromUtf8("verticalLayout_18"))
@@ -2054,7 +2054,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setBuddy(self.cwp_retries)
 
         self.retranslateUi(ClassicalExtrasOptionsPage)
-        self.tabWidget.setCurrentIndex(4)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QObject.connect(self.cwp_titles, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setDisabled)
         QtCore.QObject.connect(self.cwp_works, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
         QtCore.QObject.connect(self.cwp_extended, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
@@ -2177,9 +2177,9 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.cea_composer_album.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p><br/></p></body></html>", None))
         self.cea_composer_album.setText(_translate("ClassicalExtrasOptionsPage", "Name album as \"Composer Last Name(s): Album Name\"", None))
         self.cea_no_lyricists.setText(_translate("ClassicalExtrasOptionsPage", "Do not write \'lyricist\' tag if no vocal performers", None))
-        self.cea_no_solo.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p><br/></p></body></html>", None))
+        self.cea_no_solo.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Select to eliminate &quot;additional&quot;, &quot;solo&quot; or &quot;guest&quot; from instrument description</p></body></html>", None))
         self.cea_no_solo.setWhatsThis(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Picard treats &quot;solo&quot; as an instrument type, which can lead to a confusing presentation, e.g. &quot;bassoon and solo&quot;. Select this option to exclude &quot;solo&quot;.</p></body></html>", None))
-        self.cea_no_solo.setText(_translate("ClassicalExtrasOptionsPage", "Do not include \"solo\" as an instrument type", None))
+        self.cea_no_solo.setText(_translate("ClassicalExtrasOptionsPage", "Do not include attributes in an instrument type", None))
         self.groupBox_28.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Enter text to appear in annotations. Do not use any quotation marks.</p></body></html>", None))
         self.groupBox_28.setTitle(_translate("ClassicalExtrasOptionsPage", "Annotations - writers and arrangers", None))
         self.label_56.setText(_translate("ClassicalExtrasOptionsPage", "Writer", None))

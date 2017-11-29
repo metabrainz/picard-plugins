@@ -38,7 +38,7 @@
       <string notr="true">background-color: rgb(170, 170, 127);</string>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -710,13 +710,13 @@
                  <item>
                   <widget class="QCheckBox" name="cea_no_solo">
                    <property name="toolTip">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select to eliminate &amp;quot;additional&amp;quot;, &amp;quot;solo&amp;quot; or &amp;quot;guest&amp;quot; from instrument description&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="whatsThis">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Picard treats &amp;quot;solo&amp;quot; as an instrument type, which can lead to a confusing presentation, e.g. &amp;quot;bassoon and solo&amp;quot;. Select this option to exclude &amp;quot;solo&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
-                    <string>Do not include &quot;solo&quot; as an instrument type</string>
+                    <string>Do not include attributes in an instrument type</string>
                    </property>
                   </widget>
                  </item>
@@ -4073,7 +4073,7 @@ alternate-background-color: rgb(135, 157, 255);</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1046</width>
+            <width>971</width>
             <height>1012</height>
            </rect>
           </property>
@@ -4938,7 +4938,7 @@ text-decoration: underline;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1046</width>
+            <width>693</width>
             <height>877</height>
            </rect>
           </property>
