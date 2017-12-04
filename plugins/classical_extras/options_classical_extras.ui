@@ -38,7 +38,7 @@
       <string notr="true">background-color: rgb(170, 170, 127);</string>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -683,10 +683,10 @@
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="whatsThis">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will gather together any arranger information from the recording, work or parent works and place it in the &amp;quot;arranger&amp;quot; tag. Instrument or other annotations will be included in brackets in the arranger tag. Tags will also be written in the form &amp;quot;arranger:annotation&amp;quot;, containing the name and no bracketed annotation.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will gather together, for example, any arranger-type information from the recording, work or parent works and place it in the &amp;quot;arranger&amp;quot; tag ('host' tag), with the annotation (see below) in brackets. All arranger types will also be put in a hidden variable, e.g. _cwp_orchestrators. The table below shows the artist types, host tag and hidden variable for each artist type.&lt;/p&gt;&lt;p&gt;| Artist type 	| Host tag 	| Hidden variable 	|&lt;/p&gt;&lt;p&gt;| ----------------- | ------------------| -------------------------------------- |&lt;/p&gt;&lt;p&gt;| writer 	| composer 	| writers 		|&lt;/p&gt;&lt;p&gt;| lyricist 	| lyricist 	| lyricists 		|&lt;/p&gt;&lt;p&gt;| librettist 	| lyricist 	| librettists 		|&lt;/p&gt;&lt;p&gt;| revised by 	| arranger 	| revisors 		|&lt;/p&gt;&lt;p&gt;| translator 	| lyricist 	| translators 		|&lt;/p&gt;&lt;p&gt;| arranger 	| arranger 	| arrangers 		|&lt;/p&gt;&lt;p&gt;| reconstructed by | arranger 	| reconstructors 	|&lt;/p&gt;&lt;p&gt;| orchestrator 	| arranger	| orchestrators 		|&lt;/p&gt;&lt;p&gt;| instrument arranger | arranger 	| arrangers (with instrument type in brackets) |&lt;/p&gt;&lt;p&gt;| vocal arranger | arranger 	| arrangers (with voice type in brackets) |&lt;/p&gt;&lt;p&gt;| chorus master 	| conductor 	| chorusmasters 	|&lt;/p&gt;&lt;p&gt;| concertmaster | performer (with annotation as a sub-key) | leaders |&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
-                    <string>Modify host tags to include all annotations (see =&gt;)</string>
+                    <string>Modify host tags and include annotations (see =&gt;)</string>
                    </property>
                   </widget>
                  </item>
@@ -695,6 +695,9 @@
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
+                   <property name="whatsThis">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This will add the composer(s) last name(s) before the album name, if they are listed as album artists. If there is more than one composer, they will be listed in the descending order of the length of their music on the release.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Name album as &quot;Composer Last Name(s): Album Name&quot;</string>
                    </property>
@@ -702,6 +705,9 @@
                  </item>
                  <item>
                   <widget class="QCheckBox" name="cea_no_lyricists">
+                   <property name="whatsThis">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This applies to both the Picard 'lyricist' tag and the related internal plugin hidden variables '_cwp_lyricists' etc.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Do not write 'lyricist' tag if no vocal performers</string>
                    </property>
@@ -713,7 +719,7 @@
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select to eliminate &amp;quot;additional&amp;quot;, &amp;quot;solo&amp;quot; or &amp;quot;guest&amp;quot; from instrument description&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="whatsThis">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Picard treats &amp;quot;solo&amp;quot; as an instrument type, which can lead to a confusing presentation, e.g. &amp;quot;bassoon and solo&amp;quot;. Select this option to exclude &amp;quot;solo&amp;quot;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MusicBrainz permits the use of &amp;quot;solo&amp;quot;, &amp;quot;guest&amp;quot; and &amp;quot;additional&amp;quot; as instrument attributes although, for classical music, its use should be fairly rare - usually only if explicitly stated as a &amp;quot;solo&amp;quot; on the the sleevenotes. Classical Extras provides the option to exclude these attributes (the default), but you may wish to enable them for certain releases or non-Classical / cross-over releases.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
                     <string>Do not include attributes in an instrument type</string>
@@ -1058,7 +1064,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox_11">
          <property name="whatsThis">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This refers to the tags which already exist on files which have been matched to MusicBrainz in the right-hand panel, not the tags generated by Picard from the MusicBrainz database. Normally, Picard cannot process these tags - either it will overwrite them (if it creates a similarly named tag), clear them (if 'Clear existing tags' is specified in the main Options-&amp;gt;Tags screen) or keep them (if 'Preserve these tags...' is specified after the 'Clear existing tags' option). Classical Extras allows a further option - for the tags to be appended to in the tag mapping section (see below). List file tags which will be appended to rather than over-written by tag mapping (NB this will keep tags even if &amp;quot;Clear existing tags&amp;quot; is selected on main options). In addition, certain existing tags may be used by Classical Extras - in particular &amp;quot;is_classical&amp;quot; (which is set by SongKong to '1' if the track is deemed to be classical, based on an extensive database) is used to add 'classical' to the variable &amp;quot;_cea_worktype&amp;quot;, if &amp;quot;Infer work types&amp;quot; is selected in the first section of the Artists tab.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;This refers to the tags which already exist on files which have been matched to MusicBrainz in the right-hand panel, not the tags generated by Picard from the MusicBrainz database. Normally, Picard cannot process these tags - either it will overwrite them (if it creates a similarly named tag), clear them (if 'Clear existing tags' is specified in the main Options-&amp;gt;Tags screen) or keep them (if 'Preserve these tags...' is specified after the 'Clear existing tags' option). Classical Extras allows a further option - for the tags to be appended to in the tag mapping section (see below). List file tags which will be appended to rather than over-written by tag mapping (NB this will keep tags even if &amp;quot;Clear existing tags&amp;quot; is selected on main options). In addition, certain existing tags may be used by Classical Extras - in particular &amp;quot;is_classical&amp;quot; (which is set by SongKong to '1' if the track is deemed to be classical, based on an extensive database) is used to add 'classical' to the variable &amp;quot;_cea_worktype&amp;quot;, if &amp;quot;Infer work types&amp;quot; is selected in the first section of the Artists tab.&lt;/p&gt;&lt;p&gt;Note that if &amp;quot;Split lyrics tag&amp;quot; is specified (see the Artists tab), then the tag named there will be included in the 'Keep file tags' list and does not need to be added in this section.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="styleSheet">
           <string notr="true">background-color: rgb(185, 135, 188);</string>
@@ -1164,7 +1170,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;To put a constant in a tag, type it into the source box preceded by a backslash \.&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In all cases, the source will be APPENDED to the Picard tag. To replace the standard tag, first blank it in the section above - add it back later in the list below if required (e.g. artist -&amp;gt; artist).&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;BUT note that any existing LOCAL FILE tag will be replaced by (not appended with) any Picard/Classical Extras tag UNLESS specified in &amp;quot;Keep file tags&amp;quot;.&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For more help see &lt;a href=&quot;https://github.com/metabrainz/picard-plugins/blob/1.0/plugins/classical_extras/Readme.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;the readme&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For more help seethe readme.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
           </item>
@@ -4043,7 +4049,7 @@ alternate-background-color: rgb(135, 157, 255);</string>
              <enum>Qt::LeftToRight</enum>
             </property>
             <property name="text">
-             <string>Also populate sort tags if a sort tag exists for the source</string>
+             <string>Also populate sort tags</string>
             </property>
            </widget>
           </item>
@@ -4073,7 +4079,7 @@ alternate-background-color: rgb(135, 157, 255);</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>971</width>
+            <width>1046</width>
             <height>1012</height>
            </rect>
           </property>
@@ -4146,6 +4152,23 @@ alternate-background-color: rgb(135, 157, 255);</string>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="whatsThis">
+              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Tagging style&amp;quot;. This section determines how the hierarchy of works will be sourced. &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Works source&lt;/span&gt;: There are 3 options for determing the principal source of the works metadata &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Use only metadata from title text&amp;quot;. The plugin will attempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided. &lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Use only metadata from canonical works&amp;quot;. The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will probably be in the language of the release. (This language issue can also be addressed by using aliases - see below). &lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Use canonical work metadata enhanced with title text&amp;quot;. This supplements the canonical data with text from the titles &lt;span style=&quot; font-weight:600;&quot;&gt;where it is significantly different&lt;/span&gt;. The supplementary title data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Source of canonical work text&lt;/span&gt;. Where either of the second two options above are chosen, there is a further choice to be made: &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Full MusicBrainz work hierarchy&amp;quot;. The names of each level of work are used to populate the relevant tags. E.g. if &amp;quot;Má vlast: I. Vyšehrad, JB 1:112/1&amp;quot; (level 0) is part of &amp;quot;Má vlast, JB 1:112&amp;quot; (level 1) then the parent work will be tagged as &amp;quot;Má vlast, JB 1:112&amp;quot;, not &amp;quot;Má vlast&amp;quot;. So, while accurate, this option might be more verbose. &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Consistent with lowest level work description&amp;quot;. The names of the level 0 work are used to populate the relevant tags. I.e. if &amp;quot;Má vlast: I. Vyšehrad, JB 1:112/1&amp;quot; (level 0) is part of &amp;quot;Má vlast, JB 1:112&amp;quot; (level 1) then the parent work will be tagged as &amp;quot;Má vlast&amp;quot;, not &amp;quot;Má vlast, JB 1:112&amp;quot;. This frequently looks better, but not always, &lt;span style=&quot; font-weight:600;&quot;&gt;particularly if the level 0 work name does not contain all the parent work detail&lt;/span&gt;. If the full structure is not implicit in the level 0 name then a warning will be logged and written to the &amp;quot;warning&amp;quot; tag. &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Strategy for setting style:&lt;/span&gt; &lt;span style=&quot; font-style:italic;&quot;&gt;It is suggested that you start with &amp;quot;extended/enhanced&amp;quot; style and the &amp;quot;Consistent with lowest level work description&amp;quot; as the source (this is the default). If this does not give acceptable results, try switching to &amp;quot;Full MusicBrainz work hierarchy&amp;quot;. If the &amp;quot;enhanced&amp;quot; details in curly brackets (from the track title) give odd results then switch the style to &amp;quot;canonical works&amp;quot; only. Any remaining oddities are then probably in the MusicBrainz data, which may require editing.&lt;/span&gt; &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
              <property name="styleSheet">
               <string notr="true">background-color: rgb(205, 230, 255);</string>
              </property>
@@ -4164,6 +4187,9 @@ alternate-background-color: rgb(135, 157, 255);</string>
                 <layout class="QVBoxLayout" name="verticalLayout_11">
                  <item>
                   <widget class="QRadioButton" name="cwp_titles">
+                   <property name="whatsThis">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;Use only metadata from title text&amp;quot;. The plugin will attempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Use only metadata from title text</string>
                    </property>
@@ -4171,6 +4197,9 @@ alternate-background-color: rgb(135, 157, 255);</string>
                  </item>
                  <item>
                   <widget class="QRadioButton" name="cwp_works">
+                   <property name="whatsThis">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;Use only metadata from canonical works&amp;quot;. The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will probably be in the language of the release. (This language issue can also be addressed by using aliases - see below).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Use only metadata from canonical works</string>
                    </property>
@@ -4178,6 +4207,9 @@ alternate-background-color: rgb(135, 157, 255);</string>
                  </item>
                  <item>
                   <widget class="QRadioButton" name="cwp_extended">
+                   <property name="whatsThis">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;Use canonical work metadata enhanced with title text&amp;quot;. This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary title data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Use canonical work metadata enhanced with title text</string>
                    </property>
@@ -4200,6 +4232,9 @@ alternate-background-color: rgb(135, 157, 255);</string>
                 <layout class="QVBoxLayout" name="verticalLayout_6">
                  <item>
                   <widget class="QRadioButton" name="cwp_hierarchical_works">
+                   <property name="whatsThis">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;Full MusicBrainz work hierarchy&amp;quot;. The names of each level of work are used to populate the relevant tags. E.g. if &amp;quot;Má vlast: I. Vyšehrad, JB 1:112/1&amp;quot; (level 0) is part of &amp;quot;Má vlast, JB 1:112&amp;quot; (level 1) then the parent work will be tagged as &amp;quot;Má vlast, JB 1:112&amp;quot;, not &amp;quot;Má vlast&amp;quot;. So, while accurate, this option might be more verbose.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Full MusicBrainz work hierarchy (may be more verbose)</string>
                    </property>
@@ -4207,6 +4242,9 @@ alternate-background-color: rgb(135, 157, 255);</string>
                  </item>
                  <item>
                   <widget class="QRadioButton" name="cwp_level0_works">
+                   <property name="whatsThis">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;Consistent with lowest level work description&amp;quot;. The names of the level 0 work are used to populate the relevant tags. I.e. if &amp;quot;Má vlast: I. Vyšehrad, JB 1:112/1&amp;quot; (level 0) is part of &amp;quot;Má vlast, JB 1:112&amp;quot; (level 1) then the parent work will be tagged as &amp;quot;Má vlast&amp;quot;, not &amp;quot;Má vlast, JB 1:112&amp;quot;. This frequently looks better, but not always, &lt;span style=&quot; font-weight:600;&quot;&gt;particularly if the level 0 work name does not contain all the parent work detail&lt;/span&gt;. If the full structure is not implicit in the level 0 name then a warning will be logged and written to the &amp;quot;warning&amp;quot; tag.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Consistent with lowest level work description (may be less verbose, but not always complete)</string>
                    </property>
@@ -4341,6 +4379,9 @@ alternate-background-color: rgb(135, 157, 255);</string>
              </property>
              <property name="toolTip">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Separate multiple tags by commas.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+             <property name="whatsThis">
+              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;quot;Tags to create&amp;quot; sets the names of the tags that will be created from the sources described above. All these tags will be blanked before filling as specified. Tags specified against more than one source will have later sources appended in the sequence specified, separated by separators as specified.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
              <property name="styleSheet">
               <string notr="true">background-color: rgb(255, 194, 158);</string>
@@ -4860,6 +4901,9 @@ text-decoration: underline;</string>
                 <layout class="QHBoxLayout" name="horizontalLayout_12">
                  <item>
                   <widget class="QCheckBox" name="cwp_medley">
+                   <property name="whatsThis">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Medleys&lt;/span&gt;&lt;/p&gt;&lt;p&gt;      These can occur in two ways in MusicBrainz: (a) the recording is described as a &amp;quot;medley of&amp;quot; a number of works and (b) the track is described as (more than one) &amp;quot;medley including a recording of&amp;quot; a work. In the first case, the specified text will be included in brackets after the work name, whereas in the second case, the track will be treated as a recording of multiple works and the specified text will appear in the parent work name.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
                    <property name="text">
                     <string>Include medley list, labelled with -&gt;</string>
                    </property>
@@ -4938,7 +4982,7 @@ text-decoration: underline;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>693</width>
+            <width>1046</width>
             <height>877</height>
            </rect>
           </property>

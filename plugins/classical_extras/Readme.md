@@ -1,16 +1,18 @@
 # General Information
-This is version 0.8.5 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
+This is version 0.8.6 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section).
 It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached.
 The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types, can have access to these details.  
 It has two main components "Extra Artists" and "Work Parts" which can be used independently or together. "Work Parts" will take at least as many seconds to process as there are works to look up (owing to MB throttling) so users who only want the extra artist information and not the work details may turn it off (e.g. perhaps for 'popular' music).
 
-Hidden metadata variables produced by this plugin are prefixed with "\_cwp\_" or  "\_cea\_" depending on which component of the plugin created them. Full details of these variables are given in a later section.
+Hidden metadata variables produced by this plugin are (mostly) prefixed with "\_cwp\_" or  "\_cea\_" depending on which component of the plugin created them. Full details of these variables are given in a later section.
 Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which can be added to / modified / deleted according to user requirements. 
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 0.8.6: More consistent approach to sort tags and hidden variables. Bug fixes.
+
 Version 0.8.5: Improved handling of instruments. Bug fixes.
 
 Version 0.8.4: Improved UI, bug fixes and code improvements.
@@ -90,7 +92,7 @@ There are five coloured sections as shown in the screen image below:
 
 4. "Other artist options":
 
-  "Modify host tags to include all annotations" (Previously called "Include arrangers from all work levels"). This will gather together, for example, any arranger-type information from the recording, work or parent works and place it in the "arranger" tag ('host' tag), with the annotation (see below) in brackets. All arranger types will also be put in a hidden variable, e.g. _cwp_orchestrators. The table below shows the artist types, host tag and hidden variable for each artist type.
+  "Modify host tags and include annotations" (Previously called "Include arrangers from all work levels"). This will gather together, for example, any arranger-type information from the recording, work or parent works and place it in the "arranger" tag ('host' tag), with the annotation (see below) in brackets. All arranger types will also be put in a hidden variable, e.g. _cwp_orchestrators. The table below shows the artist types, host tag and hidden variable for each artist type.
 
    | Artist type | Host tag | Hidden variable |
    | --- | --- | --- |
@@ -186,9 +188,14 @@ Note that the "Create extra artist metadata" option needs to be selected on the 
      The tag mapping section is not restricted to artist metadata. For example, in the default drop-down list are "work_type" which only has content if the "Infer work types" box in the first section of the Artists tab is checked, and "release" which contains the album name before prefixing with composer last names if that option was chosen.
 
     * **Tags**:
-	   Enter the (comma-separated) tag names into which the sources should be written (case sensitive). Note that this will result in the source data being APPENDED in the tag - it will not overwrite the existing contents. Check "Conditional?" if the tag is only to be updated if it is previously blank. The lines will be applied in the order shown. Users should be able to achieve most requirements via a combination of blanking tags, using the right source order and "conditional" flags. For example, to overwrite a tag sourced from "composer" with "conductor", specify "conductor" first, then "composer" as conditional. Note that, for example, to demote the MB-supplied artist to only appear if no other listed choices are present, blank the artist tag and then add it as a conditional source at the end of the list.
+	   Enter the (comma-separated) "destination" tag names into which the sources should be written (case sensitive). Note that this will result in the source data being APPENDED in the tag - it will not overwrite the existing contents. Check "Conditional?" if the tag is only to be updated if it is previously blank. The lines will be applied in the order shown. Users should be able to achieve most requirements via a combination of blanking tags, using the right source order and "conditional" flags. For example, to overwrite a tag sourced from "composer" with "conductor", specify "conductor" first, then "composer" as conditional. Note that, for example, to demote the MB-supplied artist to only appear if no other listed choices are present, blank the artist tag and then add it as a conditional source at the end of the list.
 
-     More complex operations can be built using tagger scripts. These can be set to run conditionally by setting a tag or hidden variable in this section and then testing it in the script.
+    * **"Also populate sort tags"**:
+     If a sort tag is associated with the source tag then the sort names will be placed in a sort tag corresponding tpo the destination tag. Note that the only explicit sort tags written by Picard are for artist, albumartist and composer. Piacrd also writes hidden variables '_artists_sort' and 'albumartists_sort' (note the plurals - these are the sort tags for multi-valued alternatives 'artists' and '_albumartists'). To be consistent with this approach, the plugin writes hidden variables for other tags - e.g. '_arranger_sort'. The plugin also writes hidden sort variables for the various hidden artist variables - e.g. '_cwp_librettists' has a matching sort variable '_cwp_librettists_sort'. Therefore most artist-type sources **will** have a sort tag/variable associated with them and these will be placed in a destination sort tag if this option is selected - in other words, selecting this option will cause most destination tags to have associated sort tags. Furthermore, any hidden sort variables associated with tags which are not listed explicitly in the tag mapping section will also be written out as tags (i.e. even if the related tags are not included as destination tags). Note, however, that composite sources (e.g. " ensemble_names + \;  + conductors") do not have sort tags associated with them.
+
+     If this option is not selected and a sort tag is required explicitly, then you can just map the sort tag directly - e.g. map 'conductors_sort' to 'conductor_sort'.
+
+    More complex operations can be built using tagger scripts. If required, these can be set to run conditionally by setting a tag or hidden variable in this section and then testing it in the script.
 
 ## Work and parts tab
 
