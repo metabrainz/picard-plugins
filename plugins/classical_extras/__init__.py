@@ -208,15 +208,9 @@ def get_options(album, track):
                                                ] != displayed_option:
                                         if options['log_debug']:
                                             log.debug('Options overridden for option %s = %s',
-                                                      ea_opt['option'], options[ea_opt['option']])
-                                            # opt + ' = ' + str(opt_dict[opt]))
-                                        # append_tag(tm, '003_information:options_overridden', opt + ' = ' + str(opt_dict[opt]))
-                                        if isinstance(
-                                                options[ea_opt['option']], basestring):
-                                            opt_text = options[ea_opt['option']]
-                                        else:
-                                            opt_text = str(
-                                                options[ea_opt['option']])
+                                                      ea_opt['option'], opt_value)
+
+                                        opt_text = str(opt_value)
                                         append_tag(
                                             tm, '003_information:options_overridden', str(
                                                 ea_opt['name']) + ' = ' + opt_text)
