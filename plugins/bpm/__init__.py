@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 
 # Changelog:
-#   [2015-09-15] Initial version
+# [2015-09-15] Initial version
+# [2017-11-24] Qt5, Python3 for Picard-plugins branch 2
 # Dependancies:
-#   aubio, numpy
+# aubio, numpy
 #
 
 PLUGIN_NAME = "BPM Analyzer"
 PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
-PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums."""
+PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums. Linux only version with dependancy on Aubio and Numpy"""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
-#PLUGIN_INCOMPATIBLE_PLATFORMS = [
+# PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
+from aubio import source, tempo
+from numpy import median, diff
 from collections import defaultdict
 from functools import partial
 from subprocess import check_call
@@ -28,8 +31,6 @@ from picard.config import TextOption, IntOption
 from picard.ui.itemviews import (BaseAction, register_file_action,
                                  register_album_action)
 from picard.plugins.bpm.ui_options_bpm import Ui_BPMOptionsPage
-from aubio import source, tempo
-from numpy import median, diff
 
 
 bpm_slider_settings = {
@@ -49,7 +50,7 @@ def get_file_bpm(self, path):
 
     samplerate, buf_size, hop_size = bpm_slider_settings[
         BPMOptionsPage.config.setting["bpm_slider_parameter"]]
-    mediasource = source(path.encode("utf-8"), samplerate, hop_size)
+    mediasource = source(path, samplerate, hop_size)
     samplerate = mediasource.samplerate
     beattracking = tempo("specdiff", buf_size, hop_size, samplerate)
     # List of beats, in samples

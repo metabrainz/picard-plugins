@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 
 # Changelog:
-#   [2015-09-24] Initial version with support for Ogg Vorbis, FLAC, WAV and MP3, tested MP3 and FLAC
+# [2015-09-24] Initial version with support for Ogg Vorbis, FLAC, WAV and MP3, tested MP3 and FLAC
+# [2017-11-21] Amended to Python3 & Qt5
+# [2017-11-21] removed unicode, replaced str with string_ and untrusted input on check_call addressed
 
 PLUGIN_NAME = "Moodbars"
 PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums."""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "2.3"
 PLUGIN_API_VERSIONS = ["2.0"]
-#PLUGIN_INCOMPATIBLE_PLATFORMS = [
+# PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
 import os.path
@@ -39,22 +41,38 @@ MOODBAR_COMMANDS = {
 
 def generate_moodbar_for_files(files, format, tagger):
     """Generate the moodfiles for a list of files in album mode."""
-    file_list = ['%s' % encode_filename(f.filename) for f in files]
+    # python3 list for subprocess
+    command_to_execute = []
+    file_list = [files]
     for mood_file in file_list:
         new_filename = os.path.join(os.path.dirname(
             mood_file), '.' + os.path.splitext(os.path.basename(mood_file))[0] + '.mood')
         # file format to make it compaitble with Amarok and hidden in linux
         file_list_mood = ['%s' % new_filename]
+        file_list_music = ['%s' % file_list[0]]
 
     if format in MOODBAR_COMMANDS \
             and tagger.config.setting[MOODBAR_COMMANDS[format][0]]:
         command = tagger.config.setting[MOODBAR_COMMANDS[format][0]]
         options = tagger.config.setting[
             MOODBAR_COMMANDS[format][1]].split(' ')
-#        tagger.log.debug('My debug >>>  %s' % (file_list_mood))
-        tagger.log.debug(
-            '%s %s %s %s' % (command, decode_filename(' '.join(file_list)), ' '.join(options), decode_filename(' '.join(file_list_mood))))
-        check_call([command] + file_list + options + file_list_mood)
+        # tagger.log.debug('My debug file_list_mood >>>  %s' %
+        #    (file_list_mood))
+        #tagger.log.debug('My debug file_list >>>  %s' % (file_list_music))
+        #tagger.log.debug('My debug command >>>  %s' % (command))
+        #tagger.log.debug('My debug options >>>  %s' % (options))
+        # tagger.log.debug(
+        #    '%s %s %s %s' % (command, decode_filename(' '.join(file_list)), ' '.join(options), decode_filename(' '.join(file_list_mood))))
+        # command args order corrected for new moodbar
+        command_to_execute.append(command)
+        command_to_execute = command_to_execute + options
+        # need to decode the file string and appand to the list
+        command_to_execute.append(file_list_mood[0])
+        command_to_execute = command_to_execute + file_list_music
+        tagger.log.debug('My debug command to execute >>>  %s' %
+                         (command_to_execute))
+        check_call(command_to_execute, shell=False)
+        # check_call([command] + options + file_list_mood + file_list)
     else:
         raise Exception('Moodbar: Unsupported format %s' % (format))
 
@@ -80,7 +98,7 @@ class MoodBar(BaseAction):
             N_('Calculating moodbar for "%(filename)s"...'),
             {'filename': file.filename}
         )
-        generate_moodbar_for_files([file], file.NAME, self.tagger)
+        generate_moodbar_for_files(file.filename, file.NAME, self.tagger)
 
     def _moodbar_callback(self, file, result=None, error=None):
         if not error:
