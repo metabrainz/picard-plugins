@@ -24,7 +24,7 @@ PLUGIN_DESCRIPTION = '''Add's the following tags:
 <li>Beats Per Minute (BPM)</li>
 </ul>
 from the AcousticBrainz database.<br/><br/>
-Note: This plugin requires Picard 1.4.'''
+'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 PLUGIN_VERSION = '1.0'
