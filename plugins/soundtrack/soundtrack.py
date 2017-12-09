@@ -19,5 +19,6 @@ from picard.metadata import register_album_metadata_processor
 def soundtrack(tagger, metadata, release):
     if "soundtrack" in metadata["releasetype"]:
         metadata["albumartist"] = "Soundtrack"
+        metadata["albumartistsort"] = "Soundtrack"
 
 register_album_metadata_processor(soundtrack)
