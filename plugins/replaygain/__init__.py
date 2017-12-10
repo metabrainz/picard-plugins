@@ -172,10 +172,11 @@ class ReplayGainOptionsPage(OptionsPage):
         self.ui.wvgain_command.setText(self.config.setting["replaygain_wvgain_command"])
 
     def save(self):
-        self.config.setting["replaygain_vorbisgain_command"] = unicode(self.ui.vorbisgain_command.text())
-        self.config.setting["replaygain_mp3gain_command"] = unicode(self.ui.mp3gain_command.text())
-        self.config.setting["replaygain_metaflac_command"] = unicode(self.ui.metaflac_command.text())
-        self.config.setting["replaygain_wvgain_command"] = unicode(self.ui.wvgain_command.text())
+        self.config.setting["replaygain_vorbisgain_command"] = self.ui.vorbisgain_command.text()
+        self.config.setting["replaygain_mp3gain_command"] = self.ui.mp3gain_command.text()
+        self.config.setting["replaygain_metaflac_command"] = self.ui.metaflac_command.text()
+        self.config.setting["replaygain_wvgain_command"] = self.ui.wvgain_command.text()
+
 
 register_file_action(ReplayGain())
 register_album_action(AlbumGain())
