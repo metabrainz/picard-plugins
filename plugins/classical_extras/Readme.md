@@ -11,7 +11,7 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
-Version 0.8.7: Revised treatment of "conditional" tag mapping. Previously, if multiple sources were specified for a tag mapping and the "conditional" flag set, only the first non-empty source was used. Now all sources will be mapped to a tag if it was empty before executing the current tag mapping line. This is considered to be more intuitive and leads to less complex mapping lines. However, it some cases it may be necessary to split a line from a previous version if the previous behaviour was specifically desired.
+Version 0.8.7: Revised treatment of "conditional" tag mapping. Previously, if multiple sources were specified for a tag mapping and the "conditional" flag set, only the first non-empty source was used. Now all sources will be mapped to a tag if it was empty before executing the current tag mapping line. This is considered to be more intuitive and leads to less complex mapping lines. However, it some cases it may be necessary to split a line from a previous version if the previous behaviour was specifically desired. Improved algorithms for extending metadata with title info. Bug fixes.
 
 Version 0.8.6: More consistent approach to sort tags and hidden variables. Bug fixes.
 
@@ -37,6 +37,7 @@ Include medleys in movement/part description (as [Medley of:...] or other descri
 Allow for multiple parents of recordings and works (and multiple parents of those) - multiples are given as multiple tag instances, where permitted, otherwise separated by semi-colons. 
 Option as to whether to include parent works where the relationship attribute is "part of collection". 
 Plus minor enhancements and bug fixes too numerous to mention!
+(Note that some old versions of the plugin may say v0.8 when they are only v0.7)
 
 Version 0.7: Bug fixes. Pull request issued for this version.
 
@@ -60,7 +61,7 @@ After installation, go to the Options Page and modify choices as required. There
 
 **Important**: 
 1.  The plugin **will not work fully unless** you have enabled "Use release relationships" and "Use track relationships" in Picard->Options->Metadata. However, it may be that the MusicBrainz database has conflicting data between track and release relationships, in which case fix the incorrect data using "Edit relationships" in MusicBrainz.
-2.  It is recommended only to use the plugin on one or a few release(s) at a time, particularly for initial tagging and if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" of untagged files - use a tool such as SongKong for that and then use the plugin to enhance the results as required. However, once you have tagged files (either in Picard or, say, SongKong) such that they all at least have MusicBrainz IDs, you should be able to re-tag multiple releases by dragging the containing folder into Picard; this is useful to pick up changed MusicBrainz data or if you change the Classical Extras version or options (but bear in mind that the "Works and parts" function will still take at least 1 second per track and **make sure you have "debug" and "info" logging turned OFF** - in the "Advanced" tab).
+2.  It is recommended only to use the plugin on one or a few release(s) at a time, particularly for initial tagging and if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" of untagged files - it may be better to use a tool such as SongKong for that and then use the plugin to enhance the results as required. However, once you have tagged files (either in Picard or, say, SongKong) such that they all at least have MusicBrainz IDs, you should be able to re-tag multiple releases by dragging the containing folder into Picard; this is useful to pick up changed MusicBrainz data or if you change the Classical Extras version or options (but bear in mind that the "Works and parts" function will still take at least 1 second per track and **make sure you have "debug" and "info" logging turned OFF** - in the "Advanced" tab). If you do want to try uising Picard / Classical Extras to tag a large number of files, then **make sure you also turn off "warning" logging**.
 3.  If you are just changing option settings then you can usually "use cache" (see "work and parts" tab section 1) to avoid the 1-second per work delay. However, if the works data in MusicBrainz has been changed then obviously you will need to do a full look-up, so disable cache. If the work structure has been fundamentally changed (i.e. a different hierarchy of existing works) - either within the MusicBrainz database or by selecting/deselecting the "include collection relations", partial" or "arrangements" options - then you will need to quit and restart Picard to correctly pick up the new structure.
 3.  Keep a backup of your picard.ini file (AppData->Roaming->MusicBrainz) in case you erase your settings or Picard crashes and loses them for you.
 
@@ -374,7 +375,7 @@ All the additional hidden variables for artists written by Classical Extras are 
 
 - _cea_recording_artist : The artist credited with the recording (not necessarily the track artist). Note that this is the only "_cea_" tag which is singular, because it is in the same format as the 'artist' tag, whereas...
 - _cea_recording_artists : The list/multiple value version of the above. (This follows the approach in Picard for 'artist' and 'artists', being the track artists.)
-- _cea_MB_artist: The original artist per MusicBrainz before any replacement by / merging with recording artists.
+- _cea_MB_artists: The original track artists per MusicBrainz before any replacement by / merging with recording artists.
 - _cea_soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be "soloists" in that they may be part of an ensemble.
 - _cea_recording_artistsort : Sort names of _cea_recording_artist
 - _cea_recording_artists_sort : Sort names of _cea_recording_artists

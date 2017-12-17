@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\Mark\Documents\Mark's documents\Music\Picard\Classical Extras development\classical_extras\options_classical_extras.ui'
 #
-# Created: Thu Dec 07 23:57:31 2017
+# Created: Sat Dec 16 13:54:49 2017
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -2054,7 +2054,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setBuddy(self.cwp_retries)
 
         self.retranslateUi(ClassicalExtrasOptionsPage)
-        self.tabWidget.setCurrentIndex(4)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QObject.connect(self.cwp_titles, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setDisabled)
         QtCore.QObject.connect(self.cwp_works, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
         QtCore.QObject.connect(self.cwp_extended, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
@@ -2181,7 +2181,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.cea_no_lyricists.setText(_translate("ClassicalExtrasOptionsPage", "Do not write \'lyricist\' tag if no vocal performers", None))
         self.cea_no_solo.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Select to eliminate &quot;additional&quot;, &quot;solo&quot; or &quot;guest&quot; from instrument description</p></body></html>", None))
         self.cea_no_solo.setWhatsThis(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>MusicBrainz permits the use of &quot;solo&quot;, &quot;guest&quot; and &quot;additional&quot; as instrument attributes although, for classical music, its use should be fairly rare - usually only if explicitly stated as a &quot;solo&quot; on the the sleevenotes. Classical Extras provides the option to exclude these attributes (the default), but you may wish to enable them for certain releases or non-Classical / cross-over releases.</p></body></html>", None))
-        self.cea_no_solo.setText(_translate("ClassicalExtrasOptionsPage", "Do not include attributes in an instrument type", None))
+        self.cea_no_solo.setText(_translate("ClassicalExtrasOptionsPage", "Do not include attributes (e.g. \'solo\') in an instrument type", None))
         self.groupBox_28.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Enter text to appear in annotations. Do not use any quotation marks.</p></body></html>", None))
         self.groupBox_28.setTitle(_translate("ClassicalExtrasOptionsPage", "Annotations - writers and arrangers", None))
         self.label_56.setText(_translate("ClassicalExtrasOptionsPage", "Writer", None))
@@ -2778,7 +2778,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_5.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Number of splits of work to use in comparing with title (default = 1)</p></body></html>", None))
         self.label_8.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Proportion of a string to be matched to a (usually larger) string for it to be considered essentially similar (default = 66%)</p></body></html>", None))
         self.cwp_substring_match.setSuffix(_translate("ClassicalExtrasOptionsPage", "%", None))
-        self.cwp_removewords_2.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Prefixes to be ignored in comparison (case insensitive, comma separated)<br/>To prevent a prefix from being ignored when extending metadata for title info, precede with a space. <br/>To ensure only whole words are removed, follow with a space.</p></body></html>", None))
+        self.cwp_removewords_2.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Prefixes to be ignored in comparison (case insensitive, comma separated)<br/>To prevent a prefix from being ignored when extending metadata with title info, precede it with a space. <br/>To ensure only whole words are removed, follow with a space.</p></body></html>", None))
         self.cwp_removewords.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Separate multiple names by commas. Do not use any quotation marks.</p></body></html>", None))
         self.cwp_synonyms_2.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p><strong>Synonyms and replacements</strong> - must be written as tuples separated by forward slashes - e.g (a,b) / (c,d)<p>DO NOT USE COMMAS IN ANY PHRASE. N.B. The matching of \'a\' is case-sensitive</p>As SYNONYMS \'a\' and \'b\' will be treated as similar when comparing works/parts and titles. The text in tags will be unaltered.<br/> Both a and b must be single words with no punctuation:-</p></body></html>", None))
         self.cwp_synonyms.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Separate multiple names by forward slash. Entries must be 2-tuples, e.g. (Replace_this, with_this). Do not use any quotation marks or spaces.</p></body></html>", None))

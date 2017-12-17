@@ -38,7 +38,7 @@
       <string notr="true">background-color: rgb(170, 170, 127);</string>
      </property>
      <property name="currentIndex">
-      <number>4</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -722,7 +722,7 @@
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MusicBrainz permits the use of &amp;quot;solo&amp;quot;, &amp;quot;guest&amp;quot; and &amp;quot;additional&amp;quot; as instrument attributes although, for classical music, its use should be fairly rare - usually only if explicitly stated as a &amp;quot;solo&amp;quot; on the the sleevenotes. Classical Extras provides the option to exclude these attributes (the default), but you may wish to enable them for certain releases or non-Classical / cross-over releases.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                    <property name="text">
-                    <string>Do not include attributes in an instrument type</string>
+                    <string>Do not include attributes (e.g. 'solo') in an instrument type</string>
                    </property>
                   </widget>
                  </item>
@@ -5300,7 +5300,7 @@ text-decoration: underline;</string>
                  <item>
                   <widget class="QLabel" name="cwp_removewords_2">
                    <property name="text">
-                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prefixes to be ignored in comparison (case insensitive, comma separated)&lt;br/&gt;To prevent a prefix from being ignored when extending metadata for title info, precede with a space. &lt;br/&gt;To ensure only whole words are removed, follow with a space.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Prefixes to be ignored in comparison (case insensitive, comma separated)&lt;br/&gt;To prevent a prefix from being ignored when extending metadata with title info, precede it with a space. &lt;br/&gt;To ensure only whole words are removed, follow with a space.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
