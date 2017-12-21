@@ -3721,9 +3721,9 @@ class PartLevels:
         if error:
             if self.WARNING:
                 log.warning(
-                    "%s: %r: Network error retrieving work record",
+                    "%s: %r: Network error retrieving work record. Error code %r",
                     PLUGIN_NAME,
-                    workId)
+                    workId, error)
             tuples = self.works_queue.remove(workId)
             for track, album in tuples:
                 if self.DEBUG:
@@ -4899,13 +4899,12 @@ class PartLevels:
                     strip = [diff, parent]
                     # but don't leave name of arrangement blank unless it is virtually the same as the parent...
                     if not diff and 'arrangement' in self.parts[workId] and self.parts[workId]['arrangement']:
-                        extend = True
                         strip = self.strip_parent_from_work(
                             work, parent, part_level, False)
                 else:
                     extend = True
                     strip = self.strip_parent_from_work(
-                        work, parent, part_level, False)
+                        work, parent, part_level, extend, parentId)
                 stripped_works.append(strip[0])
                 if self.INFO:
                     log.info("Parent: %s", parent)
