@@ -1728,9 +1728,7 @@ def map_tags(options, tm):
     # if options over-write enabled, remove it after processing one album
     options['ce_options_overwrite'] = False
     config.setting['ce_options_overwrite'] = False
-    # similarly make sure use_cache is turned back on
-    # options['use_cache'] = True
-    # config.setting['use_cache'] = True
+
 
 
 def sort_suffix(tag):
@@ -3180,11 +3178,11 @@ class PartLevels:
         :return:
         """
         # clear the cache if required (if this is not done, then queue count may get out of sync)
-        if not config.setting['use_cache']:
-            self.works_cache = {}
         # Jump through hoops to get track object!!
         track = album._new_tracks[-1]
         tm = track.metadata
+        if config.setting['log_debug']:
+            log.debug('%s: Cache setting for track %s is %s', PLUGIN_NAME, track, config.setting['use_cache'])
 
         # OPTIONS - OVER-RIDE IF REQUIRED
         if '~ce_options' not in tm:
@@ -3453,6 +3451,9 @@ class PartLevels:
                 else:
                     not_in_cache = [workId_tuple]
             for workId_tuple in not_in_cache:
+                if not self.USE_CACHE:
+                    if workId_tuple in self.works_cache:
+                        del self.works_cache[workId_tuple]
                 self.work_not_in_cache(album, track, workId_tuple)
 
         else:  # no work relation
@@ -3638,9 +3639,10 @@ class PartLevels:
             for workId in workId_tuple:
                 self.work_add_track(album, track, workId, 0)
 
-    def work_add_track(self, album, track, workId, tries):
+    def work_add_track(self, album, track, workId, tries, user_data=True):
         """
         Add the work to the lookup queue
+        :param user_data:
         :param album:
         :param track:
         :param workId:
@@ -3666,7 +3668,7 @@ class PartLevels:
             port = config.setting["server_port"]
             path = "/ws/2/%s/%s" % ('work', workId)
             if config.setting['cwp_aliases'] and config.setting['cwp_aliases_tag_text']:
-                if config.setting['cwp_aliases_tags_user']:
+                if config.setting['cwp_aliases_tags_user'] and user_data:
                     login = True
                     tag_type = '+user-tags'
                 else:
@@ -3850,17 +3852,19 @@ class PartLevels:
                                     'work_listing: %s', self.work_listing[album])
                             # the higher-level work might already be in cache
                             # from another album
-                            if tuple(parentIds) in self.works_cache:
+                            if tuple(parentIds) in self.works_cache and self.USE_CACHE:
                                 not_in_cache = self.check_cache(
                                     track.metadata, album, track, tuple(parentIds), [])
                                 for workId_tuple in not_in_cache:
                                     self.work_not_in_cache(
                                         album, track, workId_tuple)
                             else:
+                                if not self.USE_CACHE:
+                                    if tuple(parentIds) in self.works_cache:
+                                        del self.works_cache[tuple(parentIds)]
                                 for parentId in parentIds:
                                     for track, album in tuples:
-                                        self.work_add_track(
-                                            album, track, parentId, 0)
+                                        self.work_add_track(album, track, parentId, 0)
                         else:
                             # so we remember we looked it up and found none
                             self.parts[wid]['no_parent'] = True
@@ -4274,6 +4278,7 @@ class PartLevels:
             log.info('Self.parts: %s', self.parts)
         if self.INFO:
             log.info('Self.trackback: %s', self.trackback)
+        # tidy up
         self.trackback[album].clear()
         # Finally process the orphan tracks
         if album in self.orphan_tracks:
@@ -4896,11 +4901,11 @@ class PartLevels:
                     if not diff and 'arrangement' in self.parts[workId] and self.parts[workId]['arrangement']:
                         extend = True
                         strip = self.strip_parent_from_work(
-                            work, parent, part_level, extend, parentId)
+                            work, parent, part_level, False)
                 else:
                     extend = True
                     strip = self.strip_parent_from_work(
-                        work, parent, part_level, extend, parentId)
+                        work, parent, part_level, False)
                 stripped_works.append(strip[0])
                 if self.INFO:
                     log.info("Parent: %s", parent)
@@ -5878,15 +5883,16 @@ class PartLevels:
             if self.INFO:
                 log.info("key %s, equiv %s", key, equiv)
             # mark the equivalents so that they can be reversed later
-            # esc_equiv = re.escape(equiv)
-            # equiv_pattern = '\\b' + esc_equiv + '\\b'
-            equiv = self.EQ + equiv
+            esc_equiv = re.escape(equiv)
+            equiv_pattern = '\\b' + esc_equiv + '\\b'
+            syno = self.EQ + equiv  # designating that it derived from the synonym
+            equo = equiv + self.EQ # designating that it derived from the equivalent
             esc_key = re.escape(key)
             key_pattern = '\\b' + esc_key + '\\b'
-            # mb_test = re.sub(equiv_pattern, equiv, mb_test)
-            # ti_test = re.sub(equiv_pattern, equiv, ti_test)
-            mb_test = re.sub(key_pattern, equiv, mb_test)
-            ti_test = re.sub(key_pattern, equiv, ti_test)
+            mb_test = re.sub(equiv_pattern, equo, mb_test, re.IGNORECASE | re.UNICODE)
+            ti_test = re.sub(equiv_pattern, equo, ti_test, re.IGNORECASE | re.UNICODE)
+            mb_test = re.sub(key_pattern, syno, mb_test, re.IGNORECASE | re.UNICODE)
+            ti_test = re.sub(key_pattern, syno, ti_test, re.IGNORECASE | re.UNICODE)
             # better than ti_test = ti_test.replace(key, equiv)
             if self.DEBUG:
                 log.debug(
@@ -6237,11 +6243,12 @@ class PartLevels:
             esc_equiv = re.escape(equiv)
             equiv_pattern = '\\b' + esc_equiv + '\\b'
             term = re.sub(equiv_pattern, key, term)
+            term = term.replace(self.EQ,'')
         return term
 
     def boil(self, s):
         """
-        Remove punctuation, spaces, capitals and accents for string comprisons
+        Remove punctuation, spaces, capitals and accents for string comparisons
         :param s:
         :return:
         """
@@ -6250,7 +6257,7 @@ class PartLevels:
         s = s.lower()
         if isinstance(s, str):
             s = s.decode('unicode_escape')
-        s = s.replace (self.EQ, '')\
+        s = s.replace (self.EQ.lower(), '')\
             .replace('sch', 'sh')\
             .replace(u'\xdf', 'ss')\
             .replace('sz', 'ss')\
@@ -6355,15 +6362,6 @@ class ClassicalExtrasOptionsPage(OptionsPage):
                 log.error(
                     "Error in loading options for option = %s",
                     opt['option'])
-        # over-ride certain risky/undesirable options to default to "safe/best" options
-        self.config.setting['use_cache'] = True
-        self.ui.__dict__['use_cache'].setChecked(self.config.setting['use_cache'])
-        self.config.setting['log_debug'] = False
-        self.ui.__dict__['log_debug'].setChecked(self.config.setting['log_debug'])
-        self.config.setting['log_info'] = False
-        self.ui.__dict__['log_info'].setChecked(self.config.setting['log_info'])
-        self.config.setting['ce_options_overwrite'] = False
-        self.ui.__dict__['ce_options_overwrite'].setChecked(self.config.setting['ce_options_overwrite'])
 
     def save(self):
         opts = plugin_options('artists') + plugin_options('tag') + \
@@ -6393,13 +6391,16 @@ class ClassicalExtrasOptionsPage(OptionsPage):
                     "Error in saving options for option = %s",
                     opt['option'])
 
-        self.config.setting['use_cache'] = True  # over-ride option to set use_cache back to default
 
 
 #################
 # MAIN ROUTINE  #
 #################
 
+config.setting['use_cache'] = True
+config.setting['log_debug'] = False
+config.setting['log_info'] = False
+config.setting['ce_options_overwrite'] = False
 register_track_metadata_processor(PartLevels().add_work_info)
 register_track_metadata_processor(ExtraArtists().add_artist_info)
 register_options_page(ClassicalExtrasOptionsPage)
