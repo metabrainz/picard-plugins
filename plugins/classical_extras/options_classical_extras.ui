@@ -78,7 +78,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-162</y>
             <width>1157</width>
             <height>1025</height>
            </rect>
@@ -4129,7 +4129,7 @@ alternate-background-color: rgb(135, 157, 255);</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1022</width>
+            <width>1157</width>
             <height>1012</height>
            </rect>
           </property>
@@ -5038,11 +5038,30 @@ text-decoration: underline;</string>
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1022</width>
-            <height>877</height>
+            <width>1157</width>
+            <height>933</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_18">
+           <item>
+            <widget class="QGroupBox" name="groupBox_3">
+             <property name="styleSheet">
+              <string notr="true">background-color: rgb(170, 170, 164);</string>
+             </property>
+             <property name="title">
+              <string>General</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <item>
+               <widget class="QCheckBox" name="ce_no_run">
+                <property name="text">
+                 <string>Do not run Classical Extras for tracks where no pre-existing file is detected (warning tag will be written)</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
            <item>
             <widget class="QGroupBox" name="advanced_artists">
              <property name="toolTip">

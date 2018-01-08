@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\Mark\Documents\Mark's documents\Music\Picard\Classical Extras development\classical_extras\options_classical_extras.ui'
 #
-# Created: Fri Dec 29 23:20:23 2017
+# Created: Wed Jan 03 23:04:16 2018
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -1420,7 +1420,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName(_fromUtf8("scrollArea_3"))
         self.scrollAreaWidgetContents_3 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 1022, 1012))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 1157, 1012))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1819,10 +1819,19 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName(_fromUtf8("scrollArea_2"))
         self.scrollAreaWidgetContents_2 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 1022, 877))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 1157, 933))
         self.scrollAreaWidgetContents_2.setObjectName(_fromUtf8("scrollAreaWidgetContents_2"))
         self.verticalLayout_18 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_18.setObjectName(_fromUtf8("verticalLayout_18"))
+        self.groupBox_3 = QtGui.QGroupBox(self.scrollAreaWidgetContents_2)
+        self.groupBox_3.setStyleSheet(_fromUtf8("background-color: rgb(170, 170, 164);"))
+        self.groupBox_3.setObjectName(_fromUtf8("groupBox_3"))
+        self.verticalLayout_5 = QtGui.QVBoxLayout(self.groupBox_3)
+        self.verticalLayout_5.setObjectName(_fromUtf8("verticalLayout_5"))
+        self.ce_no_run = QtGui.QCheckBox(self.groupBox_3)
+        self.ce_no_run.setObjectName(_fromUtf8("ce_no_run"))
+        self.verticalLayout_5.addWidget(self.ce_no_run)
+        self.verticalLayout_18.addWidget(self.groupBox_3)
         self.advanced_artists = QtGui.QGroupBox(self.scrollAreaWidgetContents_2)
         self.advanced_artists.setStyleSheet(_fromUtf8("background-color: rgb(170, 170, 164);"))
         self.advanced_artists.setObjectName(_fromUtf8("advanced_artists"))
@@ -2127,7 +2136,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setBuddy(self.cwp_retries)
 
         self.retranslateUi(ClassicalExtrasOptionsPage)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QObject.connect(self.cwp_titles, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setDisabled)
         QtCore.QObject.connect(self.cwp_works, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
         QtCore.QObject.connect(self.cwp_extended, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
@@ -2816,6 +2825,8 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.cwp_write_sk.setText(_translate("ClassicalExtrasOptionsPage", "Write SongKong-compatible work tags*", None))
         self.label_82.setText(_translate("ClassicalExtrasOptionsPage", "* ASTERISKED OPTIONS ARE NOT SAVED IN FILE TAGS", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Works), _translate("ClassicalExtrasOptionsPage", "Works and parts", None))
+        self.groupBox_3.setTitle(_translate("ClassicalExtrasOptionsPage", "General", None))
+        self.ce_no_run.setText(_translate("ClassicalExtrasOptionsPage", "Do not run Classical Extras for tracks where no pre-existing file is detected (warning tag will be written)", None))
         self.advanced_artists.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Separate multiple names by commas. Do not use any quotation marks.</p></body></html>", None))
         self.advanced_artists.setWhatsThis(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the &quot;Tag mapping&quot; tab as sources for any required tags. </p><p>If it is important that only whole words are to be matched, be sure to include a space after the string.</p></body></html>", None))
         self.advanced_artists.setTitle(_translate("ClassicalExtrasOptionsPage", "Artists", None))
