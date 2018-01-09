@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Users\Mark\Documents\Mark's documents\Music\Picard\Classical Extras development\classical_extras\options_classical_extras.ui'
 #
-# Created: Wed Jan 03 23:04:16 2018
+# Created: Tue Jan 09 14:17:57 2018
 #      by: PyQt4 UI code generator 4.10
 #
 # WARNING! All changes made in this file will be lost!
@@ -2136,7 +2136,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setBuddy(self.cwp_retries)
 
         self.retranslateUi(ClassicalExtrasOptionsPage)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QObject.connect(self.cwp_titles, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setDisabled)
         QtCore.QObject.connect(self.cwp_works, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
         QtCore.QObject.connect(self.cwp_extended, QtCore.SIGNAL(_fromUtf8("clicked(bool)")), self.groupBox_16.setEnabled)
@@ -2167,6 +2167,22 @@ class Ui_ClassicalExtrasOptionsPage(object):
         QtCore.QObject.connect(self.cea_arrangers, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.groupBox_28.setEnabled)
         QtCore.QObject.connect(self.use_cea, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.groupBox_11.setEnabled)
         QtCore.QObject.connect(self.use_cea, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.artist_tags.setEnabled)
+        QtCore.QObject.connect(self.toolButton_1, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_1.setEnabled)
+        QtCore.QObject.connect(self.toolButton_2, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_2.setEnabled)
+        QtCore.QObject.connect(self.toolButton_3, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_3.setEnabled)
+        QtCore.QObject.connect(self.toolButton_4, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_4.setEnabled)
+        QtCore.QObject.connect(self.toolButton_5, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_5.setEnabled)
+        QtCore.QObject.connect(self.toolButton_6, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_6.setEnabled)
+        QtCore.QObject.connect(self.toolButton_7, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_7.setEnabled)
+        QtCore.QObject.connect(self.toolButton_8, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_8.setEnabled)
+        QtCore.QObject.connect(self.toolButton_9, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_9.setEnabled)
+        QtCore.QObject.connect(self.toolButton_10, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_10.setEnabled)
+        QtCore.QObject.connect(self.toolButton_11, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_11.setEnabled)
+        QtCore.QObject.connect(self.toolButton_12, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_12.setEnabled)
+        QtCore.QObject.connect(self.toolButton_13, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_13.setEnabled)
+        QtCore.QObject.connect(self.toolButton_14, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_14.setEnabled)
+        QtCore.QObject.connect(self.toolButton_15, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_15.setEnabled)
+        QtCore.QObject.connect(self.toolButton_16, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.cea_source_16.setEnabled)
         QtCore.QMetaObject.connectSlotsByName(ClassicalExtrasOptionsPage)
 
     def retranslateUi(self, ClassicalExtrasOptionsPage):
