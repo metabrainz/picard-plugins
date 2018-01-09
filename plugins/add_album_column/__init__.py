@@ -3,7 +3,7 @@
 #
 # Licensing
 #
-# Channel Manager Main, Create and maintain channel files
+# Add Album Column, Add the Album column to the main window panel
 # Copyright (C) 2017 Evandro Coan <https://github.com/evandrocoan>
 #
 #  This program is free software; you can redistribute it and/or modify it
