@@ -50,7 +50,7 @@
       <string notr="true">background-color: rgb(170, 170, 127);</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -78,7 +78,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-162</y>
             <width>1157</width>
             <height>1025</height>
            </rect>
@@ -726,6 +726,13 @@
                   </widget>
                  </item>
                  <item>
+                  <widget class="QCheckBox" name="cea_inst_credit">
+                   <property name="text">
+                    <string>Use &quot;credited-as&quot; name for instrument</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <widget class="QCheckBox" name="cea_no_solo">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select to eliminate &amp;quot;additional&amp;quot;, &amp;quot;solo&amp;quot; or &amp;quot;guest&amp;quot; from instrument description&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1072,8 +1079,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1174</width>
-            <height>863</height>
+            <width>1157</width>
+            <height>873</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_33">
@@ -1096,7 +1103,7 @@
               <string notr="true">background-color: rgb(185, 135, 188);</string>
              </property>
              <property name="title">
-              <string>Keep file tags</string>
+              <string>Initial tag processing</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_17">
               <item>
@@ -1114,7 +1121,7 @@
                  <item>
                   <widget class="QLabel" name="label_3">
                    <property name="text">
-                    <string>Tags to blank (comma-separated, case-sensitive):</string>
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; text-decoration: underline;&quot;&gt;Picard-generated&lt;/span&gt; tags to blank (comma-separated, case-sensitive):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
@@ -1147,7 +1154,7 @@
                  <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="text">
-                 <string>List file tags which will be appended to rather than over-written by tag mapping (NB this will keep tags even if &quot;Clear existing tags&quot; is selected on main options)</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;List &lt;span style=&quot; text-decoration: underline;&quot;&gt;existing file tags&lt;/span&gt; which will be appended to rather than over-written by tag mapping (NB this will keep tags even if &amp;quot;Clear existing tags&amp;quot; is selected on main options):-&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
               </item>
@@ -1161,11 +1168,21 @@
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QCheckBox" name="cea_clear_tags">
+                <property name="toolTip">
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Note that the main Picard option &amp;quot;Clear existing tags&amp;quot; should be &lt;span style=&quot; text-decoration: underline;&quot;&gt;unchecked&lt;/span&gt; for this option to operate in preference to that Picard option. The difference is that this option &lt;span style=&quot; text-decoration: underline;&quot;&gt;will not intefere with cover art&lt;/span&gt;, whereas the main Picard option will remove previous cover art.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                </property>
+                <property name="text">
+                 <string>Clear any previous file tags that are NOT listed above AND NOT listed in the main Picard &quot;Preserve tags...&quot; option (Options-&gt;Tags)</string>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="artist_tags_2">
+            <widget class="QGroupBox" name="artist_tags_2">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -1182,8 +1199,8 @@
               <string notr="true">background-color: rgb(255, 194, 158);
 font: 75 8pt &quot;MS Shell Dlg 2&quot;;</string>
              </property>
-             <property name="frameShape">
-              <enum>QFrame::NoFrame</enum>
+             <property name="title">
+              <string>Tag map details</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
               <item>
@@ -1208,6 +1225,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;To put a constant in a tag, type it into the source box preceded by a backslash \.&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In all cases, the source will be APPENDED to the Picard tag. To replace the standard tag, first blank it in the section above - add it back later in the list below if required (e.g. artist -&amp;gt; artist).&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;BUT note that any existing LOCAL FILE tag will be replaced by (not appended with) any Picard/Classical Extras tag UNLESS specified in &amp;quot;Keep file tags&amp;quot;.&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;These tag-mapping options may be omitted from the over-riding of artist options - see advanced tab&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;For more help seethe readme.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                </widget>
@@ -4128,7 +4146,7 @@ alternate-background-color: rgb(135, 157, 255);</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-149</y>
             <width>1157</width>
             <height>1012</height>
            </rect>
@@ -4898,6 +4916,9 @@ p, li { white-space: pre-wrap; }
                  </item>
                  <item>
                   <widget class="QLineEdit" name="cwp_partial_text">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(225, 225, 169);</string>
                    </property>
@@ -4924,6 +4945,9 @@ p, li { white-space: pre-wrap; }
                  </item>
                  <item>
                   <widget class="QLineEdit" name="cwp_arrangements_text">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(225, 225, 169);</string>
                    </property>
@@ -4961,6 +4985,9 @@ text-decoration: underline;</string>
                  </item>
                  <item>
                   <widget class="QLineEdit" name="cwp_medley_text">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(225, 225, 169);</string>
                    </property>
@@ -5519,7 +5546,7 @@ text-decoration: underline;</string>
                     <enum>Qt::RightToLeft</enum>
                    </property>
                    <property name="text">
-                    <string>Tag name for artist/misc. options</string>
+                    <string>Tag name for artist/mapping/misc. options</string>
                    </property>
                   </widget>
                  </item>
@@ -5553,7 +5580,7 @@ text-decoration: underline;</string>
               <item>
                <widget class="QGroupBox" name="groupBox_10">
                 <property name="whatsThis">
-                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The last checkbox, &amp;quot;Overwrite options in Options Pages&amp;quot;, is for &lt;span style=&quot; font-weight:600;&quot;&gt;VERY CAREFUL USE ONLY&lt;/span&gt;. It will cause any options read from the saved tags (if the relevant box has been ticked) to over-write the options on the plugin Options Page UI. The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, to prevent inadvertant use. Far better is to make a &lt;span style=&quot; font-weight:600;&quot;&gt;backup copy&lt;/span&gt; of the picard.ini file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride. If artist options over-ride is chosen, then tag map detail options may be included or not in the override.&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;The last checkbox, &amp;quot;Overwrite options in Options Pages&amp;quot;, is for &lt;span style=&quot; font-weight:600;&quot;&gt;VERY CAREFUL USE ONLY&lt;/span&gt;. It will cause any options read from the saved tags (if the relevant box has been ticked) to over-write the options on the plugin Options Page UI. The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, to prevent inadvertant use. Far better is to make a &lt;span style=&quot; font-weight:600;&quot;&gt;backup copy&lt;/span&gt; of the picard.ini file.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                 </property>
                 <property name="title">
                  <string>Over-ride plugin options displayed in Options Pages with options from local file tags (previously saved using method in box above)?*</string>
@@ -5562,7 +5589,20 @@ text-decoration: underline;</string>
                  <item>
                   <widget class="QCheckBox" name="cea_override">
                    <property name="text">
-                    <string>Artist/misc. options</string>
+                    <string>Artist options</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="ce_tagmap_override">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="toolTip">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Will not over-ride displayed options unless artist options over-ride is also selected&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                   <property name="text">
+                    <string>Tag map detail options</string>
                    </property>
                   </widget>
                  </item>
@@ -5657,26 +5697,12 @@ text-decoration: underline;</string>
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;generalinformation&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;G&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;eneral Information&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This is version 0.8.8 of &amp;quot;classical_extras&amp;quot;. It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the &amp;quot;works and parts tab&amp;quot; section). It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached. The &amp;quot;Options&amp;quot; page (Options-&amp;gt;Options-&amp;gt;Plugins-&amp;gt;Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This is the documentation for version 0.9 of &amp;quot;classical_extras&amp;quot;. This version has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the &amp;quot;works and parts tab&amp;quot; section). It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached. The &amp;quot;Options&amp;quot; page (Options-&amp;gt;Options-&amp;gt;Plugins-&amp;gt;Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types, can have access to these details. &lt;br /&gt;It has two main components &amp;quot;Extra Artists&amp;quot; and &amp;quot;Work Parts&amp;quot; which can be used independently or together. &amp;quot;Work Parts&amp;quot; will take at least as many seconds to process as there are works to look up (owing to MB throttling) so users who only want the extra artist information and not the work details may turn it off (e.g. perhaps for 'popular' music). &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Hidden metadata variables produced by this plugin are (mostly) prefixed with &amp;quot;_cwp_&amp;quot; or &amp;quot;_cea_&amp;quot; depending on which component of the plugin created them. Full details of these variables are given in a later section. Tags are output depending on the choices specified by the user in the Options Page. Defaults are provided for these tags which can be added to / modified / deleted according to user requirements. If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;updates&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;U&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;pdates&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.8: Fixes to allow for (1) disabling of 'use&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;cache' across releases which may share works and (2) works which might appear in their own right and also have arrangements. Also, re-set certain important options to defaults on starting Picard, namely: 'use&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;cache' set to True, 'log&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;debug', 'log&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;info' and 'options_overwrite' set to False; the user will need to deliberately re-set these on starting Picard if required - this is to prevent inadvertently leaving these flags in an abnormal state. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.7: Revised treatment of &amp;quot;conditional&amp;quot; tag mapping. Previously, if multiple sources were specified for a tag mapping and the &amp;quot;conditional&amp;quot; flag set, only the first non-empty source was used. Now all sources will be mapped to a tag if it was empty before executing the current tag mapping line. This is considered to be more intuitive and leads to less complex mapping lines. However, it some cases it may be necessary to split a line from a previous version if the previous behaviour was specifically desired. Improved algorithms for extending metadata with title info. Bug fixes. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.6: More consistent approach to sort tags and hidden variables. Bug fixes. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.5: Improved handling of instruments. Bug fixes. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.4: Improved UI, bug fixes and code improvements. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.3: Ability to use aliases of work names instead of the MusicBrainz standard names. Various options to use aliases and as-credited names for performers and writers (i.e. relationship artists). Option to use recording artists as well as (or instead of) track artists. All relationship artists are now tagged for all work levels (with some special processing for lyricists). New UI layout to separate tag mapping from artist options. Option to split lyrics into common (release) and unique (track) components. Various code improvements as well as bug fixes. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.2: Improved algorithms and a few minor bug fixes. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.1: Bug fixes and minor enhancements - including revison and extension of &amp;quot;synonyms&amp;quot; section on the &amp;quot;advanced&amp;quot; tab. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8: Handle multiple recordings and/or multiple parents of a work. Handle multiple albumartist composers for one track. Option to use &amp;quot;credited as&amp;quot; name for artists (inc. performers and composers) who are &amp;quot;release artist&amp;quot; or &amp;quot;track artist&amp;quot;. Option to exclude &amp;quot;solo&amp;quot; from instrument types. Option to over-ride plugin options with those used when the album was last saved. Option to keep (and append to) specified existing file tags - furthermore if &amp;quot;is_classical&amp;quot; is present, the work-type variable will include &amp;quot;Classical&amp;quot;. Option to use (and write) SongKong-compatible work tags (saves processing time if SongKong is used to pre-process large numbers of files). Include the work (and its parents) of which a work is an arrangement (as a &amp;quot;pseudo-parent&amp;quot;). Include medleys in movement/part description (as [Medley of:...] or other descriptor specified in options). Allow for multiple parents of recordings and works (and multiple parents of those) - multiples are given as multiple tag instances, where permitted, otherwise separated by semi-colons. Option as to whether to include parent works where the relationship attribute is &amp;quot;part of collection&amp;quot;. Plus minor enhancements and bug fixes too numerous to mention! (Note that some old versions of the plugin may say v0.8 when they are only v0.7) &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.7: Bug fixes. Pull request issued for this version. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.6: Bug fixes and algorithm improvements. Allow multiple sources for a tag (each will be appended) and use + as separator for concantenating sources, not a comma, to distinguish from the use of comma to separate multiples. Provide additional hidden variables (&amp;quot;sources&amp;quot;) for vocalists and instrumentalists. Option to include intermediate work levels in a movement tag (for systems which cannot display multiple work levels). &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.5: Include ability to use multiple (concatenated) sources in tag mapping (see notes under &amp;quot;tag mapping&amp;quot;). All artist &amp;quot;sources&amp;quot; using hidden variables (_cea_...) are now consistently in the plural, to distinguish from standard tags. Note that if &amp;quot;album&amp;quot; is used as a source in tag mapping, it will now be the revised name, where composer prefixing is used. To use the original name, use &amp;quot;release&amp;quot; as the source. Also various bug fixes, notably to ensure that all arrangers get picked up for use in tag mapping. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.4: Write out version number to user-specified tag. Provide default comment tags for writing ui options. Provide better m4a and iTunes compatibility (see notes). Added functionality for chorus master, orchestrator and concert master (leader). Re-arranged artist tab in ui. Various bug fixes. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.3: Bug fixes. Modified ui default options. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.2: Bug fixes. More flexible handling of artists (can blank and then add back later). Modified ui default options. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.1: Amended regex to permit non-Latin characters in work text. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.9: Additional option to clear previous file tags which are not wanted, without interfering with cover art. Additional option to replace instrument names with as-credited names. Also instrument names are now saved to hidden variables tags (instruments, instruments&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;credited and instruments&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;all) which can be mapped to file tags as required. Sub-option added to the 'override artist options' option on the &amp;quot;advanced&amp;quot; tab - to allow tag map details to be included or not in this over-ride. Minor bug fixes and UI improvements. This is the next 'official' version after 0.7. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;For a list of previous version changes, see the end of this document. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;installation&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;nstallation&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Install the zip file in your plugins folder in the usual fashion &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;usage&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;U&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;sage&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
@@ -5684,14 +5710,18 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Important&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;: &lt;/span&gt;&lt;/p&gt;
 &lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The plugin &lt;span style=&quot; font-weight:600;&quot;&gt;will not work fully unless&lt;/span&gt; you have enabled &amp;quot;Use release relationships&amp;quot; and &amp;quot;Use track relationships&amp;quot; in Picard-&amp;gt;Options-&amp;gt;Metadata. However, it may be that the MusicBrainz database has conflicting data between track and release relationships, in which case fix the incorrect data using &amp;quot;Edit relationships&amp;quot; in MusicBrainz. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;It is recommended only to use the plugin on one or a few release(s) at a time, particularly for initial tagging and if the &amp;quot;Works and parts&amp;quot; function is being used. The plugin is not designed to do &amp;quot;bulk tagging&amp;quot; of untagged files - it may be better to use a tool such as SongKong for that and then use the plugin to enhance the results as required. However, once you have tagged files (either in Picard or, say, SongKong) such that they all at least have MusicBrainz IDs, you should be able to re-tag multiple releases by dragging the containing folder into Picard; this is useful to pick up changed MusicBrainz data or if you change the Classical Extras version or options (but bear in mind that the &amp;quot;Works and parts&amp;quot; function will still take at least 1 second per track and &lt;span style=&quot; font-weight:600;&quot;&gt;make sure you have &amp;quot;debug&amp;quot; and &amp;quot;info&amp;quot; logging turned OFF&lt;/span&gt; - in the &amp;quot;Advanced&amp;quot; tab). If you do want to try uising Picard / Classical Extras to tag a large number of files, then &lt;span style=&quot; font-weight:600;&quot;&gt;make sure you also turn off &amp;quot;warning&amp;quot; logging&lt;/span&gt;. &lt;/li&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Check for error messages before saving a release&lt;/span&gt;. The plugin will write out tags which should appear prominently in the bottom Picard pane. In particular, look for &amp;quot;000&lt;span style=&quot; font-style:italic;&quot;&gt;major&lt;/span&gt;warning&amp;quot; and &amp;quot;001&lt;span style=&quot; font-style:italic;&quot;&gt;errors&amp;quot;. If you get &amp;quot;000&lt;/span&gt;major&lt;span style=&quot; font-style:italic;&quot;&gt;warning&amp;quot; with the message &amp;quot;WARNING: Classical Extras not run for this track as no file present - deselect the option on the advanced tab to run. If there is a file, then try 'Refresh'.&amp;quot; then do what it says (this will only occur if you have opted to not run Classical Extras for tracks where no pre-existing file is detected)! Also, watch out for &amp;quot;002&lt;/span&gt;important_warning&amp;quot; - &amp;quot;No file with matching trackid - IF THERE SHOULD BE ONE, TRY 'REFRESH' - (unable to process any saved options, lyrics or 'keep' tags)&amp;quot;; this will always occur if you load a file without MusicBrainz ids - just refresh it to pick up any existing file tags such as lyrics, if required. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;If you are just changing option settings then you can usually &amp;quot;use cache&amp;quot; (see &amp;quot;work and parts&amp;quot; tab section 1) to avoid the 1-second per work delay. However, if the works data in MusicBrainz has been changed then obviously you will need to do a full look-up, so disable cache. If the work structure has been fundamentally changed (i.e. a different hierarchy of existing works) - either within the MusicBrainz database or by selecting/deselecting the &amp;quot;include collection relations&amp;quot;, partial&amp;quot; or &amp;quot;arrangements&amp;quot; options - then you will need to quit and restart Picard to correctly pick up the new structure. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Keep a backup of your picard.ini file (AppData-&amp;gt;Roaming-&amp;gt;MusicBrainz) in case you erase your settings or Picard crashes and loses them for you. &lt;/li&gt;&lt;/ol&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;artiststab&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;A&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;rtists tab&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;There are five coloured sections as shown in the screen image below: &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;https://i.imgur.com/oQYry4D.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;http://music.highmossergate.co.uk/images/artist_options%20v0.9.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Create extra artist metadata&amp;quot; should be selected otherwise this section (and the tag mapping section) will not run. This is the default. &lt;/li&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;Infer work types (map to genre using tag mapping or script as req'd)&amp;quot;. This attempts to create a &amp;quot;work&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;type&amp;quot; tag based on information in the artist-related tags. It does not (currently) use the &amp;quot;work-type&amp;quot; data associated with MB works as this is not well populated and is under review at present. Values provided are: Orchestral, Concerto, Instrumental, Voice, Choral, Opera, Duet, Aria, Song. For concerto, solo and duet performances the instrument is also given where possible. If the track is a recorded work with a composer artist in MusicBrainz and the &amp;quot;Works and parts&amp;quot; section has &amp;quot;Include all work levels&amp;quot; selected, the tag will also include &amp;quot;Classical&amp;quot;. Use &amp;quot;work&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;type&amp;quot; as a source in the tag mapping section below section to (e.g.) map to the genre tag. For more complex treatment, use scripts. &lt;/span&gt;&lt;/p&gt;
-&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Work-artist/performer naming options&amp;quot;. This section deals primarily with the application of aliases and credited_as names to replace the MusicBrainz standard names. The first box allows you to choose whether to replace MusicBrainz standard names by aliases - either for all work-artists/performers or only work-artists (writers, composers, arrangers, lyricists etc.). The second box sets the usage of &amp;quot;as-credited&amp;quot; names: the first part of this lists all the places where as-credited names can occur (really!) and the second part allows you to apply these to performing artists and/or work-artists. &lt;br /&gt;N.B. if more than one release is loaded in Picard, any available alias names loaded so far will be available and used. However, as-credited names will only be used from the current release. &lt;/li&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Work-artist/performer naming options&amp;quot;. This section deals primarily with the application of aliases and credited&lt;span style=&quot; font-style:italic;&quot;&gt;as names to replace the MusicBrainz standard names. The first box allows you to choose whether to replace MusicBrainz standard names by aliases - either for all work-artists/performers or only work-artists (writers, composers, arrangers, lyricists etc.). The second box sets the usage of &amp;quot;as-credited&amp;quot; names: the first part of this lists all the places where as-credited names can occur (really!) and the second part allows you to apply these to performing artists and/or work-artists. Please note that, in the current version of this plugin, only aliases and credited&lt;/span&gt;as names which are in the &amp;quot;release XML node&amp;quot; are available (i.e. roughly those relating to the metadata shown in the release overeview page in MusicBrainz). So, for example, if a recording is an arrangement of another work and that other work (but not the arrangement) has a composer linked to it, then the composer's alias will not be available (nor is the composer shown on the MB release overview page). In some cases (if appropriate) this can be remedied by adding the relevant link to the lowest-level work. &lt;/li&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:40px; margin-right:40px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note regarding aliases and credited-as names: &lt;br /&gt;In a MB release, an artist can appear in one of seven contexts. Each of these is accessible in releaseXmlNode and the track and recording contexts are also accessible in trackXmlNode. &lt;br /&gt;The seven contexts are: &lt;br /&gt;Release-group: credited-as and alias &lt;br /&gt;Release: credited-as and alias &lt;br /&gt;Release relationship: credited-as only &lt;br /&gt;Recording: credited-as and alias &lt;br /&gt;Recording relationship (direct): credited-as only &lt;br /&gt;Recording relationship (via work): credited-as only &lt;br /&gt;Track: credited-as and alias &lt;br /&gt;(The above are applied in sequence - e.g. track artist credit will over-ride release artist credit) &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;N.B. if more than one release is loaded in Picard, any available alias names loaded so far will be available and used. However, as-credited names will only be used from the current release. If you do not want these names to be available then you may need to restart Picard after changing the option settings (otherwise they will still be cached). &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;In addition to the above, the main Picard options have an effect on how 'track artists' (or any tags derived from them through tag-mapping) are displayed. In Options-&amp;gt;Metadata, if &amp;quot;Translate artist names...&amp;quot; is selected then the alias will be used for the track artist (or failing that, a name based on the sort-name), rather than the 'as-credited' name. If &amp;quot;Use standardized artist names&amp;quot; is selected then neither the alis nor the 'as-credited' name will be used. In order to facilitate consistency, Classical Extras will save these Picard options along with its own options in specific tags (see &amp;quot;Advanced options&amp;quot; section 5). &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The bottom box then (a) allows a choice as to whether aliases will over-ride as-credited names or vice versa and (b) whether if there are still some names in non-Latin script, whether these should be replaced (this will always remove middle [patronymic] names from Cyrillic-script names [but does not deal fully with other non-Latin scripts]; it is based on the sort names wherever possible). &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;none of this processing affects the contents of the &amp;quot;artist or &amp;quot;album_artist&amp;quot; tags&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;. These tags may be either work-artists or performing artists. Their contents are determined by the standard Picard options &amp;quot;translate artist names&amp;quot; and &amp;quot;use standardized artist names&amp;quot; in Options--&amp;gt;Metadata. If &amp;quot;translate name&amp;quot; is selected, the name will be the alias or (if no alias) the 'unsorted' sort-name; otherwise the name will be the MusicBrainz name if &amp;quot;use standardized artist names&amp;quot; is selected or the as-credited name (if available) if it is not selected. &lt;/span&gt;&lt;/p&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Recording artist options&amp;quot;. In MusicBrainz, the recording artist may be different from the track artist. For classical music, the MusicBrainz guidelines state that the track artist should be the composer; however the recording artist(s) is/are usually the principal performer(s). &lt;br /&gt;Because, in classical music (in MusicBrainz), recording artists will usually be performers whereas track artists are composers, by default, the naming convention for performers (set in the previous section) will be used (although only the as-credited name set for the recording artist will be applied). Alternatively, the naming convention for track artists can be used - which is determined by the main Picard metadata options. &lt;/li&gt;
@@ -5716,13 +5746,15 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;Tag for track notes&amp;quot;: The name of the tag where notes/lyrics unique to a track should be placed. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that if the 'output' tags are not specified, then internal 'hidden' variables will still be available for use in the tag-mapping section (called album&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;notes and track&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;notes). &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;tagmappingtab&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;T&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;ag mapping tab&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;There are three coloured sections as shown in the screen image below: &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;https://i.imgur.com/XKhm0kb.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;There are two coloured sections as shown in the screen image below: &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;http://music.highmossergate.co.uk/images/tag_mapping%20v0.9.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that the &amp;quot;Create extra artist metadata&amp;quot; option needs to be selected on the Artist tab for these sections to run. &lt;/span&gt;&lt;/p&gt;
-&lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Keep file tags&amp;quot;: This refers to the tags which already exist on files which have been matched to MusicBrainz in the right-hand panel, not the tags generated by Picard from the MusicBrainz database. Normally, Picard cannot process these tags - either it will overwrite them (if it creates a similarly named tag), clear them (if 'Clear existing tags' is specified in the main Options-&amp;gt;Tags screen) or keep them (if 'Preserve these tags...' is specified after the 'Clear existing tags' option). Classical Extras allows a further option - for the tags to be appended to in the tag mapping section (see below). List file tags which will be appended to rather than over-written by tag mapping (NB this will keep tags even if &amp;quot;Clear existing tags&amp;quot; is selected on main options). In addition, certain existing tags may be used by Classical Extras - in particular &amp;quot;is&lt;span style=&quot; font-style:italic;&quot;&gt;classical&amp;quot; (which is set by SongKong to '1' if the track is deemed to be classical, based on an extensive database) is used to add 'classical' to the variable &amp;quot;&lt;/span&gt;cea_worktype&amp;quot;, if &amp;quot;Infer work types&amp;quot; is selected in the first section of the Artists tab. &lt;/li&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that if &amp;quot;Split lyrics tag&amp;quot; is specified (see the Artists tab), then the tag named there will be included in the 'Keep file tags' list and does not need to be added in this section. &lt;/span&gt;&lt;/p&gt;
-&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Remove Picard-generated tags before applying subsequent actions?&amp;quot;. Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options-&amp;gt;Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive. &lt;/li&gt;
-&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Tag mapping&amp;quot;. This section permits the contents of any hidden variable or tag to be written to one or more tags. &lt;/li&gt;&lt;/ol&gt;
+&lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Initial tag processing&amp;quot;: This takes place before any of the detailed tag mapping in the second section. &lt;/li&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;Remove Picard-generated tags before applying subsequent actions?&amp;quot;. Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options-&amp;gt;Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;List existing file tags which will be appended ...&amp;quot;: This refers to the tags which already exist on files which have been matched to MusicBrainz in the right-hand panel, not the tags generated by Picard from the MusicBrainz database. Normally, Picard cannot process these tags - either it will overwrite them (if it creates a similarly named tag), clear them (if 'Clear existing tags' is specified in the main Options-&amp;gt;Tags screen) or keep them (if 'Preserve these tags...' is specified after the 'Clear existing tags' option). Classical Extras allows a further option - for the tags to be appended to in the tag mapping section (see below). List file tags which will be appended to rather than over-written by tag mapping (NB this will keep tags even if &amp;quot;Clear existing tags&amp;quot; is selected on main options). In addition, certain existing tags may be used by Classical Extras - in particular &amp;quot;is&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;classical&amp;quot; (which is set by SongKong to '1' if the track is deemed to be classical, based on an extensive database) is used to add 'classical' to the variable &amp;quot;&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;cea_worktype&amp;quot;, if &amp;quot;Infer work types&amp;quot; is selected in the first section of the Artists tab. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that if &amp;quot;Split lyrics tag&amp;quot; is specified (see the Artists tab), then the tag named there will be included in the &amp;quot;...existing file tags...&amp;quot; list and does not need to be added in this section. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;Clear any previous file tags...&amp;quot;: This operates in an almost similar way to the main Picard option (Options-&amp;gt;Tags-&amp;gt;&amp;quot;Clear existing tags&amp;quot;). All existing file tags will be cleared &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;unless&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; they are in the main Picard &amp;quot;Preserve tags...&amp;quot; option or the &amp;quot;...existing file tags...&amp;quot; list. The main differences from the basic Picard option are that (a) artwork is always preseved - i.e. this largely addresses &lt;/span&gt;&lt;a href=&quot;https://tickets.metabrainz.org/browse/PICARD-257&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;PICARD-257&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; and (b) the tags that are not kept are &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;not shown as deleted&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; in the bottom pane of Picard; however, a warning tag is written. &lt;/span&gt;&lt;/p&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Tag map details&amp;quot;. This section permits the contents of any hidden variable or tag to be written to one or more tags. &lt;/li&gt;&lt;/ol&gt;
 &lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 2;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Sources&lt;/span&gt;: Some of the most useful sources are available from the drop-down list. Otherwise they can simply be typed in the box. Click on the &amp;quot;source from&amp;quot; button to enable entry. Some useful names are: &lt;/li&gt;
 &lt;ul type=&quot;circle&quot; style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 3;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be &amp;quot;soloists&amp;quot; in that they may be part of an ensemble. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;soloist_names : Names of the above (i.e. no instruments). &lt;/li&gt;
@@ -5754,7 +5786,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;More complex operations can be built using tagger scripts. If required, these can be set to run conditionally by setting a tag or hidden variable in this section and then testing it in the script. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;workandpartstab&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;W&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;ork and parts tab&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;There six coloured sections as shown in the screen print below: &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;https://i.imgur.com/Yv95BIR.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;http://music.highmossergate.co.uk/images/work_parts_options%20v0.9.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Include all work levels&amp;quot; should be selected otherwise this section will not run. This is the default. &lt;/li&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;Include collection relationships&amp;quot; (selected by default) will include parent works where the relationship has the attribute 'part of collection'. See &lt;/span&gt;&lt;a href=&quot;https://community.metabrainz.org/t/levels-in-the-structure-of-works/293047/109&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;Discussion&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; for the background to this. Note that only &amp;quot;work&amp;quot; entity types will be included, not &amp;quot;series&amp;quot; entities. If this option is changed, it will not take effect on releases already loaded in Picard - you will need to quit and restart. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;Use cache (if available)&amp;quot; prevents excessive look-ups of the MB database. Every look-up of a parent work needs to be performed separately (hopefully the MB database might make this easier some day). Network usage constraints by MB means that each look-up takes a minimum of 1 second. Once a release has been looked-up, the works are retained in cache, significantly reducing the time required if, say, the options are changed and the data refreshed. However, if the user edits the works in the MB database then the cache will need to be turned off temporarily for the refresh to find the new/changed works. Also some types of work (e.g. arrangements) will require a full look-up if options have been changed. &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Do not leave this option turned off&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; as it will make the plugin slower and may cause problems. This option will always be set on when Picard is started, regardless of how it was left when it was last closed. &lt;/span&gt;&lt;/p&gt;
@@ -5763,7 +5795,7 @@ p, li { white-space: pre-wrap; }
 &lt;ul type=&quot;circle&quot; style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 3;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Use only metadata from title text&amp;quot;. The plugin will attempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Use only metadata from canonical works&amp;quot;. The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will probably be in the language of the release. (This language issue can also be addressed by using aliases - see below). &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Use canonical work metadata enhanced with title text&amp;quot;. This supplements the canonical data with text from the titles &lt;span style=&quot; font-weight:600;&quot;&gt;where it is significantly different&lt;/span&gt;. The supplementary title data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations - see image below for an example (using the Muso library manager). &lt;/li&gt;&lt;/ul&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:2; text-indent:0px;&quot;&gt;&lt;img src=&quot;http://i.imgur.com/QqulDPG.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:2; text-indent:0px;&quot;&gt;&lt;img src=&quot;http://music.highmossergate.co.uk/images/Respighi.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Source of canonical work text&lt;/span&gt;. Where either of the second two options above are chosen, there is a further choice to be made: &lt;/li&gt;
 &lt;ul type=&quot;circle&quot; style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 3;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Full MusicBrainz work hierarchy&amp;quot;. The names of each level of work are used to populate the relevant tags. E.g. if &amp;quot;Má vlast: I. Vyšehrad, JB 1:112/1&amp;quot; (level 0) is part of &amp;quot;Má vlast, JB 1:112&amp;quot; (level 1) then the parent work will be tagged as &amp;quot;Má vlast, JB 1:112&amp;quot;, not &amp;quot;Má vlast&amp;quot;. So, while accurate, this option might be more verbose. &lt;/li&gt;&lt;/ul&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Consistent with lowest level work description&amp;quot;. The names of the level 0 work are used to populate the relevant tags. I.e. if &amp;quot;Má vlast: I. Vyšehrad, JB 1:112/1&amp;quot; (level 0) is part of &amp;quot;Má vlast, JB 1:112&amp;quot; (level 1) then the parent work will be tagged as &amp;quot;Má vlast&amp;quot;, not &amp;quot;Má vlast, JB 1:112&amp;quot;. This frequently looks better, but not always, &lt;span style=&quot; font-weight:600;&quot;&gt;particularly if the level 0 work name does not contain all the parent work detail&lt;/span&gt;. If the full structure is not implicit in the level 0 name then a warning will be logged and written to the &amp;quot;warning&amp;quot; tag. &lt;/li&gt;&lt;/ul&gt;
@@ -5790,9 +5822,10 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note that Picard and SongKong use the tag musicbrainz_workid to mean different things. If Picard has overwritten the SongKong tag (not a problem if this plugin is used) then a warning will be given and the works will be looked up on MusicBrainz. Also note that once a release is loaded, subsequent refreshes will use the cache (if option is ticked) in preference to the file tags. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Note for iTunes users:&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;iTunes and Picard do not work well together. iTunes can display work and movement for m4a(mp4) files, but Picard does not write the movement tag. To work round this, write the movement to the &amp;quot;subtitle&amp;quot; tag assuming that is not otherwise used, and use a simple Mp3tag action to convert it to MOVEMENTNAME before importing to iTunes. If you are writing to a FLAC file which will subsequently be converted to m4a then different tag names may be required; e.g. using dBpoweramp, write the movement to &amp;quot;movement name&amp;quot;. In both cases use &amp;quot;work&amp;quot; for the work. To store the top_work, use &amp;quot;grouping&amp;quot; if writing directly to m4a, but &amp;quot;style&amp;quot; if writing to FLAC followed by dBpoweramp conversion. You can put multiple tags into the boxes described above so that your options are multi-purpose. N.B. if work tags are specified and the work has at least one level (i.e. at least work: movement), then the tag &amp;quot;show work movement&amp;quot; will be set to 1. This is used by iTunes to trigger the hierarchical display and should work both directly with m4a files and indirectly via files which are subsequently converted.&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;advancedtab&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;A&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;dvanced tab&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Hopefully, this tab should not be much used. In any case, it should not need to be changed frequently. There are five sections as shown in the sceeen print below: &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;https://i.imgur.com/H2YLAmA.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
-&lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Artists&amp;quot;. This has only one subsection - &amp;quot;Ensemble strings&amp;quot; - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the &amp;quot;Tag mapping&amp;quot; tab as sources for any required tags. If it is important that only whole words are to be matched, be sure to include a space after the string. &lt;/li&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Hopefully, this tab should not be much used. In any case, it should not need to be changed frequently. There are six sections as shown in the sceeen print below: &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;img src=&quot;http://music.highmossergate.co.uk/images/advanced_options%20v0.9.jpg&quot; /&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;General&amp;quot;. There is only one checkbox - &amp;quot;Do not run Classical Extras for tracks where no pre-existing file is detected (warning tag will be written)&amp;quot;. This option will disable Classical Extras processing if no file is present; this means (for example) that single discs from box sets can be loaded without incurring the additional processing overhead (work look-ups etc.) for all the other discs. Also if a compilation album is loaded, where the tracks are on multiple releases, the plugin will only process the release tracks which match. If a file is present but it does not yet have a MusicBrainz trackid tag, then it will initally be treated in the same way as a non-existent file; however, after the initial loading it will (if matched by Picard) be given a MB trackid and &amp;quot;refreshing&amp;quot; the release will result in any such tracks being processed by Classical Extras, while the unmatched tracks are left untouched. &lt;/li&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Artists&amp;quot;. This has only one subsection - &amp;quot;Ensemble strings&amp;quot; - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the &amp;quot;Tag mapping&amp;quot; tab as sources for any required tags. If it is important that only whole words are to be matched, be sure to include a space after the string. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Work levels&amp;quot;. This section has parameters applicable to the &amp;quot;works and parts&amp;quot; functions. &lt;/li&gt;
 &lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 2;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Max number of re-tries to access works (in case of server errors)&lt;/span&gt;. Sometimes MB lookups fail. Unfortunately Picard (currently) has no automatic &amp;quot;retry&amp;quot; function. The plugin will attempt to retry for the specified number of attempts. If it still fails, the hidden variable &lt;span style=&quot; font-style:italic;&quot;&gt;cwp&lt;/span&gt;error will be set with a message; if error logging is checked in section 4, an error message will be written to the log and the contents of &lt;span style=&quot; font-style:italic;&quot;&gt;cwp&lt;/span&gt;error will be written out to a special tag called &amp;quot;001_errors&amp;quot; which should appear prominently in the bottom pane of Picard. The problem may be resolved by refreshing, otherwise there may be a problem with the MB database availability. It is unlikely to be a software problem with the plugin. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;How title metadata should be included in extended metadata&lt;/span&gt;. This subsection contains various parameters affecting the processing of strings in titles. Because titles are free-form, not all circumstances can be anticipated. Detailed documentation of these is beyond the scope of this Readme as the effects can be quite complex and subtle and may require an understanding of the plugin code (which is of course open-source) to acsertain them. If pure canonical works are used (&amp;quot;Use only metadata from canonical works&amp;quot; and, if necessary, &amp;quot;Full MusicBrainz work hierarchy&amp;quot; on the Works and parts tab, section 2) then this processing should be irrelevant, but no text from titles will be included. Some explanations are given below: &lt;/li&gt;&lt;/ul&gt;
@@ -5801,10 +5834,12 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;Synonyms&amp;quot;. These words will be considered equivalent when comparing work name and title text. Thus if one word appears in the work name, that and its synonym will be removed from the title in extending the metadata (subject to the proximity setting above). &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;Replacements&amp;quot;. These words/phrases will be replaced in the title text in extended metadata, regardless of the text in the work name. &lt;/span&gt;&lt;/p&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Logging options&amp;quot;. These options are in addition to the options chosen in Picard's &amp;quot;Help-&amp;gt;View error/debug log&amp;quot; settings. They only affect messages written by this plugin. To enable debug messages to be shown, the flag needs to be set here and &amp;quot;Debug mode&amp;quot; needs to be turned on in the log. &lt;span style=&quot; font-weight:600;&quot;&gt;It is strongly advised to keep the &amp;quot;debug&amp;quot; and &amp;quot;info&amp;quot; flags unchecked unless debugging is required&lt;/span&gt; as they slow up processing significantly and may even cause Picard to crash on large releases - do not load multiple releases with them turned on or Picard will almost certainly hang. The &amp;quot;debug&amp;quot; and &amp;quot;info&amp;quot; flags will always be off when Picard is first started, regardless of how they were left when it was last closed. The &amp;quot;error&amp;quot; and &amp;quot;warning&amp;quot; flags should be left checked, unless it is required to suppress messages written out to tags (the messages are also written to the tags 001&lt;span style=&quot; font-style:italic;&quot;&gt;errors and 002&lt;/span&gt;warnings). &lt;/li&gt;
-&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Save plugin details and options in a tag?&amp;quot; can be used so that the user has a record of the version of Classical Extras which generated the tags and which options were selected to achieve the resulting tags. Note that the tags will be blanked first so this will only show the last options used on a particular file. The same tag can be used for both sets of options, resulting in a multi-valued tag. &lt;/li&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The tag contents are in dict format. These tags can then be used to over-ride the displayed options subsequently (see below). &lt;/span&gt;&lt;/p&gt;
-&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Over-ride plugin options displayed in UI with options from local file tags&amp;quot;. If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride. &lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;Note that very occasionally (if the tag containing the options has been corrupted) use of this option may cause an error. In such a case you will need to deselect the &amp;quot;over-ride&amp;quot; option and set the required options manually; then save the resulting tags and the corrupted tag should be over-written&lt;/span&gt; &lt;/li&gt;&lt;/ol&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The last checkbox, &amp;quot;Overwrite options in Options Pages&amp;quot;, is for &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;VERY CAREFUL USE ONLY&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;. It will cause any options read from the saved tags (if the relevant box has been ticked) to over-write the options on the plugin Options Page UI. The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, and will always be turned off when starting Picard, to prevent inadvertant use. Far better is to make a &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;backup copy&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; of the picard.ini file. &lt;/span&gt;&lt;/p&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Save plugin details and options in a tag?&amp;quot; can be used so that the user has a record of the version of Classical Extras which generated the tags and which options were selected to achieve the resulting tags. Note that the tags will be blanked first so this will only show the last options used on a particular file. The same tag can be used for both sets of options, resulting in a multi-valued tag. All the options in the Classical Extras UI are saved &lt;span style=&quot; font-weight:600;&quot;&gt;except&lt;/span&gt; those which are asterisked. &lt;/li&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The tag contents are in dict format. The options in these tags can then be used to over-ride the displayed options subsequently (see below). &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;N.B. The &amp;quot;Tag name for artist/misc. options&amp;quot; also saves the Picard options for 'translate&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;artist&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;names' and 'standardize_artists' as these interact with the Classical Extras options. &lt;/span&gt;&lt;/p&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Over-ride plugin options displayed in UI with options from local file tags&amp;quot;. If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride. If &amp;quot;Artists options&amp;quot; over-ride is selected then a sub-option to over-ride (or not) the &amp;quot;Tag details options&amp;quot; is available; this refers to just the detailed tag map in the second box in the tag-mapping tab. &lt;/li&gt;&lt;/ol&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-weight:600; font-style:italic;&quot;&gt;Note that very occasionally (if the tag containing the options has been corrupted) use of this option may cause an error. In such a case you will need to deselect the &amp;quot;over-ride&amp;quot; option and set the required options manually; then save the resulting tags and the corrupted tag should be over-written&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;The last checkbox, &amp;quot;Overwrite options in Options Pages&amp;quot;, is for &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;VERY CAREFUL USE ONLY&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;. It will cause any options read from the saved tags (if the relevant box has been ticked) to over-write the options on the plugin Options Page UI. The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, and will always be turned off when starting Picard, to prevent inadvertant use. Far better is to make a &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;backup copy&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; of the picard.ini file. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;informationonhiddenvariables&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;nformation on hidden variables&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;This section is for users who want to write their own scripts. The definition and source of each hidden variable is listed. Apologies if there are errors and omissions in this section - to double check the actual hidden variables, use the plugin &amp;quot;View script variables&amp;quot;. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;worksandparts&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;W&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;orks and parts&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
@@ -5861,6 +5896,9 @@ p, li { white-space: pre-wrap; }
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;cea&lt;/span&gt;vocalist_names : Names of the above (no voice). &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;cea&lt;/span&gt;instrumentalists : Soloists who have instruments but are not vocalists. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;cea&lt;/span&gt;instrumentalist_names : Names of the above (no instrument). &lt;/li&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;cea&lt;/span&gt;instruments : Names of all instruments on the track (MusicBrainz names) &lt;/li&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;cea&lt;/span&gt;instuments_credited : As above, but MB names replaced by as-credited names, if any &lt;/li&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;cea&lt;/span&gt;instruments_all : MB and as-credited names &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;cea&lt;/span&gt;other_soloists : Soloists who do not have specified instrument/voice. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;cea&lt;/span&gt;ensembles : List of performers which are ensembles (with type / instruments - e.g. &amp;quot;orchestra&amp;quot; - in brackets), separated by semi-colons. &lt;/li&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;cea&lt;/span&gt;ensemble_names : Names of the above (i.e. no instruments). &lt;/li&gt;
@@ -5902,12 +5940,30 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;possibleenhancements&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;ossible Enhancements&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Planned enhancements (among others) are &lt;/span&gt;&lt;/p&gt;
 &lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Include information regarding dates (e.g. date composed, recording date). &lt;/li&gt;
-&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Improved genre capability, possibly with specific tags for instruments and periods. &lt;/li&gt;&lt;/ol&gt;
+&lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Improved genre capability, possibly with specific tags for different aspects of genre, e.g. periods. &lt;/li&gt;&lt;/ol&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;technicalmatters&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;T&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;echnical Matters&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to @dns&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;server for assistance in dealing with this and to @sophist for the albumartist&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;website code which I have borrowed from. I have tried to add some more comments to help any others trying the same techniques. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Also, the documentation of the XML lookup (tagger.xmlws) is virtually non-existent. The response is an XmlNode object (not a dict, although it is represented as one). Each node has a name with {attribs, text, children} values. The structure is more clearly understood if the web-based lookup is used (which is well documented at https://musicbrainz.org/doc/Development/XML&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;Web&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Service/Version&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;2) as this gives an XML response. I wrote a function (parse&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;data) to parse XmlNode objects, or lists thereof, for a (parameterised) hierarchy of nodes (and optional attribs value tests) in order to extract required data from the response. This may be of use to other plugin authors. &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;To get the whole picture, in XML, for a release, use (for example) https://musicbrainz.org/ws/2/release/f3bb4fdd-5db0-43a8-be73-7a1747f6c2ef?inc=release-groups+media+recordings+artist-credits+artists+aliases+labels+isrcs+collections+artist-rels+release-rels+url-rels+recording-rels+work-rels+recording-level-rels+work-level-rels. This simulates the response given by Picard with the &amp;quot;Use release relationships&amp;quot; and &amp;quot;Use track relationships&amp;quot; options selected. Note that the Picard album&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;metadata&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;processor returns releaseXmlNode which is everything from the Release node of the XML downwards, whereas track&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;metadata&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;processor returns trackXmlNode which is everything from a Track node downwards (release -&amp;gt; medium-list -&amp;gt; medium -&amp;gt; track-list is above track). Replace all hyphens in XML with underscores when parsing the Python object. &lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;A large variety of releases were used to test this plugin, but there may still be bugs, so further testing is welcome. The following release was particularly complex and useful for testing: https://musicbrainz.org/release/ec519fde-94ee-4812-9717-659d91be11d4&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;A large variety of releases were used to test this plugin, but there may still be bugs, so further testing is welcome. The following release was particularly complex and useful for testing: https://musicbrainz.org/release/ec519fde-94ee-4812-9717-659d91be11d4. Also this release was a bit tricky - a large box set with some works appearing as originals and in arrangements: https://musicbrainz.org/release/5288f266-bab8-45bd-83e4-555730f02fa0. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;listofpreviousupdates&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;L&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;ist of previous updates&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.9: Provide option (in advanced tab) to disable Classical Extras processing if no file is present; this enables (for example) single discs from box sets to be loaded without incurring the additional processing overhead for all the other discs. The settings of the main Picard options &amp;quot;translate&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;artist&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;names&amp;quot; and &amp;quot;standardize_artists&amp;quot; is now saved along with the Classical Extras options so that they can be used to over-ride the displayed options. This is because they interact with the Classical Extras options in certain cases. Also:- graceful recovery from authentication failure; improved UI - more scalable; minor bug fixes. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.8: Fixes to allow for (1) disabling of 'use&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;cache' across releases which may share works and (2) works which might appear in their own right and also have arrangements. Also, re-set certain important options to defaults on starting Picard, namely: 'use&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;cache' set to True, 'log&lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;debug', 'log&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;info' and 'options_overwrite' set to False; the user will need to deliberately re-set these on starting Picard if required - this is to prevent inadvertently leaving these flags in an abnormal state. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.7: Revised treatment of &amp;quot;conditional&amp;quot; tag mapping. Previously, if multiple sources were specified for a tag mapping and the &amp;quot;conditional&amp;quot; flag set, only the first non-empty source was used. Now all sources will be mapped to a tag if it was empty before executing the current tag mapping line. This is considered to be more intuitive and leads to less complex mapping lines. However, it some cases it may be necessary to split a line from a previous version if the previous behaviour was specifically desired. Improved algorithms for extending metadata with title info. Bug fixes. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.6: More consistent approach to sort tags and hidden variables. Bug fixes. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.5: Improved handling of instruments. Bug fixes. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.4: Improved UI, bug fixes and code improvements. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.3: Ability to use aliases of work names instead of the MusicBrainz standard names. Various options to use aliases and as-credited names for performers and writers (i.e. relationship artists). Option to use recording artists as well as (or instead of) track artists. All relationship artists are now tagged for all work levels (with some special processing for lyricists). New UI layout to separate tag mapping from artist options. Option to split lyrics into common (release) and unique (track) components. Various code improvements as well as bug fixes. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.2: Improved algorithms and a few minor bug fixes. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8.1: Bug fixes and minor enhancements - including revison and extension of &amp;quot;synonyms&amp;quot; section on the &amp;quot;advanced&amp;quot; tab. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.8: Handle multiple recordings and/or multiple parents of a work. Handle multiple albumartist composers for one track. Option to use &amp;quot;credited as&amp;quot; name for artists (inc. performers and composers) who are &amp;quot;release artist&amp;quot; or &amp;quot;track artist&amp;quot;. Option to exclude &amp;quot;solo&amp;quot; from instrument types. Option to over-ride plugin options with those used when the album was last saved. Option to keep (and append to) specified existing file tags - furthermore if &amp;quot;is_classical&amp;quot; is present, the work-type variable will include &amp;quot;Classical&amp;quot;. Option to use (and write) SongKong-compatible work tags (saves processing time if SongKong is used to pre-process large numbers of files). Include the work (and its parents) of which a work is an arrangement (as a &amp;quot;pseudo-parent&amp;quot;). Include medleys in movement/part description (as [Medley of:...] or other descriptor specified in options). Allow for multiple parents of recordings and works (and multiple parents of those) - multiples are given as multiple tag instances, where permitted, otherwise separated by semi-colons. Option as to whether to include parent works where the relationship attribute is &amp;quot;part of collection&amp;quot;. Plus minor enhancements and bug fixes too numerous to mention! (Note that some old versions of the plugin may say v0.8 when they are only v0.7) &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.7: Bug fixes. Pull request issued for this version. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.6: Bug fixes and algorithm improvements. Allow multiple sources for a tag (each will be appended) and use + as separator for concantenating sources, not a comma, to distinguish from the use of comma to separate multiples. Provide additional hidden variables (&amp;quot;sources&amp;quot;) for vocalists and instrumentalists. Option to include intermediate work levels in a movement tag (for systems which cannot display multiple work levels). &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.5: Include ability to use multiple (concatenated) sources in tag mapping (see notes under &amp;quot;tag mapping&amp;quot;). All artist &amp;quot;sources&amp;quot; using hidden variables (_cea_...) are now consistently in the plural, to distinguish from standard tags. Note that if &amp;quot;album&amp;quot; is used as a source in tag mapping, it will now be the revised name, where composer prefixing is used. To use the original name, use &amp;quot;release&amp;quot; as the source. Also various bug fixes, notably to ensure that all arrangers get picked up for use in tag mapping. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.4: Write out version number to user-specified tag. Provide default comment tags for writing ui options. Provide better m4a and iTunes compatibility (see notes). Added functionality for chorus master, orchestrator and concert master (leader). Re-arranged artist tab in ui. Various bug fixes. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.3: Bug fixes. Modified ui default options. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.2: Bug fixes. More flexible handling of artists (can blank and then add back later). Modified ui default options. &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Version 0.6.1: Amended regex to permit non-Latin characters in work text.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="openExternalLinks">
           <bool>true</bool>
@@ -5952,7 +6008,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'MS Shell Dlg 2'; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Please see the readme at &lt;/span&gt;&lt;a href=&quot;https://github.com/MetaTunes/picard-plugins/blob/1.0/plugins/classical_extras/Readme.md&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;the github&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt; for the latest and most complete help text.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Please see the readme at&lt;/span&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt; &lt;/span&gt;&lt;a href=&quot;http://music.highmossergate.co.uk&quot;&gt;&lt;span style=&quot; font-size:14pt; text-decoration: underline; color:#0000ff;&quot;&gt;my website&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:14pt; font-weight:600;&quot;&gt; &lt;/span&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;for  a more readable version and also a lot of other help.&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;The text below may be slightly out of date and lacks images.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="openExternalLinks">
@@ -5975,12 +6031,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>157</x>
-     <y>139</y>
+     <x>149</x>
+     <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1158</x>
-     <y>116</y>
+     <x>702</x>
+     <y>-4</y>
     </hint>
    </hints>
   </connection>
@@ -5991,12 +6047,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>191</x>
-     <y>162</y>
+     <x>149</x>
+     <y>29</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1158</x>
-     <y>116</y>
+     <x>702</x>
+     <y>-4</y>
     </hint>
    </hints>
   </connection>
@@ -6007,12 +6063,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>191</x>
-     <y>185</y>
+     <x>149</x>
+     <y>52</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1158</x>
-     <y>116</y>
+     <x>702</x>
+     <y>-4</y>
     </hint>
    </hints>
   </connection>
@@ -6023,12 +6079,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>129</x>
-     <y>288</y>
+     <x>149</x>
+     <y>155</y>
     </hint>
     <hint type="destinationlabel">
-     <x>735</x>
-     <y>251</y>
+     <x>430</x>
+     <y>131</y>
     </hint>
    </hints>
   </connection>
@@ -6039,12 +6095,12 @@ p, li { white-space: pre-wrap; }
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>100</x>
-     <y>325</y>
+     <x>131</x>
+     <y>192</y>
     </hint>
     <hint type="destinationlabel">
-     <x>755</x>
-     <y>251</y>
+     <x>430</x>
+     <y>131</y>
     </hint>
    </hints>
   </connection>
@@ -6056,11 +6112,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>191</x>
-     <y>210</y>
+     <y>48</y>
     </hint>
     <hint type="destinationlabel">
      <x>177</x>
-     <y>407</y>
+     <y>245</y>
     </hint>
    </hints>
   </connection>
@@ -6072,11 +6128,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>260</x>
-     <y>210</y>
+     <y>48</y>
     </hint>
     <hint type="destinationlabel">
      <x>712</x>
-     <y>407</y>
+     <y>245</y>
     </hint>
    </hints>
   </connection>
@@ -6088,11 +6144,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>260</x>
-     <y>255</y>
+     <y>93</y>
     </hint>
     <hint type="destinationlabel">
      <x>122</x>
-     <y>407</y>
+     <y>245</y>
     </hint>
    </hints>
   </connection>
@@ -6104,11 +6160,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>249</x>
-     <y>308</y>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
      <x>153</x>
-     <y>407</y>
+     <y>245</y>
     </hint>
    </hints>
   </connection>
@@ -6120,11 +6176,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>524</x>
-     <y>496</y>
+     <y>334</y>
     </hint>
     <hint type="destinationlabel">
      <x>1158</x>
-     <y>457</y>
+     <y>295</y>
     </hint>
    </hints>
   </connection>
@@ -6136,11 +6192,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>1148</x>
-     <y>480</y>
+     <y>318</y>
     </hint>
     <hint type="destinationlabel">
      <x>713</x>
-     <y>503</y>
+     <y>341</y>
     </hint>
    </hints>
   </connection>
@@ -6152,11 +6208,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>111</x>
-     <y>956</y>
+     <y>794</y>
     </hint>
     <hint type="destinationlabel">
      <x>758</x>
-     <y>935</y>
+     <y>773</y>
     </hint>
    </hints>
   </connection>
@@ -6168,7 +6224,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>95</x>
-     <y>60</y>
+     <y>-102</y>
     </hint>
     <hint type="destinationlabel">
      <x>85</x>
@@ -6184,11 +6240,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>66</x>
-     <y>60</y>
+     <y>-102</y>
     </hint>
     <hint type="destinationlabel">
      <x>55</x>
-     <y>434</y>
+     <y>272</y>
     </hint>
    </hints>
   </connection>
@@ -6200,7 +6256,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>139</x>
-     <y>60</y>
+     <y>-102</y>
     </hint>
     <hint type="destinationlabel">
      <x>115</x>
@@ -6216,11 +6272,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>157</x>
-     <y>60</y>
+     <y>-102</y>
     </hint>
     <hint type="destinationlabel">
      <x>152</x>
-     <y>892</y>
+     <y>730</y>
     </hint>
    </hints>
   </connection>
@@ -6232,11 +6288,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>73</x>
-     <y>60</y>
+     <y>-89</y>
     </hint>
     <hint type="destinationlabel">
-     <x>783</x>
-     <y>60</y>
+     <x>514</x>
+     <y>-73</y>
     </hint>
    </hints>
   </connection>
@@ -6248,11 +6304,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>103</x>
-     <y>60</y>
+     <y>-89</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1158</x>
-     <y>60</y>
+     <x>889</x>
+     <y>-73</y>
     </hint>
    </hints>
   </connection>
@@ -6264,11 +6320,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>71</x>
-     <y>60</y>
+     <y>-89</y>
     </hint>
     <hint type="destinationlabel">
      <x>47</x>
-     <y>93</y>
+     <y>-56</y>
     </hint>
    </hints>
   </connection>
@@ -6279,12 +6335,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>151</x>
-     <y>60</y>
+     <x>139</x>
+     <y>-73</y>
     </hint>
     <hint type="destinationlabel">
      <x>124</x>
-     <y>228</y>
+     <y>79</y>
     </hint>
    </hints>
   </connection>
@@ -6295,8 +6351,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>188</x>
-     <y>60</y>
+     <x>139</x>
+     <y>-73</y>
     </hint>
     <hint type="destinationlabel">
      <x>134</x>
@@ -6311,8 +6367,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>209</x>
-     <y>60</y>
+     <x>139</x>
+     <y>-73</y>
     </hint>
     <hint type="destinationlabel">
      <x>173</x>
@@ -6327,12 +6383,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>60</y>
+     <x>139</x>
+     <y>-73</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
-     <y>975</y>
+     <y>826</y>
     </hint>
    </hints>
   </connection>
@@ -6344,7 +6400,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>311</x>
-     <y>60</y>
+     <y>-102</y>
     </hint>
     <hint type="destinationlabel">
      <x>543</x>
@@ -6359,8 +6415,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>239</x>
-     <y>60</y>
+     <x>139</x>
+     <y>-73</y>
     </hint>
     <hint type="destinationlabel">
      <x>543</x>
@@ -6376,11 +6432,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>455</x>
-     <y>60</y>
+     <y>-102</y>
     </hint>
     <hint type="destinationlabel">
      <x>1143</x>
-     <y>60</y>
+     <y>-102</y>
     </hint>
    </hints>
   </connection>
@@ -6392,7 +6448,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>116</x>
-     <y>630</y>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
      <x>730</x>
@@ -6408,7 +6464,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>255</x>
-     <y>630</y>
+     <y>468</y>
     </hint>
     <hint type="destinationlabel">
      <x>1158</x>
@@ -6424,7 +6480,7 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>311</x>
-     <y>60</y>
+     <y>-102</y>
     </hint>
     <hint type="destinationlabel">
      <x>552</x>
@@ -6440,11 +6496,27 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>311</x>
-     <y>60</y>
+     <y>-102</y>
     </hint>
     <hint type="destinationlabel">
      <x>573</x>
      <y>192</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cea_override</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>ce_tagmap_override</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>54</x>
+     <y>851</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>327</x>
+     <y>848</y>
     </hint>
    </hints>
   </connection>
@@ -6455,12 +6527,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>65</x>
-     <y>372</y>
+     <x>75</x>
+     <y>387</y>
     </hint>
     <hint type="destinationlabel">
-     <x>167</x>
-     <y>382</y>
+     <x>133</x>
+     <y>381</y>
     </hint>
    </hints>
   </connection>
@@ -6471,12 +6543,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>70</x>
-     <y>404</y>
+     <x>98</x>
+     <y>409</y>
     </hint>
     <hint type="destinationlabel">
-     <x>171</x>
-     <y>410</y>
+     <x>148</x>
+     <y>416</y>
     </hint>
    </hints>
   </connection>
@@ -6487,12 +6559,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>85</x>
-     <y>437</y>
+     <x>92</x>
+     <y>438</y>
     </hint>
     <hint type="destinationlabel">
-     <x>173</x>
-     <y>443</y>
+     <x>160</x>
+     <y>449</y>
     </hint>
    </hints>
   </connection>
@@ -6503,12 +6575,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>88</x>
-     <y>467</y>
+     <x>105</x>
+     <y>477</y>
     </hint>
     <hint type="destinationlabel">
-     <x>175</x>
-     <y>468</y>
+     <x>148</x>
+     <y>473</y>
     </hint>
    </hints>
   </connection>
@@ -6519,12 +6591,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>72</x>
-     <y>500</y>
+     <x>80</x>
+     <y>504</y>
     </hint>
     <hint type="destinationlabel">
-     <x>171</x>
-     <y>501</y>
+     <x>153</x>
+     <y>504</y>
     </hint>
    </hints>
   </connection>
@@ -6535,12 +6607,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>529</y>
+     <x>95</x>
+     <y>535</y>
     </hint>
     <hint type="destinationlabel">
-     <x>174</x>
-     <y>531</y>
+     <x>145</x>
+     <y>538</y>
     </hint>
    </hints>
   </connection>
@@ -6551,12 +6623,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>87</x>
-     <y>556</y>
+     <x>102</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel">
-     <x>165</x>
-     <y>557</y>
+     <x>136</x>
+     <y>567</y>
     </hint>
    </hints>
   </connection>
@@ -6567,11 +6639,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>587</y>
+     <x>95</x>
+     <y>593</y>
     </hint>
     <hint type="destinationlabel">
-     <x>142</x>
+     <x>163</x>
      <y>590</y>
     </hint>
    </hints>
@@ -6583,12 +6655,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>613</y>
+     <x>93</x>
+     <y>618</y>
     </hint>
     <hint type="destinationlabel">
-     <x>155</x>
-     <y>617</y>
+     <x>168</x>
+     <y>620</y>
     </hint>
    </hints>
   </connection>
@@ -6599,12 +6671,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>81</x>
-     <y>649</y>
+     <x>77</x>
+     <y>654</y>
     </hint>
     <hint type="destinationlabel">
-     <x>148</x>
-     <y>648</y>
+     <x>161</x>
+     <y>659</y>
     </hint>
    </hints>
   </connection>
@@ -6615,12 +6687,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>94</x>
-     <y>681</y>
+     <x>104</x>
+     <y>678</y>
     </hint>
     <hint type="destinationlabel">
-     <x>159</x>
-     <y>684</y>
+     <x>168</x>
+     <y>682</y>
     </hint>
    </hints>
   </connection>
@@ -6631,12 +6703,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>93</x>
-     <y>704</y>
+     <x>82</x>
+     <y>711</y>
     </hint>
     <hint type="destinationlabel">
-     <x>180</x>
-     <y>710</y>
+     <x>140</x>
+     <y>719</y>
     </hint>
    </hints>
   </connection>
@@ -6647,11 +6719,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>91</x>
-     <y>738</y>
+     <x>63</x>
+     <y>741</y>
     </hint>
     <hint type="destinationlabel">
-     <x>184</x>
+     <x>138</x>
      <y>741</y>
     </hint>
    </hints>
@@ -6663,11 +6735,11 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>91</x>
-     <y>770</y>
+     <x>98</x>
+     <y>769</y>
     </hint>
     <hint type="destinationlabel">
-     <x>181</x>
+     <x>132</x>
      <y>770</y>
     </hint>
    </hints>
@@ -6679,12 +6751,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>799</y>
+     <x>76</x>
+     <y>805</y>
     </hint>
     <hint type="destinationlabel">
-     <x>159</x>
-     <y>800</y>
+     <x>153</x>
+     <y>803</y>
     </hint>
    </hints>
   </connection>
@@ -6695,12 +6767,60 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>100</x>
-     <y>834</y>
+     <x>85</x>
+     <y>833</y>
     </hint>
     <hint type="destinationlabel">
-     <x>172</x>
-     <y>828</y>
+     <x>140</x>
+     <y>838</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_partial</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_partial_text</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>60</x>
+     <y>649</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>398</x>
+     <y>653</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_arrangements</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_arrangements_text</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>186</x>
+     <y>708</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>417</x>
+     <y>715</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_medley</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_medley_text</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>134</x>
+     <y>789</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>295</x>
+     <y>789</y>
     </hint>
    </hints>
   </connection>

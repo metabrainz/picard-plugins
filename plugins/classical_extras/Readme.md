@@ -1,5 +1,5 @@
 # General Information
-This is version 0.8.9 of "classical_extras". It has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section). It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached. The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
+This is the documentation for version 0.9 of "classical_extras". This version has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section). It populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached. The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 
 This plugin is particularly designed to assist with tagging of classical music so that player or library manager software which can display multiple work levels and different artist types, can have access to these details.  
 It has two main components "Extra Artists" and "Work Parts" which can be used independently or together. "Work Parts" will take at least as many seconds to process as there are works to look up (owing to MB throttling) so users who only want the extra artist information and not the work details may turn it off (e.g. perhaps for 'popular' music).
@@ -9,51 +9,9 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
-Version 0.8.9: Provide option (in advanced tab) to disable Classical Extras processing if no file is present; this enables (for example) single discs from box sets to be loaded without incurring the additional processing overhead for all the other discs. The settings of the main Picard options "translate_artist_names" and "standardize_artists" is now saved along with the Classical Extras options so that they can be used to over-ride the displayed options. This is because they interact with the Classical Extras options in certain cases. Also:- graceful recovery from authentication failure; improved UI - more scalable; minor bug fixes.
+Version 0.9: Additional option to clear previous file tags which are not wanted, without interfering with cover art. Additional option to replace instrument names with as-credited names. Also instrument names are now saved to hidden variables tags (instruments, instruments_credited and instruments_all) which can be mapped to file tags as required. Sub-option added to the 'override artist options' option on the "advanced" tab - to allow tag map details to be included or not in this over-ride. Minor bug fixes and UI improvements. This is the next 'official' version after 0.7.
 
-Version 0.8.8: Fixes to allow for (1) disabling of 'use_cache' across releases which may share works and (2) works which might appear in their own right and also have arrangements. Also, re-set certain important options to defaults on starting Picard, namely: 'use_cache' set to True, 'log_debug', 'log_info' and 'options_overwrite' set to False; the user will need to deliberately re-set these on starting Picard if required - this is to prevent inadvertently leaving these flags in an abnormal state.
-
-Version 0.8.7: Revised treatment of "conditional" tag mapping. Previously, if multiple sources were specified for a tag mapping and the "conditional" flag set, only the first non-empty source was used. Now all sources will be mapped to a tag if it was empty before executing the current tag mapping line. This is considered to be more intuitive and leads to less complex mapping lines. However, it some cases it may be necessary to split a line from a previous version if the previous behaviour was specifically desired. Improved algorithms for extending metadata with title info. Bug fixes.
-
-Version 0.8.6: More consistent approach to sort tags and hidden variables. Bug fixes.
-
-Version 0.8.5: Improved handling of instruments. Bug fixes.
-
-Version 0.8.4: Improved UI, bug fixes and code improvements.
-
-Version 0.8.3: Ability to use aliases of work names instead of the MusicBrainz standard names. Various options to use aliases and as-credited names for performers and writers (i.e. relationship artists). Option to use recording artists as well as (or instead of) track artists. All relationship artists are now tagged for all work levels (with some special processing for lyricists). New UI layout to separate tag mapping from artist options. Option to split lyrics into common (release) and unique (track) components. Various code improvements as well as bug fixes.
-
-Version 0.8.2: Improved algorithms and a few minor bug fixes.
-
-Version 0.8.1: Bug fixes and minor enhancements - including revison and extension of "synonyms" section on the "advanced" tab.
-
-Version 0.8: Handle multiple recordings and/or multiple parents of a work. 
-Handle multiple albumartist composers for one track. 
-Option to use "credited as" name for artists (inc. performers and composers) who are "release artist" or "track artist". 
-Option to exclude "solo" from instrument types. 
-Option to over-ride plugin options with those used when the album was last saved. 
-Option to keep (and append to) specified existing file tags - furthermore if "is_classical" is present, the work-type variable will include "Classical". 
-Option to use (and write) SongKong-compatible work tags (saves processing time if SongKong is used to pre-process large numbers of files). 
-Include the work (and its parents) of which a work is an arrangement (as a "pseudo-parent"). 
-Include medleys in movement/part description (as [Medley of:...] or other descriptor specified in options). 
-Allow for multiple parents of recordings and works (and multiple parents of those) - multiples are given as multiple tag instances, where permitted, otherwise separated by semi-colons. 
-Option as to whether to include parent works where the relationship attribute is "part of collection". 
-Plus minor enhancements and bug fixes too numerous to mention!
-(Note that some old versions of the plugin may say v0.8 when they are only v0.7)
-
-Version 0.7: Bug fixes. Pull request issued for this version.
-
-Version 0.6.6: Bug fixes and algorithm improvements. Allow multiple sources for a tag (each will be appended) and use + as separator for concantenating sources, not a comma, to distinguish from the use of comma to separate multiples. Provide additional hidden variables ("sources") for vocalists and instrumentalists. Option to include intermediate work levels in a movement tag (for systems which cannot display multiple work levels).
-
-Version 0.6.5: Include ability to use multiple (concatenated) sources in tag mapping (see notes under "tag mapping"). All artist "sources" using hidden variables (\_cea\_...) are now consistently in the plural, to distinguish from standard tags. Note that if "album" is used as a source in tag mapping, it will now be the revised name, where composer prefixing is used. To use the original name, use "release" as the source. Also various bug fixes, notably to ensure that all arrangers get picked up for use in tag mapping.
-
-Version 0.6.4: Write out version number to user-specified tag. Provide default comment tags for writing ui options. Provide better m4a and iTunes compatibility (see notes). Added functionality for chorus master, orchestrator and concert master (leader). Re-arranged artist tab in ui. Various bug fixes.
-
-Version 0.6.3: Bug fixes. Modified ui default options.
-
-Version 0.6.2: Bug fixes. More flexible handling of artists (can blank and then add back later). Modified ui default options.
-
-Version 0.6.1: Amended regex to permit non-Latin characters in work text.
+For a list of previous version changes, see the end of this document.
 
 # Installation
 Install the zip file in your plugins folder in the usual fashion
@@ -62,15 +20,16 @@ Install the zip file in your plugins folder in the usual fashion
 After installation, go to the Options Page and modify choices as required. There are 4 tabs - "Artists", "Tag mapping", Works and parts" and "Advanced". The sections below describe each of these. If the options provided do not allow sufficient flexibility for a user's need (hopefully unlikely!) then Tagger Scripts may be used to process the hidden variables or other tags. Alternatively, it may be possible to achieve the required result by running and saving twice (or more!) with different options each time. This is not recommended for more than a one-off - a script would be better.
 
 **Important**: 
-1.  The plugin **will not work fully unless** you have enabled "Use release relationships" and "Use track relationships" in Picard->Options->Metadata. However, it may be that the MusicBrainz database has conflicting data between track and release relationships, in which case fix the incorrect data using "Edit relationships" in MusicBrainz.
-2.  It is recommended only to use the plugin on one or a few release(s) at a time, particularly for initial tagging and if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" of untagged files - it may be better to use a tool such as SongKong for that and then use the plugin to enhance the results as required. However, once you have tagged files (either in Picard or, say, SongKong) such that they all at least have MusicBrainz IDs, you should be able to re-tag multiple releases by dragging the containing folder into Picard; this is useful to pick up changed MusicBrainz data or if you change the Classical Extras version or options (but bear in mind that the "Works and parts" function will still take at least 1 second per track and **make sure you have "debug" and "info" logging turned OFF** - in the "Advanced" tab). If you do want to try uising Picard / Classical Extras to tag a large number of files, then **make sure you also turn off "warning" logging**.
-3.  If you are just changing option settings then you can usually "use cache" (see "work and parts" tab section 1) to avoid the 1-second per work delay. However, if the works data in MusicBrainz has been changed then obviously you will need to do a full look-up, so disable cache. If the work structure has been fundamentally changed (i.e. a different hierarchy of existing works) - either within the MusicBrainz database or by selecting/deselecting the "include collection relations", partial" or "arrangements" options - then you will need to quit and restart Picard to correctly pick up the new structure.
-3.  Keep a backup of your picard.ini file (AppData->Roaming->MusicBrainz) in case you erase your settings or Picard crashes and loses them for you.
+1.  The plugin **will not work fully unless** you have enabled "Use release relationships" and "Use track relationships" in Picard->Options->Metadata. However, it may be that the MusicBrainz database has conflicting data between track and release relationships, in which case fix the incorrect data using "Edit relationships" in MusicBrainz.  
+2.  It is recommended only to use the plugin on one or a few release(s) at a time, particularly for initial tagging and if the "Works and parts" function is being used. The plugin is not designed to do "bulk tagging" of untagged files - it may be better to use a tool such as SongKong for that and then use the plugin to enhance the results as required. However, once you have tagged files (either in Picard or, say, SongKong) such that they all at least have MusicBrainz IDs, you should be able to re-tag multiple releases by dragging the containing folder into Picard; this is useful to pick up changed MusicBrainz data or if you change the Classical Extras version or options (but bear in mind that the "Works and parts" function will still take at least 1 second per track and **make sure you have "debug" and "info" logging turned OFF** - in the "Advanced" tab). If you do want to try uising Picard / Classical Extras to tag a large number of files, then **make sure you also turn off "warning" logging**.  
+3.  **Check for error messages before saving a release**. The plugin will write out tags which should appear prominently in the bottom Picard pane. In particular, look for "000_major_warning" and "001_errors". If you get "000_major_warning" with the message "WARNING: Classical Extras not run for this track as no file present - deselect the option on the advanced tab to run. If there is a file, then try 'Refresh'." then do what it says (this will only occur if you have opted to not run Classical Extras for tracks where no pre-existing file is detected)! Also, watch out for "002_important_warning" - "No file with matching trackid - IF THERE SHOULD BE ONE, TRY 'REFRESH' - (unable to process any saved options, lyrics or 'keep' tags)"; this will always occur if you load a file without MusicBrainz ids - just refresh it to pick up any existing file tags such as lyrics, if required.  
+3.  If you are just changing option settings then you can usually "use cache" (see "work and parts" tab section 1) to avoid the 1-second per work delay. However, if the works data in MusicBrainz has been changed then obviously you will need to do a full look-up, so disable cache. If the work structure has been fundamentally changed (i.e. a different hierarchy of existing works) - either within the MusicBrainz database or by selecting/deselecting the "include collection relations", partial" or "arrangements" options - then you will need to quit and restart Picard to correctly pick up the new structure.  
+4.  Keep a backup of your picard.ini file (AppData->Roaming->MusicBrainz) in case you erase your settings or Picard crashes and loses them for you.
 
 ## Artists tab
 There are five coloured sections as shown in the screen image below:
 
-![Artist options](https://i.imgur.com/oQYry4D.jpg)
+![Artist options](http://music.highmossergate.co.uk/images/artist_options%20v0.9.jpg)
 
 1. "Create extra artist metadata" should be selected otherwise this section (and the tag mapping section) will not run. This is the default.
 
@@ -78,8 +37,24 @@ There are five coloured sections as shown in the screen image below:
 	Orchestral, Concerto, Instrumental, Voice, Choral, Opera, Duet, Aria, Song. For concerto, solo and duet performances the instrument is also given where possible. If the track is a recorded work with a composer artist in MusicBrainz and the "Works and parts" section has "Include all work levels" selected, the tag will also include "Classical". Use "work_type" as a source in the tag mapping section below section to (e.g.) map to the genre tag. For more complex treatment, use scripts.
 
 2. "Work-artist/performer naming options". 
-  This section deals primarily with the application of aliases and credited_as names to replace the MusicBrainz standard names. The first box allows you to choose whether to replace MusicBrainz standard  names by aliases - either for all work-artists/performers or only work-artists (writers, composers, arrangers, lyricists etc.). The second box sets the usage of "as-credited" names: the first part of this lists all the places where as-credited names can occur (really!) and the second part allows you to apply these to performing artists and/or work-artists.  
-  N.B. if more than one release is loaded in Picard, any available alias names loaded so far will be available and used. However, as-credited names will only be used from the current release.
+  This section deals primarily with the application of aliases and credited_as names to replace the MusicBrainz standard names. The first box allows you to choose whether to replace MusicBrainz standard  names by aliases - either for all work-artists/performers or only work-artists (writers, composers, arrangers, lyricists etc.). The second box sets the usage of "as-credited" names: the first part of this lists all the places where as-credited names can occur (really!) and the second part allows you to apply these to performing artists and/or work-artists. Please note that, in the current version of this plugin, only aliases and credited_as names which are in the "release XML node" are available (i.e. roughly those relating to the metadata shown in the release overeview page in MusicBrainz). So, for example, if a recording is an arrangement of another work and that other work (but not the arrangement) has a composer linked to it, then the composer's alias will not be available (nor is the composer shown on the MB release overview page). In some cases (if appropriate) this can be remedied by adding the relevant link to the lowest-level work.
+
+    >Note regarding aliases and credited-as names:  
+    In a MB release, an artist can appear in one of seven contexts. Each of these is accessible in releaseXmlNode
+    and the track and recording contexts are also accessible in trackXmlNode.  
+    The seven contexts are:  
+    Release-group: credited-as and alias  
+    Release: credited-as and alias  
+    Release relationship: credited-as only  
+    Recording: credited-as and alias  
+    Recording relationship (direct): credited-as only  
+    Recording relationship (via work): credited-as only  
+    Track: credited-as and alias  
+    (The above are applied in sequence - e.g. track artist credit will over-ride release artist credit)
+
+  N.B. if more than one release is loaded in Picard, any available alias names loaded so far will be available and used. However, as-credited names will only be used from the current release. If you do not want these names to be available then you may need to restart Picard after changing the option settings (otherwise they will still be cached).
+
+  In addition to the above, the main Picard options have an effect on how 'track artists' (or any tags derived from them through tag-mapping) are displayed. In Options->Metadata, if "Translate artist names..." is selected then the alias will be used for the track artist (or failing that, a name based on the sort-name), rather than the 'as-credited' name. If "Use standardized artist names" is selected then neither the alis nor the 'as-credited' name will be used. In order to facilitate consistency, Classical Extras will save these Picard options along with its own options in specific tags (see "Advanced options" section 5).
 
    The bottom box then (a) allows a choice as to whether aliases will over-ride as-credited names or vice versa and (b) whether if there are still some names in non-Latin script, whether these should be replaced (this will always remove middle [patronymic] names from Cyrillic-script names [but does not deal fully with other non-Latin scripts]; it is based on the sort names wherever possible).
 
@@ -146,19 +121,23 @@ There are five coloured sections as shown in the screen image below:
    Note that if the 'output' tags are not specified, then internal 'hidden' variables will still be available for use in the tag-mapping section (called album_notes and track_notes).
 
 ## Tag mapping tab
-There are three coloured sections as shown in the screen image below:
+There are two coloured sections as shown in the screen image below:
 
-![Tag mapping options](https://i.imgur.com/XKhm0kb.jpg)
+![Tag mapping options](http://music.highmossergate.co.uk/images/tag_mapping%20v0.9.jpg)
 
 Note that the "Create extra artist metadata" option needs to be selected on the Artist tab for these sections to run.
 
-1. "Keep file tags": This refers to the tags which already exist on files which have been matched to MusicBrainz in the right-hand panel, not the tags generated by Picard from the MusicBrainz database. Normally, Picard cannot process these tags - either it will overwrite them (if it creates a similarly named tag), clear them (if 'Clear existing tags' is specified in the main Options->Tags screen) or keep them (if 'Preserve these tags...' is specified after the 'Clear existing tags' option). Classical Extras allows a further option - for the tags to be appended to in the tag mapping section (see below). List file tags which will be appended to rather than over-written by tag mapping (NB this will keep tags even if "Clear existing tags" is selected on main options). In addition, certain existing tags may be used by Classical Extras - in particular "is_classical" (which is set by SongKong to '1' if the track is deemed to be classical, based on an extensive database) is used to add 'classical' to the variable "_cea_worktype", if "Infer work types" is selected in the first section of the Artists tab.
+1. "Initial tag processing": This takes place before any of the detailed tag mapping in the second section.
 
-   Note that if "Split lyrics tag" is specified (see the Artists tab), then the tag named there will be included in the 'Keep file tags' list and does not need to be added in this section.
+    "Remove Picard-generated tags before applying subsequent actions?". Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options->Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive.
 
-2. "Remove Picard-generated tags before applying subsequent actions?". Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options->Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive.
+    "List existing file tags which will be appended ...": This refers to the tags which already exist on files which have been matched to MusicBrainz in the right-hand panel, not the tags generated by Picard from the MusicBrainz database. Normally, Picard cannot process these tags - either it will overwrite them (if it creates a similarly named tag), clear them (if 'Clear existing tags' is specified in the main Options->Tags screen) or keep them (if 'Preserve these tags...' is specified after the 'Clear existing tags' option). Classical Extras allows a further option - for the tags to be appended to in the tag mapping section (see below). List file tags which will be appended to rather than over-written by tag mapping (NB this will keep tags even if "Clear existing tags" is selected on main options). In addition, certain existing tags may be used by Classical Extras - in particular "is_classical" (which is set by SongKong to '1' if the track is deemed to be classical, based on an extensive database) is used to add 'classical' to the variable "_cea_worktype", if "Infer work types" is selected in the first section of the Artists tab.
 
-3. "Tag mapping". This section permits the contents of any hidden variable or tag to be written to one or more tags.
+    Note that if "Split lyrics tag" is specified (see the Artists tab), then the tag named there will be included in the "...existing file tags..." list and does not need to be added in this section.
+
+    "Clear any previous file tags...": This operates in an almost similar way to the main Picard option (Options->Tags->"Clear existing tags"). All existing file tags will be cleared **unless** they are in the main Picard "Preserve tags..." option or the "...existing file tags..." list. The main differences from the basic Picard option are that (a) artwork is always preseved - i.e. this largely addresses [PICARD-257](https://tickets.metabrainz.org/browse/PICARD-257) and (b) the tags that are not kept are **not shown as deleted** in the bottom pane of Picard; however, a warning tag is written.
+
+2. "Tag map details". This section permits the contents of any hidden variable or tag to be written to one or more tags.
 
     * **Sources**:
 	Some of the most useful sources are available from the drop-down list. Otherwise they can simply be typed in the box. Click on the "source from" button to enable entry. Some useful names are:
@@ -208,7 +187,7 @@ Note that the "Create extra artist metadata" option needs to be selected on the 
 
 There six coloured sections as shown in the screen print below:
 
-![Works and parts options](https://i.imgur.com/Yv95BIR.jpg)
+![Works and parts options](http://music.highmossergate.co.uk/images/work_parts_options%20v0.9.jpg)
 
 1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
 
@@ -223,7 +202,7 @@ There six coloured sections as shown in the screen print below:
       - "Use only metadata from canonical works". The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will probably be in the language of the release. (This language issue can also be addressed by using aliases - see below).
       - "Use canonical work metadata enhanced with title text". This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary title data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations - see image below for an example (using the Muso library manager).
 
-      ![Respighi](http://i.imgur.com/QqulDPG.jpg)
+      ![Respighi](http://music.highmossergate.co.uk/images/Respighi.jpg)
 
     * **Source of canonical work text**. Where either of the second two options above are chosen, there is a further choice to be made:
       - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. E.g. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast, JB 1:112", not "Má vlast". So, while accurate, this option might be more verbose.
@@ -282,8 +261,7 @@ There six coloured sections as shown in the screen print below:
 
 Hopefully, this tab should not be much used. In any case, it should not need to be changed frequently. There are six sections as shown in the sceeen print below:
 
-![Advanced options](https://i.imgur.com/CVmM2GL.jpg)
-
+![Advanced options](http://music.highmossergate.co.uk/images/advanced_options%20v0.9.jpg)
 1. "General". There is only one checkbox - "Do not run Classical Extras for tracks where no pre-existing file is detected (warning tag will be written)". This option will disable Classical Extras processing if no file is present; this means (for example) that single discs from box sets can be loaded without incurring the additional processing overhead (work look-ups etc.) for all the other discs. Also if a compilation album is loaded, where the tracks are on multiple releases, the plugin will only process the release tracks which match. If a file is present but it does not yet have a MusicBrainz trackid tag, then it will initally be treated in the same way as a non-existent file; however, after the initial loading it will (if matched by Picard) be given a MB trackid and "refreshing" the release will result in any such tracks being processed by Classical Extras, while the unmatched tracks are left untouched.
 
 2. "Artists". This has only one subsection - "Ensemble strings" - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the "Tag mapping" tab as sources for any required tags. 
@@ -312,7 +290,9 @@ If it is important that only whole words are to be matched, be sure to include a
 
    N.B. The "Tag name for artist/misc. options" also saves the Picard options for 'translate_artist_names' and 'standardize_artists' as these interact with the Classical Extras options.
 
-6. "Over-ride plugin options displayed in UI with options from local file tags". If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride. ***Note that very occasionally (if the tag containing the options has been corrupted) use of this option may cause an error. In such a case you will need to deselect the "over-ride" option and set the required options manually; then save the resulting tags and the corrupted tag should be over-written***
+6. "Over-ride plugin options displayed in UI with options from local file tags". If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride. If "Artists options" over-ride is selected then a sub-option to over-ride (or not) the "Tag details options" is available; this refers to just the detailed tag map in the second box in the tag-mapping tab.
+
+***Note that very occasionally (if the tag containing the options has been corrupted) use of this option may cause an error. In such a case you will need to deselect the "over-ride" option and set the required options manually; then save the resulting tags and the corrupted tag should be over-written***
 
    The last checkbox, "Overwrite options in Options Pages", is for **VERY CAREFUL USE ONLY**. It will cause any options read from the saved tags (if the relevant box has been ticked) to over-write the options on the plugin Options Page UI. The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, and will always be turned off when starting Picard, to prevent inadvertant use. Far better is to make a **backup copy** of the picard.ini file.
 
@@ -391,6 +371,9 @@ All the additional hidden variables for artists written by Classical Extras are 
 - _cea_vocalist_names : Names of the above (no voice).
 - _cea_instrumentalists : Soloists who have instruments but are not vocalists.
 - _cea_instrumentalist_names : Names of the above (no instrument).
+- _cea_instruments : Names of all instruments on the track (MusicBrainz names)
+- _cea_instuments_credited : As above, but MB names replaced by as-credited names, if any
+- _cea_instruments_all : MB and as-credited names
 - _cea_other_soloists : Soloists who do not have specified instrument/voice.
 - _cea_ensembles : List of performers which are ensembles (with type / instruments - e.g. "orchestra" - in brackets), separated by semi-colons.
 - _cea_ensemble_names : Names of the above (i.e. no instruments).
@@ -445,7 +428,7 @@ Leave the "title" tag unchanged or make it a combination of work and movement.
 # Possible Enhancements
 Planned enhancements (among others) are 
 1. Include information regarding dates (e.g. date composed, recording date).
-2. Improved genre capability, possibly with specific tags for instruments and periods.
+2. Improved genre capability, possibly with specific tags for different aspects of genre, e.g. periods.
 
 # Technical Matters
 Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to @dns_server for assistance in dealing with this and to @sophist for the albumartist_website code which I have borrowed from. I have tried to add some more comments to help any others trying the same techniques.
@@ -454,4 +437,52 @@ Also, the documentation of the XML lookup (tagger.xmlws) is virtually non-existe
 
 To get the whole picture, in XML, for a release, use (for example) https://musicbrainz.org/ws/2/release/f3bb4fdd-5db0-43a8-be73-7a1747f6c2ef?inc=release-groups+media+recordings+artist-credits+artists+aliases+labels+isrcs+collections+artist-rels+release-rels+url-rels+recording-rels+work-rels+recording-level-rels+work-level-rels. This simulates the response given by Picard with the "Use release relationships" and "Use track relationships" options selected. Note that the Picard album_metadata_processor returns releaseXmlNode which is everything from the Release node of the XML downwards, whereas track_metadata_processor returns trackXmlNode which is everything from a Track node downwards (release -> medium-list -> medium -> track-list is above track). Replace all hyphens in XML with underscores when parsing the Python object.
 
-A large variety of releases were used to test this plugin, but there may still be bugs, so further testing is welcome. The following release was particularly complex and useful for testing: https://musicbrainz.org/release/ec519fde-94ee-4812-9717-659d91be11d4
+A large variety of releases were used to test this plugin, but there may still be bugs, so further testing is welcome. The following release was particularly complex and useful for testing: https://musicbrainz.org/release/ec519fde-94ee-4812-9717-659d91be11d4. Also this release was a bit tricky - a large box set with some works appearing as originals and in arrangements: https://musicbrainz.org/release/5288f266-bab8-45bd-83e4-555730f02fa0.
+
+# List of previous updates
+
+Version 0.8.9: Provide option (in advanced tab) to disable Classical Extras processing if no file is present; this enables (for example) single discs from box sets to be loaded without incurring the additional processing overhead for all the other discs. The settings of the main Picard options "translate_artist_names" and "standardize_artists" is now saved along with the Classical Extras options so that they can be used to over-ride the displayed options. This is because they interact with the Classical Extras options in certain cases. Also:- graceful recovery from authentication failure; improved UI - more scalable; minor bug fixes.
+
+Version 0.8.8: Fixes to allow for (1) disabling of 'use_cache' across releases which may share works and (2) works which might appear in their own right and also have arrangements. Also, re-set certain important options to defaults on starting Picard, namely: 'use_cache' set to True, 'log_debug', 'log_info' and 'options_overwrite' set to False; the user will need to deliberately re-set these on starting Picard if required - this is to prevent inadvertently leaving these flags in an abnormal state.
+
+Version 0.8.7: Revised treatment of "conditional" tag mapping. Previously, if multiple sources were specified for a tag mapping and the "conditional" flag set, only the first non-empty source was used. Now all sources will be mapped to a tag if it was empty before executing the current tag mapping line. This is considered to be more intuitive and leads to less complex mapping lines. However, it some cases it may be necessary to split a line from a previous version if the previous behaviour was specifically desired. Improved algorithms for extending metadata with title info. Bug fixes.
+
+Version 0.8.6: More consistent approach to sort tags and hidden variables. Bug fixes.
+
+Version 0.8.5: Improved handling of instruments. Bug fixes.
+
+Version 0.8.4: Improved UI, bug fixes and code improvements.
+
+Version 0.8.3: Ability to use aliases of work names instead of the MusicBrainz standard names. Various options to use aliases and as-credited names for performers and writers (i.e. relationship artists). Option to use recording artists as well as (or instead of) track artists. All relationship artists are now tagged for all work levels (with some special processing for lyricists). New UI layout to separate tag mapping from artist options. Option to split lyrics into common (release) and unique (track) components. Various code improvements as well as bug fixes.
+
+Version 0.8.2: Improved algorithms and a few minor bug fixes.
+
+Version 0.8.1: Bug fixes and minor enhancements - including revison and extension of "synonyms" section on the "advanced" tab.
+
+Version 0.8: Handle multiple recordings and/or multiple parents of a work. 
+Handle multiple albumartist composers for one track. 
+Option to use "credited as" name for artists (inc. performers and composers) who are "release artist" or "track artist". 
+Option to exclude "solo" from instrument types. 
+Option to over-ride plugin options with those used when the album was last saved. 
+Option to keep (and append to) specified existing file tags - furthermore if "is_classical" is present, the work-type variable will include "Classical". 
+Option to use (and write) SongKong-compatible work tags (saves processing time if SongKong is used to pre-process large numbers of files). 
+Include the work (and its parents) of which a work is an arrangement (as a "pseudo-parent"). 
+Include medleys in movement/part description (as [Medley of:...] or other descriptor specified in options). 
+Allow for multiple parents of recordings and works (and multiple parents of those) - multiples are given as multiple tag instances, where permitted, otherwise separated by semi-colons. 
+Option as to whether to include parent works where the relationship attribute is "part of collection". 
+Plus minor enhancements and bug fixes too numerous to mention!
+(Note that some old versions of the plugin may say v0.8 when they are only v0.7)
+
+Version 0.7: Bug fixes. Pull request issued for this version.
+
+Version 0.6.6: Bug fixes and algorithm improvements. Allow multiple sources for a tag (each will be appended) and use + as separator for concantenating sources, not a comma, to distinguish from the use of comma to separate multiples. Provide additional hidden variables ("sources") for vocalists and instrumentalists. Option to include intermediate work levels in a movement tag (for systems which cannot display multiple work levels).
+
+Version 0.6.5: Include ability to use multiple (concatenated) sources in tag mapping (see notes under "tag mapping"). All artist "sources" using hidden variables (\_cea\_...) are now consistently in the plural, to distinguish from standard tags. Note that if "album" is used as a source in tag mapping, it will now be the revised name, where composer prefixing is used. To use the original name, use "release" as the source. Also various bug fixes, notably to ensure that all arrangers get picked up for use in tag mapping.
+
+Version 0.6.4: Write out version number to user-specified tag. Provide default comment tags for writing ui options. Provide better m4a and iTunes compatibility (see notes). Added functionality for chorus master, orchestrator and concert master (leader). Re-arranged artist tab in ui. Various bug fixes.
+
+Version 0.6.3: Bug fixes. Modified ui default options.
+
+Version 0.6.2: Bug fixes. More flexible handling of artists (can blank and then add back later). Modified ui default options.
+
+Version 0.6.1: Amended regex to permit non-Latin characters in work text.

@@ -15,9 +15,9 @@ Mixed metadata provided including work and title elements
 <br /><br />
 III. ("OPTIONS") Allows the user to set various options including what tags will be written (otherwise the classes above will just write outputs to "hidden variables")
 <br /><br />
-See Readme file for full details.
+See Readme file for full details of how to use.
 """
-PLUGIN_VERSION = '0.8.9'
+PLUGIN_VERSION = '0.9'
 PLUGIN_API_VERSIONS = ["1.4.0", "1.4.2"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -46,6 +46,8 @@ import copy
 # CONSTANTS
 
 prefixes = ['the', 'a', 'an', 'le', 'la', 'les', 'los', 'il']
+
+PRESERVE = [x.strip() for x in config.setting["preserved_tags"].split(',')]
 
 relation_types = {
     'work': [
@@ -98,7 +100,10 @@ def get_options(album, track):
     """
     set_options = collections.defaultdict(dict)
     sections = ['artists', 'workparts']
-    override = {'artists': 'cea_override', 'workparts': 'cwp_override'}
+    override = {
+        'artists': 'cea_override',
+        'tagmap': 'ce_tagmap_override',
+        'workparts': 'cwp_override'}
     sect_text = {'artists': 'Artists', 'workparts': 'Works'}
 
     if album.tagger.config.setting['ce_options_overwrite'] and all(
@@ -188,10 +193,10 @@ def get_options(album, track):
             log.warning(
                 "No file with matching trackid for track %s. IF THERE SHOULD BE ONE, TRY 'REFRESH'",
                 track)
-            append_tag(
-                tm,
-                "002_warning",
-                "No file with matching trackid - IF THERE SHOULD BE ONE, TRY 'REFRESH' - (unable to process any saved options, lyrics or 'keep' tags)")
+        append_tag(
+            tm,
+            "002_important_warning",
+            "No file with matching trackid - IF THERE SHOULD BE ONE, TRY 'REFRESH' - (unable to process any saved options, lyrics or 'keep' tags)")
 
     for section in sections:
         if options[override[section]]:
@@ -200,7 +205,7 @@ def get_options(album, track):
                 for opt in options_dict:
                     if isinstance(
                             options_dict[opt],
-                            dict):  # for tag line options
+                            dict) and options[override['tagmap']]:  # for tag line options
                         opt_list = []
                         for opt_item in options_dict[opt]:
                             opt_list.append(
@@ -211,7 +216,8 @@ def get_options(album, track):
                         for opt in opt_dict:
                             opt_value = opt_dict[opt]
                             if section == 'artists':
-                                addn = plugin_options('tag') + plugin_options('picard')
+                                addn = plugin_options(
+                                    'tag') + plugin_options('picard')
                             else:
                                 addn = []
                             for ea_opt in plugin_options(section) + addn:
@@ -239,10 +245,21 @@ def get_options(album, track):
         keep_list = options['cea_keep'].split(",")
         if options['cea_split_lyrics'] and options['cea_lyrics_tag']:
             keep_list.append(options['cea_lyrics_tag'])
+        PRESERVE.append(options['cwp_options_tag'] + ':workparts_options')
+        PRESERVE.append(options['cea_options_tag'] + ':artists_options')
+        really_keep_list = PRESERVE
         for tagx in keep_list:
             tag = tagx.strip()
+            really_keep_list.append(tag)
             if tag in orig_metadata:
                 tm[tag] = orig_metadata[tag]
+        if options['cea_clear_tags']:
+            delete_list = []
+            for tag_item in orig_metadata:
+                if tag_item not in really_keep_list:
+                    delete_list.append(tag_item)
+            # this will be used in map_tags to delete unwanted tags
+            options['delete_tags'] = delete_list
     if not isinstance(options, dict):
         options_dict = option_settings(config.setting)
     else:
@@ -250,7 +267,9 @@ def get_options(album, track):
     tm['~ce_options'] = options_dict
     tm['~ce_file'] = music_file_found
     if options['log_info']:
-        log.info('Get_options is returning options shown below and file: %s', music_file_found)
+        log.info(
+            'Get_options is returning options shown below and file: %s',
+            music_file_found)
         log.info(options_dict)
 
 
@@ -369,6 +388,11 @@ def plugin_options(type):
          'type': 'Text',
          'default': 'is_classical'
          },
+        {'option': 'cea_clear_tags',
+         'name': 'Clear previous tags',
+         'type': 'Boolean',
+         'default': False
+         },
         {'option': 'cea_arrangers',
          'name': 'include arrangers',
          'type': 'Boolean',
@@ -428,6 +452,11 @@ def plugin_options(type):
          'name': 'use credited-as name for composer',
          'type': 'Boolean',
          'default': False
+         },
+        {'option': 'cea_inst_credit',
+         'name': 'use credited instrument',
+         'type': 'Boolean',
+         'default': True
          },
         {'option': 'cea_no_solo',
          'name': 'exclude solo',
@@ -828,6 +857,10 @@ def plugin_options(type):
          'type': 'Boolean',
          'default': False
          },
+        {'option': 'ce_tagmap_override',
+         'type': 'Boolean',
+         'default': False
+         },
         {'option': 'cwp_override',
          'type': 'Boolean',
          'default': False
@@ -862,8 +895,8 @@ def option_settings(config_settings):
     :return: a (deep) copy of the Classical Extras options
     """
     options = {}
-    for option in plugin_options('artists') + plugin_options('tag') \
-            + plugin_options('workparts') + plugin_options('picard') + plugin_options('other'):
+    for option in plugin_options('artists') + plugin_options('tag') + plugin_options(
+            'workparts') + plugin_options('picard') + plugin_options('other'):
         options[option['option']] = copy.deepcopy(
             config_settings[option['option']])
     return options
@@ -875,18 +908,20 @@ def get_aliases(self, album, options, releaseXmlNode):
     :param album:
     :param options:
     :param releaseXmlNode: all the metadata for the release
-    :return: Dta is returned via self.artist_aliases and self.artist_credits[album]
+    :return: Data is returned via self.artist_aliases and self.artist_credits[album]
 
     Note regarding aliases and credited-as names:
-    In a MB release, an artist can appear in one of six contexts. Each of these is accessible in releaseXmlNode
+    In a MB release, an artist can appear in one of seven contexts. Each of these is accessible in releaseXmlNode
     and the track and recording contexts are also accessible in trackXmlNode.
-    The six contexts are:
+    The seven contexts are:
     Release-group: credited-as and alias
     Release: credited-as and alias
     Release relationship: credited-as only
     Recording: credited-as and alias
-    Recording relationship: credited-as only
+    Recording relationship (direct): credited-as only
+    Recording relationship (via work): credited-as only
     Track: credited-as and alias
+    (The above are applied in sequence - e.g. track artist credit will over-ride release artist credit)
     This function collects all the available aliases and as-credited names once (on processing the first track).
     N.B. if more than one release is loaded in Picard, any available alias names loaded so far will be available
     and used. However, as-credited names will only be used from the current release."""
@@ -962,15 +997,20 @@ def get_aliases(self, album, options, releaseXmlNode):
         log.info('Credits :%s', self.artist_credits[album])
 
 
-def get_artists(log_options, relations, relation_type):
+def get_artists(options, tm, relations, relation_type):
     """
     Get artist info from XML lookup
+    :param tm:
     :param log_options:
     :param relations:
-    :param relation_type: 'release' or 'recording'
+    :param relation_type: 'release', 'recording' or 'work' (NB 'work' does not pass a param for tm)
     :return:
     """
+    log_options = {
+        'log_debug': options['log_debug'],
+        'log_info': options['log_info']}
     artists = []
+    instruments = []
     artist_types = relation_types[relation_type]
     for artist_type in artist_types:
         type_list = parse_data(
@@ -1004,20 +1044,76 @@ def get_artists(log_options, relations, relation_type):
                 'instrument arranger',
                     'vocal arranger']:
                 instrument_list = None
+                credited_inst_list = None
             else:
-                instrument_list = parse_data(
+                instrument_list = []
+                credited_inst_list = []
+                att_list = parse_data(
                     log_options,
                     type_item,
                     [],
                     'direction.text:backward',
                     'attribute_list',
-                    'attribute',
-                    'text')
+                    'attribute')
+                for inst_nodes in att_list:
+                    for inst_node in inst_nodes:
+                        cred_list = parse_data(
+                            log_options, inst_node, [], 'attribs.credited_as')
+                        inst_list = parse_data(
+                            log_options, inst_node, [], 'text')
+                        if cred_list:
+                            credited_inst_list += cred_list
+                        else:
+                            credited_inst_list += inst_list
+                        instrument_list += inst_list
                 if artist_type == 'vocal':
                     if not instrument_list:
                         instrument_list = ['vocals']
                     elif not any('vocals' in x for x in instrument_list):
                         instrument_list.append('vocals')
+                        credited_inst_list.append('vocals')
+            # fill the hidden vars before we choose to use the as-credited
+            # version
+            if relation_type != 'work':
+                inst_tag = []
+                cred_tag = []
+                if instrument_list:
+                    if options['log_info']:
+                        log.info('instrument_list: %s', instrument_list)
+                    inst_tag = list(set(instrument_list))
+                if credited_inst_list:
+                    cred_tag = list(set(credited_inst_list))
+                for attrib in ['solo', 'guest', 'additional']:
+                    if attrib in inst_tag:
+                        inst_tag.remove(attrib)
+                    if attrib in cred_tag:
+                        cred_tag.remove(attrib)
+                if inst_tag:
+                    if tm['~cea_instruments']:
+                        tm['~cea_instruments'] = add_list_uniquely(
+                            tm['~cea_instruments'], inst_tag)
+                    else:
+                        tm['~cea_instruments'] = inst_tag
+                if cred_tag:
+                    if tm['~cea_instruments_credited']:
+                        tm['~cea_instruments_credited'] = add_list_uniquely(
+                            tm['~cea_instruments_credited'], cred_tag)
+                    else:
+                        tm['~cea_instruments_credited'] = cred_tag
+                if inst_tag or cred_tag:
+                    if tm['~cea_instruments_all']:
+                        tm['~cea_instruments_all'] = add_list_uniquely(
+                            tm['~cea_instruments_all'], list(set(inst_tag + cred_tag)))
+                    else:
+                        tm['~cea_instruments_all'] = list(
+                            set(inst_tag + cred_tag))
+            if '~cea_instruments' in tm and '~cea_instruments_credited' in tm and '~cea_instruments_all' in tm:
+                instruments = [
+                    tm['~cea_instruments'],
+                    tm['~cea_instruments_credited'],
+                    tm['~cea_instruments_all']]
+            if options['cea_inst_credit'] and credited_inst_list:
+                instrument_list = credited_inst_list
             if instrument_list:
                 instrument_sort = 3
                 s_key = {
@@ -1071,9 +1167,19 @@ def get_artists(log_options, relations, relation_type):
             artists = sorted(artists, key=lambda x: (x[5], x[3], x[4], x[1]))
             if log_options['log_info']:
                 log.info('sorted artists = %s', artists)
-    return artists
+    artist_dict = {'artists': artists, 'instruments': instruments}
+    return artist_dict
 
-def apply_artist_style(options, lang, a_list, name_style, name_tag, sort_tag, names_tag, names_sort_tag):
+
+def apply_artist_style(
+        options,
+        lang,
+        a_list,
+        name_style,
+        name_tag,
+        sort_tag,
+        names_tag,
+        names_sort_tag):
     # Get  artist and apply style
     for acs in a_list:
         for ncs in acs:
@@ -1122,7 +1228,12 @@ def apply_artist_style(options, lang, a_list, name_style, name_tag, sort_tag, na
     name_tag_str = ''.join(name_tag)
     sort_tag_str = ''.join(sort_tag)
 
-    return {'artists': names_tag, 'artists_sort': names_sort_tag, 'artist': name_tag_str, 'artistsort': sort_tag_str}
+    return {
+        'artists': names_tag,
+        'artists_sort': names_sort_tag,
+        'artist': name_tag_str,
+        'artistsort': sort_tag_str}
+
 
 def set_work_artists(self, album, track, writerList, tm, count):
     """
@@ -1304,7 +1415,8 @@ def set_work_artists(self, album, track, writerList, tm, count):
                     # Only remove middle name where the existing
                     # performer is in non-latin script
             annotated_name = name
-
+            if self.INFO:
+                log.info('In set_work_artists. Name after changes = %s', name)
             # add annotations and write performer tags
             if writer_type in annotations:
                 if annotations[writer_type]:
@@ -1633,7 +1745,7 @@ def longest_common_sequence(list1, list2, minstart=0, maxstart=0):
     return {'sequence': seq, 'length': longest}
 
 
-def map_tags(options, tm):
+def map_tags(options, album, tm):
     """
     :param options: options passed from either Artists or Workparts
     :param tm: track metadata
@@ -1785,7 +1897,22 @@ def map_tags(options, tm):
     # if options over-write enabled, remove it after processing one album
     options['ce_options_overwrite'] = False
     config.setting['ce_options_overwrite'] = False
+    # so that options are not retained (in case of refesh with different
+    # options)
+    del tm['~ce_options']
 
+    # remove any unwanted file tags
+    music_file = tm['~ce_file']
+    orig_metadata = album.tagger.files[music_file].orig_metadata
+    if options['delete_tags']:
+        warn = []
+        for delete_item in options['delete_tags']:
+            if delete_item not in tm:  # keep the original for comparison if we have a new version
+                del orig_metadata[delete_item]
+                warn.append(delete_item)
+        if warn and WARNING:
+            append_tag(tm, '002_warnings', 'Deleted tags: ' + ', '.join(warn))
+            log.warning('Deleted tags: ' + ', '.join(warn))
 
 
 def sort_suffix(tag):
@@ -2028,15 +2155,38 @@ def get_relation_credits(self, options, album, obj):
     :param album: current album
     :param obj: XmloOde
     :return: None
+    Note that direct recording relationships will over-ride indirect ones (via work)
     """
     rels = parse_data(
         options,
         obj,
         [],
         'relation_list',
+        'attribs.target_type:work',
+        'relation',
+        'attribs.type:performance',
+        'work',
+        'relation_list',
         'attribs.target_type:artist',
         'relation')
     for rel in rels:
+        for artist in rel:
+            sort_names = parse_data(
+                options, artist, [], 'artist', 'sort_name', 'text')
+            if sort_names:
+                credited_artists = parse_data(
+                    options, artist, [], 'target_credit', 'text')
+                if credited_artists:
+                    self.artist_credits[album][sort_names[0]
+                                               ] = credited_artists[0]
+    rels2 = parse_data(
+        options,
+        obj,
+        [],
+        'relation_list',
+        'attribs.target_type:artist',
+        'relation')
+    for rel in rels2:
         for artist in rel:
             sort_names = parse_data(
                 options, artist, [], 'artist', 'sort_name', 'text')
@@ -2207,6 +2357,10 @@ class ExtraArtists:
             lambda: collections.defaultdict(dict))
         # collection of performers who have release relationships, not track
         # relationships
+        self.album_instruments = collections.defaultdict(
+            lambda: collections.defaultdict(dict))
+        # collection of instruments which have release relationships, not track
+        # relationships
         self.artist_aliases = {}
         # collection of alias names - format is {sort_name: alias_name, ...}
         self.artist_credits = collections.defaultdict(dict)
@@ -2266,7 +2420,12 @@ class ExtraArtists:
         # continue?
         if not options["classical_extra_artists"]:
             return
-        if not (options["ce_no_run"] and (not tm['~ce_file'] or tm['~ce_file'] == "None")):
+        # NOT USED
+        # files = album.tagger.get_files_from_objects([album])
+        # log.error('ALBUM FILENAMES = %s', files)
+        if not (
+            options["ce_no_run"] and (
+                not tm['~ce_file'] or tm['~ce_file'] == "None")):
             # continue
             if self.DEBUG:
                 log.debug("%s: add_artist_info", PLUGIN_NAME)
@@ -2297,14 +2456,23 @@ class ExtraArtists:
                 relation_list = parse_data(
                     options, releaseXmlNode, [], 'relation_list')
                 album_performerList = get_artists(
-                    options, relation_list, 'release')
+                    options, tm, relation_list, 'release')['artists']
                 self.album_performers[album] = album_performerList
+                album_instrumentList = get_artists(
+                    options, tm, relation_list, 'release')['instruments']
+                self.album_instruments[album] = album_instrumentList
 
             else:
                 if album in self.album_performers:
                     album_performerList = self.album_performers[album]
                 else:
                     album_performerList = []
+                if album in self.album_instruments and self.album_instruments[album]:
+                    tm['~cea_instruments'] = self.album_instruments[album][0]
+                    tm['~cea_instruments_credited'] = self.album_instruments[album][1]
+                    tm['~cea_instruments_all'] = self.album_instruments[album][2]
+                    # Should be OK to intialise these here as recording artists
+                    # yet to be processed
 
             track_artist_list = parse_data(
                 options,
@@ -2340,10 +2508,19 @@ class ExtraArtists:
                         name_style = ['credit']
                     else:
                         name_style = []
-                log.info(
-                    'Priority order of naming style for track artists = %s',
-                    name_style)
-                styled_artists = apply_artist_style(options, lang, track_artist_list, name_style, track_artist, track_artistsort, track_artists, track_artists_sort)
+                if self.INFO:
+                    log.info(
+                        'Priority order of naming style for track artists = %s',
+                        name_style)
+                styled_artists = apply_artist_style(
+                    options,
+                    lang,
+                    track_artist_list,
+                    name_style,
+                    track_artist,
+                    track_artistsort,
+                    track_artists,
+                    track_artists_sort)
                 tm['artists'] = styled_artists['artists']
                 tm['~artists_sort'] = styled_artists['artists_sort']
                 tm['artist'] = styled_artists['artist']
@@ -2353,7 +2530,8 @@ class ExtraArtists:
                 self.globals[track]['is_recording'] = True
                 for record in trackXmlNode.children['recording']:
                     # Note that the lists below reflect https://musicbrainz.org/relationships/artist-recording
-                    # Any changes to that DB structure will require changes here
+                    # Any changes to that DB structure will require changes
+                    # here
 
                     # get recording artists data
                     recording_artist_list = parse_data(
@@ -2370,7 +2548,8 @@ class ExtraArtists:
                         # Set naming option
                         # Put naming style into preferential list
 
-                        # naming as for vanilla Picard for track artists (per documentation rather than actual?)
+                        # naming as for vanilla Picard for track artists (per
+                        # documentation rather than actual?)
                         if options['cea_ra_trackartist']:
                             if options['translate_artist_names'] and lang:
                                 if options['standardize_artists']:
@@ -2396,10 +2575,17 @@ class ExtraArtists:
                             name_style = []
                         if self.INFO:
                             log.info(
-                                'Priority order of naming style for recording artists = %s',
-                                name_style)
+                                'Priority order of naming style for recording artists = %s', name_style)
 
-                        styled_artists = apply_artist_style(options, lang, recording_artist_list, name_style, recording_artist, recording_artistsort, recording_artists, recording_artists_sort)
+                        styled_artists = apply_artist_style(
+                            options,
+                            lang,
+                            recording_artist_list,
+                            name_style,
+                            recording_artist,
+                            recording_artistsort,
+                            recording_artists,
+                            recording_artists_sort)
                         self.append_tag(
                             tm, '~cea_recording_artists', styled_artists['artists'])
                         self.append_tag(
@@ -2453,7 +2639,7 @@ class ExtraArtists:
                     relation_list = parse_data(
                         options, record, [], 'relation_list')
                     performerList = album_performerList + \
-                        get_artists(options, relation_list, 'recording')
+                        get_artists(options, tm, relation_list, 'recording')['artists']
                     # returns [(artist type, instrument or None, artist name, artist sort name, instrument sort, type sort)]
                     # where instrument sort places solo ahead of additional etc. and type sort applies a custom sequencing
                     # to the artist types
@@ -2478,17 +2664,16 @@ class ExtraArtists:
                             'relation_list',
                             'attribs.target_type:artist')
                         work_artists = get_artists(
-                            options, work_artist_list, 'work')
-                        set_work_artists(self, album, track, work_artists, tm, 0)
+                            options, tm, work_artist_list, 'work')['artists']
+                        set_work_artists(
+                            self, album, track, work_artists, tm, 0)
                     # otherwise composers etc. will be set in work parts
         else:
-            tm['000_warning'] = "WARNING: Classical Extras not run for this track as no file present - " \
-                                "deselect the option on the advanced tab to run. If there is a file, then try 'Refresh'."
+            tm['000_major_warning'] = "WARNING: Classical Extras not run for this track as no file present - " \
+                "deselect the option on the advanced tab to run. If there is a file, then try 'Refresh'."
         if track_metadata['tracknumber'] == track_metadata['totaltracks'] and track_metadata[
                 'discnumber'] == track_metadata['totaldiscs']:  # last track
             self.process_album(album)
-
-
 
     # Checks for ensembles
     def ensemble_type(self, performer):
@@ -2701,7 +2886,7 @@ class ExtraArtists:
 
             # process tag mapping
             tm['~cea_artists_complete'] = "Y"
-            map_tags(options, tm)
+            map_tags(options, album, tm)
 
             # write out options and errors/warnings to tags
             if options['cea_options_tag'] != "":
@@ -2709,7 +2894,8 @@ class ExtraArtists:
                     lambda: collections.defaultdict(
                         lambda: collections.defaultdict(dict)))
 
-                for opt in plugin_options('artists') + plugin_options('picard'):
+                for opt in plugin_options(
+                        'artists') + plugin_options('picard'):
                     if 'name' in opt:
                         if 'value' in opt:
                             if options[opt['option']]:
@@ -2723,7 +2909,6 @@ class ExtraArtists:
                         name_list = opt['name'].split("_")
                         self.cea_options['Classical Extras']['Artists options'][name_list[0]
                                                                                 ][name_list[1]] = options[opt['option']]
-
 
                 if options['ce_version_tag'] and options['ce_version_tag'] != "":
                     self.append_tag(
@@ -2757,7 +2942,6 @@ class ExtraArtists:
         if self.INFO:
             log.info("Extra Artists - appending %s to %s", source, tag)
         append_tag(tm, tag, source, self.SEPARATORS)
-
 
     def set_performer(self, album, track, performerList, tm):
         """
@@ -2819,11 +3003,15 @@ class ExtraArtists:
             if artist_type in ['instrument', 'vocal', 'performing orchestra']:
                 if performer[1]:
                     inst_list = performer[1]
-                    if options['cea_no_solo']:
-                        for attrib in ['solo', 'guest', 'additional']:
-                            if attrib in inst_list:
-                                inst_list.remove(attrib)
+                    attrib_list = []
+                    for attrib in ['solo', 'guest', 'additional']:
+                        if attrib in inst_list:
+                            inst_list.remove(attrib)
+                            attrib_list.append(attrib)
+                    attribs = " ".join(attrib_list)
                     instrument = ", ".join(inst_list)
+                    if not options['cea_no_solo'] and attrib_list:
+                        instrument = attribs + " " + instrument
                     if performer[3] == last_artist:
                         if instrument != last_instrument:
                             artist_inst.append(instrument)
@@ -3178,7 +3366,11 @@ class PartLevels:
         track = album._new_tracks[-1]
         tm = track.metadata
         if config.setting['log_debug']:
-            log.debug('%s: Cache setting for track %s is %s', PLUGIN_NAME, track, config.setting['use_cache'])
+            log.debug(
+                '%s: Cache setting for track %s is %s',
+                PLUGIN_NAME,
+                track,
+                config.setting['use_cache'])
 
         # OPTIONS - OVER-RIDE IF REQUIRED
         if '~ce_options' not in tm:
@@ -3256,7 +3448,8 @@ class PartLevels:
         # now process works
 
         workIds = dict.get(track_metadata, 'musicbrainz_workid', [])
-        if workIds and not (options["ce_no_run"] and (not tm['~ce_file'] or tm['~ce_file'] == "None")):
+        if workIds and not (options["ce_no_run"] and (
+                not tm['~ce_file'] or tm['~ce_file'] == "None")):
             # works = dict.get(track_metadata, 'work', [])
             work_list_info = []
             keyed_workIds = {}
@@ -3713,7 +3906,8 @@ class PartLevels:
                 log.warning(
                     "%s: %r: Network error retrieving work record. Error code %r",
                     PLUGIN_NAME,
-                    workId, error)
+                    workId,
+                    error)
             tuples = self.works_queue.remove(workId)
             for track, album in tuples:
                 if self.DEBUG:
@@ -3729,17 +3923,22 @@ class PartLevels:
                         if self.DEBUG:
                             log.debug("... without user authentication")
                         user_data = False
-                        self.append_tag(track.metadata, '~cwp_error',
-                                        'Authentication failure - data retrieval omits user-specific requests')
-                    self.work_add_track(album, track, workId, tries + 1, user_data)
+                        self.append_tag(
+                            track.metadata,
+                            '~cwp_error',
+                            'Authentication failure - data retrieval omits user-specific requests')
+                    self.work_add_track(
+                        album, track, workId, tries + 1, user_data)
                 else:
                     if self.ERROR:
                         log.error(
                             "%s: EXHAUSTED MAX RE-TRIES for XML lookup for track %s",
                             PLUGIN_NAME,
                             track)
-                        self.append_tag(track.metadata, '~cwp_error',
-                                        "ERROR: MISSING METADATA due to network errors. Re-try or fix manually.")
+                        self.append_tag(
+                            track.metadata,
+                            '~cwp_error',
+                            "ERROR: MISSING METADATA due to network errors. Re-try or fix manually.")
                 self.album_remove_request(album)
             return
         tuples = self.works_queue.remove(workId)
@@ -3767,7 +3966,8 @@ class PartLevels:
                     workId, wid, tuples, response)
                 parentList = metaList[0]
                 # returns [parent id, parent name] or None if no parent found
-                arrangers = metaList[1]  # not just arrangers - also composers, lyricists etc.
+                # not just arrangers - also composers, lyricists etc.
+                arrangers = metaList[1]
                 if wid in self.parts:
 
                     if arrangers:
@@ -3842,9 +4042,11 @@ class PartLevels:
                             # de-duplicate the parent ids also, otherwise they will be treated as a separate parent
                             # in the trackback structure
                             self.parts[wid]['parent'] = list(
-                                collections.OrderedDict.fromkeys(self.parts[wid]['parent']))
+                                collections.OrderedDict.fromkeys(
+                                    self.parts[wid]['parent']))
                             self.works_cache[wid] = list(
-                                collections.OrderedDict.fromkeys(self.works_cache[wid]))
+                                collections.OrderedDict.fromkeys(
+                                    self.works_cache[wid]))
 
                             if self.DEBUG:
                                 log.debug(
@@ -3857,7 +4059,8 @@ class PartLevels:
                                     'work_listing: %s', self.work_listing[album])
                             # the higher-level work might already be in cache
                             # from another album
-                            if tuple(parentIds) in self.works_cache and self.USE_CACHE:
+                            if tuple(
+                                    parentIds) in self.works_cache and self.USE_CACHE:
                                 not_in_cache = self.check_cache(
                                     track.metadata, album, track, tuple(parentIds), [])
                                 for workId_tuple in not_in_cache:
@@ -3869,7 +4072,8 @@ class PartLevels:
                                         del self.works_cache[tuple(parentIds)]
                                 for parentId in parentIds:
                                     for track, album in tuples:
-                                        self.work_add_track(album, track, parentId, 0)
+                                        self.work_add_track(
+                                            album, track, parentId, 0)
                         else:
                             # so we remember we looked it up and found none
                             self.parts[wid]['no_parent'] = True
@@ -4079,7 +4283,7 @@ class PartLevels:
         if self.INFO:
             log.info('New works: ids: %s, names: %s', new_workIds, new_works)
 
-        artists = get_artists(log_options, relations, 'work')
+        artists = get_artists(options, {}, relations, 'work')['artists']
         # artist_types = ['arranger', 'instrument arranger', 'orchestrator', 'composer', 'writer', 'lyricist',
         #                 'librettist', 'revised by', 'translator', 'reconstructed by', 'vocal arranger']
 
@@ -4420,7 +4624,8 @@ class PartLevels:
                 workId = tuple(trackback['id'])
                 if depth != 0:
                     if 'children' in trackback:
-                        child_response = self.process_trackback_children(album_req, trackback, ref_height, top_info, tracks)
+                        child_response = self.process_trackback_children(
+                            album_req, trackback, ref_height, top_info, tracks)
                         tracks = child_response[1]
                     if self.DEBUG:
                         log.debug(
@@ -4468,7 +4673,6 @@ class PartLevels:
                         if self.INFO:
                             log.info("Tracks: %s", tracks)
 
-
                 else:
                     response = (workId, tracks)
                 if self.DEBUG:
@@ -4479,14 +4683,23 @@ class PartLevels:
             else:
                 return None
         else:
-            response = self.process_trackback_children(album_req, trackback, ref_height, top_info, tracks)
+            response = self.process_trackback_children(
+                album_req, trackback, ref_height, top_info, tracks)
             return response
 
-
-    def process_trackback_children(self,  album_req, trackback, ref_height, top_info, tracks):
+    def process_trackback_children(
+            self,
+            album_req,
+            trackback,
+            ref_height,
+            top_info,
+            tracks):
         if 'id' in trackback and 'depth' in trackback and 'height' in trackback:
             if self.DEBUG:
-                log.debug('%s: In process_children_trackback for trackback %s', PLUGIN_NAME, trackback)
+                log.debug(
+                    '%s: In process_children_trackback for trackback %s',
+                    PLUGIN_NAME,
+                    trackback)
             depth = trackback['depth']
             height = trackback['height']
             parentId = tuple(trackback['id'])
@@ -4907,7 +5120,8 @@ class PartLevels:
                     if diff is None:
                         diff = ""
                     strip = [diff, parent]
-                    # but don't leave name of arrangement blank unless it is virtually the same as the parent...
+                    # but don't leave name of arrangement blank unless it is
+                    # virtually the same as the parent...
                     clean_work = re.sub("(?u)[\W]", ' ', work)
                     clean_work_list = clean_work.split()
                     extra_words = False
@@ -4916,7 +5130,8 @@ class PartLevels:
                             extra_words = True
                             break
                     if extra_words:
-                        if not diff and 'arrangement' in self.parts[workId] and self.parts[workId]['arrangement']:
+                        if not diff and 'arrangement' in self.parts[
+                                workId] and self.parts[workId]['arrangement']:
                             strip = self.strip_parent_from_work(
                                 work, parent, part_level, False)
                 else:
@@ -5534,7 +5749,7 @@ class PartLevels:
 
         # carry out tag mapping
         tm['~cea_works_complete'] = "Y"
-        map_tags(options, tm)
+        map_tags(options, album, tm)
 
         if self.DEBUG:
             log.debug("Published metadata for %s", track)
@@ -5591,7 +5806,6 @@ class PartLevels:
                 tag,
                 tm[tag]
             )
-
 
     ################################################
     # SECTION 6 - Common string handling functions #
@@ -5859,13 +6073,23 @@ class PartLevels:
             esc_equiv = re.escape(equiv)
             equiv_pattern = '\\b' + esc_equiv + '\\b'
             syno = self.EQ + equiv  # designating that it derived from the synonym
-            equo = equiv + self.EQ # designating that it derived from the equivalent
+            equo = equiv + self.EQ  # designating that it derived from the equivalent
             esc_key = re.escape(key)
             key_pattern = '\\b' + esc_key + '\\b'
-            mb_test = re.sub(equiv_pattern, equo, mb_test, re.IGNORECASE | re.UNICODE)
-            ti_test = re.sub(equiv_pattern, equo, ti_test, re.IGNORECASE | re.UNICODE)
-            mb_test = re.sub(key_pattern, syno, mb_test, re.IGNORECASE | re.UNICODE)
-            ti_test = re.sub(key_pattern, syno, ti_test, re.IGNORECASE | re.UNICODE)
+            mb_test = re.sub(
+                equiv_pattern,
+                equo,
+                mb_test,
+                re.IGNORECASE | re.UNICODE)
+            ti_test = re.sub(
+                equiv_pattern,
+                equo,
+                ti_test,
+                re.IGNORECASE | re.UNICODE)
+            mb_test = re.sub(key_pattern, syno, mb_test,
+                             re.IGNORECASE | re.UNICODE)
+            ti_test = re.sub(key_pattern, syno, ti_test,
+                             re.IGNORECASE | re.UNICODE)
             # better than ti_test = ti_test.replace(key, equiv)
             if self.DEBUG:
                 log.debug(
@@ -5968,7 +6192,8 @@ class PartLevels:
             ti_list_punc.append('')
         ti_zip_list = zip(ti_list, ti_list_punc)
 
-        # len(ti_list) should be = len(ti_test_list) as only difference should be synonyms which are each one word
+        # len(ti_list) should be = len(ti_test_list) as only difference should
+        # be synonyms which are each one word
         mb_list2 = re.findall(r"\b\w+?\b|\B\&\B", mb_test, re.UNICODE)
         for index, mb_bit2 in enumerate(mb_list2):
             mb_list2[index] = self.boil(mb_bit2)
@@ -5981,7 +6206,8 @@ class PartLevels:
         for i, ti_bit_test in enumerate(ti_test_list):
             if i <= len(ti_list) - 1:
                 ti_bit = ti_zip_list[i]
-                # NB ti_bit is a tuple where the word (1st item) is grouped with its following punctuation (2nd item)
+                # NB ti_bit is a tuple where the word (1st item) is grouped
+                # with its following punctuation (2nd item)
             else:
                 ti_bit = ('', '')
             if self.INFO:
@@ -5992,7 +6218,8 @@ class PartLevels:
                     ti_bit)
             # Boolean to indicate whether ti_bit is a new word
             ti_rich_list.append((ti_bit, True))
-            if not ti_bit_test or (ti_bit_test and self.boil(ti_bit_test) in mb_list2):
+            if not ti_bit_test or (
+                    ti_bit_test and self.boil(ti_bit_test) in mb_list2):
                 if ti_bit_test:
                     words += 1
                 ti_rich_list[i] = (ti_bit, False)
@@ -6215,7 +6442,7 @@ class PartLevels:
             esc_equiv = re.escape(equiv)
             equiv_pattern = '\\b' + esc_equiv + '\\b'
             term = re.sub(equiv_pattern, key, term)
-            term = term.replace(self.EQ,'')
+            term = term.replace(self.EQ, '')
         return term
 
     def boil(self, s):
@@ -6229,7 +6456,7 @@ class PartLevels:
         s = s.lower()
         if isinstance(s, str):
             s = s.decode('unicode_escape')
-        s = s.replace (self.EQ.lower(), '')\
+        s = s.replace(self.EQ.lower(), '')\
             .replace('sch', 'sh')\
             .replace(u'\xdf', 'ss')\
             .replace('sz', 'ss')\
@@ -6238,7 +6465,8 @@ class PartLevels:
             .replace(u'\u00fc', 'ue')\
             .replace('ue', 'u')\
             .replace('ae', 'a')
-        # first term above is to remove the markers used for synonyms, to enable a true comparison
+        # first term above is to remove the markers used for synonyms, to
+        # enable a true comparison
         punc = re.compile(r'\W*')
         s = ''.join(
             c for c in unicodedata.normalize(
@@ -6304,20 +6532,28 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         """
         opts = plugin_options('artists') + plugin_options('tag') + \
             plugin_options('workparts') + plugin_options('other')
+
+        # To force a toggle so that signal given
+        toggle_list = ['use_cwp',
+                       'use_cea',
+                       'cea_override',
+                       'cea_ra_use',
+                       'cea_split_lyrics',
+                       'cwp_partial',
+                       'cwp_arrangements',
+                       'cwp_medley']
         # count = 0
         for opt in opts:
             if opt['option'] == 'classical_work_parts':
                 ui_name = 'use_cwp'
-                not_cwp_setting = not self.config.setting[opt['option']]
-                # To force a toggle so that signal given
-                self.ui.__dict__[ui_name].setChecked(not_cwp_setting)
             elif opt['option'] == 'classical_extra_artists':
                 ui_name = 'use_cea'
-                not_cea_setting = not self.config.setting[opt['option']]
-                # To force a toggle so that signal given
-                self.ui.__dict__[ui_name].setChecked(not_cea_setting)
             else:
                 ui_name = opt['option']
+            if ui_name in toggle_list:
+                not_setting = not self.config.setting[opt['option']]
+                self.ui.__dict__[ui_name].setChecked(not_setting)
+
             if opt['type'] == 'Boolean':
                 self.ui.__dict__[ui_name].setChecked(
                     self.config.setting[opt['option']])
@@ -6364,12 +6600,13 @@ class ClassicalExtrasOptionsPage(OptionsPage):
                     opt['option'])
 
 
-
 #################
 # MAIN ROUTINE  #
 #################
 
-# set defaults for certain options that MUST be manually changed by the user each time they are to be over-ridden
+
+# set defaults for certain options that MUST be manually changed by the
+# user each time they are to be over-ridden
 config.setting['use_cache'] = True
 config.setting['log_debug'] = False
 config.setting['log_info'] = False
