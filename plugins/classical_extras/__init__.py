@@ -3374,7 +3374,7 @@ class PartLevels:
         options = interpret(tm['~ce_options'])
 
         if not options:
-            if self.ERROR:
+            if config.setting["log_error"]:
                 log.error(
                     '%s: Work Parts. Failure to re-read options for track %s. options = %s',
                     PLUGIN_NAME,
