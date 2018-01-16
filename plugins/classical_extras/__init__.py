@@ -216,8 +216,7 @@ def get_options(album, track):
                         for opt in opt_dict:
                             opt_value = opt_dict[opt]
                             if section == 'artists':
-                                addn = plugin_options(
-                                    'tag') + plugin_options('picard')
+                                addn = plugin_options('tag') + plugin_options('picard')
                             else:
                                 addn = []
                             for ea_opt in plugin_options(section) + addn:
@@ -273,9 +272,9 @@ def get_options(album, track):
         log.info(options_dict)
 
 
-def plugin_options(type):
+def plugin_options(option_type):
     """
-    :param type: artists, tag, workparts or other
+    :param option_type: artists, tag, workparts or other
     :return: the relevant dictionary for the type
     This function contains all the options data in one place - to prevent multiple repetitions elsewhere
     """
@@ -875,15 +874,15 @@ def plugin_options(type):
          }
     ]
 
-    if type == 'artists':
+    if option_type == 'artists':
         return artists_options
-    elif type == 'tag':
+    elif option_type == 'tag':
         return tag_options
-    elif type == 'workparts':
+    elif option_type == 'workparts':
         return workparts_options
-    elif type == 'picard':
+    elif option_type == 'picard':
         return picard_options
-    elif type == 'other':
+    elif option_type == 'other':
         return other_options
     else:
         return None
@@ -895,8 +894,8 @@ def option_settings(config_settings):
     :return: a (deep) copy of the Classical Extras options
     """
     options = {}
-    for option in plugin_options('artists') + plugin_options('tag') + plugin_options(
-            'workparts') + plugin_options('picard') + plugin_options('other'):
+    for option in plugin_options('artists') + plugin_options('tag') + plugin_options('workparts') + plugin_options(
+            'picard') + plugin_options('other'):
         options[option['option']] = copy.deepcopy(
             config_settings[option['option']])
     return options
@@ -1924,7 +1923,7 @@ def sort_suffix(tag):
     return sort
 
 
-def append_tag(tm, tag, source, separators=[]):
+def append_tag(tm, tag, source, separators=None):
     """
     :param tm: track metadata
     :param tag: tag to be appended to
@@ -1933,6 +1932,8 @@ def append_tag(tm, tag, source, separators=[]):
         (any of the characters will be a split point)
     :return: None. Action is on tm
     """
+    if not separators:
+        separators = []
     if tag:
         if config.setting['log_debug']:
             log.debug(
@@ -2029,8 +2030,7 @@ def parse_data(options, obj, response_list, *match):
         for item in obj:
             if isinstance(item, XmlNode):
                 item = item.__dict__
-            response = parse_data(options, item, response_list, *match)
-            response_list + response
+            parse_data(options, item, response_list, *match)
         if INFO:
             log.info('response_list: %s', response_list)
         return response_list
@@ -2042,9 +2042,8 @@ def parse_data(options, obj, response_list, *match):
             else:
                 match_list = list(match)
                 match_list.pop(0)
-                response = parse_data(
+                parse_data(
                     options, obj[match[0]], response_list, *match_list)
-                response_list + response
             if INFO:
                 log.info('response_list: %s', response_list)
             return response_list
@@ -2060,20 +2059,17 @@ def parse_data(options, obj, response_list, *match):
                     else:
                         match_list = list(match)
                         match_list.pop(0)
-                        response = parse_data(
+                        parse_data(
                             options, obj, response_list, *match_list)
-                        response_list + response
             else:
-                response = parse_data(options, obj, response_list, *match2)
-                response_list + response
+                parse_data(options, obj, response_list, *match2)
             if INFO:
                 log.info('response_list: %s', response_list)
             return response_list
         else:
             if 'children' in obj:
-                response = parse_data(
+                parse_data(
                     options, obj['children'], response_list, *match)
-                response_list + response
             if INFO:
                 log.info('response_list: %s', response_list)
             return response_list
@@ -2107,14 +2103,14 @@ def get_artist_credit(options, obj):
         return credit_list
 
 
-def get_aliases_and_credits(self, options, album, obj, lang, credits):
+def get_aliases_and_credits(self, options, album, obj, lang, credited):
     """
     :param album:
     :param self: This relates to the object in the class which called this function
     :param options:
     :param obj: an XmlNode
     :param lang: The language selected in the Picard metadata options
-    :param credits: The options item to determine what as-credited names are being sought
+    :param credited: The options item to determine what as-credited names are being sought
     :return: None. Sets self.artist_aliases and self.artist_credits[album]
     """
     name_credit_list = parse_data(
@@ -2135,7 +2131,7 @@ def get_aliases_and_credits(self, options, album, obj, lang, credits):
                 'text')
             if aliases:
                 self.artist_aliases[sort_names[0]] = aliases[0]
-    if credits:
+    if credited:
         for name_credits in name_credit_list:
             for name_credit in name_credits:
                 credited_artists = parse_data(
@@ -2397,7 +2393,7 @@ class ExtraArtists:
             get_options(album, track)
         options = interpret(tm['~ce_options'])
         if not options:
-            if self.ERROR:
+            if config.setting["log_error"]:
                 log.error(
                     '%s: Artists. Failure to read options for track %s. options = %s',
                     PLUGIN_NAME,
@@ -2894,8 +2890,7 @@ class ExtraArtists:
                     lambda: collections.defaultdict(
                         lambda: collections.defaultdict(dict)))
 
-                for opt in plugin_options(
-                        'artists') + plugin_options('picard'):
+                for opt in plugin_options('artists') + plugin_options('picard'):
                     if 'name' in opt:
                         if 'value' in opt:
                             if options[opt['option']]:
@@ -3680,7 +3675,7 @@ class PartLevels:
         :return:
         """
         if options["cwp_use_sk"]:
-            if '~ce_file' in tm and eval(tm['~ce_file']):
+            if '~ce_file' in tm and interpret(tm['~ce_file']):
                 music_file = tm['~ce_file']
                 orig_metadata = album.tagger.files[music_file].orig_metadata
                 if 'musicbrainz_work_composition_id' in orig_metadata and 'musicbrainz_workid' in orig_metadata:
@@ -3980,8 +3975,8 @@ class PartLevels:
                         # first fix the sort order of multi-works at the prev
                         # level
                         if len(wid) > 1:
-                            for id in wid:
-                                if id == workId:
+                            for idx in wid:
+                                if idx == workId:
                                     match_tree = [
                                         'metadata',
                                         'work',
@@ -3995,11 +3990,11 @@ class PartLevels:
                                         options, response, [], *match_tree)
                                     if self.INFO:
                                         log.info(
-                                            'multi-works - ordering key for id %s is %s', id, parse_result)
+                                            'multi-works - ordering key for id %s is %s', idx, parse_result)
                                     if parse_result and parse_result[0].isdigit(
                                     ):
                                         key = int(parse_result[0])
-                                        self.parts[wid]['order'][id] = key
+                                        self.parts[wid]['order'][idx] = key
 
                         parentIds = parentList[0]
                         parents = parentList[1]
@@ -4347,9 +4342,9 @@ class PartLevels:
                     # work_process
                     if 'order' in self.parts[workId]:
                         seq = []
-                        for id in workId:
-                            if id in self.parts[workId]['order']:
-                                seq.append(self.parts[workId]['order'][id])
+                        for idx in workId:
+                            if idx in self.parts[workId]['order']:
+                                seq.append(self.parts[workId]['order'][idx])
                             else:
                                 # for the possibility of workids not part of
                                 # the same parent and not all ordered
@@ -4464,7 +4459,7 @@ class PartLevels:
                     track_meta = track[0]
                     tm = track_meta.metadata
                     if '~cwp_workid_0' in tm:
-                        workIds = eval(tm['~cwp_workid_0'])
+                        workIds = interpret(tm['~cwp_workid_0'])
                         if workIds:
                             count = 0
                             self.process_work_artists(
@@ -4673,8 +4668,7 @@ class PartLevels:
                         if self.INFO:
                             log.info("Tracks: %s", tracks)
 
-                else:
-                    response = (workId, tracks)
+                response = (workId, tracks)
                 if self.DEBUG:
                     log.debug("%s: LEAVING PROCESS_TRACKBACK", PLUGIN_NAME)
                 if self.INFO:
@@ -5258,7 +5252,7 @@ class PartLevels:
         # previously: ref_height = work_part_levels - ref_level,
         # where this ref-level is the level for the top-named work
         ref_level = part_levels - ref_height
-        work_ref_level = work_part_levels - ref_height
+        # work_ref_level = work_part_levels - ref_height # not currently used
 
         # replace works and parts by those derived from the level 0 work, where
         # required, available and appropriate, but only use work names based on
@@ -5287,7 +5281,7 @@ class PartLevels:
 
         if options['cwp_partial'] and options["cwp_partial_text"]:
             if '~cwp_workid_0' in tm:
-                work0_id = eval(tm['~cwp_workid_0'])
+                work0_id = interpret(tm['~cwp_workid_0'])
                 if 'partial' in self.parts[work0_id] and self.parts[work0_id]['partial']:
                     update_list = ['~cwp_work_0', '~cwp_part_0']
                     if options["cwp_level0_works"] and '~cwp_X0_work_0' in tm:
@@ -5311,7 +5305,7 @@ class PartLevels:
         if options['cwp_medley']:
             for lev in range(0, ref_level + 1):
                 if '~cwp_workid_' + unicode(lev) in tm:
-                    tup_id = eval(tm['~cwp_workid_' + unicode(lev)])
+                    tup_id = interpret(tm['~cwp_workid_' + unicode(lev)])
                     if 'medley_list' in self.parts[tup_id]:
                         medley_list = self.parts[tup_id]['medley_list']
                         tm['~cwp_work_' + unicode(lev)] += " (" + options["cwp_medley_text"] + \
@@ -5366,7 +5360,7 @@ class PartLevels:
         tm['~cwp_part'] = part_main
 
         # fix medley text for "type 2" medleys
-        if self.parts[eval(tm['~cwp_workid_0'])
+        if self.parts[interpret(tm['~cwp_workid_0'])
                       ]['medley'] and options['cwp_medley']:
             if options["cwp_medley_text"]:
                 groupheading = options["cwp_medley_text"] + ' ' + groupheading
@@ -5724,7 +5718,7 @@ class PartLevels:
                     if '~cwp_work_' + \
                             unicode(n) in tm and '~cwp_workid_' + unicode(n) in tm:
                         source = tm['~cwp_work_' + unicode(n)]
-                        source_id = list(eval(tm['~cwp_workid_' + unicode(n)]))
+                        source_id = list(interpret(tm['~cwp_workid_' + unicode(n)]))
                         if n == 0:
                             self.append_tag(
                                 tm, 'musicbrainz_work_composition', source)
@@ -6499,7 +6493,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
     TITLE = "Classical Extras"
     PARENT = "plugins"
     opts = plugin_options('artists') + plugin_options('tag') + \
-        plugin_options('workparts') + plugin_options('other')
+           plugin_options('workparts') + plugin_options('other')
 
     options = []
 
@@ -6531,7 +6525,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         :return:
         """
         opts = plugin_options('artists') + plugin_options('tag') + \
-            plugin_options('workparts') + plugin_options('other')
+               plugin_options('workparts') + plugin_options('other')
 
         # To force a toggle so that signal given
         toggle_list = ['use_cwp',
@@ -6573,7 +6567,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
 
     def save(self):
         opts = plugin_options('artists') + plugin_options('tag') + \
-            plugin_options('workparts') + plugin_options('other')
+               plugin_options('workparts') + plugin_options('other')
 
         for opt in opts:
             if opt['option'] == 'classical_work_parts':
