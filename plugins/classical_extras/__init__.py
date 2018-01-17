@@ -2254,21 +2254,17 @@ def add_list_uniquely(list_to, list_from):
     :return: appends only unique elements of list 2 to list 1
     """
     #
-    log.error('Before str_to list: list_from = %r; list_to = %r', list_from, list_to)
     if list_to and list_from:
         if not isinstance(list_to, list):
             list_to = str_to_list(list_to)
         if not isinstance(list_from, list):
             list_from = str_to_list(list_from)
-        log.error('After str_to list: list_from = %r; list_to = %r', list_from, list_to)
-
         for list_item in list_from:
             if list_item not in list_to:
                 list_to.append(list_item)
     else:
         if list_from:
             list_to = list_from
-    log.error('After update: list_to = %r', list_to)
     return list_to
 
 
