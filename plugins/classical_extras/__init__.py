@@ -216,7 +216,8 @@ def get_options(album, track):
                         for opt in opt_dict:
                             opt_value = opt_dict[opt]
                             if section == 'artists':
-                                addn = plugin_options('tag') + plugin_options('picard')
+                                addn = plugin_options(
+                                    'tag') + plugin_options('picard')
                             else:
                                 addn = []
                             for ea_opt in plugin_options(section) + addn:
@@ -894,8 +895,8 @@ def option_settings(config_settings):
     :return: a (deep) copy of the Classical Extras options
     """
     options = {}
-    for option in plugin_options('artists') + plugin_options('tag') + plugin_options('workparts') + plugin_options(
-            'picard') + plugin_options('other'):
+    for option in plugin_options('artists') + plugin_options('tag') + plugin_options(
+            'workparts') + plugin_options('picard') + plugin_options('other'):
         options[option['option']] = copy.deepcopy(
             config_settings[option['option']])
     return options
@@ -2890,7 +2891,8 @@ class ExtraArtists:
                     lambda: collections.defaultdict(
                         lambda: collections.defaultdict(dict)))
 
-                for opt in plugin_options('artists') + plugin_options('picard'):
+                for opt in plugin_options(
+                        'artists') + plugin_options('picard'):
                     if 'name' in opt:
                         if 'value' in opt:
                             if options[opt['option']]:
@@ -4964,8 +4966,8 @@ class PartLevels:
                             log.info('lower work name is now %s',
                                      tm['~cwp' + meta_str + '_work_' + unicode(part_level - 1)])
                         # now fix the repeated work name at this level
-                        if work == tm['~cwp' + meta_str + '_work_' +
-                                      unicode(part_level - 1)] and not allow_repeats:
+                        if work == tm['~cwp' + meta_str + '_work_' + \
+                            unicode(part_level - 1)] and not allow_repeats:
                             tm['~cwp' +
                                meta_str +
                                '_work_' +
@@ -5718,7 +5720,8 @@ class PartLevels:
                     if '~cwp_work_' + \
                             unicode(n) in tm and '~cwp_workid_' + unicode(n) in tm:
                         source = tm['~cwp_work_' + unicode(n)]
-                        source_id = list(interpret(tm['~cwp_workid_' + unicode(n)]))
+                        source_id = list(
+                            interpret(tm['~cwp_workid_' + unicode(n)]))
                         if n == 0:
                             self.append_tag(
                                 tm, 'musicbrainz_work_composition', source)
@@ -6493,7 +6496,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
     TITLE = "Classical Extras"
     PARENT = "plugins"
     opts = plugin_options('artists') + plugin_options('tag') + \
-           plugin_options('workparts') + plugin_options('other')
+        plugin_options('workparts') + plugin_options('other')
 
     options = []
 
@@ -6525,7 +6528,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         :return:
         """
         opts = plugin_options('artists') + plugin_options('tag') + \
-               plugin_options('workparts') + plugin_options('other')
+            plugin_options('workparts') + plugin_options('other')
 
         # To force a toggle so that signal given
         toggle_list = ['use_cwp',
@@ -6567,7 +6570,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
 
     def save(self):
         opts = plugin_options('artists') + plugin_options('tag') + \
-               plugin_options('workparts') + plugin_options('other')
+            plugin_options('workparts') + plugin_options('other')
 
         for opt in opts:
             if opt['option'] == 'classical_work_parts':
