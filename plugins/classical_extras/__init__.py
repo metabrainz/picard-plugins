@@ -4489,7 +4489,7 @@ class PartLevels:
                 tracks = answer[1]['track']
                 if self.INFO:
                     log.info("TRACKS: %s", tracks)
-                # work_part_levels = self.trackback[album][topId]['depth'] # NOT USED
+                work_part_levels = self.trackback[album][topId]['depth']
                 for track in tracks:
                     track_meta = track[0]
                     tm = track_meta.metadata
@@ -5272,7 +5272,7 @@ class PartLevels:
         tm = track.metadata
         options = self.options[track]
         part_levels = int(tm['~cwp_part_levels'])
-        work_part_levels = int(tm['~cwp_work_part_levels'])
+        # work_part_levels = int(tm['~cwp_work_part_levels'])
         if self.DEBUG:
             log.debug(
                 "%s: Extending metadata for track: %s, ref_height: %s, depth: %s, part_levels: %s",
