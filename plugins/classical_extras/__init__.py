@@ -2,7 +2,38 @@
 
 PLUGIN_NAME = u'Classical Extras'
 PLUGIN_AUTHOR = u'Mark Evens'
-PLUGIN_DESCRIPTION = u"""This plugin contains 3 classes:
+PLUGIN_DESCRIPTION = u"""Classical Extras provides tagging enhancements for artists/performers and, 
+in particular, utilises MB’s hierarchy of works to provide work/movement tags. 
+All options are set through a user interface in Picard options->plugins.
+While it is designed to cater for the complexities of classical music tagging, 
+it may also be useful for other music which has more than just basic song/artist/album data.
+<br /><br />
+The options screen provides four tabs for users to control the tags produced:
+<br /><br />
+1. Artists: Options as to whether artist tags will contain standard MB names, aliases or as-credited names.
+Ability to include and annotate names for specialist roles (chorus master, arranger, lyricist etc.).
+Ability to read lyrics tags on the file which has been loaded and assign them to track and album levels if required.
+(Note: Picard will not normally process incoming file tags).
+<br /><br />
+2. Tag mapping: in some ways, this is a simple substitute for some of Picard's scripting capability. The main advantage
+ is that the plugin will remember what tag mapping you use for each release (or even track).
+<br /><br />
+3. Works and parts: The plugin will build a hierarchy of works and parts (e.g. Work -> Part -> Movement or 
+Opera -> Act -> Number) based on the works in MusicBrainz's database. These can then be displayed in tags in a variety 
+of ways according to user preferences. Furthermore partial recordings, medleys, arrangements and collections of works
+are all handled according to user choices. There is a processing overhead for this at present because MusicBrainz limits 
+look-ups to one per second. 
+<br /><br />
+4. Advanced: Various options to control the detailed processing of the above.
+<br /><br />
+All user options can be saved on a per-album (or even per-track) basis so that tweaks can be used to deal with
+inconsistencies in the MusicBrainz data (e.g. include English titles from the track listing where the MusicBrainz works
+are in the composer's language and/or script).
+Also existing file tags can be processed (not possible in native Picard) or cleared without affecting cover art.
+"""
+
+# DEVELOPERS COMMENT:
+u"""This plugin contains 3 classes:
 <br /><br />
 I. ("EXTRA ARTISTS") Create sorted fields for all performers. Creates a number of variables with alternative values for "artists" and "artist".
 Creates an ensemble variable for all ensemble-type performers.
@@ -17,6 +48,7 @@ III. ("OPTIONS") Allows the user to set various options including what tags will
 <br /><br />
 See Readme file for full details of how to use.
 """
+
 PLUGIN_VERSION = '0.9'
 PLUGIN_API_VERSIONS = ["1.4.0", "1.4.2"]
 PLUGIN_LICENSE = "GPL-2.0"

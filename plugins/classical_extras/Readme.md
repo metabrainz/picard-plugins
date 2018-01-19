@@ -37,7 +37,9 @@ There are five coloured sections as shown in the screen image below:
 	Orchestral, Concerto, Instrumental, Voice, Choral, Opera, Duet, Aria, Song. For concerto, solo and duet performances the instrument is also given where possible. If the track is a recorded work with a composer artist in MusicBrainz and the "Works and parts" section has "Include all work levels" selected, the tag will also include "Classical". Use "work_type" as a source in the tag mapping section below section to (e.g.) map to the genre tag. For more complex treatment, use scripts.
 
 2. "Work-artist/performer naming options". 
-  This section deals primarily with the application of aliases and credited_as names to replace the MusicBrainz standard names. The first box allows you to choose whether to replace MusicBrainz standard  names by aliases - either for all work-artists/performers or only work-artists (writers, composers, arrangers, lyricists etc.). The second box sets the usage of "as-credited" names: the first part of this lists all the places where as-credited names can occur (really!) and the second part allows you to apply these to performing artists and/or work-artists. Please note that, in the current version of this plugin, only aliases and credited_as names which are in the "release XML node" are available (i.e. roughly those relating to the metadata shown in the release overeview page in MusicBrainz). So, for example, if a recording is an arrangement of another work and that other work (but not the arrangement) has a composer linked to it, then the composer's alias will not be available (nor is the composer shown on the MB release overview page). In some cases (if appropriate) this can be remedied by adding the relevant link to the lowest-level work.
+  This section deals primarily with the application of aliases and credited_as names to replace the MusicBrainz standard names. The first box allows you to choose whether to replace MusicBrainz standard  names by aliases - either for all work-artists/performers or only work-artists (writers, composers, arrangers, lyricists etc.). The second box sets the usage of "as-credited" names: the first part of this lists all the places where as-credited names can occur (really!) and the second part allows you to apply these to performing artists and/or work-artists. 
+
+   Please note that, in the current version of this plugin, only aliases and credited_as names which are in the "release XML node" are available (i.e. roughly those relating to the metadata shown in the release overview page in MusicBrainz). So, for example, if a recording is an arrangement of another work and that other work (but not the arrangement) has a composer linked to it, then the composer's alias will not be available (nor is the composer shown on the MB release overview page). In some cases (if appropriate) this can be remedied by adding the relevant link to the lowest-level work.
 
     >Note regarding aliases and credited-as names:  
     In a MB release, an artist can appear in one of seven contexts. Each of these is accessible in releaseXmlNode
@@ -52,60 +54,60 @@ There are five coloured sections as shown in the screen image below:
     Track: credited-as and alias  
     (The above are applied in sequence - e.g. track artist credit will over-ride release artist credit)
 
-  N.B. if more than one release is loaded in Picard, any available alias names loaded so far will be available and used. However, as-credited names will only be used from the current release. If you do not want these names to be available then you may need to restart Picard after changing the option settings (otherwise they will still be cached).
+    N.B. if more than one release is loaded in Picard, any available alias names loaded so far will be available and used. However, as-credited names will only be used from the current release. If you do not want these names to be available then you may need to restart Picard after changing the option settings (otherwise they will still be cached).
 
-  In addition to the above, the main Picard options have an effect on how 'track artists' (or any tags derived from them through tag-mapping) are displayed. In Options->Metadata, if "Translate artist names..." is selected then the alias will be used for the track artist (or failing that, a name based on the sort-name), rather than the 'as-credited' name. If "Use standardized artist names" is selected then neither the alis nor the 'as-credited' name will be used. In order to facilitate consistency, Classical Extras will save these Picard options along with its own options in specific tags (see "Advanced options" section 5).
+    In addition to the above, the main Picard options have an effect on how 'track artists' (or any tags derived from them through tag-mapping) are displayed. In Options->Metadata, if "Translate artist names..." is selected then the alias will be used for the track artist (or failing that, a name based on the sort-name), rather than the 'as-credited' name. If "Use standardized artist names" is selected then neither the alis nor the 'as-credited' name will be used. In order to facilitate consistency, Classical Extras will save these Picard options along with its own options in specific tags (see "Advanced options" section 5).
 
-   The bottom box then (a) allows a choice as to whether aliases will over-ride as-credited names or vice versa and (b) whether if there are still some names in non-Latin script, whether these should be replaced (this will always remove middle [patronymic] names from Cyrillic-script names [but does not deal fully with other non-Latin scripts]; it is based on the sort names wherever possible).
+     The bottom box then (a) allows a choice as to whether aliases will over-ride as-credited names or vice versa and (b) whether if there are still some names in non-Latin script, whether these should be replaced (this will always remove middle [patronymic] names from Cyrillic-script names [but does not deal fully with other non-Latin scripts]; it is based on the sort names wherever possible).
 
-   Note that **none of this processing affects the contents of the "artist or "album_artist" tags**. These tags may be either work-artists or performing artists. Their contents are determined by the standard Picard options "translate artist names" and "use standardized artist names" in Options-->Metadata. If "translate name" is selected, the name will be the alias or (if no alias) the 'unsorted' sort-name; otherwise the name will be the MusicBrainz name if "use standardized artist names" is selected or the as-credited name (if available) if it is not selected.
+     Note that **none of this processing affects the contents of the "artist or "album_artist" tags**. These tags may be either work-artists or performing artists. Their contents are determined by the standard Picard options "translate artist names" and "use standardized artist names" in Options-->Metadata. If "translate name" is selected, the name will be the alias or (if no alias) the 'unsorted' sort-name; otherwise the name will be the MusicBrainz name if "use standardized artist names" is selected or the as-credited name (if available) if it is not selected.
 
 3. "Recording artist options".
   In MusicBrainz, the recording artist may be different from the track artist. For classical music, the MusicBrainz guidelines state that the track artist should be the composer; however the recording artist(s) is/are usually the principal performer(s).  
   Because, in classical music (in MusicBrainz), recording artists will usually be performers whereas track artists are composers, by default, the naming convention for performers (set in the previous section) will be used (although only the as-credited name set for the recording artist will be applied). Alternatively, the naming convention for track artists can be used - which is determined by the main Picard metadata options.
 
-  Classical Extras puts the recording artists into 'hidden variables' (as a minimum) using the chosen naming convention.
+    Classical Extras puts the recording artists into 'hidden variables' (as a minimum) using the chosen naming convention.
   There is also option to allow you to replace the track artist by the recording artist (or to merge them). The chosen action will be applied to the 'artist', 'artists', 'artistsort' and 'artists_sort' tags. Note that 'artist' is a single-valued string whereas 'artists' is a list and may be multi-valued. Lists are properly merged, but because the 'artist' string may have different join-phrases etc, a merged tag may have the recording artist(s) in brackets after the track artist(s). Obviously, for classical music, if you use "merge" then the artist tag will have both the composer and the recording artists: this may be desirable for simple players (with no composer recognition) but otherwise may look odd.
 
-   Note that, if the original track artist is required in tag mapping (i.e. as it was before replacement/merge with recording artist), it is available through the hidden variable _cea_MB_artists.
+     Note that, if the original track artist is required in tag mapping (i.e. as it was before replacement/merge with recording artist), it is available through the hidden variable _cea_MB_artists.
 
-   Note also that, if @loujin's browser script has been used to fill the recording artist data, this will be the same as the performing artists in the Recording-Artist relationship - i.e. it may be a lengthy list rather than the principal artist for the track.
+     Note also that, if @loujin's browser script has been used to fill the recording artist data, this will be the same as the performing artists in the Recording-Artist relationship - i.e. it may be a lengthy list rather than the principal artist for the track.
 
 4. "Other artist options":
 
-  "Modify host tags and include annotations" (Previously called "Include arrangers from all work levels"). This will gather together, for example, any arranger-type information from the recording, work or parent works and place it in the "arranger" tag ('host' tag), with the annotation (see below) in brackets. All arranger types will also be put in a hidden variable, e.g. _cwp_orchestrators. The table below shows the artist types, host tag and hidden variable for each artist type.
+    "Modify host tags and include annotations" (Previously called "Include arrangers from all work levels"). This will gather together, for example, any arranger-type information from the recording, work or parent works and place it in the "arranger" tag ('host' tag), with the annotation (see below) in brackets. All arranger types will also be put in a hidden variable, e.g. _cwp_orchestrators. The table below shows the artist types, host tag and hidden variable for each artist type.
 
-   | Artist type | Host tag | Hidden variable |
-   | --- | --- | --- |
-   | writer | composer | writers |
-   | lyricist | lyricist | lyricists |
-   | librettist | lyricist | librettists |
-   | revised by | arranger | revisors |
-   | translator | lyricist | translators |
-   | arranger | arranger | arrangers |
-   | reconstructed by | arranger | reconstructors |
-   | orchestrator | arranger | orchestrators |
-   | instrument arranger | arranger | arrangers (with instrument type in brackets) |
-   | vocal arranger | arranger | arrangers (with voice type in brackets) |
-   | chorus master | conductor | chorusmasters |
-   | concertmaster | performer (with annotation as a sub-key) | leaders |
+     | Artist type | Host tag | Hidden variable |
+     | --- | --- | --- |
+     | writer | composer | writers |
+     | lyricist | lyricist | lyricists |
+     | librettist | lyricist | librettists |
+     | revised by | arranger | revisors |
+     | translator | lyricist | translators |
+     | arranger | arranger | arrangers |
+     | reconstructed by | arranger | reconstructors |
+     | orchestrator | arranger | orchestrators |
+     | instrument arranger | arranger | arrangers (with instrument type in brackets) |
+     | vocal arranger | arranger | arrangers (with voice type in brackets) |
+     | chorus master | conductor | chorusmasters |
+     | concertmaster | performer (with annotation as a sub-key) | leaders |
 
-   If you want to be more selective in what is included in host tags, then disable this option and use the tag mapping section to get the data from the hidden variables. If you want to add arrangers as composers, do so in the tag mapping section also. 
+     If you want to be more selective in what is included in host tags, then disable this option and use the tag mapping section to get the data from the hidden variables. If you want to add arrangers as composers, do so in the tag mapping section also. 
 
-   (Note that Picard does not natively pick up all arrangers, but that the plugin will do so, provided the "Works and parts" section is run.)
+     (Note that Picard does not natively pick up all arrangers, but that the plugin will do so, provided the "Works and parts" section is run.)
 
-   "Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name, if they are listed as album artists. If there is more than one composer, they will be listed in the descending order of the length of their music on the release. MusicBrainz style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
+     "Name album as 'Composer Last Name(s): Album Name'" will add the composer(s) last name(s) before the album name, if they are listed as album artists. If there is more than one composer, they will be listed in the descending order of the length of their music on the release. MusicBrainz style is to exclude the composer name unless it is actually part of the album name, but it can be useful to add it for library organisation. The default is checked.
 
 
-   "Do not write 'lyricist' tag if no vocal performers". Hopefully self-evident. This applies to both the Picard 'lyricist' tag and the related internal plugin hidden variables '_cwp_lyricists' etc. 
+     "Do not write 'lyricist' tag if no vocal performers". Hopefully self-evident. This applies to both the Picard 'lyricist' tag and the related internal plugin hidden variables '_cwp_lyricists' etc. 
 
-   Note that the plugin will search for lyricists at all work levels (bottom up), but will stop after finding the first one (unless that was just a translator).
+     Note that the plugin will search for lyricists at all work levels (bottom up), but will stop after finding the first one (unless that was just a translator).
 
-   "Do not include attributes in an instrument type" (previously just referred to the attribute 'solo'). MusicBrainz permits the use of "solo", "guest" and "additional" as instrument attributes although, for classical music, its use should be fairly rare - usually only if explicitly stated as a "solo" on the the sleevenotes. Classical Extras provides the option to exclude these attributes (the default), but you may wish to enable them for certain releases or non-Classical / cross-over releases.
+     "Do not include attributes in an instrument type" (previously just referred to the attribute 'solo'). MusicBrainz permits the use of "solo", "guest" and "additional" as instrument attributes although, for classical music, its use should be fairly rare - usually only if explicitly stated as a "solo" on the the sleevenotes. Classical Extras provides the option to exclude these attributes (the default), but you may wish to enable them for certain releases or non-Classical / cross-over releases.
 
-   "Annotations": The chosen text will be used to annotate the artist type within the host tag (see table above for host tags), but only if "Modify host tags" is selected.
+     "Annotations": The chosen text will be used to annotate the artist type within the host tag (see table above for host tags), but only if "Modify host tags" is selected.
 
-   Please note that the use of the word "master" is the MusicBrainz term and is not intended to be gender-specific. Users can specify whatever text they please.
+     Please note that the use of the word "master" is the MusicBrainz term and is not intended to be gender-specific. Users can specify whatever text they please.
 
 5. "Lyrics". **Please note that this section operates on the underlying input file tags, not the Picard-generated tags (MusicBrainz does not have lyrics)**
   Sometimes "lyrics" tags can contain album notes (repeated for every track in an album) as well as track notes and lyrics. This section will filter out the common text for a release and place it in a different tag from the text which is unique to each track.
