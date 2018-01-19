@@ -595,9 +595,7 @@ def plugin_options(option_type):
     tag_options = []
     for i in range(0, 16):
         if i < len(default_list):
-            default_source = default_list[i][0]
-            default_tag = default_list[i][1]
-            default_cond = default_list[i][2]
+            default_source, default_tag, default_cond = default_list[i]
         else:
             default_source = ''
             default_tag = ''
@@ -1667,11 +1665,12 @@ def _reverse_sortname(sortname):
     """
 
     chunks = [a.strip() for a in sortname.split(",")]
-    if len(chunks) == 2:
+    chunk_len = len(chunks)
+    if chunk_len == 2:
         return "%s %s" % (chunks[1], chunks[0])
-    elif len(chunks) == 3:
+    elif chunk_len == 3:
         return "%s %s %s" % (chunks[2], chunks[1], chunks[0])
-    elif len(chunks) == 4:
+    elif chunk_len == 4:
         return "%s %s, %s %s" % (chunks[1], chunks[0], chunks[3], chunks[2])
     else:
         return sortname.strip()
@@ -5967,7 +5966,8 @@ class PartLevels:
                     common_seq)
             if seq_length > 2 and ' ' in common_seq:  # Make sure it is non-trivial
                 # self.strip_parent_from_work(work, common_seq, part_level, False)[0]
-                stripped_work = work.replace(common_seq, '', 1).lstrip(' ;:,-')
+                stripped_work = work.replace(common_seq, '', 1).lstrip(''
+                                                                       ':,-')
         if self.INFO:
             log.info("Work: %s", work)
         if self.INFO:
