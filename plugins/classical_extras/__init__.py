@@ -6630,7 +6630,6 @@ class ClassicalExtrasOptionsPage(OptionsPage):
 # MAIN ROUTINE  #
 #################
 
-
 # set defaults for certain options that MUST be manually changed by the
 # user each time they are to be over-ridden
 config.setting['use_cache'] = True
