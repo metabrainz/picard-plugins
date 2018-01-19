@@ -3,9 +3,9 @@
 PLUGIN_NAME = u'Classical Extras'
 PLUGIN_AUTHOR = u'Mark Evens'
 PLUGIN_DESCRIPTION = u"""Classical Extras provides tagging enhancements for artists/performers and,
-in particular, utilises MB’s hierarchy of works to provide work/movement tags. 
+in particular, utilises MB’s hierarchy of works to provide work/movement tags.
 All options are set through a user interface in Picard options->plugins.
-While it is designed to cater for the complexities of classical music tagging, 
+While it is designed to cater for the complexities of classical music tagging,
 it may also be useful for other music which has more than just basic song/artist/album data.
 <br /><br />
 The options screen provides four tabs for users to control the tags produced:
@@ -18,11 +18,11 @@ Ability to read lyrics tags on the file which has been loaded and assign them to
 2. Tag mapping: in some ways, this is a simple substitute for some of Picard's scripting capability. The main advantage
  is that the plugin will remember what tag mapping you use for each release (or even track).
 <br /><br />
-3. Works and parts: The plugin will build a hierarchy of works and parts (e.g. Work -> Part -> Movement or 
-Opera -> Act -> Number) based on the works in MusicBrainz's database. These can then be displayed in tags in a variety 
+3. Works and parts: The plugin will build a hierarchy of works and parts (e.g. Work -> Part -> Movement or
+Opera -> Act -> Number) based on the works in MusicBrainz's database. These can then be displayed in tags in a variety
 of ways according to user preferences. Furthermore partial recordings, medleys, arrangements and collections of works
-are all handled according to user choices. There is a processing overhead for this at present because MusicBrainz limits 
-look-ups to one per second. 
+are all handled according to user choices. There is a processing overhead for this at present because MusicBrainz limits
+look-ups to one per second.
 <br /><br />
 4. Advanced: Various options to control the detailed processing of the above.
 <br /><br />
@@ -30,24 +30,27 @@ All user options can be saved on a per-album (or even per-track) basis so that t
 inconsistencies in the MusicBrainz data (e.g. include English titles from the track listing where the MusicBrainz works
 are in the composer's language and/or script).
 Also existing file tags can be processed (not possible in native Picard) or cleared without affecting cover art.
+<br /><br />
+See the readme file for full details
 """
 
-# DEVELOPERS COMMENT:
-u"""This plugin contains 3 classes:
-<br /><br />
-I. ("EXTRA ARTISTS") Create sorted fields for all performers. Creates a number of variables with alternative values for "artists" and "artist".
-Creates an ensemble variable for all ensemble-type performers.
-Also creates matching sort fields for artist and artists.
-Additionally create tags for artist types which are not normally created in Picard - particularly for classical music (notably instrument arrangers).
-<br /><br />
-II. ("PART LEVELS" [aka Work Parts]) Create tags for the hierarchy of works which contain a given track recording - particularly for classical music'
-Variables provided for each work level, with implied part names
-Mixed metadata provided including work and title elements
-<br /><br />
-III. ("OPTIONS") Allows the user to set various options including what tags will be written (otherwise the classes above will just write outputs to "hidden variables")
-<br /><br />
-See Readme file for full details of how to use.
-"""
+########################
+# DEVELOPERS NOTES: ####
+########################
+#  This plugin contains 3 classes:
+#
+# I. ("EXTRA ARTISTS") Create sorted fields for all performers. Creates a number of variables with alternative values for "artists" and "artist".
+# Creates an ensemble variable for all ensemble-type performers.
+# Also creates matching sort fields for artist and artists.
+# Additionally create tags for artist types which are not normally created in Picard - particularly for classical music (notably instrument arrangers).
+#
+# II. ("PART LEVELS" [aka Work Parts]) Create tags for the hierarchy of works which contain a given track recording - particularly for classical music'
+# Variables provided for each work level, with implied part names
+# Mixed metadata provided including work and title elements
+#
+# III. ("OPTIONS") Allows the user to set various options including what tags will be written (otherwise the classes above will just write outputs to "hidden variables")
+#
+# The main control routine is at the end of the module
 
 PLUGIN_VERSION = '0.9'
 PLUGIN_API_VERSIONS = ["1.4.0", "1.4.2"]
@@ -248,7 +251,8 @@ def get_options(album, track):
                         for opt in opt_dict:
                             opt_value = opt_dict[opt]
                             if section == 'artists':
-                                addn = plugin_options('tag') + plugin_options('picard')
+                                addn = plugin_options(
+                                    'tag') + plugin_options('picard')
                             else:
                                 addn = []
                             for ea_opt in plugin_options(section) + addn:
@@ -926,8 +930,8 @@ def option_settings(config_settings):
     :return: a (deep) copy of the Classical Extras options
     """
     options = {}
-    for option in plugin_options('artists') + plugin_options('tag') + plugin_options('workparts') + plugin_options(
-            'picard') + plugin_options('other'):
+    for option in plugin_options('artists') + plugin_options('tag') + plugin_options(
+            'workparts') + plugin_options('picard') + plugin_options('other'):
         options[option['option']] = copy.deepcopy(
             config_settings[option['option']])
     return options
@@ -2922,7 +2926,8 @@ class ExtraArtists:
                     lambda: collections.defaultdict(
                         lambda: collections.defaultdict(dict)))
 
-                for opt in plugin_options('artists') + plugin_options('picard'):
+                for opt in plugin_options(
+                        'artists') + plugin_options('picard'):
                     if 'name' in opt:
                         if 'value' in opt:
                             if options[opt['option']]:
@@ -4996,8 +5001,8 @@ class PartLevels:
                             log.info('lower work name is now %s',
                                      tm['~cwp' + meta_str + '_work_' + unicode(part_level - 1)])
                         # now fix the repeated work name at this level
-                        if work == tm['~cwp' + meta_str + '_work_' +
-                                      unicode(part_level - 1)] and not allow_repeats:
+                        if work == tm['~cwp' + meta_str + '_work_' + \
+                            unicode(part_level - 1)] and not allow_repeats:
                             tm['~cwp' +
                                meta_str +
                                '_work_' +
@@ -5750,7 +5755,8 @@ class PartLevels:
                     if '~cwp_work_' + \
                             unicode(n) in tm and '~cwp_workid_' + unicode(n) in tm:
                         source = tm['~cwp_work_' + unicode(n)]
-                        source_id = list(interpret(tm['~cwp_workid_' + unicode(n)]))
+                        source_id = list(
+                            interpret(tm['~cwp_workid_' + unicode(n)]))
                         if n == 0:
                             self.append_tag(
                                 tm, 'musicbrainz_work_composition', source)
@@ -6525,7 +6531,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
     TITLE = "Classical Extras"
     PARENT = "plugins"
     opts = plugin_options('artists') + plugin_options('tag') + \
-           plugin_options('workparts') + plugin_options('other')
+        plugin_options('workparts') + plugin_options('other')
 
     options = []
 
@@ -6557,7 +6563,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
         :return:
         """
         opts = plugin_options('artists') + plugin_options('tag') + \
-               plugin_options('workparts') + plugin_options('other')
+            plugin_options('workparts') + plugin_options('other')
 
         # To force a toggle so that signal given
         toggle_list = ['use_cwp',
@@ -6599,7 +6605,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
 
     def save(self):
         opts = plugin_options('artists') + plugin_options('tag') + \
-               plugin_options('workparts') + plugin_options('other')
+            plugin_options('workparts') + plugin_options('other')
 
         for opt in opts:
             if opt['option'] == 'classical_work_parts':
@@ -6629,7 +6635,6 @@ class ClassicalExtrasOptionsPage(OptionsPage):
 #################
 # MAIN ROUTINE  #
 #################
-
 
 # set defaults for certain options that MUST be manually changed by the
 # user each time they are to be over-ridden
