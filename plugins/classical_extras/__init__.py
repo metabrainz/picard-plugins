@@ -39,16 +39,20 @@ See the readme file for full details
 ########################
 #  This plugin contains 3 classes:
 #
-# I. ("EXTRA ARTISTS") Create sorted fields for all performers. Creates a number of variables with alternative values for "artists" and "artist".
+# I. ("EXTRA ARTISTS") Create sorted fields for all performers. Creates a number of variables with alternative values
+# for "artists" and "artist".
 # Creates an ensemble variable for all ensemble-type performers.
 # Also creates matching sort fields for artist and artists.
-# Additionally create tags for artist types which are not normally created in Picard - particularly for classical music (notably instrument arrangers).
+# Additionally create tags for artist types which are not normally created in Picard - particularly for classical music
+#  (notably instrument arrangers).
 #
-# II. ("PART LEVELS" [aka Work Parts]) Create tags for the hierarchy of works which contain a given track recording - particularly for classical music'
+# II. ("PART LEVELS" [aka Work Parts]) Create tags for the hierarchy of works which contain a given track recording
+# - particularly for classical music'
 # Variables provided for each work level, with implied part names
 # Mixed metadata provided including work and title elements
 #
-# III. ("OPTIONS") Allows the user to set various options including what tags will be written (otherwise the classes above will just write outputs to "hidden variables")
+# III. ("OPTIONS") Allows the user to set various options including what tags will be written
+# (otherwise the classes above will just write outputs to "hidden variables")
 #
 # The main control routine is at the end of the module
 
@@ -231,7 +235,8 @@ def get_options(album, track):
         append_tag(
             tm,
             "002_important_warning",
-            "No file with matching trackid - IF THERE SHOULD BE ONE, TRY 'REFRESH' - (unable to process any saved options, lyrics or 'keep' tags)")
+            "No file with matching trackid - IF THERE SHOULD BE ONE, TRY 'REFRESH' - "
+            "(unable to process any saved options, lyrics or 'keep' tags)")
 
     for section in sections:
         if options[override[section]]:
@@ -593,6 +598,10 @@ def plugin_options(option_type):
             default_source = default_list[i][0]
             default_tag = default_list[i][1]
             default_cond = default_list[i][2]
+        else:
+            default_source = ''
+            default_tag = ''
+            default_cond = False
         tag_options.append({'option': 'cea_source_' + unicode(i + 1),
                             'name': 'line ' + unicode(i + 1) + '_source',
                             'type': 'Combo',
@@ -658,7 +667,8 @@ def plugin_options(option_type):
         {'option': 'cwp_synonyms',
          'name': 'synonyms',
          'type': 'Text',
-         'default': '(1, one) / (2, two) / (3, three) / (&, and) / (Rezitativ, Recitativo) / (Recitativo, Recitative) / (Arie, Aria)'
+         'default': '(1, one) / (2, two) / (3, three) / (&, and) / (Rezitativ, Recitativo) / '
+                    '(Recitativo, Recitative) / (Arie, Aria)'
          },
         {'option': 'cwp_replacements',
          'name': 'replacements',
@@ -1034,8 +1044,8 @@ def get_aliases(self, album, options, releaseXmlNode):
 def get_artists(options, tm, relations, relation_type):
     """
     Get artist info from XML lookup
+    :param options:
     :param tm:
-    :param log_options:
     :param relations:
     :param relation_type: 'release', 'recording' or 'work' (NB 'work' does not pass a param for tm)
     :return:
@@ -1383,8 +1393,7 @@ def set_work_artists(self, album, track, writerList, tm, count):
             instrument = ", ".join(inst_list)
         else:
             instrument = None
-        sub_strings = {  # 'instrument arranger': instrument,
-            #'vocal arranger': instrument
+        sub_strings = {  # 'instrument arranger': instrument, 'vocal arranger': instrument
         }
         if options['cea_arranger']:
             if instrument:
@@ -1479,23 +1488,23 @@ def set_work_artists(self, album, track, writerList, tm, count):
             if cwp_sort_tag:
                 self.append_tag(tm, cwp_sort_tag, sort_name)
 
-        if caller == 'PartLevels' and (
-                writer_type == 'lyricist' or writer_type == 'librettist'):
-            self.lyricist_filled[track] = True
-            if self.DEBUG:
-                log.debug(
-                    '%s: Filled lyricist for track %s. Not looking further',
-                    PLUGIN_NAME,
-                    track)
+            if caller == 'PartLevels' and (
+                    writer_type == 'lyricist' or writer_type == 'librettist'):
+                self.lyricist_filled[track] = True
+                if self.DEBUG:
+                    log.debug(
+                        '%s: Filled lyricist for track %s. Not looking further',
+                        PLUGIN_NAME,
+                        track)
 
-        if writer_type == 'composer':
-            if sort_name in self.release_artists_sort[album]:
-                composerlast = sort_name.split(",")[0]
-                self.append_tag(tm, '~cea_album_composers', name)
-                self.append_tag(tm, '~cea_album_composers_sort', sort_name)
-                self.append_tag(
-                    tm, '~cea_album_track_composer_lastnames', composerlast)
-                composer_last_names(self, tm, album)
+            if writer_type == 'composer':
+                if sort_name in self.release_artists_sort[album]:
+                    composerlast = sort_name.split(",")[0]
+                    self.append_tag(tm, '~cea_album_composers', name)
+                    self.append_tag(tm, '~cea_album_composers_sort', sort_name)
+                    self.append_tag(
+                        tm, '~cea_album_track_composer_lastnames', composerlast)
+                    composer_last_names(self, tm, album)
 
 
 # Non-Latin character processing
@@ -1766,7 +1775,7 @@ def longest_common_sequence(list1, list2, minstart=0, maxstart=0):
     Use longest_common_substring for the more general problem
     """
     if maxstart < minstart:
-        return (None, 0)
+        return None, 0
     min_len = min(len(list1), len(list2))
     longest = 0
     seq = None
@@ -1782,6 +1791,7 @@ def longest_common_sequence(list1, list2, minstart=0, maxstart=0):
 def map_tags(options, album, tm):
     """
     :param options: options passed from either Artists or Workparts
+    :param album:
     :param tm: track metadata
     :return: None - action is through setting tm contents
     This is a common function for Artists and Workparts which should only run after both sections have completed for
@@ -2044,10 +2054,14 @@ def parse_data(options, obj, response_list, *match):
     :return: a list of matching items (always a list, even if only one item)
     This function takes any XmlNode object, or list thereof,
     and extracts a list of all objects exactly matching the hierarchy listed in match
-    match should contain list of each node in hierarchical sequence, with no gaps in the sequence of nodes, to lowest level required.
-    Insert attribs.attribname:attribvalue in the list to select only branches where attribname is attribvalue.
-    Insert childname.text:childtext in the list to select only branches where a sibling with childname has text childtext.
-      (Note: childname can be a dot-list if the text is more than one level down - e.g. child1.child2) # TODO - Check this works fully
+    match should contain list of each node in hierarchical sequence, with no gaps in the sequence
+     of nodes, to lowest level required.
+    Insert attribs.attribname:attribvalue in the list to select only branches where attribname
+     is attribvalue.
+    Insert childname.text:childtext in the list to select only branches where
+     a sibling with childname has text childtext.
+      (Note: childname can be a dot-list if the text is more than one level down - e.g. child1.child2)
+      # TODO - Check this works fully
     """
 
     DEBUG = False  # options["log_debug"]
@@ -2349,7 +2363,7 @@ def time_to_secs(a):
 def seq_last_names(self, album):
     """
     Sequences composer last names for album prefix by the total lengths of their tracks
-    :self:
+    :param self:
     :param album:
     :return:
     """
@@ -2400,7 +2414,10 @@ class ExtraArtists:
         self.release_artists_sort = collections.defaultdict(list)
         # collection of release artists - format is {album: [sort_name_1,
         # sort_name_2, ...]}
-
+        self.lyricist_filled = collections.defaultdict(dict)
+        # Boolean for each track to indicate if lyricist has been found (don't
+        # want to add more from higher levels)
+        # NB this last one is for completeness - not actually used by ExtraArtists, but here to remove pep8 error
     def add_artist_info(
             self,
             album,
@@ -2671,9 +2688,10 @@ class ExtraArtists:
                         options, record, [], 'relation_list')
                     performerList = album_performerList + \
                         get_artists(options, tm, relation_list, 'recording')['artists']
-                    # returns [(artist type, instrument or None, artist name, artist sort name, instrument sort, type sort)]
-                    # where instrument sort places solo ahead of additional etc. and type sort applies a custom sequencing
-                    # to the artist types
+                    # returns
+                    # [(artist type, instrument or None, artist name, artist sort name, instrument sort, type sort)]
+                    # where instrument sort places solo ahead of additional etc.
+                    #  and type sort applies a custom sequencing to the artist types
                     if performerList:
                         if self.DEBUG:
                             log.debug(
@@ -2996,9 +3014,11 @@ class ExtraArtists:
         tag_strings = {'performer': ('performer:', '~cea_performers', '~performer_sort', '~cea_performers_sort'),
                        'instrument': ('performer:', '~cea_performers', '~performer_sort', '~cea_performers_sort'),
                        'vocal': ('performer:', '~cea_performers', '~performer_sort', '~cea_performers_sort'),
-                       'performing orchestra': ('performer:orchestra', '~cea_ensembles', '~performer_sort', '~cea_ensembles_sort'),
+                       'performing orchestra': ('performer:orchestra', '~cea_ensembles', '~performer_sort',
+                                                '~cea_ensembles_sort'),
                        'conductor': ('conductor', '~cea_conductors', '~conductor_sort', '~cea_conductors_sort'),
-                       'chorus master': ('conductor', '~cea_chorusmasters', '~conductor_sort', '~cea_chorusmasters_sort'),
+                       'chorus master': ('conductor', '~cea_chorusmasters', '~conductor_sort',
+                                         '~cea_chorusmasters_sort'),
                        'concertmaster': ('performer', '~cea_leaders', '~performer_sort', '~cea_leaders_sort'),
                        'arranger': ('arranger', '~cea_arrangers', '_arranger_sort', '~cea_arrangers_sort'),
                        'instrument arranger': ('arranger', '~cea_arrangers', '~arranger_sort', '~cea_arrangers_sort'),
@@ -3049,7 +3069,9 @@ class ExtraArtists:
                             if inst_list == last_inst_list:
                                 if self.WARNING:
                                     log.warning(
-                                        'Duplicated performer information for %s (may be in Release Relationship as well as Track Relationship). Duplicates have been ignored.',
+                                        'Duplicated performer information for %s'
+                                        ' (may be in Release Relationship as well as Track Relationship).'
+                                        ' Duplicates have been ignored.',
                                         performer[3])
                                     self.append_tag(
                                         tm,
@@ -3057,7 +3079,8 @@ class ExtraArtists:
                                         'Duplicated performer information for "' +
                                         '; '.join(
                                             performer[3]) +
-                                        '" (may be in Release Relationship as well as Track Relationship). Duplicates have been ignored.')
+                                        '" (may be in Release Relationship as well as Track Relationship).'
+                                        ' Duplicates have been ignored.')
                     else:
                         artist_inst = [instrument]
                         last_artist = performer[3]
@@ -3187,7 +3210,8 @@ class ExtraArtists:
                     else:
                         if self.WARNING:
                             log.warning(
-                                '%s: No annotation (instrument) available for artist_type %s. Performer = %s. Track is %s',
+                                '%s: No annotation (instrument) available for artist_type %s.'
+                                ' Performer = %s. Track is %s',
                                 PLUGIN_NAME,
                                 artist_type,
                                 performer[2],
@@ -3580,7 +3604,8 @@ class PartLevels:
                         work_list_info.append(work_list_info_item)
             if self.INFO:
                 log.info('work_list_info: %s', work_list_info)
-            # we now have a list of items, where the id of each is a work id for the track or (multiple instances of) the recording id (for partial works)
+            # we now have a list of items, where the id of each is a work id for the track or
+            #  (multiple instances of) the recording id (for partial works)
             # we need to turn this into a usable hierarchy - i.e. just one item
             workId_list = []
             work_list = []
@@ -3689,7 +3714,8 @@ class PartLevels:
         # last track
         if self.DEBUG:
             log.debug(
-                '%s, Check for last track. Requests = %s, Tracknumber = %s, Totaltracks = %s, Discnumber = %s, Totaldiscs = %s',
+                '%s, Check for last track. Requests = %s, Tracknumber = %s, Totaltracks = %s,'
+                ' Discnumber = %s, Totaldiscs = %s',
                 PLUGIN_NAME,
                 album._requests,
                 track_metadata['tracknumber'],
@@ -4489,7 +4515,7 @@ class PartLevels:
                 tracks = answer[1]['track']
                 if self.INFO:
                     log.info("TRACKS: %s", tracks)
-                work_part_levels = self.trackback[album][topId]['depth']
+                # work_part_levels = self.trackback[album][topId]['depth']
                 for track in tracks:
                     track_meta = track[0]
                     tm = track_meta.metadata
@@ -4823,9 +4849,12 @@ class PartLevels:
             name_type):
         """
         Derive title (or work level-0) components from MB hierarchical work structure
-        :param top_info: {'levels': work_part_levels,'id': topId,'name': self.parts[topId]['name'],'single': single_work_album}
-        :param tracks: {'track':[(track1, height1), (track2, height2), ...], 'work': [work1, work2,...], 'title': [title1, title2, ...], 'tracknumber': [tracknumber1, tracknumber2, ...]}
-            where height is the number of levels in total in the branch for that track (i.e. height 1 => work_0 & work_1)
+        :param top_info:
+         {'levels': work_part_levels,'id': topId,'name': self.parts[topId]['name'],'single': single_work_album}
+        :param tracks:
+         {'track':[(track1, height1), (track2, height2), ...], 'work': [work1, work2,...],
+          'title': [title1, title2, ...], 'tracknumber': [tracknumber1, tracknumber2, ...]}
+          where height is the number of levels in total in the branch for that track (i.e. height 1 => work_0 & work_1)
         :param height: number of levels above the current one
         :param depth: maximum number of levels
         :param width: number of siblings
@@ -4999,8 +5028,8 @@ class PartLevels:
                             log.info('lower work name is now %s',
                                      tm['~cwp' + meta_str + '_work_' + unicode(part_level - 1)])
                         # now fix the repeated work name at this level
-                        if work == tm['~cwp' + meta_str + '_work_' + \
-                            unicode(part_level - 1)] and not allow_repeats:
+                        if work == tm['~cwp' + meta_str + '_work_' +
+                                    unicode(part_level - 1)] and not allow_repeats:
                             tm['~cwp' +
                                meta_str +
                                '_work_' +
@@ -5008,18 +5037,16 @@ class PartLevels:
                                                          unicode(part_level)]
                             self.level0_warn(tm, part_level)
                         tm['~cwp' +
-                           meta_str +
-                           '_part_' +
-                           unicode(part_level -
-                                   1)] = self.strip_parent_from_work(tm['~cwp' +
-                                                                        meta_str +
-                                                                        '_work_' +
-                                                                        unicode(part_level -
-                                                                                1)], tm['~cwp' +
-                                                                                        meta_str +
-                                                                                        '_work_' +
-                                                                                        unicode(part_level)], part_level -
-                                                                     1, False)[0]
+                            meta_str + '_part_' +
+                            unicode(part_level - 1)] = \
+                                self.strip_parent_from_work(
+                                    tm[
+                                        '~cwp' + meta_str + '_work_' +
+                                        unicode(part_level - 1)],
+                                    tm[
+                                        '~cwp' + meta_str + '_work_' +
+                                        unicode(part_level)],
+                                        part_level - 1, False)[0]
 
                     if part_level == 1:
                         movt = name[common_len:].strip().lstrip(":,.;- ")
@@ -5034,7 +5061,8 @@ class PartLevels:
                     if name_type == 'title':
                         if '~cwp_title_work_' + unicode(part_level - 1) in tm and tm['~cwp_title_work_' + unicode(
                                 part_level)] == tm['~cwp_title_work_' + unicode(part_level - 1)] and width == 1:
-                            pass  # don't count higher part-levels which are not distinct from lower ones when the parent work has only one child
+                            pass  # don't count higher part-levels which are not distinct from lower ones
+                                  #  when the parent work has only one child
                         else:
                             tm['~cwp_title_work_levels'] = depth
                             tm['~cwp_title_part_levels'] = part_level
@@ -5215,7 +5243,7 @@ class PartLevels:
                         movt = title_split[1]
         if self.INFO:
             log.info("Work %s, Movt %s", work, movt)
-        return (work, movt)
+        return work, movt
 
     def process_work_artists(self, album, track, workIds, tm, count):
         """
@@ -5272,7 +5300,6 @@ class PartLevels:
         tm = track.metadata
         options = self.options[track]
         part_levels = int(tm['~cwp_part_levels'])
-        # work_part_levels = int(tm['~cwp_work_part_levels'])
         if self.DEBUG:
             log.debug(
                 "%s: Extending metadata for track: %s, ref_height: %s, depth: %s, part_levels: %s",
@@ -5641,7 +5668,8 @@ class PartLevels:
             groupheading = tm['~cwp_groupheading'] or ""
             work = tm['~cwp_work'] or ""
             inter_work = tm['~cwp_inter_work'] or ""
-        elif options["cwp_extended"]:
+        else:
+            # options["cwp_extended"]
             if self.DEBUG:
                 log.debug("extended")
             part = tm['~cwp_extended_part']
@@ -5856,7 +5884,8 @@ class PartLevels:
         :param parentId:
         :return:
         """
-        # extend=True is used [ NO LONGER to find "full_parent" names] + (with parentId) to trigger recursion if unable to strip parent name from work
+        # extend=True is used [ NO LONGER to find "full_parent" names] + (with parentId)
+        #  to trigger recursion if unable to strip parent name from work
         # extend=False is used when this routine is called for other purposes
         # than strict work: parent relationships
         if self.DEBUG:
@@ -5944,7 +5973,7 @@ class PartLevels:
         if self.INFO:
             log.info("Stripped work: %s", stripped_work)
         # Changed full_parent to parent after removal of 'extend' logic above
-        return (stripped_work, parent)
+        return stripped_work, parent
 
     def diff_pair(self, track, tm, mb_item, title_item):
         """
@@ -6266,6 +6295,8 @@ class PartLevels:
                 ti_rich_list,
                 len(ti_rich_list))
         s = 0
+        index = 0
+        change = ()
         for i, (t, n) in enumerate(ti_rich_list):
             if n:
                 s += 1
@@ -6393,7 +6424,6 @@ class PartLevels:
 
                     if i > 1:
                         if self.boil(ti_bit) == self.boil(ti_bit_prev):
-                            #ti_bit_prev = ti_list_new[i]
                             dup = ti_list_new.pop(i)
                             if self.DEBUG:
                                 log.debug("...removed dup %s", dup)
@@ -6527,7 +6557,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
     NAME = "classical_extras"
     TITLE = "Classical Extras"
     PARENT = "plugins"
-    opts = plugin_options('artists') + plugin_options('tag') + \
+    opts = plugin_options('artists') + plugin_options('tag') +\
            plugin_options('workparts') + plugin_options('other')
 
     options = []
