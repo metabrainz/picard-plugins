@@ -4489,7 +4489,7 @@ class PartLevels:
                 tracks = answer[1]['track']
                 if self.INFO:
                     log.info("TRACKS: %s", tracks)
-                work_part_levels = self.trackback[album][topId]['depth']
+                # work_part_levels = self.trackback[album][topId]['depth'] # NOT USED
                 for track in tracks:
                     track_meta = track[0]
                     tm = track_meta.metadata
