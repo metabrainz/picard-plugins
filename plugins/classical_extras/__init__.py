@@ -2,7 +2,7 @@
 
 PLUGIN_NAME = u'Classical Extras'
 PLUGIN_AUTHOR = u'Mark Evens'
-PLUGIN_DESCRIPTION = u"""Classical Extras provides tagging enhancements for artists/performers and, 
+PLUGIN_DESCRIPTION = u"""Classical Extras provides tagging enhancements for artists/performers and,
 in particular, utilises MB’s hierarchy of works to provide work/movement tags. 
 All options are set through a user interface in Picard options->plugins.
 While it is designed to cater for the complexities of classical music tagging, 
