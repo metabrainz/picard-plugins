@@ -3353,7 +3353,7 @@ class PartLevels:
         # currently active Classical Extras options
         self.file_works = collections.defaultdict(list)
         # list of works derived from SongKong-style file tags
-        # structure is {(album, track): [{workid, name}, {workid ....]}
+        # structure is {(album, track): [{workid: , name: }, {workid: ....}}
         self.album_artists = collections.defaultdict(
             lambda: collections.defaultdict(dict))
         # collection of artists to be applied at album level
