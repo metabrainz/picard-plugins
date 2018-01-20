@@ -1947,7 +1947,7 @@ def map_tags(options, album, tm):
     # remove any unwanted file tags
     music_file = tm['~ce_file']
     orig_metadata = album.tagger.files[music_file].orig_metadata
-    if options['delete_tags']:
+    if 'delete_tags' in options and options['delete_tags']:
         warn = []
         for delete_item in options['delete_tags']:
             if delete_item not in tm:  # keep the original for comparison if we have a new version
@@ -6669,6 +6669,9 @@ config.setting['use_cache'] = True
 config.setting['log_debug'] = False
 config.setting['log_info'] = False
 config.setting['ce_options_overwrite'] = False
+config.setting['track_ars'] = True
+config.setting['release_ars'] = True
+
 
 register_track_metadata_processor(PartLevels().add_work_info)
 register_track_metadata_processor(ExtraArtists().add_artist_info)
