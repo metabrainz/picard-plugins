@@ -44,50 +44,47 @@ class wikidata:
             self.process_request(metadata, tagger, item_id, type='artist')
 
     def process_request(self, metadata, tagger, item_id, type):
-        self.lock.acquire()
-        log.debug('WIKIDATA: Looking up cache for item  %s' % item_id)
-        log.debug('WIKIDATA: requests %s' % tagger._requests)
-        log.debug('WIKIDATA: TYPE %s' % type)
-        if item_id in list(self.cache.keys()):
-            log.info('WIKIDATA: found in cache')
-            genre_list = self.cache.get(item_id)
-            new_genre = set(metadata.getall("genre"))
-            new_genre.update(genre_list)
-            metadata["genre"] = list(new_genre)
+        with self.lock:
+            log.debug('WIKIDATA: Looking up cache for item  %s' % item_id)
+            log.debug('WIKIDATA: requests %s' % tagger._requests)
+            log.debug('WIKIDATA: TYPE %s' % type)
+            if item_id in list(self.cache.keys()):
+                log.info('WIKIDATA: found in cache')
+                genre_list = self.cache.get(item_id)
+                new_genre = set(metadata.getall("genre"))
+                new_genre.update(genre_list)
+                metadata["genre"] = list(new_genre)
 
-            if tagger._requests == 0:
-                tagger._finalize_loading(None)
-            self.lock.release()
-            return
-        else:
-            # pending requests are handled by adding the metadata object to a
-            # list of things to be updated when the genre is found
-            if item_id in list(self.requests.keys()):
-                log.debug(
-                    'WIKIDATA: request already pending, add it to the list of items to update once this has been found')
-                self.requests[item_id].append(metadata)
-
-                tagger._requests += 1
-                self.taggers[item_id].append(tagger)
-                self.lock.release()
+                if tagger._requests == 0:
+                    tagger._finalize_loading(None)
                 return
-            self.requests[item_id] = [metadata]
-            tagger._requests += 1
-            self.taggers[item_id] = [tagger]
-            log.debug('WIKIDATA: first request for this item')
+            else:
+                # pending requests are handled by adding the metadata object to a
+                # list of things to be updated when the genre is found
+                if item_id in list(self.requests.keys()):
+                    log.debug(
+                        'WIKIDATA: request already pending, add it to the list of items to update once this has been found')
+                    self.requests[item_id].append(metadata)
 
-            log.info('WIKIDATA: about to call musicbrainz to look up %s ' % item_id)
-            # find the wikidata url if this exists
-            host = config.setting["server_host"]
-            port = config.setting["server_port"]
+                    tagger._requests += 1
+                    self.taggers[item_id].append(tagger)
+                    return
+                self.requests[item_id] = [metadata]
+                tagger._requests += 1
+                self.taggers[item_id] = [tagger]
+                log.debug('WIKIDATA: first request for this item')
 
-            path = '/ws/2/%s/%s' % (type, item_id)
-            queryargs = {"inc": "url-rels"}
-            self.ws.get(host, port, path,
-                           partial(self.musicbrainz_release_lookup,
-                                   item_id, metadata),
-                           parse_response_type="xml", priority=False, important=False, queryargs=queryargs)
-            self.lock.release()
+                log.info('WIKIDATA: about to call musicbrainz to look up %s ' % item_id)
+                # find the wikidata url if this exists
+                host = config.setting["server_host"]
+                port = config.setting["server_port"]
+
+                path = '/ws/2/%s/%s' % (type, item_id)
+                queryargs = {"inc": "url-rels"}
+                self.ws.get(host, port, path,
+                               partial(self.musicbrainz_release_lookup,
+                                       item_id, metadata),
+                               parse_response_type="xml", priority=False, important=False, queryargs=queryargs)
 
     def musicbrainz_release_lookup(self, item_id, metadata, response, reply, error):
         found = False
@@ -122,15 +119,14 @@ class wikidata:
                                 self.process_wikidata(wikidata_url, item_id)
         if not found:
             log.info('WIKIDATA: no wikidata url')
-            self.lock.acquire()
-            for tagger in self.taggers[item_id]:
-                tagger._requests -= 1
-                if tagger._requests == 0:
-                    tagger._finalize_loading(None)
-                log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
-                          tagger._requests)
-            del self.requests[item_id]
-            self.lock.release()
+            with self.lock:
+                for tagger in self.taggers[item_id]:
+                    tagger._requests -= 1
+                    if tagger._requests == 0:
+                        tagger._finalize_loading(None)
+                    log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
+                              tagger._requests)
+                del self.requests[item_id]
 
     def process_wikidata(self, wikidata_url, item_id):
         item = wikidata_url.split('/')[4]
@@ -172,35 +168,34 @@ class wikidata:
                                             log.debug(
                                                 'Our genre is: %s' % genre)
 
-        self.lock.acquire()
-        if len(genre_list) > 0:
-            log.info('WiKIDATA: final list of wikidata id found: %s' %
-                     genre_entries)
-            log.info('WIKIDATA: final list of genre: %s' % genre_list)
+        with self.lock:
+            if len(genre_list) > 0:
+                log.info('WiKIDATA: final list of wikidata id found: %s' %
+                         genre_entries)
+                log.info('WIKIDATA: final list of genre: %s' % genre_list)
 
-            log.debug('WIKIDATA: total items to update: %s ' %
-                      len(self.requests[item_id]))
-            for metadata in self.requests[item_id]:
-                new_genre = set(metadata.getall("genre"))
-                new_genre.update(genre_list)
-                metadata["genre"] = list(new_genre)
-                self.cache[item_id] = genre_list
-                log.debug('WIKIDATA: setting genre : %s ' % genre_list)
+                log.debug('WIKIDATA: total items to update: %s ' %
+                          len(self.requests[item_id]))
+                for metadata in self.requests[item_id]:
+                    new_genre = set(metadata.getall("genre"))
+                    new_genre.update(genre_list)
+                    metadata["genre"] = list(new_genre)
+                    self.cache[item_id] = genre_list
+                    log.debug('WIKIDATA: setting genre : %s ' % genre_list)
 
-        else:
-            log.info('WIKIDATA: Genre not found in wikidata')
+            else:
+                log.info('WIKIDATA: Genre not found in wikidata')
 
-        log.info('WIKIDATA: Seeing if we can finalize tags %s  ' %
-                 len(self.taggers[item_id]))
+            log.info('WIKIDATA: Seeing if we can finalize tags %s  ' %
+                     len(self.taggers[item_id]))
 
-        for tagger in self.taggers[item_id]:
-            tagger._requests -= 1
-            if tagger._requests == 0:
-                tagger._finalize_loading(None)
-            log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
-                     tagger._requests)
-        del self.requests[item_id]
-        self.lock.release()
+            for tagger in self.taggers[item_id]:
+                tagger._requests -= 1
+                if tagger._requests == 0:
+                    tagger._finalize_loading(None)
+                log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
+                         tagger._requests)
+            del self.requests[item_id]
 
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
         self.ws = album.tagger.webservice
