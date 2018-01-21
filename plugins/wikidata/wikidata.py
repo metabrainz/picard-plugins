@@ -76,7 +76,6 @@ class wikidata:
             self.taggers[item_id] = [tagger]
             log.debug('WIKIDATA: first request for this item')
 
-            self.lock.release()
             log.info('WIKIDATA: about to call musicbrainz to look up %s ' % item_id)
             # find the wikidata url if this exists
             host = config.setting["server_host"]
@@ -88,6 +87,7 @@ class wikidata:
                            partial(self.musicbrainz_release_lookup,
                                    item_id, metadata),
                            parse_response_type="xml", priority=False, important=False, queryargs=queryargs)
+            self.lock.release()
 
     def musicbrainz_release_lookup(self, item_id, metadata, response, reply, error):
         found = False
