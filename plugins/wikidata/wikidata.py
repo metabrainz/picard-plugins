@@ -97,7 +97,6 @@ class wikidata:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found = True
                                 wikidata_url = relation.target[0].text
-                                item_id = item_id
                                 self.process_wikidata(wikidata_url, item_id)
                 if 'artist' in response.metadata[0].children:
                     if 'relation_list' in response.metadata[0].artist[0].children:
@@ -105,7 +104,6 @@ class wikidata:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found = True
                                 wikidata_url = relation.target[0].text
-                                item_id = item_id
                                 self.process_wikidata(wikidata_url, item_id)
 
                 if 'work' in response.metadata[0].children:
@@ -114,7 +112,6 @@ class wikidata:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found = True
                                 wikidata_url = relation.target[0].text
-                                item_id = item_id
                                 self.process_wikidata(wikidata_url, item_id)
         if not found:
             log.info('WIKIDATA: no wikidata url')
