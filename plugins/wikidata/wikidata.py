@@ -54,10 +54,7 @@ class wikidata:
                 new_genre = set(metadata.getall("genre"))
                 new_genre.update(genre_list)
                 metadata["genre"] = list(new_genre)
-
-                if tagger._requests == 0:
-                    tagger._finalize_loading(None)
-                return
+                tagger._finalize_loading(None)
             else:
                 # pending requests are handled by adding the metadata object to a
                 # list of things to be updated when the genre is found
@@ -122,8 +119,7 @@ class wikidata:
             with self.lock:
                 for tagger in self.taggers[item_id]:
                     tagger._requests -= 1
-                    if tagger._requests == 0:
-                        tagger._finalize_loading(None)
+                    tagger._finalize_loading(None)
                     log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
                               tagger._requests)
                 del self.requests[item_id]
@@ -191,8 +187,7 @@ class wikidata:
 
             for tagger in self.taggers[item_id]:
                 tagger._requests -= 1
-                if tagger._requests == 0:
-                    tagger._finalize_loading(None)
+                tagger._finalize_loading(None)
                 log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
                          tagger._requests)
             del self.requests[item_id]
