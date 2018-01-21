@@ -202,9 +202,10 @@ class wikidata:
         self.log = album.log
         tagger = album
 
-        item_id = dict.get(metadata, 'musicbrainz_releasegroupid')[0]
-        log.debug('WIKIDATA: looking up release metadata for %s ' % item_id)
-        self.process_request(metadata, tagger, item_id, type='release-group')
+        for release_group in dict.get(metadata, 'musicbrainz_releasegroupid', []):
+            item_id = release_group
+            log.debug('WIKIDATA: looking up release group metadata for %s ' % item_id)
+            self.process_request(metadata, tagger, item_id, type='release-group')
 
         for artist in dict.get(metadata, 'musicbrainz_albumartistid'):
             item_id = artist
