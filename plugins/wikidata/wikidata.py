@@ -128,8 +128,8 @@ class wikidata:
         path = "/wiki/Special:EntityData/" + item + ".rdf"
         log.info('WIKIDATA: fetching the folowing url wikidata.org%s' % path)
         self.ws.get('www.wikidata.org', 443, path,
-                       partial(self.parse_wikidata_response, item, item_id),
-                       parse_response_type="xml", priority=False, important=False)
+                    partial(self.parse_wikidata_response, item, item_id),
+                    parse_response_type="xml", priority=False, important=False)
 
     def parse_wikidata_response(self, item, item_id, response, reply, error):
         genre_entries = []
