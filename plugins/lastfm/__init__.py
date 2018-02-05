@@ -3,8 +3,8 @@
 PLUGIN_NAME = 'Last.fm'
 PLUGIN_AUTHOR = 'Lukáš Lalinský'
 PLUGIN_DESCRIPTION = 'Use tags from Last.fm as genre.'
-PLUGIN_VERSION = "0.4"
-PLUGIN_API_VERSIONS = ["0.15"]
+PLUGIN_VERSION = "0.5"
+PLUGIN_API_VERSIONS = ["2.0"]
 
 from PyQt4 import QtCore
 from picard.metadata import register_track_metadata_processor
@@ -20,8 +20,8 @@ LASTFM_PORT = 80
 # From http://www.last.fm/api/tos, 2011-07-30
 # 4.4 (...) You will not make more than 5 requests per originating IP address per second, averaged over a
 # 5 minute period, without prior written consent. (...)
-from picard.webservice import REQUEST_DELAY
-REQUEST_DELAY[(LASTFM_HOST, LASTFM_PORT)] = 200
+from picard.webservice import ratecontrol
+ratecontrol.set_minimum_delay((LASTFM_HOST, LASTFM_PORT), 200)
 
 # Cache for Tags to avoid re-requesting tags within same Picard session
 _cache = {}

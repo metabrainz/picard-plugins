@@ -23,19 +23,19 @@ PLUGIN_DESCRIPTION = '''Uses AcousticBrainz for mood and genre.
 WARNING: Experimental plugin. All guarantees voided by use.'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
 from picard import log
 from picard.metadata import register_track_metadata_processor
-from picard.webservice import REQUEST_DELAY
+from picard.webservice import ratecontrol
 from picard.util import load_json
 
 ACOUSTICBRAINZ_HOST = "acousticbrainz.org"
 ACOUSTICBRAINZ_PORT = 80
 
-REQUEST_DELAY[(ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT)] = 50
+ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 50)
 
 
 def result(album, metadata, data, reply, error):

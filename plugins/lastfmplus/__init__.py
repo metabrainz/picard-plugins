@@ -6,8 +6,8 @@ PLUGIN_DESCRIPTION = '''Uses folksonomy tags from Last.fm to<br/>
 * Sort music into major and minor genres based on configurable genre "whitelists"<br/>
 * Add "mood", "occasion" and other custom categories<br/>
 * Add "original release year" and "decade" tags, as well as populate blank dates.'''
-PLUGIN_VERSION = "0.14"
-PLUGIN_API_VERSIONS = ["0.15"]
+PLUGIN_VERSION = "0.15"
+PLUGIN_API_VERSIONS = ["2.0"]
 
 from PyQt4 import QtGui, QtCore
 from picard.metadata import register_track_metadata_processor
@@ -24,8 +24,8 @@ LASTFM_PORT = 80
 # From http://www.last.fm/api/tos, 2011-07-30
 # 4.4 (...) You will not make more than 5 requests per originating IP address per second, averaged over a
 # 5 minute period, without prior written consent. (...)
-from picard.webservice import REQUEST_DELAY
-REQUEST_DELAY[(LASTFM_HOST, LASTFM_PORT)] = 200
+from picard.webservice import ratecontrol
+ratecontrol.set_minimum_delay((LASTFM_HOST, LASTFM_PORT), 200)
 
 # Cache for Tags to avoid re-requesting tags within same Picard session
 _cache = {}
