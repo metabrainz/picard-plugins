@@ -81,9 +81,10 @@ class wikidata:
                 path = '/ws/2/%s/%s' % (type, item_id)
                 queryargs = {"inc": "url-rels"}
                 self.ws.get(host, port, path,
-                               partial(self.musicbrainz_release_lookup,
-                                       item_id, metadata),
-                               parse_response_type="xml", priority=False, important=False, queryargs=queryargs)
+                            partial(self.musicbrainz_release_lookup,
+                                    item_id, metadata),
+                            parse_response_type="xml", priority=False,
+                            important=False, queryargs=queryargs)
 
     def musicbrainz_release_lookup(self, item_id, metadata, response, reply, error):
         found = False
