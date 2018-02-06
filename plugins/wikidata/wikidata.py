@@ -197,25 +197,21 @@ class wikidata:
         self.log = album.log
 
         for release_group in dict.get(metadata, 'musicbrainz_releasegroupid', []):
-            item_id = release_group
-            log.debug('WIKIDATA: looking up release group metadata for %s ' % item_id)
-            self.process_request(metadata, album, item_id, type='release-group')
+            log.debug('WIKIDATA: looking up release group metadata for %s ' % release_group)
+            self.process_request(metadata, album, release_group, type='release-group')
 
         for artist in dict.get(metadata, 'musicbrainz_albumartistid', []):
-            item_id = artist
-            log.info('WIKIDATA: processing release artist %s' % item_id)
-            self.process_request(metadata, album, item_id, type='artist')
+            log.info('WIKIDATA: processing release artist %s' % artist)
+            self.process_request(metadata, album, artist, type='artist')
 
         for artist in dict.get(metadata, 'musicbrainz_artistid'):
-            item_id = artist
-            log.info('WIKIDATA: processing track artist %s' % item_id)
-            self.process_request(metadata, album, item_id, type='artist')
+            log.info('WIKIDATA: processing track artist %s' % artist)
+            self.process_request(metadata, album, artist, type='artist')
 
         if 'musicbrainz_workid' in metadata:
             for workid in dict.get(metadata, 'musicbrainz_workid'):
-                item_id = workid
-                log.info('WIKIDATA: processing track artist %s' % item_id)
-                self.process_request(metadata, album, item_id, type='work')
+                log.info('WIKIDATA: processing track artist %s' % workid)
+                self.process_request(metadata, album, workid, type='work')
 
 
 wikidata = wikidata()
