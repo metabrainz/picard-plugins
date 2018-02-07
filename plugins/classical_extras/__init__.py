@@ -1940,9 +1940,10 @@ def map_tags(options, album, tm):
     # if options over-write enabled, remove it after processing one album
     options['ce_options_overwrite'] = False
     config.setting['ce_options_overwrite'] = False
-    # so that options are not retained (in case of refesh with different
+    # so that options are not retained (in case of refresh with different
     # options)
-    del tm['~ce_options']
+    if '~ce_options' in tm:
+        del tm['~ce_options']
 
     # remove any unwanted file tags
     music_file = tm['~ce_file']
@@ -2385,7 +2386,7 @@ def seq_last_names(self, album):
 #################
 
 
-class ExtraArtists:
+class ExtraArtists():
 
     # CONSTANTS
     def __init__(self):
@@ -3295,7 +3296,7 @@ class ExtraArtists:
 ##############
 
 
-class PartLevels:
+class PartLevels():
     # QUEUE-HANDLING
     class WorksQueue(LockableObject):
         """Object for managing the queue of lookups"""
