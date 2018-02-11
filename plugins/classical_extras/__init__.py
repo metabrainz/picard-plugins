@@ -1919,12 +1919,10 @@ def map_tags(options, album, tm):
                         append_tag(tm, tag, source[1:], ['; ', '/ '])
                     else:
                         pass
-    log.error('1')
     if ERROR and "~cea_error" in tm:
         append_tag(tm, '001_errors', tm['~cea_error'], ['; '])
     if WARNING and "~cea_warning" in tm:
         append_tag(tm, '002_warnings', tm['~cea_warning'], ['; '])
-    log.error('2')
     if not DEBUG:
         if '~cea_works_complete' in tm:
             del tm['~cea_works_complete']
@@ -1936,7 +1934,6 @@ def map_tags(options, album, tm):
                 del_list.append(t)
         for t in del_list:
             del tm[t]
-    log.error('3')
     # if options over-write enabled, remove it after processing one album
     options['ce_options_overwrite'] = False
     config.setting['ce_options_overwrite'] = False
@@ -1944,7 +1941,6 @@ def map_tags(options, album, tm):
     # options)
     if '~ce_options' in tm:
         del tm['~ce_options']
-    log.error('4')
     # remove any unwanted file tags
     if '~ce_file' in tm and tm['~ce_file'] != "None":
         music_file = tm['~ce_file']
@@ -1958,7 +1954,6 @@ def map_tags(options, album, tm):
             if warn and WARNING:
                 append_tag(tm, '002_warnings', 'Deleted tags: ' + ', '.join(warn))
                 log.warning('Deleted tags: ' + ', '.join(warn))
-    log.error('5')
 
 def sort_suffix(tag):
     """To determine what sort suffix is appropriate for a given tag"""
