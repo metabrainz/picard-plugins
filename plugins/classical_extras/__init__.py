@@ -56,7 +56,7 @@ See the readme file for full details
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '0.9'
+PLUGIN_VERSION = '0.9.1'
 PLUGIN_API_VERSIONS = ["1.4.0", "1.4.2"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -1919,12 +1919,10 @@ def map_tags(options, album, tm):
                         append_tag(tm, tag, source[1:], ['; ', '/ '])
                     else:
                         pass
-
     if ERROR and "~cea_error" in tm:
         append_tag(tm, '001_errors', tm['~cea_error'], ['; '])
     if WARNING and "~cea_warning" in tm:
         append_tag(tm, '002_warnings', tm['~cea_warning'], ['; '])
-
     if not DEBUG:
         if '~cea_works_complete' in tm:
             del tm['~cea_works_complete']
@@ -1936,7 +1934,6 @@ def map_tags(options, album, tm):
                 del_list.append(t)
         for t in del_list:
             del tm[t]
-
     # if options over-write enabled, remove it after processing one album
     options['ce_options_overwrite'] = False
     config.setting['ce_options_overwrite'] = False
@@ -1944,20 +1941,19 @@ def map_tags(options, album, tm):
     # options)
     if '~ce_options' in tm:
         del tm['~ce_options']
-
     # remove any unwanted file tags
-    music_file = tm['~ce_file']
-    orig_metadata = album.tagger.files[music_file].orig_metadata
-    if 'delete_tags' in options and options['delete_tags']:
-        warn = []
-        for delete_item in options['delete_tags']:
-            if delete_item not in tm:  # keep the original for comparison if we have a new version
-                del orig_metadata[delete_item]
-                warn.append(delete_item)
-        if warn and WARNING:
-            append_tag(tm, '002_warnings', 'Deleted tags: ' + ', '.join(warn))
-            log.warning('Deleted tags: ' + ', '.join(warn))
-
+    if '~ce_file' in tm and tm['~ce_file'] != "None":
+        music_file = tm['~ce_file']
+        orig_metadata = album.tagger.files[music_file].orig_metadata
+        if 'delete_tags' in options and options['delete_tags']:
+            warn = []
+            for delete_item in options['delete_tags']:
+                if delete_item not in tm:  # keep the original for comparison if we have a new version
+                    del orig_metadata[delete_item]
+                    warn.append(delete_item)
+            if warn and WARNING:
+                append_tag(tm, '002_warnings', 'Deleted tags: ' + ', '.join(warn))
+                log.warning('Deleted tags: ' + ', '.join(warn))
 
 def sort_suffix(tag):
     """To determine what sort suffix is appropriate for a given tag"""
