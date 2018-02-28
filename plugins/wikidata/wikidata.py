@@ -56,13 +56,11 @@ class wikidata:
                 metadata["genre"] = list(new_genre)
 
                 album._finalize_loading(None)
-                return
             else:
                 # pending requests are handled by adding the metadata object to a
                 # list of things to be updated when the genre is found
                 if item_id in list(self.requests.keys()):
-                    log.debug(
-                        'WIKIDATA: request already pending, add it to the list of items to update once this has been found')
+                    log.debug('WIKIDATA: request already pending, add it to the list of items to update once this has been found')
                     self.requests[item_id].append(metadata)
 
                     album._requests += 1
@@ -116,15 +114,18 @@ class wikidata:
                                 self.process_wikidata(wikidata_url, item_id)
         if not found:
             log.info('WIKIDATA: no wikidata url')
-            with self.lock:
-                for album in self.albums[item_id]:
-                    album._requests -= 1
-                    album._finalize_loading(None)
-                    log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
-                              album._requests)
-                del self.requests[item_id]
+        with self.lock:
+            for album in self.albums[item_id]:
+                album._requests -= 1
+                album._finalize_loading(None)
+                log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
+                          album._requests)
 
     def process_wikidata(self, wikidata_url, item_id):
+        for tagger in self.taggers[item_id]:
+            tagger._requests += 1
+            log.info('zzzzzzzz')
+        log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS for item %s %s' % (item_id,tagger._requests))
         item = wikidata_url.split('/')[4]
         path = "/wiki/Special:EntityData/" + item + ".rdf"
         log.info('WIKIDATA: fetching the folowing url wikidata.org%s' % path)
@@ -161,9 +162,7 @@ class wikidata:
                                         if node2.attribs.get('lang') == 'en':
                                             genre = node2.text.title()
                                             genre_list.append(genre)
-                                            log.debug(
-                                                'Our genre is: %s' % genre)
-
+                                            log.debug( 'Our genre is: %s' % genre)
         with self.lock:
             if len(genre_list) > 0:
                 log.info('WiKIDATA: final list of wikidata id found: %s' %
@@ -190,7 +189,6 @@ class wikidata:
                 album._finalize_loading(None)
                 log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
                          album._requests)
-            del self.requests[item_id]
 
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
         self.ws = album.tagger.webservice
