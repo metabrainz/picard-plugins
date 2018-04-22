@@ -26,6 +26,6 @@ def keep(parser, *keeptags):
     for tag in tags:
         if (transltag(tag) not in keeptags and
             not tag.startswith("musicbrainz_") and
-                not tag[0] == "~"):
+                not tag.startswith("~")):
             parser.context.pop(tag, None)
     return ""
