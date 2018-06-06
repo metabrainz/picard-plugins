@@ -27,7 +27,9 @@ PLUGIN_DESCRIPTION = '''Replaces accented and otherwise non-ASCII characters
 with a somewhat equivalent version of their ASCII counterparts. This allows old
 devices to be able to display song artists and titles somewhat correctly,
 instead of displaying weird or blank symbols. It's an attempt to do a little
-better than Musicbrainz's native "Replace non-ASCII characters" option.'''
+better than Musicbrainz's native "Replace non-ASCII characters" option.
+
+Currently replaces characters on "album", "artist", and "title" tags.'''
 
 CHAR_TABLE = {
     # Acute     # Grave     # Umlaut    # Circumflex
