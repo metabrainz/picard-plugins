@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'Paper CD case'
 PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'Create a paper CD case from an album or cluster using http://papercdcase.com'
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -37,15 +37,29 @@ from picard.util import textencoding
 PAPERCDCASE_URL = 'http://papercdcase.com/advanced.php'
 
 
+def urlencode(s):
+    l = []
+    for c in s:
+        n = ord(c)
+        if (n < 128 or n > 255) and n != ord('&'):
+            l.append(c)
+        else:
+            l.append('%' + hex(n)[2:].upper())
+    return "".join(l)
+
+
 def build_papercdcase_url(artist, album, tracks):
     url = QUrl(PAPERCDCASE_URL)
     # papercdcase.com does not deal well with unicode characters :(
     url_query = QUrlQuery()
-    url_query.addQueryItem('artist', textencoding.asciipunct(artist))
-    url_query.addQueryItem('title', textencoding.asciipunct(album))
+    url_query.addQueryItem('artist',
+                            urlencode(textencoding.asciipunct(artist)))
+    url_query.addQueryItem('title',
+                            urlencode(textencoding.asciipunct(album)))
     i = 1
     for track in tracks:
-        url_query.addQueryItem('track' + str(i), textencoding.asciipunct(track))
+        url_query.addQueryItem('track' + str(i),
+                               urlencode(textencoding.asciipunct(track)))
         i += 1
     url.setQuery(url_query)
     return url.toString(QUrl.FullyEncoded)
