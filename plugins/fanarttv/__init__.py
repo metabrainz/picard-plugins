@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'fanart.tv cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
-PLUGIN_VERSION = "1.1"
+PLUGIN_VERSION = "1.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -73,7 +73,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
             super(CoverArtProviderFanartTv, self).enabled() and \
             not self.coverart.front_image_found
 
-    def queue_downloads(self):
+    def queue_images(self):
         release_group_id = self.metadata["musicbrainz_releasegroupid"]
         path = "/v3/music/albums/%s" % \
             (release_group_id, )
