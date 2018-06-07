@@ -37,15 +37,18 @@ from picard.util import textencoding
 PAPERCDCASE_URL = 'http://papercdcase.com/advanced.php'
 
 
+URLENCODE_ASCII_CHARS = [ord(' '), ord('%'), ord('&'), ord('/'), ord('?')]
+
+
 def urlencode(s):
     l = []
     for c in s:
         n = ord(c)
-        if (n < 128 or n > 255) and n != ord('&'):
+        if (n < 128 or n > 255) and n not in URLENCODE_ASCII_CHARS:
             l.append(c)
         else:
             l.append('%' + hex(n)[2:].upper())
-    return "".join(l)
+    return ''.join(l)
 
 
 def build_papercdcase_url(artist, album, tracks):
@@ -53,9 +56,9 @@ def build_papercdcase_url(artist, album, tracks):
     # papercdcase.com does not deal well with unicode characters :(
     url_query = QUrlQuery()
     url_query.addQueryItem('artist',
-                            urlencode(textencoding.asciipunct(artist)))
+                           urlencode(textencoding.asciipunct(artist)))
     url_query.addQueryItem('title',
-                            urlencode(textencoding.asciipunct(album)))
+                           urlencode(textencoding.asciipunct(album)))
     i = 1
     for track in tracks:
         url_query.addQueryItem('track' + str(i),
