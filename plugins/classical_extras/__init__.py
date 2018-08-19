@@ -25,7 +25,7 @@ All options are set through a user interface in Picard options->plugins.
 While it is designed to cater for the complexities of classical music tagging,
 it may also be useful for other music which has more than just basic song/artist/album data.
 <br /><br />
-The options screen provides four tabs for users to control the tags produced:
+The options screen provides five tabs for users to control the tags produced:
 <br /><br />
 1. Artists: Options as to whether artist tags will contain standard MB names, aliases or as-credited names.
 Ability to include and annotate names for specialist roles (chorus master, arranger, lyricist etc.).
@@ -46,14 +46,14 @@ instruments, keys, work dates and periods. Additional capabilities are provided 
 provide the relevant XML files) to use pre-existing databases of classical genres, classical composers and classical 
 periods.
 <br /><br />
-4. Advanced: Various options to control the detailed processing of the above.
+5. Advanced: Various options to control the detailed processing of the above.
 <br /><br />
 All user options can be saved on a per-album (or even per-track) basis so that tweaks can be used to deal with
 inconsistencies in the MusicBrainz data (e.g. include English titles from the track listing where the MusicBrainz works
 are in the composer's language and/or script).
-Also existing file tags can be processed (not possible in native Picard) or cleared without affecting cover art.
+Also existing file tags can be processed (not possible in native Picard).
 <br /><br />
-See the readme file <a href="https://github.com/metabrainz/picard-plugins/tree/1.0/plugins/classical_extras">
+See the readme file <a href="https://github.com/MetaTunes/picard-plugins/tree/metabrainz/2.0/plugins/classical_extras">
 on GitHub here</a> for full details.
 """
 
