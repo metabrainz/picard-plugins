@@ -66,7 +66,7 @@
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>3</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -7760,7 +7760,7 @@ text-decoration: underline;</string>
             <x>0</x>
             <y>0</y>
             <width>1087</width>
-            <height>1128</height>
+            <height>1205</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -8537,9 +8537,30 @@ text-decoration: underline;</string>
                   </layout>
                  </item>
                  <item>
-                  <widget class="Line" name="line_2">
+                  <widget class="Line" name="line_8">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_92">
+                   <property name="text">
+                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Prepositions and prefixes&lt;br/&gt;&lt;/span&gt;DO NOT USE ANY COMMAS OR QUOTE MARKS (apostophes in words are acceptable)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLabel" name="label_91">
+                   <property name="text">
+                    <string>Prepositions: these are words that will not be regarded as providing additional information (not treated as 'new' words) unless they precede a new word. Use lower case only, comma separated</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="cwp_prepositions">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: rgb(203, 182, 175);</string>
                    </property>
                   </widget>
                  </item>
@@ -9303,7 +9324,7 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Note also that, if @loujin's browser script has been used to fill the recording artist data, this will be the same as the performing artists in the Recording-Artist relationship - i.e. it may be a lengthy list rather than the principal artist for the track. &lt;/span&gt;&lt;/p&gt;
 &lt;li style=&quot; font-size:8pt;&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&amp;quot;Other artist options&amp;quot;: &lt;/li&gt;
 &lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;&amp;quot;Modify host tags and include annotations&amp;quot; (Previously called &amp;quot;Include arrangers from all work levels&amp;quot;). This will gather together, for example, any arranger-type information from the recording, work or parent works and place it in the &amp;quot;arranger&amp;quot; tag ('host' tag), with the annotation (see below) in brackets. All arranger types will also be put in a hidden variable, e.g. _cwp_orchestrators. The table below shows the artist types, host tag and hidden variable for each artist type. &lt;/span&gt;&lt;/p&gt;
-&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:240px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;
+&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:320px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;
 &lt;tr&gt;
 &lt;td&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Artist type&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;

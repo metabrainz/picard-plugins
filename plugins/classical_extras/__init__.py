@@ -1106,6 +1106,11 @@ def plugin_options(option_type):
          'type': 'Integer',
          'default': 66
          },
+        {'option': 'cwp_prepositions',
+         'name': 'prepositions',
+         'type': 'Text',
+         'default': "a, the, in, on, at, of, after, and, de, d'un, d'une, la, le, no"
+         },
         {'option': 'cwp_removewords',
          'name': 'ignore prefixes',
          'type': 'Text',
@@ -7034,20 +7039,23 @@ class PartLevels():
         if self.DEBUG:
             write_log(release_id, 'debug', 'Looking for any new words in the title')
         words = 0
-        nonWords = [
-            "a",
-            "the",
-            "in",
-            "on",
-            "at",
-            "of",
-            "after",
-            "and",
-            "de",
-            "d'un",
-            "d'une",
-            "la",
-            "le"]
+        # nonWords = [
+        #     "a",
+        #     "the",
+        #     "in",
+        #     "on",
+        #     "at",
+        #     "of",
+        #     "after",
+        #     "and",
+        #     "de",
+        #     "d'un",
+        #     "d'une",
+        #     "la",
+        #     "le"]
+        if self.options[track]["cwp_prepositions"]:
+            prepositions_fat = self.options[track]["cwp_prepositions"].split(',')
+            prepositions = [w.strip() for w in prepositions_fat]
         # TODO Parameterize this?
         if self.INFO:
             write_log(release_id, 'info', "Check before splitting: mb_test = %s, ti_test = %s", mb_test, ti_test)
@@ -7076,7 +7084,6 @@ class PartLevels():
             if self.INFO:
                 write_log(release_id, 'info', "mb_list2[%s] = %s", index, mb_list2[index])
         ti_new = []
-        ti_comp_list = []
         ti_rich_list = []
         for i, ti_bit_test in enumerate(ti_test_list):
             if i <= len(ti_list) - 1:
@@ -7089,19 +7096,16 @@ class PartLevels():
                 write_log(release_id, 'info', "i = %s, ti_bit_test = %s, ti_bit = %s", i, ti_bit_test, ti_bit)
             # Boolean to indicate whether ti_bit is a new word
             ti_rich_list.append((ti_bit, True))
-            if not ti_bit_test or (
-                    ti_bit_test and self.boil(release_id, ti_bit_test) in mb_list2):
-                if ti_bit_test:
-                    words += 1
+            if self.boil(release_id, ti_bit_test) in mb_list2:
                 ti_rich_list[i] = (ti_bit, False)
-            else:
-                if ti_bit_test.lower() not in nonWords and re.findall(
-                        r'\w', ti_bit[0], re.UNICODE):
-                    ti_comp_list.append(ti_bit[0])
+        # remove prepositions
         if self.INFO:
-            write_log(release_id, 'info', "words %s", words)
-        if self.INFO:
-            write_log(release_id, 'info', "ti_comp_list = %s", ti_comp_list)
+            write_log(release_id, 'info', "ti_rich_list before removing prepositions = %s. length = %s", ti_rich_list,
+                      len(ti_rich_list))
+        for i, ti_bit_test in enumerate(reversed(ti_test_list)):  # Need to reverse it to check later prepositions first
+            if ti_bit_test.lower() in prepositions:
+                if i == 0 or not ti_rich_list[i - 1][1]:  # NB i is counting up while traversing the list backwards
+                    ti_rich_list[i] = (ti_rich_list[i][0], False)
         if self.INFO:
             write_log(release_id, 'info', "ti_rich_list before removing singletons = %s. length = %s", ti_rich_list,
                       len(ti_rich_list))

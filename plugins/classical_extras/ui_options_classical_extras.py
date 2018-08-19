@@ -2688,7 +2688,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_2 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 1087, 1128))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 1087, 1205))
         self.scrollAreaWidgetContents_2.setObjectName("scrollAreaWidgetContents_2")
         self.verticalLayout_18 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_18.setObjectName("verticalLayout_18")
@@ -2976,11 +2976,21 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.cwp_substring_match.setObjectName("cwp_substring_match")
         self._7.addWidget(self.cwp_substring_match)
         self.verticalLayout_2.addLayout(self._7)
-        self.line_2 = QtWidgets.QFrame(self.run_options_3a)
-        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.line_2.setObjectName("line_2")
-        self.verticalLayout_2.addWidget(self.line_2)
+        self.line_8 = QtWidgets.QFrame(self.run_options_3a)
+        self.line_8.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line_8.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.line_8.setObjectName("line_8")
+        self.verticalLayout_2.addWidget(self.line_8)
+        self.label_92 = QtWidgets.QLabel(self.run_options_3a)
+        self.label_92.setObjectName("label_92")
+        self.verticalLayout_2.addWidget(self.label_92)
+        self.label_91 = QtWidgets.QLabel(self.run_options_3a)
+        self.label_91.setObjectName("label_91")
+        self.verticalLayout_2.addWidget(self.label_91)
+        self.cwp_prepositions = QtWidgets.QLineEdit(self.run_options_3a)
+        self.cwp_prepositions.setStyleSheet("background-color: rgb(203, 182, 175);")
+        self.cwp_prepositions.setObjectName("cwp_prepositions")
+        self.verticalLayout_2.addWidget(self.cwp_prepositions)
         self.cwp_removewords_2 = QtWidgets.QLabel(self.run_options_3a)
         self.cwp_removewords_2.setObjectName("cwp_removewords_2")
         self.verticalLayout_2.addWidget(self.cwp_removewords_2)
@@ -3292,7 +3302,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setBuddy(self.cwp_retries)
 
         self.retranslateUi(ClassicalExtrasOptionsPage)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(4)
         self.cwp_titles.clicked['bool'].connect(self.groupBox_16.setDisabled)
         self.cea_no_aliases.toggled['bool'].connect(self.cea_credited_overrides.toggle)
         self.cea_aliases_composer.clicked['bool'].connect(self.cea_alias_overrides.setEnabled)
@@ -4110,6 +4120,8 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_5.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Treat hyphenated words as two words for comparison purposes</p></body></html>"))
         self.label_8.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Proportion of a string to be matched to a (usually larger) string for it to be considered essentially similar (default = 66%)</p></body></html>"))
         self.cwp_substring_match.setSuffix(_translate("ClassicalExtrasOptionsPage", "%"))
+        self.label_92.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p><span style=\" font-weight:600;\">Prepositions and prefixes<br/></span>DO NOT USE ANY COMMAS OR QUOTE MARKS (apostophes in words are acceptable)</p></body></html>"))
+        self.label_91.setText(_translate("ClassicalExtrasOptionsPage", "Prepositions: these are words that will not be regarded as providing additional information (not treated as \'new\' words) unless they precede a new word. Use lower case only, comma separated"))
         self.cwp_removewords_2.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Prefixes to be ignored in comparison (case insensitive, comma separated)<br/>To prevent a prefix from being ignored when extending metadata with title info, precede it with a space. <br/>To ensure only whole words are removed, follow with a space.</p></body></html>"))
         self.cwp_removewords.setToolTip(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p>Separate multiple names by commas. Do not use any quotation marks.</p></body></html>"))
         self.cwp_synonyms_2.setText(_translate("ClassicalExtrasOptionsPage", "<html><head/><body><p><span style=\" font-weight:600;\">Synonyms and replacements</span> - must be written as tuples separated by forward slashes - e.g (a,b) / (c,d)</p><p>DO NOT USE COMMAS, BRACKETS or FORWARD SLASHES IN ANY PHRASE. <br/>N.B. The matching of \'a\' is case-sensitive</p><p>As SYNONYMS \'a\' and \'b\' will be treated as similar when comparing works/parts and titles. The text in tags will be unaltered.<br/>Both a and b must be single words with no punctuation. No word may appear in more than one synonym (case sensitive):-</p></body></html>"))
@@ -4185,7 +4197,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;\"><span style=\" font-size:8pt;\">Note also that, if @loujin\'s browser script has been used to fill the recording artist data, this will be the same as the performing artists in the Recording-Artist relationship - i.e. it may be a lengthy list rather than the principal artist for the track. </span></p>\n"
 "<li style=\" font-size:8pt;\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">&quot;Other artist options&quot;: </li>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:1; text-indent:0px;\"><span style=\" font-size:8pt;\">&quot;Modify host tags and include annotations&quot; (Previously called &quot;Include arrangers from all work levels&quot;). This will gather together, for example, any arranger-type information from the recording, work or parent works and place it in the &quot;arranger&quot; tag (\'host\' tag), with the annotation (see below) in brackets. All arranger types will also be put in a hidden variable, e.g. _cwp_orchestrators. The table below shows the artist types, host tag and hidden variable for each artist type. </span></p>\n"
-"<table border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:240px; margin-right:0px;\" cellspacing=\"2\" cellpadding=\"0\">\n"
+"<table border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:320px; margin-right:0px;\" cellspacing=\"2\" cellpadding=\"0\">\n"
 "<tr>\n"
 "<td>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:8pt;\">Artist type</span></p></td>\n"

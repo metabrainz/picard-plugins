@@ -1,5 +1,5 @@
 # General Information
-This is the documentation for version 2.0 of "classical\_extras". There may be beta versions later than this - check [my github site](https://github.com/MetaTunes/picard-plugins/releases) for newer releases. For further help, please review [the forum thread](https://community.metabrainz.org/t/classical-extras-plugin/300217) or post any new questions there. It only works with Picard version 2.0, **NOT** earlier versions.
+This is the documentation for version 2.0 of "classical\_extras". There may be beta versions later than this - check [my github site](https://github.com/MetaTunes/picard-plugins) for newer releases (make sure that the "metabrainz/2.0" branch is selected). For further help, please review [the forum thread](https://community.metabrainz.org/t/classical-extras-plugin/300217) or post any new questions there. It only works with Picard version 2.0, **NOT** earlier versions. If you are using Picard 1.4.x, please choose the "1.0" branch [on github](https://github.com/MetaTunes/picard-plugins) and use the latest release there - also use the [earlier forum thread](https://community.metabrainz.org/t/classical-extras-plugin/300217).
 
 This version has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section). "Classical Extras" populates hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through mutiple work-part levels until the top is reached. The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how these hidden variables are written to file tags, as well as a variety of other options.
 
@@ -11,7 +11,7 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
-Version 2.0: Major overhaul of version 0.9.4 to achieve Picard 2.0 and Python 3.7 compatibility. All webservice calls re-written for JSON rather than XmlNode responses. Periods are written to tag in date order. Addition of sub-options for inclusion of key signature information in work names. If the MB database has circular work references (i.e a parent is a descendant of itself) then these will be trapped, ignored and reported. Numerous small refinements, especially of text comparison algorithms. Bug fixes.
+Version 2.0: Major overhaul of version 0.9.4 to achieve Picard 2.0 and Python 3.7 compatibility. All webservice calls re-written for JSON rather than XmlNode responses. Periods are written to tag in date order. Addition of sub-options for inclusion of key signature information in work names. If the MB database has circular work references (i.e a parent is a descendant of itself) then these will be trapped, ignored and reported. Numerous small refinements, especially of text comparison algorithms (e.g. option to control removal of prepositions - see advanced tab). Bug fixes.
 
 For a list of previous version changes, see the end of this document.
 
@@ -33,11 +33,11 @@ After installation, go to the Options Page and modify choices as required. There
 ## Artists tab
 There are five coloured sections as shown in the screen image below:
 
-![Artist options](http://music.highmossergate.co.uk/images/artist_options%20v0.9.2.jpg)
+![Artist options](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/artists/)
 
 1. "Create extra artist metadata" should be selected otherwise this section (and the tag mapping section) will not run. This is the default.
 
-	(Note that the option "Infer work types..." in version 0.9.1 and prior has moved to the Genres tab and change somewhat.)
+	(Note that the option "Infer work types..." in version 0.9.1 and prior has moved to the Genres tab and changed somewhat.)
 
 2. "Work-artist/performer naming options". 
   This section deals primarily with the application of aliases and credited\_as names to replace the MusicBrainz standard names. The first box allows you to choose whether to replace MusicBrainz standard  names by aliases - either for all work-artists/performers or only work-artists (writers, composers, arrangers, lyricists etc.). The second box sets the usage of "as-credited" names: the first part of this lists all the places where as-credited names can occur (really!) and the second part allows you to apply these to performing artists and/or work-artists. 
@@ -127,7 +127,7 @@ There are five coloured sections as shown in the screen image below:
 ## Tag mapping tab
 There are two coloured sections as shown in the screen image below:
 
-![Tag mapping options](http://music.highmossergate.co.uk/images/tag\_mapping%20v0.9.jpg)
+![Tag mapping options](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/tag-mapping/)
 
 Note that the "Create extra artist metadata" option needs to be selected on the Artist tab for these sections to run.
 
@@ -191,7 +191,7 @@ Note that the "Create extra artist metadata" option needs to be selected on the 
 
 There six coloured sections as shown in the screen print below:
 
-![Works and parts options](http://music.highmossergate.co.uk/images/work\_parts\_options%20v0.9.jpg)
+![Works and parts options](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/work-parts/)
 
 1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
 
@@ -265,7 +265,7 @@ There six coloured sections as shown in the screen print below:
 
 This section is dependent on both the artists and workparts sections. If either of those sections are not run then this section will not operate correctly. At the very top of the tab is a checkbox "Use Muso reference database...". For Muso users, selecting this enables you to use reference data for genres, composers and periods which have been entered in Muso's "Options->Classical Music" section. Regardless as to whether this is selected, there are then three main coloured sections, each with a number of subsections. The details in each section differ depending on whether the "Muso" option is selected.  The screen print below shows the options assuming it is not selected (differences occurring when "Muso" is selected are discussed later):
 
-![Genres etc.](http://music.highmossergate.co.uk/images/genre_options_plain%20v0.9.2.jpg)
+![Genres etc.](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-plain/)
 
 1. "Genres". Two separate tags may be used to store genre information, a main genre tage (usually just "genre") and a sub-genre tag. These need to be specified at the top of the section. If either is left blank then the related processing will not run.
 
@@ -322,7 +322,7 @@ This section is dependent on both the artists and workparts sections. If either 
 
 Users of [Muso](http://klarita.net/muso.html) have additional capabilities, illustrated in the following screen, which appear when the option "Use Muso reference database ..." is selected at the top of the tab.
 
-![Genres etc. - Muso](http://music.highmossergate.co.uk/images/genre_options%20v0.9.2.jpg)
+![Genres etc. - Muso](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-muso/)
 
 For these options to work, the path/name of the Muso reference database needs to be specified on the advanced tab. The default path is "C:\\Users\\Public\\Music\\muso\\database" and the default filename is "Reference.xml". The additional options are as follows.
 
@@ -356,7 +356,8 @@ Note that non-Muso users may also use this functionality, if they wish, by manua
 
 Hopefully, this tab should not be much used. In any case, it should not need to be changed frequently. There are seven sections as shown in the sceeen print below:
 
-![Advanced options](http://music.highmossergate.co.uk/images/advanced_options%20v0.9.3.jpg)
+![Advanced options](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/advanced/)
+
 1. "General". There is only one checkbox - "Do not run Classical Extras for tracks where no pre-existing file is detected (warning tag will be written)". This option will disable Classical Extras processing if no file is present; this means (for example) that single discs from box sets can be loaded without incurring the additional processing overhead (work look-ups etc.) for all the other discs. Also if a compilation album is loaded, where the tracks are on multiple releases, the plugin will only process the release tracks which match. If a file is present but it does not yet have a MusicBrainz trackid tag, then it will initally be treated in the same way as a non-existent file; however, after the initial loading it will (if matched by Picard) be given a MB trackid and "refreshing" the release will result in any such tracks being processed by Classical Extras, while the unmatched tracks are left untouched.
 
 2. "Artists". This has only one subsection - "Ensemble strings" - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the "Tag mapping" tab as sources for any required tags. 
@@ -370,13 +371,15 @@ If it is important that only whole words are to be matched, be sure to include a
 	
 	  However, common text which is not followed by punctuation or which is not at the start may also be stripped: to prevent this, set "Minimum number of similar words required before eliminating (other than at start)" to zero. Otherwise common text longer than the specified number of words (default = 2) will be stripped. 
 	
-	* **How title metadata should be included in extended metadata**. This subsection contains various parameters affecting the processing of strings in titles. (Some of it also affects the elimination of common text between parent and child works referred to above). Because titles are free-form, not all circumstances can be anticipated. Detailed documentation of these is beyond the scope of this Readme as the effects can be quite complex and subtle and may require an understanding of the plugin code (which is of course open-source) to ascertain them. If pure canonical works are used ("Use only metadata from canonical works" and, if necessary, "Full MusicBrainz work hierarchy" on the Works and parts tab, section 2) then this processing should be irrelevant, but no text from titles will be included. Some explanations are given below:
+	* **How title metadata should be included in extended metadata**. This subsection contains various parameters affecting the processing of strings in titles. (Some of it also affects the elimination of common text between parent and child works referred to above). Because titles are free-form, not all circumstances can be anticipated. If pure canonical works are used ("Use only metadata from canonical works" and, if necessary, "Full MusicBrainz work hierarchy" on the Works and parts tab, section 2) then this processing should be irrelevant, but no text from titles will be included. Some explanations are given below:
 
       * "Proximity of new words". When using extended metadata - i.e. "metadata enhanced with title text", the plugin will attempt to remove similar words in the canonical work name (in MusicBrainz) and the title before extending the canonical name. After removing such words, a rather "bitty" result may occur. To avoid this, any new words with the specified proximity will have the words between them (or up to the start/end) included even if they repeat words in the work name.
       
       * "Treat hyphenated words as two words for comparison purposes" (default = True). In comparing words, hyphenated words will be considered as separte words unless this option is deselected.
       
       * "Proportion of a string to be matched ... for it to be considered essentially similar..." (default = 66%). If the title and work descriptions are largely the same then the title text will not be used to extend the work text, even if there are some new words.
+      
+      * "Prepositions". Words listed here will not generally be treated as "new" (i.e. if they are in the title text but not in the work text, they will not be included in the "extended" text) unless they precede a new word which is not itself a preposition. Note that, although the term "preposition" is used here, because that is the obvious usage, any word can be listed. A group of more than one such words will be treated as new if they are not in the work text and they precede a new word which is not listed as a preposition.
 
       * "Prefixes". When using "metadata from titles" or extended metadata, the structure of the works in MusicBrainz is used to infer the structure in the title text, so strings that are repeated between tracks which are part of the same MusicBrainz work will be treated as "higher level". This can lead to anomalies if, for instance, the titles are "Work name: Part 1", "Work name: Part 2", "Part" is repeated and so will be treated as part of the parent work name. Specifying such words in "Prefixes" will prevent this.
 
