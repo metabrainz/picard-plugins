@@ -425,13 +425,13 @@ This section is for users who want to write their own scripts, or add additional
 	Thus in theory, \_cwp\_work\_0 will be the same as "\_cwp\_work\_top: \_cwp\_part\_(N-1): ...: \_cwp\_part\_0" (punctuation excepted), but may differ in more complex situations where there is not an exact hierarchy of text as the work levels are traversed. (See below for the "\_X0" series which attempts to address any such inconsistencies)
 - \_cwp\_part\_levels : The number of work levels attached to THIS TRACK. Should be equal to N = max(n) referred to above.
 - \_cwp\_work\_part\_levels : The maximum number of levels for ANY TRACK in the album which has the same top work as this track.
-- \_cwp\_single\_work\_album : A flag = 1 if there is only one top work in this album, else = 0.
+- \_cwp\_single\_work\_album : A flag = 1 if there is only one top work in this album, else = 0.?
 - \_cwp\_work : the level selected by the plugin to be the source of the single-level work name if "Use only metadata from canonical works" is selected (usually the top level, but one lower in the case of a single work album).
 - \_cwp\_groupheading : the level selected by the plugin to be the source of the multi-level work name if "Use only metadata from canonical works" is selected.
 - \_cwp\_part : The movement name derived from the MB work names (generally = \_cwp\_part\_0) and used as the source for the movement name used for "Tags for Movement - including embedded movt/part numbers".
 - \_cwp\_inter\_work : Intermediate works between \_cwp\_part and \_cwp\_work (if any).
 
-If there is more than one work any level, then \_cwp\_work\_n and \_cwp\_workid\_n will have multiple entries. Another common situation is that a "bottom level" work is spread across more than one track. Rather than artificially split the work into sub-parts, this is often shown in MusicBrainz as a track being a "partial recording of" a work. The plugin deals with this by creating a notional lowest-level with the suffix " (part)" appended to the work it is a partial recording of. In order that this notional part can be separately identified from the full work, the musicbrainz\_recordingid is used as the identifier rather than the workid.
+If there is more than one work any level, then \_cwp\_work\_n and \_cwp\_workid\_n will have multiple entries. Another common situation is that a "bottom level" work is spread across more than one track. Rather than artificially split the work into sub-parts, this is often shown in MusicBrainz as a track being a "partial recording of" a work. The plugin deals with this by creating a notional lowest-level with the suffix " (part)" (or other text as defined in the works and parts options tab) appended to the work it is a partial recording of. In order that this notional part can be separately identified from the full work, the musicbrainz\_recordingid is used as the identifier rather than the workid.
 If there is more than one "parent" work of a lower level work, multi-valued tags are generated.
 
 - \_cwp\_X0\_part\_0 : A "stripped" version of \_cwp\_work\_0 (see above), where elements of \_cwp\_work\_0 which repeat within level 1 have been stripped.
@@ -481,7 +481,7 @@ All the additional hidden variables for artists written by Classical Extras are 
 - \_cea\_soloists : List of performers (with instruments in brackets), who are NOT ensembles or conductors, separated by semi-colons. Note they may not strictly be "soloists" in that they may be part of an ensemble.
 - \_cea\_recording\_artistsort : Sort names of \_cea\_recording\_artist
 - \_cea\_recording\_artists\_sort : Sort names of \_cea\_recording\_artists
-- \_cea\_soloist\_names : Names of the above (i.e. no instruments).
+- \_cea\_soloist\_names : Names of the soloists (i.e. no instruments).
 - \_cea\_soloists\_sort : Sort\_names of the above.
 - \_cea\_vocalists : Soloists who are vocalists (with voice in brackets).
 - \_cea\_vocalist\_names : Names of the above (no voice).
@@ -493,7 +493,7 @@ All the additional hidden variables for artists written by Classical Extras are 
 - \_cea\_ensembles\_sort : Sort\_names of the above.
 - \_cea\_album\_soloists : Sub-list of soloist\_names who are also album artists
 - \_cea\_album\_soloists\_sort : Sort\_names of the above.
-- \_cea\_album\_conductors : List of conductors whao are also album artists
+- \_cea\_album\_conductors : List of conductors who are also album artists
 - \_cea\_album\_conductors\_sort : Sort\_names of the above.
 - \_cea\_album\_ensembles: Sub-list of ensemble\_names who are also album artists
 - \_cea\_album\_ensembles\_sort : Sort\_names of the above.
@@ -510,7 +510,6 @@ All the additional hidden variables for artists written by Classical Extras are 
 - \_cea\_orchestrators : Arrangers (per Picard) included in the MB database as type "orchestrator".
 - \_cea\_chorusmasters : A person who (per Picard) is a conductor, but is "chorus master" in the MB database (i.e. not necessarily conducting the performance).
 - \_cea\_leaders : The leader of the orchestra ("concertmaster" in MusicBrainz) - not created by Picard as standard. 
-- \_cea\_work\_type : Although not strictly an artist field, this is derived from artist and performer metadata. This is the variable populated if "Infer work types" is selected on the Artists tab.
 
 ## Genres etc.
 
@@ -556,18 +555,15 @@ To make use of Muso's in-built classical music processing to set explicit tags i
 
 Leave the "title" tag unchanged or make it a combination of work and movement.
 
-
 # Possible Enhancements
-Planned enhancements (among others) are 
-1. Include information regarding dates (e.g. date composed, recording date).
-2. Improved genre capability, possibly with specific tags for different aspects of genre, e.g. periods.
+All planned functionality has been included in version 2.0. Please post any suggestions for improvements to the forum.
 
 # Technical Matters
 Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to @dns\_server for assistance in dealing with this and to @sophist for the albumartist\_website code which I have borrowed from. I have tried to add some more comments to help any others trying the same techniques.
 
 Also, the documentation of the XML lookup is virtually non-existent. The response is an XmlNode object (not a dict, although it is represented as one). Each node has a name with {attribs, text, children} values. The structure is more clearly understood if the web-based lookup is used (which is well documented at https://musicbrainz.org/doc/Development/XML_Web_Service/Version_2 ) as this gives an XML response. I wrote a function (parse\_data) to parse XmlNode objects, or lists thereof, for a (parameterised) hierarchy of nodes (and optional attribs value tests) in order to extract required data from the response. This may be of use to other plugin authors. The situation has been made slightly better in Picard 2.0 as the objects returned from register_track_metadata_processor are standard JSON. See https://musicbrainz.org/doc/Development/JSON_Web_Service. My parse_data function works with JSON as well as XmlNode formats, but the arguments you need to provide to it are different as the formats are structured differently. Picard 2.0 allows tagger.webservice calls to specify XML or default to JSON. This plugin has now migrated over to JSON-only.
 
-To get the whole picture, in XML, for a release, use (for example) https://musicbrainz.org/ws/2/release/f3bb4fdd-5db0-43a8-be73-7a1747f6c2ef?inc=release-groups+media+recordings+artist-credits+artists+aliases+labels+isrcs+collections+artist-rels+release-rels+url-rels+recording-rels+work-rels+recording-level-rels+work-level-rels. (Add &fmt=JSON at the end to get the JSON response). This simulates the response given by Picard with the "Use release relationships" and "Use track relationships" options selected. Note that the Picard album\_metadata\_processor returns releaseXmlNode which is everything from the Release node of the XML downwards, whereas track\_metadata\_processor returns trackXmlNode which is everything from a Track node downwards (release -> medium-list -> medium -> track-list is above track). Replace all hyphens in XML with underscores when parsing the Python object (JSON uses hyphens).
+To get the whole picture, in XML, for a release, use (for example) https://musicbrainz.org/ws/2/release/f3bb4fdd-5db0-43a8-be73-7a1747f6c2ef?inc=release-groups+media+recordings+artist-credits+artists+aliases+labels+isrcs+collections+artist-rels+release-rels+url-rels+recording-rels+work-rels+recording-level-rels+work-level-rels. (Add &fmt=JSON at the end to get the JSON response). This simulates the response given by Picard with the "Use release relationships" and "Use track relationships" options selected. Note that the Picard album\_metadata\_processor returns releaseXmlNode (as JSON from Picard 2.0 on) which is everything from the Release node of the XML downwards, whereas track\_metadata\_processor returns trackXmlNode which is everything from a Track node downwards (release -> medium-list -> medium -> track-list is above track). Replace all hyphens in XML with underscores when parsing the Python object (JSON uses hyphens).
 
 A large variety of releases were used to test this plugin, but there may still be bugs, so further testing is welcome. The following release was particularly complex and useful for testing: https://musicbrainz.org/release/ec519fde-94ee-4812-9717-659d91be11d4. Also this release was a bit tricky - a large box set with some works appearing as originals and in arrangements: https://musicbrainz.org/release/5288f266-bab8-45bd-83e4-555730f02fa0.
 
@@ -591,9 +587,9 @@ I don't know why `get_files_from_objects(objs)` doesn't work in the `register_tr
 In order to get round these problems, I have adopted a 'hack' which looks up the files for an album and finds which file matches the required track on tracknumber and discnumber. This seems to work, but there may be circumstances when it does not. As a consequence, refreshment should only be required if `get_files_from_objects(objs)` doesn't get all the album files.
 
 # List of previous updates
-Version 1.0: Final version with Picard 1.4.2 compatibility
+Version 1.0: Final version with Picard 1.4.2 compatibility (to be released)
 
-Version 0.9.4: Bug fixes.
+Version 0.9.4: Bug fixes and the fork for version 2.0.
 
 Version 0.9.3: Custom logging if enabled on "Advanced" tab - writes one log file per album in addition to standard Picard log. Also a session log with basic data is written. Performance improvements (especially for lyrics processing) and various bug fixes.
 
