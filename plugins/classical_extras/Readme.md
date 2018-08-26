@@ -265,7 +265,7 @@ There six coloured sections as shown in the screen print below:
 
 ## Genres etc. tab
 
-This section is dependent on both the artists and workparts sections. If either of those sections are not run then this section will not operate correctly. At the very top of the tab is a checkbox "Use Muso reference database...". For Muso users, selecting this enables you to use reference data for genres, composers and periods which have been entered in Muso's "Options->Classical Music" section. Regardless as to whether this is selected, there are then three main coloured sections, each with a number of subsections. The details in each section differ depending on whether the "Muso" option is selected.  The screen print below shows the options assuming it is not selected (differences occurring when "Muso" is selected are discussed later):
+This section is dependent on both the artists and workparts sections. If either of those sections are not run then this section will not operate correctly. At the very top of the tab is a checkbox "Use Muso reference database...". For [Muso](http://klarita.net/muso.html) users, selecting this enables you to use reference data for genres, composers and periods which have been entered in Muso's "Options->Classical Music" section. Regardless as to whether this is selected, there are then three main coloured sections, each with a number of subsections. The details in each section differ depending on whether the "Muso" option is selected.  The screen print below shows the options assuming it is not selected (differences occurring when "Muso" is selected are discussed later):
 
 ![Genres etc.](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-plain/)
 
@@ -274,11 +274,11 @@ This section is dependent on both the artists and workparts sections. If either 
     * **Source of genres**
     Any or all of four sources may be selected. In each case, any values found are treated as "candidate genres" - they will only be applied to the specified genre and sub-genre tags in accordance with the criteria in the "allowed genres" section (see below).
       
-      (a) "Existing file tag". The contents of the existing file tag (as specified above - main genre tag only) will be included as candidate genres.
+      (a) "Existing file tag". The contents of the existing file tag (as specified above - main genre tag only) will be included as candidate genres. Note that, if this tag name is not "genre", then the contents of the tag "genre" will be included as well.
       
-      (b) "Folksonomy work tags". This will use the folksonomy tags for **works** (including parent works) as a possible source of genres. To use the folksonomy tags for **releases/tracks**, select the main Picard option in Options->Metadata->"Use folksonomy tags as genre". Again (unlike vanilla Picard) these are candidate genres, subject to matching allowed genres.
+      (b) "Folksonomy work tags". This will use the folksonomy tags for **works** (including parent works) as a possible source of genres. To use the folksonomy tags for **releases/tracks**, select the main Picard option in Options->Metadata->"Use folksonomy tags as genre". Again (unlike vanilla Picard) these are candidate genres, and will only be published if they match the allowed genres.
       
-      (c) "Work-type". The work-type attribute of works or parent works will be used.
+      (c) "Work-type". The work-type attribute of works or parent works will be used as a candidate genre.
       
       (d) "Infer from artist metadata". This option was on the artist tab in version 0.9.1 and prior. Owing to the additional genre processing now available, the operation of this option is slightly restricted compared to the earlier versions. It attempts to create candidate genres based on information in the artist-related tags. Values provided are:
 	Orchestral, Concerto, Choral, Opera, Duet, ,Trio, Quartet, Chamber music, Aria ('classical values') and Vocal, Song, Instrumental ('generic values'). If the track is a recorded work and the track artist is the composer (i.e. MusicBrainz 'classical style'), the candidate genre values will also include "Classical". The 'classical values' will only be included as candidate genres if the track is deemed to be 'classical' by some part of the genre processing section.
@@ -288,14 +288,14 @@ This section is dependent on both the artists and workparts sections. If either 
 	
 	  If none of the boxes are filled, then all genres found will be included.
 
-      If one box is filled (e.g. "classical main genres") and there is a matching genre found, then remaining genres will only be included if they match genres in that box or the related sub-genre box. So in this case if "classical sub-genres" is filled and "general sub-genres" is not, then only matching genres will be included.
+      If only one main genre box is filled (e.g. "classical main genres") and there is a matching genre found, then remaining genres will only be included if they match genres in that box or the related sub-genre box. So in this case if "classical sub-genres" is filled and "general sub-genres" is not, then only matching genres will be included.
 
       If both "classical" and "general" main genre boxes are filled, then only genres matching those boxes or "classical sub-genres" will be included.
      
       You may also enter a genre name to be used if no matching main genre is found (otherwise the tag will be blank). 
       
      * **"Classical" genre**
-     Normally (i.e. the default) a work will only be deemed to be 'classical' if it is inferred from the MusicBrainz style (see "source of genres") or if a candidate genre matches a "Classical" genre or sub-genre list. However, you may select that all tracks are 'classical' regardless. There is also an option to exclude the word "Classical" from any genre tag, but still treat the work as classical. If a work is deemed to be classical, a tag may be written with a specified value as set out in the last two boxes of this section. For example, to be consistent with SonKong/Jaikoz, you could set "is\_classical" to "1".
+     Normally (i.e. by default) a work will only be deemed to be 'classical' if it is inferred from the MusicBrainz style (see "source of genres") or if a candidate genre matches a "Classical" genre or sub-genre list. However, you may select that all tracks are 'classical' regardless. There is also an option to exclude the word "Classical" from any genre tag, but still treat the work as classical. If a work is deemed to be classical, a tag may be written with a specified value as set out in the last two boxes of this section. For example, to be consistent with SonKong/Jaikoz, you could set "is\_classical" to "1".
      
 3. "Instruments and keys".
     * **Instruments**
@@ -309,7 +309,7 @@ This section is dependent on both the artists and workparts sections. If either 
 4. "Periods and dates".
 
     * **Work dates**
-    Specify the tag name to hold work dates. Work dates will be given as a "year" value only, e.g. "1808" or a range: "1808-1810". The sources of these dates is specified in the next part. Only work dates for the lowest-level work  will be used - i.e. if the movement has a composed date(s), this will be used, otherwise the the dates from the parent work will be used (if available).
+    Specify the tag name to hold work dates. Work dates will be given as a "year" value only, e.g. "1808" or a range: "1808-1810". The sources of these dates is specified in the next part. If the movement has a composed date(s), this will be used, otherwise the the dates from the parent work will be used (if available).
     
     "Source of work dates". Select which sources to use - from composed, published and premiered, then decide whether to use them in preferential order (e.g. if "composed date" exists, then the others will not be used) or to show them all.
     
