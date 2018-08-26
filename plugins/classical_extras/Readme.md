@@ -175,7 +175,7 @@ Note that the "Create extra artist metadata" option needs to be selected on the 
 
        Another example: to add the leader's name in brackets to the tag with the performing orchestra, put "\\ (leader +leaders+\\)" in the source box and the tag containing the orchestra in the tag box. If there is no leader, the text will not be appended.
 
-     The tag mapping section is not restricted to artist metadata. For example, in the default drop-down list are "work\_type" which only has content if the "Infer work types" box in the first section of the Artists tab is checked, and "release" which contains the album name before prefixing with composer last names if that option was chosen.
+     The tag mapping section is not restricted to artist metadata - any metadata or hidden variablescan be used.
 
     * **Tags**:
 	   Enter the (comma-separated) "destination" tag names into which the sources should be written (case sensitive). Note that this will result in the source data being APPENDED in the tag - it will not overwrite the existing contents. Check "Conditional?" if the tag is only to be updated if it is previously blank (all non-empty sources in the current line will be applied in sequence). The lines will be applied in the order shown. Users should be able to achieve most requirements via a combination of blanking tags, using the right source order and "conditional" flags. For example, to overwrite a tag sourced from "composer" with "conductor", specify "conductor" first, then "composer" as conditional. Note that, for example, to demote the MB-supplied artist to only appear if no other listed choices are present, blank the artist tag and then add it as a conditional source at the end of the list.
