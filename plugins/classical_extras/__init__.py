@@ -79,7 +79,7 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0'
+PLUGIN_VERSION = '2.0.1'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -2144,8 +2144,9 @@ def set_work_artists(self, release_id, album, track, writerList, tm, count):
                               track)
 
             if writer_type == 'composer':
+                composerlast = sort_name.split(",")[0]
+                self.append_tag(release_id, tm, pre +'_composer_lastnames', composerlast)
                 if sort_name in self.release_artists_sort[album]:
-                    composerlast = sort_name.split(",")[0]
                     self.append_tag(release_id, tm, '~cea_album_composers', name)
                     self.append_tag(release_id, tm, '~cea_album_composers_sort', sort_name)
                     self.append_tag(release_id, tm, '~cea_album_track_composer_lastnames', composerlast)
@@ -7053,10 +7054,7 @@ class PartLevels():
         #     "d'une",
         #     "la",
         #     "le"]
-        if self.options[track]["cwp_prepositions"]:
-            prepositions_fat = self.options[track]["cwp_prepositions"].split(',')
-            prepositions = [w.strip() for w in prepositions_fat]
-        # TODO Parameterize this?
+
         if self.INFO:
             write_log(release_id, 'info', "Check before splitting: mb_test = %s, ti_test = %s", mb_test, ti_test)
         if self.options[track]["cwp_split_hyphenated"]:
@@ -7073,6 +7071,8 @@ class PartLevels():
         ti_list = ti_stencil['match list']
         ti_list_punc = ti_stencil['gap list']
         ti_test_list = self.stencil(release_id, ti_test_tuple, ti_test)['match list']
+        if self.INFO:
+            write_log(release_id, 'info', 'ti_test_list = %r', ti_test_list)
         ti_zip_list = list(zip(ti_list, ti_list_punc))  # zip is an iterable, not a list in Python 3, so make it re-usable
 
         # len(ti_list) should be = len(ti_test_list) as only difference should
@@ -7102,10 +7102,14 @@ class PartLevels():
         if self.INFO:
             write_log(release_id, 'info', "ti_rich_list before removing prepositions = %s. length = %s", ti_rich_list,
                       len(ti_rich_list))
-        for i, ti_bit_test in enumerate(reversed(ti_test_list)):  # Need to reverse it to check later prepositions first
-            if ti_bit_test.lower() in prepositions:
-                if i == 0 or not ti_rich_list[i - 1][1]:  # NB i is counting up while traversing the list backwards
-                    ti_rich_list[i] = (ti_rich_list[i][0], False)
+        if self.options[track]["cwp_prepositions"]:
+            prepositions_fat = self.options[track]["cwp_prepositions"].split(',')
+            prepositions = [w.strip() for w in prepositions_fat]
+            for i, ti_bit_test in enumerate(reversed(ti_test_list)):  # Need to reverse it to check later prepositions first
+                if ti_bit_test.lower() in prepositions:
+                    j = len(ti_rich_list) - i - 1  # NB i is counting up while traversing the list backwards
+                    if i == 0 or not ti_rich_list[j + 1][1]:
+                        ti_rich_list[j] = (ti_rich_list[j][0], False)
         if self.INFO:
             write_log(release_id, 'info', "ti_rich_list before removing singletons = %s. length = %s", ti_rich_list,
                       len(ti_rich_list))

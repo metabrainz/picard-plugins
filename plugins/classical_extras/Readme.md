@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 2.0.1: Minor update to add _composer_lastnames variable.
+
 Version 2.0: Major overhaul of version 0.9.4 to achieve Picard 2.0 and Python 3.7 compatibility. All webservice calls re-written for JSON rather than XmlNode responses. Periods are written to tag in date order. Addition of sub-options for inclusion of key signature information in work names. If the MB database has circular work references (i.e a parent is a descendant of itself) then these will be trapped, ignored and reported. Numerous small refinements, especially of text comparison algorithms (e.g. option to control removal of prepositions - see advanced tab). Bug fixes.
 
 For a list of previous version changes, see the end of this document.
@@ -210,11 +212,11 @@ There six coloured sections as shown in the screen print below:
 
     * **Source of canonical work text**. Where either of the second two options above are chosen, there is a further choice to be made:
       - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. E.g. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast, JB 1:112", not "Má vlast". So, while accurate, this option might be more verbose.
-      - "Consistent with lowest level work description". The names of the level 0 work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast", not "Má vlast, JB 1:112". This frequently looks better, but not always, **particularly if the level 0 work name does not contain all the parent work detail**. If the full structure is not implicit in the level 0 name then a warning will be logged and written to the "warning" tag.
+      - "Consistent with lowest level work description". The names of the level 0 work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast", not "Má vlast, JB 1:112". Sometimes this may look better, but not always, **particularly if the level 0 work name does not contain all the parent work detail**. If the full structure is not implicit in the level 0 name then a warning will be logged and written to the "warning" tag.
       
-      (**version 2.0 update: the second option is rarely needed now as there is a more sophisticated matching algorithm for the canonical work names - this readme and the strategy below will be updated to reflect this**)
+      (**version 2.0 update: the second option is needed less often now as there is a more sophisticated matching algorithm for the canonical work names - the strategy below has been updated to reflect this**)
 
-   **Strategy for setting style:** *It is suggested that you start with "extended/enhanced" style and the "Consistent with lowest level work description" as the source (this is the default). If this does not give acceptable results, try switching to "Full MusicBrainz work hierarchy". If the "enhanced" details in curly brackets (from the track title) give odd results then switch the style to "canonical works" only. Any remaining oddities are then probably in the MusicBrainz data, which may require editing.*
+   **Strategy for setting style:** *It is suggested that you start with "extended/enhanced" style and the "Full MusicBrainz work hierarchy" as the source (this is the default). If this does not give acceptable results, try switching to "Consistent with lowest level work description". If the "enhanced" details in curly brackets (from the track title) give odd results then switch the style to "canonical works" only or try adjusting the settings on the "Advanced" tab. Any remaining oddities are probably in the MusicBrainz data, which may require editing.*
 
 3. "Aliases"
 
@@ -405,7 +407,7 @@ If it is important that only whole words are to be matched, be sure to include a
 
    N.B. The "Tag name for artist/misc. options" also saves the Picard options for 'translate\_artist\_names' and 'standardize\_artists' as these interact with the Classical Extras options.
 
-7. "Over-ride plugin options displayed in UI with options from local file tags". If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride. If "Artists options" over-ride is selected then a sub-option to over-ride (or not) the "Tag details options" is available; this refers to just the detailed tag map in the second box in the tag-mapping tab. If "Works options" over-ride is selected then a sub-option to over-ride (or not) the "Genres etc. options" is available.
+7. "Over-ride plugin options displayed in UI with options from local file tags". If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride. If "Artists options" over-ride is selected then a sub-option to over-ride (or not) the "Tag details options" is available; this refers to just the detailed tag map in the second box in the tag-mapping tab. In particular, the tag-blanking section is controlled by the "Artists options" over-ride. If "Works options" over-ride is selected then a sub-option to over-ride (or not) the "Genres etc. options" is available.
 
    ***Note that* *very occasionally (if the tag containing the options has been corrupted) use of this option may cause an error. In such a case you will need to deselect the "over-ride" option and set the required options manually; then save the resulting tags and the corrupted tag should be over-written***
 
@@ -458,16 +460,17 @@ which mirror those for the ones based on MB works described above.
 The "extended" variables can be useful where the "canonical" work names in MB are in the original language and the titles are in English (say). Various heuristics are used to try and add (and only add) meaningful additional information, but oddities may occur which require manual editing.
 
 Artist tags which derive from work-artist relationships are also set in this section:
-- \_cwp\_composers
-- \_cwp\_writers
+- \_cwp\_composers & \_cwp_composers_sort
+- \_cwp\_composer_lastnames
+- \_cwp\_writers & \_cwp_writers_sort
 - \_cwp\_arrangers : This is for arrangers of the work and also "instrument arrangers" and "vocal arrangers" with appropriate annotation for instrument and voice types. (Picard does not currently write the latter to the Arranger tag if they are part of the work-artists relationship, despite style guidance saying to use specific instrument types instead of generic arranger.) 
-- \_cwp\_arranger\_names : Just the names of the above (no annotations)
-- \_cwp\_orchestrators
-- \_cwp\_reconstructors - 'reconstructed by' relationships
-- \_cwp\_revisors - 'revised by' relationships
-- \_cwp\_lyricists
-- \_cwp\_librettists
-- \_cwp\_translators
+- \_cwp\_arranger\_names & \_cwp_arrangers_sort: Just the names of the above (no annotations)
+- \_cwp\_orchestrators & \_cwp_orchestrators_sort
+- \_cwp\_reconstructors & \_cwp_reconstructors _sort - 'reconstructed by' relationships
+- \_cwp\_revisors & \_cwp_revisors _sort - 'revised by' relationships
+- \_cwp\_lyricists & \_cwp_lyricists _sort
+- \_cwp\_librettists & \_cwp_librettists _sort
+- \_cwp\_translators & \_cwp_translators _sort
 
 Finally, the tags \_cwp\_error and\_cwp\_warning are provided to supply warnings and error messages to the user.
 
@@ -503,9 +506,10 @@ All the additional hidden variables for artists written by Classical Extras are 
 - \_cea\_album\_composer\_lastnames : Last names of composers of ANY track on the album who are also album artists. This can be used to prefix the album name if required. (cf \_cea\_album\_track\_composer\_lastnames)
 - \_cea\_support\_performers : Sub-list of soloist\_names who are NOT album artists
 - \_cea\_support\_performers\_sort : Sort\_names of the above.
-- \_cea\_composers : Alternative composer name, based on sort name, to avoid non-latin language problems.
-- \_cea\_conductors : Alternative conductor name, based on sort name, to avoid non-latin language problems.
-- \_cea\_performers : An alternative to performer, based on the sort name (see note re non-Latin script below).
+- \_cea\_composers : Alternative to 'composer', incorporating 'naming options' on the artists tab.
+- \_cea\_composer_lastnames: Last names of above.
+- \_cea\_conductors : Alternative to 'conductor', incorporating 'naming options' on the artists tab.
+- \_cea\_performers : Alternative to 'performer', incorporating 'naming options' on the artists tab.
 - \_cea\_arrangers : All arrangers for the **recording** with instrument/voice type in brackets, if provided. If the work and parts functionality has also been selected, the arrangers of works, which Picard also currently omits will be put in \_cwp\_arrangers.
 - \_cea\_orchestrators : Arrangers (per Picard) included in the MB database as type "orchestrator".
 - \_cea\_chorusmasters : A person who (per Picard) is a conductor, but is "chorus master" in the MB database (i.e. not necessarily conducting the performance).
