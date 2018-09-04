@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 PLUGIN_NAME = 'No release'
-PLUGIN_AUTHOR = 'Johannes Weißl'
+PLUGIN_AUTHOR = 'Johannes Weißl, Philipp Wolfer'
 PLUGIN_DESCRIPTION = '''Do not store specific release information in releases of unknown origin.'''
-PLUGIN_VERSION = '0.1'
-PLUGIN_API_VERSIONS = ['0.15']
+PLUGIN_VERSION = '0.2'
+PLUGIN_API_VERSIONS = ['2.0']
 
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from picard.album import Album
 from picard.metadata import register_album_metadata_processor, register_track_metadata_processor
@@ -20,43 +20,42 @@ class Ui_NoReleaseOptionsPage(object):
     def setupUi(self, NoReleaseOptionsPage):
         NoReleaseOptionsPage.setObjectName('NoReleaseOptionsPage')
         NoReleaseOptionsPage.resize(394, 300)
-        self.verticalLayout = QtGui.QVBoxLayout(NoReleaseOptionsPage)
+        self.verticalLayout = QtWidgets.QVBoxLayout(NoReleaseOptionsPage)
         self.verticalLayout.setObjectName('verticalLayout')
-        self.groupBox = QtGui.QGroupBox(NoReleaseOptionsPage)
+        self.groupBox = QtWidgets.QGroupBox(NoReleaseOptionsPage)
         self.groupBox.setObjectName('groupBox')
-        self.vboxlayout = QtGui.QVBoxLayout(self.groupBox)
+        self.vboxlayout = QtWidgets.QVBoxLayout(self.groupBox)
         self.vboxlayout.setObjectName('vboxlayout')
-        self.norelease_enable = QtGui.QCheckBox(self.groupBox)
+        self.norelease_enable = QtWidgets.QCheckBox(self.groupBox)
         self.norelease_enable.setObjectName('norelease_enable')
         self.vboxlayout.addWidget(self.norelease_enable)
-        self.label = QtGui.QLabel(self.groupBox)
+        self.label = QtWidgets.QLabel(self.groupBox)
         self.label.setObjectName('label')
         self.vboxlayout.addWidget(self.label)
-        self.horizontalLayout = QtGui.QHBoxLayout()
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName('horizontalLayout')
-        self.norelease_strip_tags = QtGui.QLineEdit(self.groupBox)
+        self.norelease_strip_tags = QtWidgets.QLineEdit(self.groupBox)
         self.norelease_strip_tags.setObjectName('norelease_strip_tags')
         self.horizontalLayout.addWidget(self.norelease_strip_tags)
         self.vboxlayout.addLayout(self.horizontalLayout)
         self.verticalLayout.addWidget(self.groupBox)
-        spacerItem = QtGui.QSpacerItem(368, 187, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        spacerItem = QtWidgets.QSpacerItem(368, 187, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout.addItem(spacerItem)
 
         self.retranslateUi(NoReleaseOptionsPage)
         QtCore.QMetaObject.connectSlotsByName(NoReleaseOptionsPage)
 
     def retranslateUi(self, NoReleaseOptionsPage):
-        self.groupBox.setTitle(QtGui.QApplication.translate('NoReleaseOptionsPage', 'No release', None, QtGui.QApplication.UnicodeUTF8))
-        self.norelease_enable.setText(QtGui.QApplication.translate('NoReleaseOptionsPage', _('Enable plugin for all releases by default'), None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate('NoReleaseOptionsPage', _('Tags to strip (comma-separated)'), None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox.setTitle(QtWidgets.QApplication.translate('NoReleaseOptionsPage', 'No release'))
+        self.norelease_enable.setText(QtWidgets.QApplication.translate('NoReleaseOptionsPage', _('Enable plugin for all releases by default')))
+        self.label.setText(QtWidgets.QApplication.translate('NoReleaseOptionsPage', _('Tags to strip (comma-separated)')))
 
 
 def strip_release_specific_metadata(tagger, metadata):
     strip_tags = tagger.config.setting['norelease_strip_tags']
     strip_tags = [tag.strip() for tag in strip_tags.split(',')]
     for tag in strip_tags:
-        if tag in metadata:
-            del metadata[tag]
+        metadata.delete(tag)
 
 
 class NoReleaseAction(BaseAction):
@@ -93,7 +92,7 @@ class NoReleaseOptionsPage(OptionsPage):
         self.ui.norelease_enable.setChecked(self.config.setting['norelease_enable'])
 
     def save(self):
-        self.config.setting['norelease_strip_tags'] = unicode(self.ui.norelease_strip_tags.text())
+        self.config.setting['norelease_strip_tags'] = str(self.ui.norelease_strip_tags.text())
         self.config.setting['norelease_enable'] = self.ui.norelease_enable.isChecked()
 
 
