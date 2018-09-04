@@ -9,19 +9,23 @@ PLUGIN_API_VERSIONS = ["2.0"]
 import traceback
 from functools import partial
 from PyQt5 import QtCore
-from picard.metadata import register_track_metadata_processor
-from picard.ui.options import register_options_page, OptionsPage
 from picard.config import BoolOption, IntOption, TextOption
+from picard.metadata import register_track_metadata_processor
 from picard.plugins.lastfm.ui_options_lastfm import Ui_LastfmOptionsPage
+from picard.ui.options import register_options_page, OptionsPage
+from picard.util import build_qurl
 
-LASTFM_HOST = "ws.audioscrobbler.com"
+LASTFM_HOST = 'ws.audioscrobbler.com'
 LASTFM_PORT = 80
+LASTFM_PATH = '/2.0/'
+LASTFM_API_KEY = '0a210a4a6741f2ec8f27a791b9d5d971'
 
-# From http://www.last.fm/api/tos, 2011-07-30
+# From https://www.last.fm/api/tos, 2018-09-04
 # 4.4 (...) You will not make more than 5 requests per originating IP address per second, averaged over a
 # 5 minute period, without prior written consent. (...)
 from picard.webservice import ratecontrol
 ratecontrol.set_minimum_delay((LASTFM_HOST, LASTFM_PORT), 200)
+
 
 # Cache for Tags to avoid re-requesting tags within same Picard session
 _cache = {}
@@ -52,7 +56,7 @@ def _tags_finalize(album, metadata, tags, next):
 def _tags_downloaded(album, metadata, min_usage, ignore, next, current, data, reply, error):
     try:
         try:
-            intags = data.toptags[0].tag
+            intags = data.lfm[0].toptags[0].tag
         except AttributeError:
             intags = []
         tags = []
@@ -70,7 +74,7 @@ def _tags_downloaded(album, metadata, min_usage, ignore, next, current, data, re
                 pass
             if name.lower() not in ignore:
                 tags.append(name.title())
-        url = str(reply.url().path())
+        url = reply.url().toString()
         _cache[url] = tags
         _tags_finalize(album, metadata, current + tags, next)
 
@@ -89,41 +93,53 @@ def _tags_downloaded(album, metadata, min_usage, ignore, next, current, data, re
         album._finalize_loading(None)
 
 
-def get_tags(album, metadata, path, min_usage, ignore, next, current):
+def get_tags(album, metadata, queryargs, min_usage, ignore, next, current):
     """Get tags from an URL."""
-    url = str(QtCore.QUrl.fromPercentEncoding(path.encode('utf-8')))
+    url = build_qurl(LASTFM_HOST, LASTFM_PORT, LASTFM_PATH, queryargs).toString()
     if url in _cache:
         _tags_finalize(album, metadata, current + _cache[url], next)
     else:
-
         # If we have already sent a request for this URL, delay this call until later
         if url in _pending_requests:
-            _pending_requests[url].append(partial(get_tags, album, metadata, path, min_usage, ignore, next, current))
+            _pending_requests[url].append(partial(get_tags, album, metadata,
+                queryargs, min_usage, ignore, next, current))
         else:
             _pending_requests[url] = []
             album._requests += 1
-            album.tagger.webservice.get(LASTFM_HOST, LASTFM_PORT, path,
-                                   partial(_tags_downloaded, album, metadata, min_usage, ignore, next, current),
-                                   priority=True, important=True)
+            album.tagger.webservice.get(LASTFM_HOST, LASTFM_PORT, LASTFM_PATH,
+                partial(_tags_downloaded, album, metadata, min_usage, ignore, next, current),
+                queryargs=queryargs, parse_response_type='xml',
+                priority=True, important=True)
 
 
 def encode_str(s):
-    # Yes, that's right, Last.fm prefers double URL-encoding
     s = QtCore.QUrl.toPercentEncoding(s)
-    s = QtCore.QUrl.toPercentEncoding(string_(s))
-    return s
+    return bytes(s).decode()
+
+
+def get_queryargs(queryargs):
+    queryargs = {k: encode_str(v) for (k, v) in queryargs.items()}
+    queryargs['api_key'] = LASTFM_API_KEY
+    return queryargs
 
 
 def get_track_tags(album, metadata, artist, track, min_usage, ignore, next, current):
     """Get track top tags."""
-    path = "/1.0/track/%s/%s/toptags.xml" % (encode_str(artist), encode_str(track))
-    get_tags(album, metadata, path, min_usage, ignore, next, current)
+    queryargs = get_queryargs({
+        'method': 'Track.getTopTags',
+        'artist': artist,
+        'track': track,
+    })
+    get_tags(album, metadata, queryargs, min_usage, ignore, next, current)
 
 
 def get_artist_tags(album, metadata, artist, min_usage, ignore, next, current):
     """Get artist top tags."""
-    path = "/1.0/artist/%s/toptags.xml" % (encode_str(artist),)
-    get_tags(album, metadata, path, min_usage, ignore, next, current)
+    queryargs = get_queryargs({
+        'method': 'Artist.getTopTags',
+        'artist': artist,
+    })
+    get_tags(album, metadata, queryargs, min_usage, ignore, next, current)
 
 
 def process_track(album, metadata, release, track):
