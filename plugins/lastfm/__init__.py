@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 
 PLUGIN_NAME = 'Last.fm'
-PLUGIN_AUTHOR = 'Lukáš Lalinský'
+PLUGIN_AUTHOR = 'Lukáš Lalinský, Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use tags from Last.fm as genre.'
-PLUGIN_VERSION = "0.5"
+PLUGIN_VERSION = "0.6"
 PLUGIN_API_VERSIONS = ["2.0"]
 
-from PyQt4 import QtCore
+import traceback
+from functools import partial
+from PyQt5 import QtCore
 from picard.metadata import register_track_metadata_processor
 from picard.ui.options import register_options_page, OptionsPage
 from picard.config import BoolOption, IntOption, TextOption
 from picard.plugins.lastfm.ui_options_lastfm import Ui_LastfmOptionsPage
-from picard.util import partial
-import traceback
 
 LASTFM_HOST = "ws.audioscrobbler.com"
 LASTFM_PORT = 80
@@ -26,7 +26,7 @@ ratecontrol.set_minimum_delay((LASTFM_HOST, LASTFM_PORT), 200)
 # Cache for Tags to avoid re-requesting tags within same Picard session
 _cache = {}
 # Keeps track of requests for tags made to webservice API but not yet returned (to avoid re-requesting the same URIs)
-_pending_xmlws_requests = {}
+_pending_requests = {}
 
 # TODO: move this to an options page
 TRANSLATE_TAGS = {
@@ -75,9 +75,9 @@ def _tags_downloaded(album, metadata, min_usage, ignore, next, current, data, re
         _tags_finalize(album, metadata, current + tags, next)
 
         # Process any pending requests for the same URL
-        if url in _pending_xmlws_requests:
-            pending = _pending_xmlws_requests[url]
-            del _pending_xmlws_requests[url]
+        if url in _pending_requests:
+            pending = _pending_requests[url]
+            del _pending_requests[url]
             for delayed_call in pending:
                 delayed_call()
 
@@ -91,18 +91,18 @@ def _tags_downloaded(album, metadata, min_usage, ignore, next, current, data, re
 
 def get_tags(album, metadata, path, min_usage, ignore, next, current):
     """Get tags from an URL."""
-    url = str(QtCore.QUrl.fromPercentEncoding(path))
+    url = str(QtCore.QUrl.fromPercentEncoding(path.encode('utf-8')))
     if url in _cache:
         _tags_finalize(album, metadata, current + _cache[url], next)
     else:
 
         # If we have already sent a request for this URL, delay this call until later
-        if url in _pending_xmlws_requests:
-            _pending_xmlws_requests[url].append(partial(get_tags, album, metadata, path, min_usage, ignore, next, current))
+        if url in _pending_requests:
+            _pending_requests[url].append(partial(get_tags, album, metadata, path, min_usage, ignore, next, current))
         else:
-            _pending_xmlws_requests[url] = []
+            _pending_requests[url] = []
             album._requests += 1
-            album.tagger.xmlws.get(LASTFM_HOST, LASTFM_PORT, path,
+            album.tagger.webservice.get(LASTFM_HOST, LASTFM_PORT, path,
                                    partial(_tags_downloaded, album, metadata, min_usage, ignore, next, current),
                                    priority=True, important=True)
 
@@ -110,7 +110,7 @@ def get_tags(album, metadata, path, min_usage, ignore, next, current):
 def encode_str(s):
     # Yes, that's right, Last.fm prefers double URL-encoding
     s = QtCore.QUrl.toPercentEncoding(s)
-    s = QtCore.QUrl.toPercentEncoding(unicode(s))
+    s = QtCore.QUrl.toPercentEncoding(string_(s))
     return s
 
 
@@ -176,8 +176,8 @@ class LastfmOptionsPage(OptionsPage):
         self.config.setting["lastfm_use_track_tags"] = self.ui.use_track_tags.isChecked()
         self.config.setting["lastfm_use_artist_tags"] = self.ui.use_artist_tags.isChecked()
         self.config.setting["lastfm_min_tag_usage"] = self.ui.min_tag_usage.value()
-        self.config.setting["lastfm_ignore_tags"] = unicode(self.ui.ignore_tags.text())
-        self.config.setting["lastfm_join_tags"] = unicode(self.ui.join_tags.currentText())
+        self.config.setting["lastfm_ignore_tags"] = str(self.ui.ignore_tags.text())
+        self.config.setting["lastfm_join_tags"] = str(self.ui.join_tags.currentText())
 
 
 register_track_metadata_processor(process_track)
