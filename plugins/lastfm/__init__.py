@@ -6,8 +6,10 @@ PLUGIN_DESCRIPTION = 'Use tags from Last.fm as genre.'
 PLUGIN_VERSION = "0.6"
 PLUGIN_API_VERSIONS = ["2.0"]
 
+import re
 from functools import partial
 from PyQt5 import QtCore
+from picard import log
 from picard.config import BoolOption, IntOption, TextOption
 from picard.metadata import register_track_metadata_processor
 from picard.plugins.lastfm.ui_options_lastfm import Ui_LastfmOptionsPage
@@ -39,6 +41,32 @@ TRANSLATE_TAGS = {
     "electronica": "Electronic",
 }
 TITLE_CASE = True
+
+
+def parse_ignored_tags(ignore_tags_setting):
+    ignore_tags = []
+    for tag in ignore_tags_setting.lower().split(','):
+        tag = tag.strip()
+        if tag.startswith('/') and tag.endswith('/'):
+            try:
+                tag = re.compile(tag[1:-1])
+            except re.error:
+                log.error(
+                    'Error parsing ignored tag "%s"', tag, exc_info=True)
+        ignore_tags.append(tag)
+    return ignore_tags
+
+
+def matches_ignored(ignore_tags, tag):
+    tag = tag.lower().strip()
+    for pattern in ignore_tags:
+        if isinstance(pattern, re.Pattern):
+            match = pattern.match(tag)
+        else:
+            match = pattern == tag
+        if match:
+            return True
+    return False
 
 
 def _tags_finalize(album, metadata, tags, next_):
@@ -73,7 +101,7 @@ def _tags_downloaded(album, metadata, min_usage, ignore, next_, current, data,
                 name = TRANSLATE_TAGS[name]
             except KeyError:
                 pass
-            if name.lower() not in ignore:
+            if not matches_ignored(ignore, name):
                 tags.append(name.title())
         url = reply.url().toString()
         _cache[url] = tags
@@ -86,8 +114,8 @@ def _tags_downloaded(album, metadata, min_usage, ignore, next_, current, data,
             for delayed_call in pending:
                 delayed_call()
 
-    except Exception as err:
-        album.tagger.log.error(err, exc_info=True)
+    except Exception:
+        log.error('Problem processing download tags', exc_info=True)
         raise
     finally:
         album._requests -= 1
@@ -154,7 +182,7 @@ def process_track(album, metadata, release, track):
     use_track_tags = setting["lastfm_use_track_tags"]
     use_artist_tags = setting["lastfm_use_artist_tags"]
     min_tag_usage = setting["lastfm_min_tag_usage"]
-    ignore_tags = setting["lastfm_ignore_tags"].lower().split(",")
+    ignore_tags = parse_ignored_tags(setting["lastfm_ignore_tags"])
     if use_track_tags or use_artist_tags:
         artist = metadata["artist"]
         title = metadata["title"]
@@ -182,7 +210,8 @@ class LastfmOptionsPage(OptionsPage):
         BoolOption("setting", "lastfm_use_track_tags", False),
         BoolOption("setting", "lastfm_use_artist_tags", False),
         IntOption("setting", "lastfm_min_tag_usage", 15),
-        TextOption("setting", "lastfm_ignore_tags", "seen live,favorites"),
+        TextOption("setting", "lastfm_ignore_tags",
+                   "seen live, favorites, /\\d+ of \\d+ stars/"),
         TextOption("setting", "lastfm_join_tags", ""),
     ]
 
