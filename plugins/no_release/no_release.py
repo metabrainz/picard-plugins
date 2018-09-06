@@ -8,6 +8,7 @@ PLUGIN_API_VERSIONS = ['2.0']
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from picard import config
 from picard.album import Album
 from picard.metadata import register_album_metadata_processor, register_track_metadata_processor
 from picard.ui.options import register_options_page, OptionsPage
@@ -51,8 +52,8 @@ class Ui_NoReleaseOptionsPage(object):
         self.label.setText(QtWidgets.QApplication.translate('NoReleaseOptionsPage', _('Tags to strip (comma-separated)')))
 
 
-def strip_release_specific_metadata(tagger, metadata):
-    strip_tags = tagger.config.setting['norelease_strip_tags']
+def strip_release_specific_metadata(metadata):
+    strip_tags = config.setting['norelease_strip_tags']
     strip_tags = [tag.strip() for tag in strip_tags.split(',')]
     for tag in strip_tags:
         metadata.delete(tag)
@@ -64,9 +65,9 @@ class NoReleaseAction(BaseAction):
     def callback(self, objs):
         for album in objs:
             if isinstance(album, Album):
-                strip_release_specific_metadata(self.tagger, album.metadata)
+                strip_release_specific_metadata(album.metadata)
                 for track in album.tracks:
-                    strip_release_specific_metadata(self.tagger, track.metadata)
+                    strip_release_specific_metadata(track.metadata)
                     for file in track.linked_files:
                         track.update_file_metadata(file)
                 album.update()
@@ -88,22 +89,23 @@ class NoReleaseOptionsPage(OptionsPage):
         self.ui.setupUi(self)
 
     def load(self):
-        self.ui.norelease_strip_tags.setText(self.config.setting['norelease_strip_tags'])
-        self.ui.norelease_enable.setChecked(self.config.setting['norelease_enable'])
+        self.ui.norelease_strip_tags.setText(config.setting['norelease_strip_tags'])
+        self.ui.norelease_enable.setChecked(config.setting['norelease_enable'])
 
     def save(self):
-        self.config.setting['norelease_strip_tags'] = str(self.ui.norelease_strip_tags.text())
-        self.config.setting['norelease_enable'] = self.ui.norelease_enable.isChecked()
+        config.setting['norelease_strip_tags'] = str(self.ui.norelease_strip_tags.text())
+        config.setting['norelease_enable'] = self.ui.norelease_enable.isChecked()
 
 
 def NoReleaseAlbumProcessor(tagger, metadata, release):
-    if tagger.config.setting['norelease_enable']:
-        strip_release_specific_metadata(tagger, metadata)
+    if config.setting['norelease_enable']:
+        strip_release_specific_metadata(metadata)
 
 
 def NoReleaseTrackProcessor(tagger, metadata, track, release):
-    if tagger.config.setting['norelease_enable']:
-        strip_release_specific_metadata(tagger, metadata)
+    if config.setting['norelease_enable']:
+        strip_release_specific_metadata(metadata)
+
 
 register_album_metadata_processor(NoReleaseAlbumProcessor)
 register_track_metadata_processor(NoReleaseTrackProcessor)
