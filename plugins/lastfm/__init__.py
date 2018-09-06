@@ -9,7 +9,7 @@ PLUGIN_API_VERSIONS = ["2.0"]
 import re
 from functools import partial
 from PyQt5 import QtCore
-from picard import log
+from picard import config, log
 from picard.config import BoolOption, IntOption, TextOption
 from picard.metadata import register_track_metadata_processor
 from picard.plugins.lastfm.ui_options_lastfm import Ui_LastfmOptionsPage
@@ -75,7 +75,7 @@ def _tags_finalize(album, metadata, tags, next_):
     else:
         tags = list(set(tags))
         if tags:
-            join_tags = album.tagger.config.setting["lastfm_join_tags"]
+            join_tags = config.setting["lastfm_join_tags"]
             if join_tags:
                 tags = join_tags.join(tags)
             metadata["genre"] = tags
@@ -178,11 +178,10 @@ def get_artist_tags(album, metadata, artist, min_usage,
 
 
 def process_track(album, metadata, release, track):
-    setting = album.tagger.config.setting
-    use_track_tags = setting["lastfm_use_track_tags"]
-    use_artist_tags = setting["lastfm_use_artist_tags"]
-    min_tag_usage = setting["lastfm_min_tag_usage"]
-    ignore_tags = parse_ignored_tags(setting["lastfm_ignore_tags"])
+    use_track_tags = config.setting["lastfm_use_track_tags"]
+    use_artist_tags = config.setting["lastfm_use_artist_tags"]
+    min_tag_usage = config.setting["lastfm_min_tag_usage"]
+    ignore_tags = parse_ignored_tags(config.setting["lastfm_ignore_tags"])
     if use_track_tags or use_artist_tags:
         artist = metadata["artist"]
         title = metadata["title"]
@@ -221,7 +220,7 @@ class LastfmOptionsPage(OptionsPage):
         self.ui.setupUi(self)
 
     def load(self):
-        setting = self.config.setting
+        setting = config.setting
         self.ui.use_track_tags.setChecked(setting["lastfm_use_track_tags"])
         self.ui.use_artist_tags.setChecked(setting["lastfm_use_artist_tags"])
         self.ui.min_tag_usage.setValue(setting["lastfm_min_tag_usage"])
@@ -229,7 +228,7 @@ class LastfmOptionsPage(OptionsPage):
         self.ui.join_tags.setEditText(setting["lastfm_join_tags"])
 
     def save(self):
-        setting = self.config.setting
+        setting = config.setting
         setting["lastfm_use_track_tags"] = self.ui.use_track_tags.isChecked()
         setting["lastfm_use_artist_tags"] = self.ui.use_artist_tags.isChecked()
         setting["lastfm_min_tag_usage"] = self.ui.min_tag_usage.value()
