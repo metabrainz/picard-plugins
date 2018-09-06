@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'fanart.tv cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
-PLUGIN_VERSION = "1.2"
+PLUGIN_VERSION = "1.3"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -75,11 +75,11 @@ class CoverArtProviderFanartTv(CoverArtProvider):
 
     def queue_images(self):
         release_group_id = self.metadata["musicbrainz_releasegroupid"]
-        path = "/v3/music/albums/%s" % \
-            (release_group_id, )
-        queryargs = {"api_key": QUrl.toPercentEncoding(FANART_APIKEY),
-                     "client_key": QUrl.toPercentEncoding(self._client_key),
-                     }
+        path = "/v3/music/albums/%s" % (release_group_id, )
+        queryargs = {
+            "api_key": bytes(QUrl.toPercentEncoding(FANART_APIKEY)).decode(),
+            "client_key": bytes(QUrl.toPercentEncoding(self._client_key)).decode(),
+        }
         log.debug("CoverArtProviderFanartTv.queue_downloads: %s" % path)
         self.album.tagger.webservice.download(
             FANART_HOST,
@@ -162,7 +162,7 @@ class FanartTvOptionsPage(OptionsPage):
             self.ui.fanarttv_cdart_use_if_no_albumcover.setChecked(True)
 
     def save(self):
-        config.setting["fanarttv_client_key"] = string_(self.ui.fanarttv_client_key.text())
+        config.setting["fanarttv_client_key"] = self.ui.fanarttv_client_key.text()
         if self.ui.fanarttv_cdart_use_always.isChecked():
             config.setting["fanarttv_use_cdart"] = OPTION_CDART_ALWAYS
         elif self.ui.fanarttv_cdart_use_never.isChecked():
