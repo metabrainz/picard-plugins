@@ -12,7 +12,7 @@ PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums. Linux only version with dependancy on Aubio and Numpy"""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "1.1"
+PLUGIN_VERSION = "1.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 # PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
@@ -96,7 +96,8 @@ class FileBPM(BaseAction):
         )
         calculated_bpm = get_file_bpm(self.tagger, file.filename)
         # self.tagger.log.debug('%s' % (calculated_bpm))
-        file.metadata["bpm"] = string_(round(calculated_bpm, 1))
+        file.metadata["bpm"] = str(round(calculated_bpm, 1))
+        file.update()
 
     def _calculate_bpm_callback(self, file, result=None, error=None):
         if not error:
