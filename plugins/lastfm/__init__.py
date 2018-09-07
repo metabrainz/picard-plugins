@@ -3,7 +3,7 @@
 PLUGIN_NAME = 'Last.fm'
 PLUGIN_AUTHOR = 'Lukáš Lalinský, Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use tags from Last.fm as genre.'
-PLUGIN_VERSION = "0.6"
+PLUGIN_VERSION = "0.7"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 import re
@@ -83,6 +83,11 @@ def _tags_finalize(album, metadata, tags, next_):
 
 def _tags_downloaded(album, metadata, min_usage, ignore, next_, current, data,
                      reply, error):
+    if error:
+        album._requests -= 1
+        album._finalize_loading(None)
+        return
+
     try:
         try:
             intags = data.lfm[0].toptags[0].tag
@@ -116,7 +121,6 @@ def _tags_downloaded(album, metadata, min_usage, ignore, next_, current, data,
 
     except Exception:
         log.error('Problem processing download tags', exc_info=True)
-        raise
     finally:
         album._requests -= 1
         album._finalize_loading(None)
