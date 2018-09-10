@@ -232,7 +232,11 @@ class LastfmOptionsPage(OptionsPage):
         self.ui.join_tags.setEditText(setting["lastfm_join_tags"])
 
     def save(self):
+        global _cache
         setting = config.setting
+        if setting["lastfm_min_tag_usage"] != self.ui.min_tag_usage.value() \
+           or setting["lastfm_ignore_tags"] != str(self.ui.ignore_tags.text()):
+            _cache = {}
         setting["lastfm_use_track_tags"] = self.ui.use_track_tags.isChecked()
         setting["lastfm_use_artist_tags"] = self.ui.use_artist_tags.isChecked()
         setting["lastfm_min_tag_usage"] = self.ui.min_tag_usage.value()
