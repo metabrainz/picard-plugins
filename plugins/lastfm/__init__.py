@@ -3,7 +3,7 @@
 PLUGIN_NAME = 'Last.fm'
 PLUGIN_AUTHOR = 'Lukáš Lalinský, Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use tags from Last.fm as genre.'
-PLUGIN_VERSION = "0.7"
+PLUGIN_VERSION = "0.8"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 import re
@@ -60,7 +60,7 @@ def parse_ignored_tags(ignore_tags_setting):
 def matches_ignored(ignore_tags, tag):
     tag = tag.lower().strip()
     for pattern in ignore_tags:
-        if isinstance(pattern, re.Pattern):
+        if hasattr(pattern, 'match'):
             match = pattern.match(tag)
         else:
             match = pattern == tag
@@ -232,7 +232,11 @@ class LastfmOptionsPage(OptionsPage):
         self.ui.join_tags.setEditText(setting["lastfm_join_tags"])
 
     def save(self):
+        global _cache
         setting = config.setting
+        if setting["lastfm_min_tag_usage"] != self.ui.min_tag_usage.value() \
+           or setting["lastfm_ignore_tags"] != str(self.ui.ignore_tags.text()):
+            _cache = {}
         setting["lastfm_use_track_tags"] = self.ui.use_track_tags.isChecked()
         setting["lastfm_use_artist_tags"] = self.ui.use_artist_tags.isChecked()
         setting["lastfm_min_tag_usage"] = self.ui.min_tag_usage.value()
