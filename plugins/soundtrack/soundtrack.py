@@ -10,7 +10,7 @@ PLUGIN_AUTHOR = 'Samir Benmendil'
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
 PLUGIN_DESCRIPTION = '''Sets the albumartist to "Soundtrack" if releasetype is a soundtrack.'''
-PLUGIN_VERSION = "0.1"
+PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["1.0", "2.0"]
 
 from picard.metadata import register_album_metadata_processor
