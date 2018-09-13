@@ -27,7 +27,7 @@ Leaves words containing embedded uppercase as-is i.e. USA or DoA.<br />
 For Artist/AlbumArtist, title cases only artists not join phrases<br />
 e.g. The Beatles feat. The Who.
 """
-PLUGIN_VERSION = "0.1"
+PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-3.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
