@@ -49,16 +49,17 @@ def standardise_performers(album, metadata, *args):
                   PLUGIN_NAME,
                   subkey,
                   )
-        extra = ''
-        temp = ''
-        for part in instruments[0].split():
-            if part in ['guest', 'solo', 'additional']:
-                extra = "{0}{1} ".format(extra, part)
-            else:
-                temp = "{0} {1}".format(temp, part).strip()
-        instruments[0] = temp
+        prefixes = []
+        words = instruments[0].split()
+        for word in words[:]:
+            if not word in ['guest', 'solo', 'additional', 'minor']:
+                break
+            prefixes.append(word)
+            words.remove(word)
+        instruments[0] = " ".join(words)
+        prefix = " ".join(prefixes) + " " if prefixes else ""
         for instrument in instruments:
-            newkey = '%s:%s%s' % (mainkey, extra, instrument)
+            newkey = '%s:%s%s' % (mainkey, prefix, instrument)
             for value in values:
                 metadata.add_unique(newkey, value)
         del metadata[key]
