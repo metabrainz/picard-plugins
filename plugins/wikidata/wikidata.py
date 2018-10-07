@@ -26,21 +26,19 @@ class wikidata:
         # Key: mbid, value: List of metadata entries to be updated when we have parsed everything
         self.requests = {}
         
-        
         # Key: mbid, value: List of items to track the number of outstanding requests
         self.albums = {}
-
+        
         # cache, items that have been found
         # key: mbid, value: list of strings containing the genre's
         self.cache = {}
         
     # not used
     def process_release(self, album, metadata, release):
-
         self.ws = album.tagger.webservice
         self.log = album.log
         item_id = dict.get(metadata, 'musicbrainz_releasegroupid')[0]
-
+        
         log.info('WIKIDATA: processing release group %s ' % item_id)
         self.process_request(metadata, album, item_id, type='release-group')
         for artist in dict.get(metadata, 'musicbrainz_albumartistid'):
@@ -49,12 +47,12 @@ class wikidata:
             self.process_request(metadata, album, item_id, type='artist')
             
     # Main processing function
-    # First see if we have already found what we need in the cache, finalize loading 
+    # First see if we have already found what we need in the cache, finalize loading
     # Next see if we are already looking for the item
     #   If we are add this item to the list of items to be updated once we find what we are looking for.
     #   Otherwise we are the first one to look up this item, start a new request
     # metadata, map containing the new metadata
-    # 
+    #
     def process_request(self, metadata, album, item_id, type):
         with self.lock:
             log.debug('WIKIDATA: Looking up cache for item  %s' % item_id)
@@ -110,7 +108,7 @@ class wikidata:
                         for relation in response.metadata[0].release_group[0].relation_list[0].relation:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found = True
-                                wikidata_url = relation.target[0].text                               
+                                wikidata_url = relation.target[0].text
                                 self.process_wikidata(wikidata_url, item_id)
                 if 'artist' in response.metadata[0].children:
                     if 'relation_list' in response.metadata[0].artist[0].children:
