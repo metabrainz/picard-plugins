@@ -35,10 +35,7 @@ standardise_performers_split = re.compile(r", | and ").split
 
 
 def standardise_performers(album, metadata, *args):
-    for key, values in list(metadata.rawitems()):
-        if not key.startswith('performer:') \
-                and not key.startswith('~performersort:'):
-            continue
+    for key, values in list(filter(lambda filter_tuple: filter_tuple[0].startswith('performer:') or filter_tuple[0].startswith('~performersort:'), metadata.rawitems())):
         mainkey, subkey = key.split(':', 1)
         if not subkey:
             continue
