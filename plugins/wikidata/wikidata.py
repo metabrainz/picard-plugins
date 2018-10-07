@@ -78,9 +78,9 @@ class wikidata:
                     album._requests += 1
                     self.albums[item_id].append(album)
                 else:
-                    self.requests[item_id]=[metadata]
+                    self.requests[item_id] = [metadata]
                     album._requests += 1
-                    self.albums[item_id]=[album]
+                    self.albums[item_id] = [album]
 
                     log.debug('WIKIDATA: first request for this item')
 
@@ -131,10 +131,9 @@ class wikidata:
                 album._requests -= 1
                 log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
                           album._requests)
-                if album._requests == 0 :
+                if not album._requests:
                     self.albums[item_id].remove(album)
                     album._finalize_loading(None)
-            #del self.requests[item_id]
 
     def process_wikidata(self, wikidata_url, item_id):
         with self.lock:
@@ -202,7 +201,7 @@ class wikidata:
 
             for album in self.albums[item_id]:
                 album._requests -= 1
-                if album._requests == 0 :
+                if not album._requests:
                     self.albums[item_id].remove(album)
                     album._finalize_loading(None)
                 log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % album._requests)
