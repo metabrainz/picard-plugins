@@ -8,7 +8,7 @@
 PLUGIN_NAME = 'wikidata-genre'
 PLUGIN_AUTHOR = 'Daniel Sobey, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'query wikidata to get genre tags'
-PLUGIN_VERSION = '1.0'
+PLUGIN_VERSION = '1.1'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
@@ -23,26 +23,36 @@ class wikidata:
 
     def __init__(self):
         self.lock = threading.Lock()
-        # active request queue
+        # Key: mbid, value: List of metadata entries to be updated when we have parsed everything
         self.requests = {}
+        
+        # Key: mbid, value: List of items to track the number of outstanding requests
         self.albums = {}
-
-        # cache
+        
+        # cache, items that have been found
+        # key: mbid, value: list of strings containing the genre's
         self.cache = {}
-
+        
+    # not used
     def process_release(self, album, metadata, release):
-
         self.ws = album.tagger.webservice
         self.log = album.log
         item_id = dict.get(metadata, 'musicbrainz_releasegroupid')[0]
-
+        
         log.info('WIKIDATA: processing release group %s ' % item_id)
         self.process_request(metadata, album, item_id, type='release-group')
         for artist in dict.get(metadata, 'musicbrainz_albumartistid'):
             item_id = artist
             log.info('WIKIDATA: processing release artist %s' % item_id)
             self.process_request(metadata, album, item_id, type='artist')
-
+            
+    # Main processing function
+    # First see if we have already found what we need in the cache, finalize loading
+    # Next see if we are already looking for the item
+    #   If we are add this item to the list of items to be updated once we find what we are looking for.
+    #   Otherwise we are the first one to look up this item, start a new request
+    # metadata, map containing the new metadata
+    #
     def process_request(self, metadata, album, item_id, type):
         with self.lock:
             log.debug('WIKIDATA: Looking up cache for item  %s' % item_id)
@@ -54,33 +64,34 @@ class wikidata:
                 new_genre = set(metadata.getall("genre"))
                 new_genre.update(genre_list)
                 metadata["genre"] = list(new_genre)
-
-                album._finalize_loading(None)
+                if album._requests == 0:
+                    album._finalize_loading(None)
                 return
             else:
                 # pending requests are handled by adding the metadata object to a
                 # list of things to be updated when the genre is found
-                if item_id in list(self.requests.keys()):
+                if item_id in list(self.albums.keys()):
                     log.debug(
                         'WIKIDATA: request already pending, add it to the list of items to update once this has been found')
                     self.requests[item_id].append(metadata)
 
                     album._requests += 1
                     self.albums[item_id].append(album)
-                    return
-                self.requests[item_id] = [metadata]
-                album._requests += 1
-                self.albums[item_id] = [album]
-                log.debug('WIKIDATA: first request for this item')
+                else:
+                    self.requests[item_id] = [metadata]
+                    album._requests += 1
+                    self.albums[item_id] = [album]
 
-                log.info('WIKIDATA: about to call musicbrainz to look up %s ' % item_id)
-                # find the wikidata url if this exists
-                host = config.setting["server_host"]
-                port = config.setting["server_port"]
+                    log.debug('WIKIDATA: first request for this item')
 
-                path = '/ws/2/%s/%s' % (type, item_id)
-                queryargs = {"inc": "url-rels"}
-                self.ws.get(host, port, path,
+                    log.info('WIKIDATA: about to call musicbrainz to look up %s ' % item_id)
+                    # find the wikidata url if this exists
+                    host = config.setting["server_host"]
+                    port = config.setting["server_port"]
+
+                    path = '/ws/2/%s/%s' % (type, item_id)
+                    queryargs = {"inc": "url-rels"}
+                    self.ws.get(host, port, path,
                             partial(self.musicbrainz_release_lookup,
                                     item_id, metadata),
                             parse_response_type="xml", priority=False,
@@ -106,7 +117,6 @@ class wikidata:
                                 found = True
                                 wikidata_url = relation.target[0].text
                                 self.process_wikidata(wikidata_url, item_id)
-
                 if 'work' in response.metadata[0].children:
                     if 'relation_list' in response.metadata[0].work[0].children:
                         for relation in response.metadata[0].work[0].relation_list[0].relation:
@@ -115,16 +125,20 @@ class wikidata:
                                 wikidata_url = relation.target[0].text
                                 self.process_wikidata(wikidata_url, item_id)
         if not found:
-            log.info('WIKIDATA: no wikidata url')
-            with self.lock:
-                for album in self.albums[item_id]:
-                    album._requests -= 1
+            log.info('WIKIDATA: no wikidata url found for item_id: %s ', item_id)
+        with self.lock:
+            for album in self.albums[item_id]:
+                album._requests -= 1
+                log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
+                          album._requests)
+                if not album._requests:
+                    self.albums[item_id].remove(album)
                     album._finalize_loading(None)
-                    log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
-                              album._requests)
-                del self.requests[item_id]
 
     def process_wikidata(self, wikidata_url, item_id):
+        with self.lock:
+            for album in self.albums[item_id]:
+                album._requests += 1
         item = wikidata_url.split('/')[4]
         path = "/wiki/Special:EntityData/" + item + ".rdf"
         log.info('WIKIDATA: fetching the folowing url wikidata.org%s' % path)
@@ -187,10 +201,10 @@ class wikidata:
 
             for album in self.albums[item_id]:
                 album._requests -= 1
-                album._finalize_loading(None)
-                log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
-                         album._requests)
-            del self.requests[item_id]
+                if not album._requests:
+                    self.albums[item_id].remove(album)
+                    album._finalize_loading(None)
+                log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % album._requests)
 
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
         self.ws = album.tagger.webservice
