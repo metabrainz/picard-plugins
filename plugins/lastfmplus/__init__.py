@@ -1,25 +1,26 @@
 # -*- coding: utf-8 -*-
 
 PLUGIN_NAME = 'Last.fm.Plus'
-PLUGIN_AUTHOR = 'RifRaf, Lukáš Lalinský, voiceinsideyou'
+PLUGIN_AUTHOR = 'RifRaf, Lukáš Lalinský, voiceinsideyou, Jaakko Perttilä'
 PLUGIN_DESCRIPTION = '''Uses folksonomy tags from Last.fm to<br/>
 * Sort music into major and minor genres based on configurable genre "whitelists"<br/>
 * Add "mood", "occasion" and other custom categories<br/>
 * Add "original release year" and "decade" tags, as well as populate blank dates.'''
-PLUGIN_VERSION = "0.15"
+PLUGIN_VERSION = "0.16"
 PLUGIN_API_VERSIONS = ["2.0"]
 
-from PyQt4 import QtGui, QtCore
+import re
+import traceback
+from functools import partial
+from PyQt5 import QtCore, QtWidgets
 from picard.metadata import register_track_metadata_processor
 from picard.ui.options import register_options_page, OptionsPage
 from picard.config import BoolOption, IntOption, TextOption
-from picard.plugins.lastfmplus.ui_options_lastfm import Ui_LastfmOptionsPage
-from picard.util import partial
-import traceback
-import re
+from picard.plugins.lastfmplus.ui_options_lastfmplus import Ui_LastfmOptionsPage
 
 LASTFM_HOST = "ws.audioscrobbler.com"
 LASTFM_PORT = 80
+LASTFM_PATH = "/2.0/"
 
 # From http://www.last.fm/api/tos, 2011-07-30
 # 4.4 (...) You will not make more than 5 requests per originating IP address per second, averaged over a
@@ -73,14 +74,11 @@ def matches_list(s, lst):
 # Function to sort/compare a 2 Element of Tupel
 
 
-def cmp1(a, b):
-    return cmp(a[1], b[1]) * -1
-# Special Compare/Sort-Function to sort downloaded Tags
-
-
 def cmptaginfo(a, b):
-    return cmp(a[1][0], b[1][0]) * -1
+    return (a[1][0] > b[1][0]) - (a[1][0] < b[1][0]) * -1
 
+def cmptaginfokey(a):
+    return a[1][0]
 
 def _lazy_load_filters(cfg):
     if not GENRE_FILTER["_loaded_"]:
@@ -99,7 +97,7 @@ def _lazy_load_filters(cfg):
 
 def apply_translations_and_sally(tag_to_count, sally, factor):
     ret = {}
-    for name, count in tag_to_count.iteritems():
+    for name, count in tag_to_count.items():
         # apply translations
         try:
             name = GENRE_FILTER["translate"][name.lower()]
@@ -111,7 +109,7 @@ def apply_translations_and_sally(tag_to_count, sally, factor):
 
         if lower not in ret or ret[lower][0] < (count * factor):
             ret[lower] = [count * factor, sally]
-    return ret.items()
+    return list(ret.items())
 
 
 def _tags_finalize(album, metadata, tags, next):
@@ -152,7 +150,7 @@ def _tags_finalize(album, metadata, tags, next):
                "year"     : {'metatag' : year_tag, 'data' : ALBUM_YEAR},
                "year2"    : {'metatag' : 'originalyear', 'data' : ALBUM_YEAR},
                "year3"    : {'metatag' : 'date', 'data' : ALBUM_YEAR} }
-        for elem in glb.keys():
+        for elem in list(glb.keys()):
             if not albid in glb[elem]['data']:
                 glb[elem]['data'][albid] = {'count': 1, 'genres': {}}
             else:
@@ -160,7 +158,7 @@ def _tags_finalize(album, metadata, tags, next):
 
         if tags:
             # search for tags
-            tags.sort(cmp=cmptaginfo)
+            tags.sort(key=cmptaginfokey, reverse=True)
             for lowered, [weight, stype] in tags:
                 name = lowered.title()
                 # if is tag which should only used for extension (if too few
@@ -182,7 +180,7 @@ def _tags_finalize(album, metadata, tags, next):
                 below = (s and weight < cfg["lastfm_min_artisttag_weight"]) or (
                     not s and weight < cfg["lastfm_min_tracktag_weight"])
 
-                for group, ielem in info.items():
+                for group, ielem in list(info.items()):
                     if matches_list(lowered, ielem[5]):
                         if below and ielem[4]:
                             # If Should use min-weigh information
@@ -228,7 +226,7 @@ def _tags_finalize(album, metadata, tags, next):
                         break
 
             # cut to wanted size
-            for group, ielem in info.items():
+            for group, ielem in list(info.items()):
                 while group + "/tags" in hold and len(hold[group + "/tags"]) > ielem[6]:
                     # Remove first all Sally-Tags
                     if group + "/sally" in hold and len(hold[group + "/sally"]) > 0:
@@ -337,10 +335,14 @@ def _tags_finalize(album, metadata, tags, next):
 
 
 def _tags_downloaded(album, metadata, sally, factor, next, current, data, reply, error):
-    try:
+    q = QtCore.QUrlQuery(reply.url())
+    cachetag = q.queryItemValue('artist')
+    if q.queryItemValue('method') == "Track.getTopTags":
+        cachetag += q.queryItemValue('method')
 
+    try:
         try:
-            intags = data.toptags[0].tag
+            intags = data.lfm[0].toptags[0].tag
         except AttributeError:
             intags = []
 
@@ -358,17 +360,14 @@ def _tags_downloaded(album, metadata, sally, factor, next, current, data, reply,
 
             tag_to_count[name] = count
 
-        url = str(reply.url().path())
-        _cache[url] = tag_to_count
-
+        _cache[cachetag] = tag_to_count
         tags = apply_translations_and_sally(tag_to_count, sally, factor)
-
         _tags_finalize(album, metadata, current + tags, next)
 
         # Process any pending requests for the same URL
-        if url in _pending_xmlws_requests:
-            pending = _pending_xmlws_requests[url]
-            del _pending_xmlws_requests[url]
+        if cachetag in _pending_xmlws_requests:
+            pending = _pending_xmlws_requests[cachetag]
+            del _pending_xmlws_requests[cachetag]
             for delayed_call in pending:
                 delayed_call()
 
@@ -380,50 +379,46 @@ def _tags_downloaded(album, metadata, sally, factor, next, current, data, reply,
         album._finalize_loading(None)
 
 
-def get_tags(album, metadata, path, sally, factor, next, current):
+def get_tags(album, metadata, artist, next, current, track=None, cachetag=None):
     """Get tags from an URL."""
 
     # Ensure config is loaded (or reloaded if has been changed)
     _lazy_load_filters(album.tagger.config.setting)
 
-    url = str(QtCore.QUrl.fromPercentEncoding(path))
-    if url in _cache:
-        tags = apply_translations_and_sally(_cache[url], sally, factor)
-        _tags_finalize(album, metadata, current + tags, next)
-    else:
+    if not cachetag:
+        cachetag = artist
 
-        # If we have already sent a request for this URL, delay this call until later
-        if url in _pending_xmlws_requests:
-            _pending_xmlws_requests[url].append(partial(get_tags, album, metadata, path, sally, factor, next, current))
-        else:
-            _pending_xmlws_requests[url] = []
-            album._requests += 1
-            album.tagger.xmlws.get(LASTFM_HOST, LASTFM_PORT, path,
-                                   partial(_tags_downloaded, album, metadata, sally, factor, next, current),
-                                   priority=True, important=True)
+    queryargs = {
+        "api_key": album.tagger.config.setting["lastfm_api_key"],
+        "artist": artist,
+        "method": "Artist.getTopTags",
+    }
 
-
-def encode_str(s):
-    # Yes, that's right, Last.fm prefers double URL-encoding
-    s = QtCore.QUrl.toPercentEncoding(s)
-    s = QtCore.QUrl.toPercentEncoding(unicode(s))
-    return s
-
-
-def get_track_tags(album, metadata, artist, track, next, current):
-    path = "/1.0/track/%s/%s/toptags.xml" % (encode_str(artist), encode_str(track))
-    sally = 0
-    factor = 1.0
-    return get_tags(album, metadata, path, sally, factor, next, current)
-
-
-def get_artist_tags(album, metadata, artist, next, current):
-    path = "/1.0/artist/%s/toptags.xml" % encode_str(artist)
     sally = 2
     if album.tagger.config.setting["lastfm_artist_tag_us_ex"]:
         sally = 1
     factor = album.tagger.config.setting["lastfm_artist_tags_weight"] / 100.0
-    return get_tags(album, metadata, path, sally, factor, next, current)
+    if track:
+        queryargs["method"] = "Track.getTopTags"
+        queryargs["track"] = track
+        cachetag += track
+        sally = 0
+        factor = 1.0
+
+    if cachetag in _cache:
+        tags = apply_translations_and_sally(_cache[cachetag], sally, factor)
+        _tags_finalize(album, metadata, current + tags, next)
+    else:
+
+        # If we have already sent a request for this URL, delay this call until later
+        if cachetag in _pending_xmlws_requests:
+            _pending_xmlws_requests[cachetag].append(partial(get_tags, album, metadata, artist, next, current, track=track, cachetag=cachetag))
+        else:
+            _pending_xmlws_requests[cachetag] = []
+            album._requests += 1
+            album.tagger.webservice.get(LASTFM_HOST, LASTFM_PORT, LASTFM_PATH,
+                                   partial(_tags_downloaded, album, metadata, sally, factor, next, current),
+                                   parse_response_type="xml", queryargs=queryargs, priority=True, important=True)
 
 
 def process_track(album, metadata, release, track):
@@ -436,11 +431,11 @@ def process_track(album, metadata, release, track):
         title = metadata["title"]
         if artist:
             if use_artist_tags:
-                get_artist_tags_func = partial(get_artist_tags, album, metadata, artist, None)
+                get_artist_tags_func = partial(get_tags, album, metadata, artist, None)
             else:
                 get_artist_tags_func = None
             if title and use_track_tags:
-                get_track_tags(album, metadata, artist, title, get_artist_tags_func, [])
+                get_tags(album, metadata, artist, get_artist_tags_func, [], track=title)
             elif get_artist_tags_func:
                 get_artist_tags_func([])
 
@@ -451,6 +446,7 @@ class LastfmOptionsPage(OptionsPage):
     PARENT = "plugins"
 
     options = [
+        TextOption("setting", "lastfm_api_key", ""),
         IntOption("setting", "lastfm_max_minor_tags", 4),
         IntOption("setting", "lastfm_max_group_tags", 1),
         IntOption("setting", "lastfm_max_mood_tags", 4),
@@ -480,7 +476,7 @@ class LastfmOptionsPage(OptionsPage):
         TextOption("setting", "lastfm_genre_country",", ".join(GENRE_FILTER["country"]).lower()),
         TextOption("setting", "lastfm_genre_city",", ".join(GENRE_FILTER["city"]).lower()),
         TextOption("setting", "lastfm_genre_mood", ",".join(GENRE_FILTER["mood"]).lower()),
-        TextOption("setting", "lastfm_genre_translations", "\n".join(["%s,%s" % (k,v) for k, v in GENRE_FILTER["translate"].items()]).lower())
+        TextOption("setting", "lastfm_genre_translations", "\n".join(["%s,%s" % (k,v) for k, v in list(GENRE_FILTER["translate"].items())]).lower())
     ]
 
     def __init__(self, parent=None):
@@ -488,13 +484,10 @@ class LastfmOptionsPage(OptionsPage):
         self.ui = Ui_LastfmOptionsPage()
         self.ui.setupUi(self)
         # TODO Not yet implemented properly
-        # self.connect(self.ui.check_translation_list, QtCore.SIGNAL("clicked()"), self.check_translations)
-        self.connect(self.ui.check_word_lists,
-                     QtCore.SIGNAL("clicked()"), self.check_words)
-        self.connect(self.ui.load_default_lists,
-                     QtCore.SIGNAL("clicked()"), self.load_defaults)
-        self.connect(self.ui.filter_report,
-                     QtCore.SIGNAL("clicked()"), self.create_report)
+        # self.ui.check_translation_list.clicked.connect(self.check_translations)
+        self.ui.check_word_lists.clicked.connect(self.check_words)
+        self.ui.load_default_lists.clicked.connect(self.load_defaults)
+        self.ui.filter_report.clicked.connect(self.create_report)
 
     # function to check all translations and make sure a corresponding word
     # exists in word lists, notify in message translations pointing nowhere.
@@ -529,12 +522,12 @@ class LastfmOptionsPage(OptionsPage):
         text = []
         duplicates = {}
 
-        for name, words in word_sets.iteritems():
+        for name, words in word_sets.items():
             for word in words:
                 word = word.strip().title()
                 duplicates.setdefault(word, []).append(name)
 
-        for word, names in duplicates.iteritems():
+        for word, names in duplicates.items():
             if len(names) > 1:
                 names = "%s and %s" % (", ".join(names[:-1]), names.pop())
                 text.append('"%s" in %s lists.' % (word, names))
@@ -622,6 +615,7 @@ class LastfmOptionsPage(OptionsPage):
     def load(self):
         # general
         cfg = self.config.setting
+        self.ui.api_key.setText(cfg["lastfm_api_key"])
         self.ui.max_minor_tags.setValue(cfg["lastfm_max_minor_tags"])
         self.ui.max_group_tags.setValue(cfg["lastfm_max_group_tags"])
         self.ui.max_mood_tags.setValue(cfg["lastfm_max_mood_tags"])
@@ -655,6 +649,7 @@ class LastfmOptionsPage(OptionsPage):
         self.ui.genre_translations.setText(cfg["lastfm_genre_translations"].replace(",", ", ") )
 
     def save(self):
+        self.config.setting["lastfm_api_key"] = self.ui.api_key.text()
         self.config.setting["lastfm_max_minor_tags"] = self.ui.max_minor_tags.value()
         self.config.setting["lastfm_max_group_tags"] = self.ui.max_group_tags.value()
         self.config.setting["lastfm_max_mood_tags"] = self.ui.max_mood_tags.value()
@@ -679,53 +674,52 @@ class LastfmOptionsPage(OptionsPage):
         # parse littlebit the text-inputs
         tmp0 = {}
         tmp1 = [tmp0.setdefault(i.strip(), i.strip())
-                for i in unicode(self.ui.genre_major.text()).lower().split(",") if i not in tmp0]
+                for i in self.ui.genre_major.text().lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_major"] = ",".join(tmp1)
         tmp0 = {}
         tmp1 = [tmp0.setdefault(i.strip(), i.strip())
-                for i in unicode(self.ui.genre_minor.text()).lower().split(",") if i not in tmp0]
+                for i in self.ui.genre_minor.text().lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_minor"] = ",".join(tmp1)
         tmp0 = {}
         tmp1 = [tmp0.setdefault(i.strip(), i.strip())
-                for i in unicode(self.ui.genre_decade.text()).lower().split(",") if i not in tmp0]
+                for i in self.ui.genre_decade.text().lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_decade"] = ",".join(tmp1)
         tmp0 = {}
         tmp1 = [tmp0.setdefault(i.strip(), i.strip())
-                for i in unicode(self.ui.genre_year.text()).lower().split(",") if i not in tmp0]
+                for i in self.ui.genre_year.text().lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_year"] = ",".join(tmp1)
         tmp0 = {}
         tmp1 = [tmp0.setdefault(i.strip(), i.strip())
-                for i in unicode(self.ui.genre_country.text()).lower().split(",") if i not in tmp0]
+                for i in self.ui.genre_country.text().lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_country"] = ",".join(tmp1)
         tmp0 = {}
         tmp1 = [tmp0.setdefault(i.strip(), i.strip())
-                for i in unicode(self.ui.genre_city.text()).lower().split(",") if i not in tmp0]
+                for i in self.ui.genre_city.text().lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_city"] = ",".join(tmp1)
         tmp0 = {}
         tmp1 = [tmp0.setdefault(i.strip(), i.strip())
-                for i in unicode(self.ui.genre_occasion.text()).lower().split(",") if i not in tmp0]
+                for i in self.ui.genre_occasion.text().lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_occasion"] = ",".join(tmp1)
         tmp0 = {}
         tmp1 = [tmp0.setdefault(i.strip(), i.strip())
-                for i in unicode(self.ui.genre_category.text()).lower().split(",") if i not in tmp0]
+                for i in self.ui.genre_category.text().lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_category"] = ",".join(tmp1)
         tmp0 = {}
         tmp1 = [tmp0.setdefault(i.strip(), i.strip())
-                for i in unicode(self.ui.genre_mood.text()).lower().split(",") if i not in tmp0]
+                for i in self.ui.genre_mood.text().lower().split(",") if i not in tmp0]
         tmp1.sort()
         self.config.setting["lastfm_genre_mood"] = ",".join(tmp1)
 
         trans = {}
-        tmp0 = unicode(
-            self.ui.genre_translations.toPlainText()).lower().split("\n")
+        tmp0 = self.ui.genre_translations.toPlainText().lower().split("\n")
         for tmp1 in tmp0:
             tmp2 = tmp1.split(',')
             if len(tmp2) == 2:
@@ -738,8 +732,8 @@ class LastfmOptionsPage(OptionsPage):
                 elif not tmp2[0] in trans:
                     trans[tmp2[0]] = tmp2[1]
 
-        tmp3 = trans.items()
-        tmp3.sort()
+        tmp3 = sorted(trans.items())
+
         self.config.setting["lastfm_genre_translations"] = "\n".join(["%s,%s" % (k,v) for k, v in tmp3])
         GENRE_FILTER["_loaded_"] = False
 
