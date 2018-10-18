@@ -22,7 +22,7 @@ Performer [synthesizer]: Lol Creme
 Performer [tambourine]: Graham Gouldman
 </pre>
 '''
-PLUGIN_VERSION = '0.3'
+PLUGIN_VERSION = '0.4'
 PLUGIN_API_VERSIONS = ["0.15.0", "0.15.1", "0.16.0", "1.0.0", "1.1.0", "1.2.0", "1.3.0", "2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -49,8 +49,17 @@ def standardise_performers(album, metadata, *args):
                   PLUGIN_NAME,
                   subkey,
                   )
+        prefixes = []
+        words = instruments[0].split()
+        for word in words[:]:
+            if not word in ['guest', 'solo', 'additional', 'minor']:
+                break
+            prefixes.append(word)
+            words.remove(word)
+        instruments[0] = " ".join(words)
+        prefix = " ".join(prefixes) + " " if prefixes else ""
         for instrument in instruments:
-            newkey = '%s:%s' % (mainkey, instrument)
+            newkey = '%s:%s%s' % (mainkey, prefix, instrument)
             for value in values:
                 metadata.add_unique(newkey, value)
         del metadata[key]
