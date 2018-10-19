@@ -10,12 +10,8 @@ PLUGIN_API_VERSIONS = ["1.0.0", "2.0"]
 
 from picard import config
 from picard.formats import register_format
-from picard.formats.id3 import MP3File, TrueAudioFile, AiffFile
+from picard.formats.id3 import MP3File, TrueAudioFile, DSFFile, AiffFile
 from mutagen import id3
-try:
-    import mutagen.aiff
-except ImportError:
-    mutagen.aiff = None
 
 
 id3v24_join_with = '; '
@@ -52,15 +48,20 @@ class TrueAudioFileCompliant(TrueAudioFile):
 
     build_TXXX = build_compliant_TXXX
 
+
+class DSFFileCompliant(DSFFile):
+    """Alternate DSF format class which uses single-value TXXX frames."""
+
+    build_TXXX = build_compliant_TXXX
+
+
+class AiffFileCompliant(AiffFile):
+    """Alternate AIFF format class which uses single-value TXXX frames."""
+
+    build_TXXX = build_compliant_TXXX
+
+
 register_format(MP3FileCompliant)
 register_format(TrueAudioFileCompliant)
-
-
-if mutagen.aiff:
-
-    class AiffFileCompliant(AiffFile):
-        """Alternate AIFF format class which uses single-value TXXX frames."""
-
-        build_TXXX = build_compliant_TXXX
-
-    register_format(AiffFileCompliant)
+register_format(DSFFileCompliant)
+register_format(AiffFileCompliant)
