@@ -142,21 +142,21 @@ class TangoInfoTagger:
             path = '/%s' % (barcode)
 
             # Call website_process as a partial func
-            return album.tagger.webservice.get(host, port, path,
+            return album.tagger.webservice.download(host, port, path,
                         partial(self.website_process, barcode, zeros),
-                        parse_response_type=None, priority=False, important=False)
+                        priority=False, important=False)
 
     def website_process(self, barcode, zeros, response, reply, error):
 
         if error:
-            log.error("%s: Error retrieving info for barcode %s" % \
-                    PLUGIN_NAME, barcode)
+            log.error("%s: Error retrieving info for barcode %s", PLUGIN_NAME, barcode)
             tuples = self.albumpage_queue.remove(barcode)
-            for track, album in tuples:
+            for track, album, tint in tuples:
                 self.album_remove_request(album)
             return
 
-        tangoinfo_album_data = self.barcode_process_metadata(barcode, response)
+        html = bytes(response).decode()
+        tangoinfo_album_data = self.barcode_process_metadata(barcode, html)
 
         self.albumpage_cache[barcode] = tangoinfo_album_data
         tuples = self.albumpage_queue.remove(barcode)
@@ -225,10 +225,15 @@ class TangoInfoTagger:
         # Check whether we have a concealed 404 and get the homepage
         if "<title>Contents - tango.info</title>" in response:
             log.debug("%s: No album with barcode %s on tango.info" % \
-                    (PLUGIN_NAME, barcode))
+                      (PLUGIN_NAME, barcode))
             return
 
-        table = re.findall(table_regex, response)[0]
+        table = table_regex.search(response)
+        if not table:
+            log.warning("%s: No table found on page for barcode %s on tango.info" % \
+                        (PLUGIN_NAME, barcode))
+            return
+
         albuminfo = {}
         trcontent = [match.groups()[0] for match in trs.finditer(table)]
 
