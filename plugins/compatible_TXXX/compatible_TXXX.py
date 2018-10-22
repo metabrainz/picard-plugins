@@ -6,7 +6,7 @@ PLUGIN_DESCRIPTION = """This plugin improves the compatibility of ID3 tags \
 by using only a single value for TXXX frames. Multiple value TXXX frames \
 technically don't comply with the ID3 specification."""
 PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["1.0.0", "2.0"]
+PLUGIN_API_VERSIONS = ["2.0"]
 
 from picard import config
 from picard.formats import register_format
