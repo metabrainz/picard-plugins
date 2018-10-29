@@ -39,6 +39,11 @@ ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 50)
 
 
 def result(album, metadata, data, reply, error):
+    if error or not "highlevel" in data:
+        album._requests -= 1
+        album._finalize_loading(None)
+        return
+
     moods = []
     genres = []
     try:
@@ -60,12 +65,13 @@ def result(album, metadata, data, reply, error):
 
 
 def process_track(album, metadata, release, track):
-    album.tagger.webservice.download(
+    album.tagger.webservice.get(
         ACOUSTICBRAINZ_HOST,
         ACOUSTICBRAINZ_PORT,
         "/%s/high-level" % (metadata["musicbrainz_recordingid"]),
         partial(result, album, metadata),
-        priority=True
+        priority=True,
+        parse_response_type=None
     )
     album._requests += 1
 
