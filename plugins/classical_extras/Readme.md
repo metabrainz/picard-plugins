@@ -1,5 +1,5 @@
 # General Information
-This is the documentation for version 2.0 of "classical\_extras". There may be beta versions later than this - check [my github site](https://github.com/MetaTunes/picard-plugins/tree/metabrainz/2.0/plugins/classical_extras) for newer releases. For further help, please review [the forum thread](https://community.metabrainz.org/t/classical-extras-2-0/394627) or post any new questions there. It only works with Picard version 2.0, **NOT** earlier versions. If you are using Picard 1.4.x, please choose the ["1.0" branch on github](https://github.com/MetaTunes/picard-plugins/tree/1.0/plugins/classical_extras) and use the latest release there - also use the [earlier forum thread](https://community.metabrainz.org/t/classical-extras-plugin/300217).
+This is the documentation for version 2.0.2 of "classical\_extras". There may be beta versions later than this - check [my github site](https://github.com/MetaTunes/picard-plugins/tree/metabrainz/2.0/plugins/classical_extras) for newer releases. For further help, please review [the forum thread](https://community.metabrainz.org/t/classical-extras-2-0/394627) or post any new questions there. It only works with Picard version 2.0, **NOT** earlier versions. If you are using Picard 1.4.x, please choose the ["1.0" branch on github](https://github.com/MetaTunes/picard-plugins/tree/1.0/plugins/classical_extras) and use the latest release there - also use the [earlier forum thread](https://community.metabrainz.org/t/classical-extras-plugin/300217).
 
 This version has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section). "Classical Extras" populates tags and hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through multiple work-part levels until the top is reached. The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how hidden variables are written to file tags, as well as a variety of other options.
 
@@ -11,6 +11,11 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 2.0.2: Changed layout of tabs - the order is now Artists, Works, Genres and Tag-mapping. The help tab has been much reduced as it was of limited assistance and difficult to maintain. There is a lot of  owing to the use of context-sensitive help and  the readme file contains the latest full documentation.  
+Added a check-box on the genres tab to enable/disable genre filtering (previously the genre names would have to be blank to eliminate filtering and in any case this was buggy).   
+A general code tidy-up has led to significant performance enhancements. The only significant slowing factor is now the unavoidable MusicBrainz 1 look-up per second constraint (for looking up works).   
+A number of changes have been made to the way in which "extended" metadata is supplied - i.e. where title metatdata is combined with the "canonical" MusicBrainz work names. Hopefully the result is a more consistent and helpful presentation. Also some minor changes to the way in which text is eliminated to arrive at part names, including a new option on the "advanced" tab to "Allow blank part names for arrangements and part recordings, if an arrangement/partial label is provided" (see documentation under the advanced tab section for more details). Plus bug fixes.
+
 Version 2.0.1: Minor update to add _composer_lastnames variable.
 
 Version 2.0: Major overhaul of version 0.9.4 to achieve Picard 2.0 and Python 3.7 compatibility. All webservice calls re-written for JSON rather than XmlNode responses. Periods are written to tag in date order. Addition of sub-options for inclusion of key signature information in work names. If the MB database has circular work references (i.e a parent is a descendant of itself) then these will be trapped, ignored and reported. Numerous small refinements, especially of text comparison algorithms (e.g. option to control removal of prepositions - see advanced tab). Bug fixes.
@@ -35,7 +40,7 @@ After installation, go to the Options Page and modify choices as required. There
 ## Artists tab
 There are five coloured sections as shown in the screen image below:
 
-![Artist options](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/artists/)
+![Artist options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/artists/)
 
 1. "Create extra artist metadata" should be selected otherwise this section (and the tag mapping section) will not run. This is the default.
 
@@ -66,7 +71,7 @@ There are five coloured sections as shown in the screen image below:
 
      The bottom box then (a) allows a choice as to whether aliases will over-ride "credited as" names or vice versa and (b) whether, if there are still some names in non-Latin script, these should be replaced (this will always remove middle [patronymic] names from Cyrillic-script names [but does not deal fully with other non-Latin scripts]; it is based on the sort names wherever possible).
 
-     Note that **none of this processing affects the contents of the "artist or "album\_artist" tags**. These tags may be either work-artists or performing artists. Their contents are determined by the standard Picard options "translate artist names" and "use standardized artist names" in Options-->Metadata. If "translate name" is selected, the name will be the alias or (if no alias) the 'unsorted' sort-name; otherwise the name will be the MusicBrainz name if "use standardized artist names" is selected or the "credited as" name (if available) if it is not selected.
+     Note that **none of this processing affects the contents of the "artist" or "album\_artist" tags, unless they are replaced by a "tag mapping" action**. These tags may be either work-artists or performing artists. Their contents are determined by the standard Picard options "translate artist names" and "use standardized artist names" in Options-->Metadata. If "translate name" is selected, the name will be the alias or (if no alias) the 'unsorted' sort-name; otherwise the name will be the MusicBrainz name if "use standardized artist names" is selected or the "credited as" name (if available) if it is not selected. Using the saved options to over-ride the displayed options has no effect on this as the processing takes place in Picard itself, not the plugin (but **over-write** will over-write all Picard and plugin options with the saved ones).
 
 3. "Recording artist options".
   In MusicBrainz, the recording artist may be different from the track artist. For classical music, the MusicBrainz guidelines state that the track artist should be the composer; however the recording artist(s) is/are usually the principal performer(s).  
@@ -126,10 +131,174 @@ There are five coloured sections as shown in the screen image below:
 
    Note that if the 'output' tags are not specified, then internal 'hidden' variables will still be available for use in the tag-mapping section (called album\_notes and track\_notes).
 
+## Work and parts tab
+
+There six coloured sections as shown in the screen print below:
+
+![Works and parts options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/work-parts/)
+
+1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
+
+    "Include collection relationships" (selected by default) will include parent works where the relationship has the attribute 'part of collection'. See [Discussion](https://community.metabrainz.org/t/levels-in-the-structure-of-works/293047/109) for the background to this. Note that only "work" entity types will be included, not "series" entities. If this option is changed, it will not take effect on releases already loaded in Picard - you will need to quit and restart. PLEASE BE CONSISTENT and do not use different options on albums with the same works, otherwise you may not get what you want.
+
+    "Use cache (if available)" prevents excessive look-ups of the MB database. Every look-up of a work needs to be performed separately (hopefully the MB database might make this easier some day). Network usage constraints by MB means that each look-up takes a minimum of 1 second. Once a release has been looked-up, the works are retained in cache, significantly reducing the time required if, say, the options are changed and the data refreshed. However, if the user edits the works in the MB database then the cache will need to be turned off temporarily for the refresh to find the new/changed works. Also some types of work (e.g. arrangements) will require a full look-up if options have been changed. **Do not leave this option turned off** as it will make the plugin slower and may cause problems. This option will always be set on when Picard is started, regardless of how it was left when it was last closed.
+
+2. "Tagging style". This section determines how the hierarchy of works will be sourced.
+
+    * **Works source**: There are 3 options for determing the principal source of the works metadata
+      - "Use only metadata from title text". The plugin will attempt to extract the hierarchy of works from the track title by looking for repetitions and patterns, using the work structure in MusicBrainz as a guide. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.
+      - "Use only metadata from canonical works". The names from the hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will probably be in the language of the release. (This language issue can also be addressed by using aliases - see below).
+      - "Use canonical work metadata enhanced with title text". This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary title data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations - see image below for an example (using the Muso library manager).
+
+      ![Respighi](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/respighi/)
+
+    * **Source of canonical work text**. Where either of the second two options above are chosen, there is a further choice to be made:
+      - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. E.g. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast, JB 1:112", not "Má vlast". So, while accurate, this option might be more verbose.
+      - "Consistent with lowest level work description". The names of the level 0 work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast", not "Má vlast, JB 1:112". Sometimes this may look better, but not always, **particularly if the level 0 work name does not contain all the parent work detail**. If the full structure is not implicit in the level 0 name then a warning will be logged and written to the "warning" tag.
+      
+      (**version 2.0 update: the second option is needed less often now as there is a more sophisticated matching algorithm for the canonical work names - the strategy below has been updated to reflect this**)
+
+   **Strategy for setting style:** *It is suggested that you start with "extended/enhanced" style and the "Full MusicBrainz work hierarchy" as the source (this is the default). If this does not give acceptable results, try switching to "Consistent with lowest level work description". If the "enhanced" details in curly brackets (from the track title) give odd results then switch the style to "canonical works" only or try adjusting the settings on the "Advanced" tab. Any remaining oddities are probably in the MusicBrainz data, which may require editing.*
+
+3. "Aliases"
+
+     "Replace work names by aliases" will use **primary** aliases for the chosen locale instead of standard MusicBrainz work names. To choose the locale, use the drop-down under "translate artist names" in the main Picard Options-->Metadata page. Note that this option is not saved as a file tag since, if different choices are made for different releases, different work names may be stored and therefore cannot be grouped together in your player/library manager. The sub-options then allow either the replacement of all work names, where a primary alias exists, just the replacement of work names which are in non-Latin script, or only replace those which are flagged with user "Folksonomy" tags. The tag text needs to be included in the text box, in which case flagged works will be 'aliased' as well as non-Latin script works, if the second sub-option is chosen. Note that the tags may either be anyone's tags ("Look in all tags") or the user's own tags. If selecting "Look in user's own tags only" you **must** be logged in to your MusicBrainz user account (in the Picard Options->General page), otherwise repeated dialogue boxes may be generated and you may need to force restart Picard.
+
+4. "Tags to create" sets the names of the tags that will be created from the sources described above. All these tags will be blanked before filling as specified. Tags specified against more than one source will have later sources appended in the sequence specified, separated by separators as specified.
+
+    * **Work tags**:
+      - "Tags for Work - for software with 2-level capability". Some software (notably Muso) can display a 2-level work hierarchy as well as the work-movement hierarchy. This tag can be use to store the 2-level work name (a double colon :: is used to separate the levels within the tag).
+      - "Tags for Work - for software with 1-level capability". Software which can display a movement and work (but no higher levels) could use any tags specified here. Note that if there are multiple work levels, the intermediate levels will not be tagged. Users wanting all the information should use the tags from the previous option (but it may cause some breaks in the display if levels change) - alternatively the missing work levels can be included in a movement tag (see below).
+      - "Tags for top-level (canonical) work". This is the top-level work held in MB. This can be useful for cataloguing and searching (if the library software is capable).
+
+    * **Movement/Part tags**:
+      (a) "Tags for(computed) movement number". This is not necessarily the embedded movt/part number, but is the sequence number of the movement within its parent work **on the current release**.  
+      (b) "Tags for Movement - excluding embedded movt/part numbers". As below, but without the movement part/number prefix (if applicable)  
+      (c) "Tags for Movement - including embedded movt/part numbers". This tag(s) will contain the full lowest-level part name extracted from the lowest-level work name, according to the chosen tagging style.  
+      For options (b) and (c), the tags can either be filled "for use with multi-level work tags" or "for use with 1-level work tags (intermediate works will prefix movement)" - or different tags for each column.  The latter option will include any intermediate work levels which are missing from a single-level work tag. Use different tag names for these, from the multi-level version, otherwise both versions will be appended, creating a multi-valued tag (a warning will be given).  
+      Note that if a tag is included in (a) and either of (b) or (c), the movement number will be prepended at the beginning of the tag, followed by the selected separator.
+
+   **Strategy for setting tags:** *It is suggested that initially you just use the multi-level work tag and related movement tags, even if your software only has a single-level work capability. This may result in work names being repeated in work headings, but may look better than the alternative of having work names repeated in movement names. This is the default.* 
+
+   *If this does not look good you can then compare it with the alternative approach and change as required for specific releases. If your software does not have any "work" capability, then you can still get the full work details by, for example, specifying "title" as both a work and a movement tag.*
+
+5. "Partial recordings, arrangements and medleys" gives various options where recordings are not just simply of a named complete work.
+
+    * **Partial recordings**:
+      If this option is selected, partial recordings will be treated as a sub-part of the whole recording and will have the related text (in the adjacent box) included in its name. Note that this text is at the end of the canonical name, but the latter will probably be stripped from the sub-part as it duplicates the recording work name; any title text will be appended to the whole. Note that, if "Consistent with lowest level work description" is chosen in section 2, the text may be treated as a "prefix" similar to those in the "Advanced" tab. If this eliminates other similar prefixes and has unwanted effects, then either change the desired text slightly (e.g. surround with brackets) or use the "Full MusicBrainz work hierarchy" option in section 2.  Note that similar text between the partial work and its 'parent' will be removed which will frequently result in no text other than the specified 'partial text', unless extended metadata is used resulting in appended text in {}.
+
+    * **Arrangements**:
+      If this option is selected, works which are arrangements of other works will have the latter treated in the same manner as "parent" works, except that the arrangement work name will be prefixed by the text provided. Note that similar text between the arranged work and its parent will be removed unless this results in no text, in which case a stricter comparison (as for the derivation of 'part' names from works) will be used.
+      
+    **Important note:** *If the Partial or Arrangement options are changed (i.e. selected/deselected) then quit and restart Picard as the work structure is fundamentally different. If the related text (only) is changed then the release can simply be refreshed.*
+
+    * **Medleys**
+      These can occur in two ways in MusicBrainz: (a) the recording is described as a "medley of" a number of works and (b) the track is described as (more than one) "medley including a recording of" a work. See [Homecoming](https://musicbrainz.org/release/393913a2-7fde-4ed5-8be6-ca5c2c0ccf0d) for examples of both (tracks 8, 9 and 11). In the first case, the specified text will be included in brackets after the work name, whereas in the second case, the track will be treated as a recording of multiple works and the specified text will appear in the parent work name.
+
+6. "SongKong-compatible tag usage".
+
+    "Use work tags on file (no look up on MB) if Use Cache selected": This will enable the existing work tags on the file to be used in preference to looking up on MusicBrainz, if those tags are SongKong-compatible (which should be the case if SongKong has been used or if the SongKong tags have been previously written by this plugin). If present, this can speed up processing considerably, but obviously any new data on MusicBrainz will be missed. For the option to operate, "Use cache" also needs to be selected. Although faster, many of the subtleties of a full look-up will be missed - for example, parent works which are arrangements will not be highlighted as such, some arrangers or composers of original works may be omitted and some medley information may be missed. Other information, such as composed-dates will also be missing. **In general, therefore, the use of this option will result in poorer metadata than allowing the full database look-up to run. It is not recommended unless you have already tagged your files with SongKong and speed is more important than quality.**
+
+    "Write SongKong-compatible work tags" does what it says. These can then be used by the previous option, if the release is subsequently reloaded into Picard, to speed things up (assuming the reload was not to pick up new work data). The same caveats as those above apply.
+    
+    **Note that, as from version 2.0.2, there is no significant speed difference between (basic) SongKong and Picard with Classical Extras, so this feature is only ever useful if the album has already been tagged with SongKong.
+
+    The default for both these options is unchecked.
+
+    Note that Picard and SongKong use the tag musicbrainz\_workid to mean different things. If Picard has overwritten the SongKong tag (not a problem if this plugin is used) then a warning will be given and the works will be looked up on MusicBrainz. Also note that once a release is loaded, subsequent refreshes will use the cache (if option is ticked) in preference to the file tags.
+
+**Note for iTunes users:** *iTunes and Picard do not work well together. iTunes can display work and movement for m4a(mp4) files, but Picard does not write the movement tag. To work round this, write the movement to the "subtitle" tag assuming that is not otherwise used, and use a simple Mp3tag action to convert it to MOVEMENTNAME before importing to iTunes. If you are writing to a FLAC file which will subsequently be converted to m4a then different tag names may be required; e.g. using dBpoweramp, write the movement to "movement name". In both cases use "work" for the work. To store the top\_work, use "grouping" if writing directly to m4a, but "style" if writing to FLAC followed by dBpoweramp conversion. You can put multiple tags into the boxes described above so that your options are multi-purpose. N.B. if work tags are specified and the work has at least one level (i.e. at least work: movement), then the tag "show work movement" will be set to 1. This is used by iTunes to trigger the hierarchical display and should work both directly with m4a files and indirectly via files which are subsequently converted.*
+
+## Genres etc. tab
+
+This section is dependent on both the artists and workparts sections. If either of those sections are not run then this section will not operate correctly. At the very top of the tab is a checkbox "Use Muso reference database...". For [Muso](http://klarita.net/muso.html) users, selecting this enables you to use reference data for genres, composers and periods which have been entered in Muso's "Options->Classical Music" section. Regardless as to whether this is selected, there are then three main coloured sections, each with a number of subsections. The details in each section differ depending on whether the "Muso" option is selected.  The screen print below shows the options assuming it is not selected (differences occurring when "Muso" is selected are discussed later):
+
+![Genres etc.](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-plain/)
+
+1. "Genres". Two separate tags may be used to store genre information, a main genre tage (usually just "genre") and a sub-genre tag. These need to be specified at the top of the section. If either is left blank then the related processing will not run.
+
+    * **Source of genres**
+    Any or all of four sources may be selected. In each case, any values found are treated as "candidate genres" - they will only be applied to the specified genre and sub-genre tags in accordance with the criteria in the "allowed genres" section (see below).
+      
+      (a) "Existing file tag". The contents of the existing file tag (as specified above - main genre tag only) will be included as candidate genres. Note that, if this tag name is not "genre", then the contents of the tag "genre" will be included as well.
+      
+      (b) "Folksonomy work tags". This will use the folksonomy tags for **works** (including parent works) as a possible source of genres. To use the folksonomy tags for **releases/tracks**, select the main Picard option in Options->Metadata->"Use folksonomy tags as genre". Again (unlike vanilla Picard) these are candidate genres, and will only be published if they match the allowed genres.
+      
+      (c) "Work-type". The work-type attribute of works or parent works will be used as a candidate genre.
+      
+      (d) "Infer from artist metadata". This option was on the artist tab in version 0.9.1 and prior. Owing to the additional genre processing now available, the operation of this option is slightly restricted compared to the earlier versions. It attempts to create candidate genres based on information in the artist-related tags. Values provided are:
+	Orchestral, Concerto, Choral, Opera, Duet, ,Trio, Quartet, Chamber music, Aria ('classical values') and Vocal, Song, Instrumental ('generic values'). If the track is a recorded work and the track artist is the composer (i.e. MusicBrainz 'classical style'), the candidate genre values will also include "Classical". The 'classical values' will only be included as candidate genres if the track is deemed to be 'classical' by some part of the genre processing section.
+	
+	* **Allowed genres**
+	A check-box (ticked by default) enables this section. If it is unchecked, then no genre filtering is applied - all 'candidate genres' will be written to the genre tab.  
+	Four boxes are provided for lists of genres which are "allowed" to appear in the specified tags. Each list should be comma-separated (and no commas in any genre name). Candidate genres matching those in a "main genre" box will be added to the specified main genre tag. Similarly for sub-genres. If a candidate genre matches a 'classical genre' (in one of the top two boxes), then the track will be deemed to be "Classical" (see next part for more details).
+     
+      You may also enter a genre name to be used if no matching main genre is found (otherwise the tag will be blank). 
+      
+     * **"Classical" genre**
+     Normally (i.e. by default) a work will only be deemed to be 'classical' if it is inferred from the MusicBrainz style (see "source of genres") or if a candidate genre matches a "Classical" genre or sub-genre list. However, you may select that all tracks are 'classical' regardless. There is also an option to exclude the word "Classical" from any genre tag, but still treat the work as classical. If a work is deemed to be classical, a tag may be written with a specified value as set out in the last two boxes of this section. For example, to be consistent with SonKong/Jaikoz, you could set "is\_classical" to "1".
+     
+3. "Instruments and keys".
+    * **Instruments**
+    Specify the tag name you wish instrument names to appear in. Instruments will be sourced from performer relationships. Instrument names may either be the standard MusicBrainz names or the "credited as" names in the performer relationship, or both. Vocal types are treated similarly to instruments. (Note that, in v0.9.1 and prior, instruments were written to the same tag as inferred genres. If you wish to continue this, then you may use the same tag name here as for the genre tag.)
+    
+    * **Keys**
+    Specify the tag name in which you wish the key signatures of works to appear. Keys will be obtained from all work levels (assuming these have been looked up): for example, Dvořák's Largo From the New World will be shown as D♭ major, C# minor (the main keys of the movement) and E minor (the home key of the overall work).
+    
+    "Include key(s) in work names" gives the option to include the key signature for a work in brackets after the name of the work in the metadata. Keys will be added in the appropriate levels: e.g. Dvořák's New World Symphony will get (E minor) at the work level, but only movements with different keys will be annotated viz. "II. Largo (D-flat major, C-Sharp minor)". The default sub-option is to only add these details if the key signature is missing from the work title (other sub-options are to never or to always include the information).
+    
+4. "Periods and dates".
+
+    * **Work dates**
+    Specify the tag name to hold work dates. Work dates will be given as a "year" value only, e.g. "1808" or a range: "1808-1810". The sources of these dates is specified in the next part. If the movement has a composed date(s), this will be used, otherwise the the dates from the parent work will be used (if available).
+    
+    "Source of work dates". Select which sources to use - from composed, published and premiered, then decide whether to use them in preferential order (e.g. if "composed date" exists, then the others will not be used) or to show them all.
+    
+    "Include workdate in work name ..." operates analogously to  "Include key(s) in work names" described above. (Work dates will be used in preference order, i.e. composed - published - premiered, with only the first available date being shown).
+    
+    * **Periods**
+    This section will use work dates, where available, to determine the "classical period" to which it belongs, by means of a "period map" (Muso users can also use composer dates - see below). 
+    
+    Specify the tag name to hold the period data. The period map should then be entered in the format "Period name, Start\_year, End\_year; Period name2, Start\_year, End\_year;"  etc. Periods may overlap. Do not use commas or semi-colons within period names. Start and end years must be integers.
+    
+## Genres etc. tab - Muso-specific processing
+
+Users of [Muso](http://klarita.net/muso.html) have additional capabilities, illustrated in the following screen, which appear when the option "Use Muso reference database ..." is selected at the top of the tab.
+
+![Genres etc. - Muso](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-muso/)
+
+For these options to work, the path/name of the Muso reference database needs to be specified on the advanced tab. The default path is "C:\\Users\\Public\\Music\\muso\\database" and the default filename is "Reference.xml". The additional options are as follows.
+
+1. "Use Muso classical genres". If this is selected, the box for classical main genres is eliminated and the genre list from Muso's "Tools->Options->Classical Music->Classical Music Genres" is used instead.
+
+2. "Use Muso composer list to determine if classical". If the composer name is in Muso's list "Tools->Options->Classical Music->Composer Roster", then the work will be deemed to be classical. If this option is selected, a further option appears to "Treat arrangers as for composers" - if selected then arrangers will also be looked up in the roster.
+
+3. "Use Muso composer dates (if no work date) to determine period". The birth date + 20  -> death dates of Muso's composer roster will be used to assign periods if no work date is available. If this option is selected, a further option appears to "Treat arrangers as for composers" - if selected then arrangers' working lives will also be used to determine periods.
+
+   (This might be replaced / supplemented by MusicBrainz in  the future, but would involve another 1-second lookup per composer).
+   
+4. "Use Muso map". Replace the period map with the one in Muso at "Tools->Options->Classical Music->Classical Music Periods"
+
+Note that non-Muso users may also use this functionality, if they wish, by manually creating a reference xml file with the relevant tags, e.g.:
+
+    <ClassicalGenre>  
+    <Name>Cantata</Name>  
+    </ClassicalGenre>   
+    <Composer>  
+    <Name>Max REGER</Name>  
+    <Birth>1873</Birth>  
+    <Death>1916</Death>  
+    </Composer>  
+    <ClassicalPeriod>  
+    <Name>Early Romantic</Name>  
+    <Start_x0020_Date>1800</Start_x0020_Date>  
+    <End_x0020_Date>1850</End_x0020_Date>  
+    </ClassicalPeriod>  
+
 ## Tag mapping tab
 There are two coloured sections as shown in the screen image below:
 
-![Tag mapping options](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/tag-mapping/)
+![Tag mapping options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/tag-mapping/)
 
 Note that the "Create extra artist metadata" option needs to be selected on the Artist tab for these sections to run.
 
@@ -138,6 +307,8 @@ Note that the "Create extra artist metadata" option needs to be selected on the 
     "Remove Picard-generated tags before applying subsequent actions?". Any tags specified in the next two rows will be blanked before applying the tag sources described in the following section. NB this applies only to Picard-generated tags, not to other tags which might pre-exist on the file: to blank those, use the main Options->Tags page. Comma-separate the tag names within the rows and note that these names are case-sensitive.
 
     "List existing file tags which will be appended ...": This refers to the tags which already exist on files which have been matched to MusicBrainz, not the tags generated by Picard from the MusicBrainz database. Normally, Picard cannot process these tags - either it will overwrite them (if it creates a similarly named tag), clear them (if 'Clear existing tags' is specified in the main Options->Tags screen) or keep them (if 'Preserve these tags...' is specified after the 'Clear existing tags' option). Classical Extras allows a further option - for the tags to be appended to in the tag mapping section (see below) or otherwise used. List file tags which will be appended to rather than over-written by tag mapping (NB this will keep tags even if "Clear existing tags" is selected on main options). In addition, certain existing tags may be used by Classical Extras - in particular "is\_classical" (which is set by SongKong to '1' if the track is deemed to be classical, based on an extensive database) is used to add 'classical' to the variable "\_cea\_worktype", if "Infer work types" is selected in the first section of the Artists tab. If you include "is\_classical" in this list then any files which have "is\_classical" = 1 will be treated as being classical, regardless of the genre tag.
+    
+    **Make sure that any tags listed here are not also included in Picard's "Preserve .. tags.." option, otherwise Picard will prevent the tag from being amended**
 
     Note that if "Split lyrics tag" is specified (see the Artists tab), then the tag named there will be included in the "...existing file tags..." list and does not need to be added in this section.
 
@@ -189,178 +360,13 @@ Note that the "Create extra artist metadata" option needs to be selected on the 
 
   More complex operations can be built using tagger scripts. If required, these can be set to run conditionally by setting a tag or hidden variable in this section and then testing it in the script.
 
-## Work and parts tab
 
-There six coloured sections as shown in the screen print below:
-
-![Works and parts options](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/work-parts/)
-
-1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
-
-    "Include collection relationships" (selected by default) will include parent works where the relationship has the attribute 'part of collection'. See [Discussion](https://community.metabrainz.org/t/levels-in-the-structure-of-works/293047/109) for the background to this. Note that only "work" entity types will be included, not "series" entities. If this option is changed, it will not take effect on releases already loaded in Picard - you will need to quit and restart. PLEASE BE CONSISTENT and do not use different options on albums with the same works, otherwise you may not get what you want.
-
-    "Use cache (if available)" prevents excessive look-ups of the MB database. Every look-up of a work needs to be performed separately (hopefully the MB database might make this easier some day). Network usage constraints by MB means that each look-up takes a minimum of 1 second. Once a release has been looked-up, the works are retained in cache, significantly reducing the time required if, say, the options are changed and the data refreshed. However, if the user edits the works in the MB database then the cache will need to be turned off temporarily for the refresh to find the new/changed works. Also some types of work (e.g. arrangements) will require a full look-up if options have been changed. **Do not leave this option turned off** as it will make the plugin slower and may cause problems. This option will always be set on when Picard is started, regardless of how it was left when it was last closed.
-
-2. "Tagging style". This section determines how the hierarchy of works will be sourced.
-
-    * **Works source**: There are 3 options for determing the principal source of the works metadata
-      - "Use only metadata from title text". The plugin will attempt to extract the hierarchy of works from the track title by looking for repetitions and patterns, using the work structure in MusicBrainz as a guide. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.
-      - "Use only metadata from canonical works". The names from the hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will probably be in the language of the release. (This language issue can also be addressed by using aliases - see below).
-      - "Use canonical work metadata enhanced with title text". This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary title data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations - see image below for an example (using the Muso library manager).
-
-      ![Respighi](http://music.highmossergate.co.uk/images/Respighi.jpg)
-
-    * **Source of canonical work text**. Where either of the second two options above are chosen, there is a further choice to be made:
-      - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. E.g. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast, JB 1:112", not "Má vlast". So, while accurate, this option might be more verbose.
-      - "Consistent with lowest level work description". The names of the level 0 work are used to populate the relevant tags. I.e. if "Má vlast: I. Vyšehrad, JB 1:112/1" (level 0) is part of "Má vlast, JB 1:112" (level 1) then the parent work will be tagged as "Má vlast", not "Má vlast, JB 1:112". Sometimes this may look better, but not always, **particularly if the level 0 work name does not contain all the parent work detail**. If the full structure is not implicit in the level 0 name then a warning will be logged and written to the "warning" tag.
-      
-      (**version 2.0 update: the second option is needed less often now as there is a more sophisticated matching algorithm for the canonical work names - the strategy below has been updated to reflect this**)
-
-   **Strategy for setting style:** *It is suggested that you start with "extended/enhanced" style and the "Full MusicBrainz work hierarchy" as the source (this is the default). If this does not give acceptable results, try switching to "Consistent with lowest level work description". If the "enhanced" details in curly brackets (from the track title) give odd results then switch the style to "canonical works" only or try adjusting the settings on the "Advanced" tab. Any remaining oddities are probably in the MusicBrainz data, which may require editing.*
-
-3. "Aliases"
-
-     "Replace work names by aliases" will use **primary** aliases for the chosen locale instead of standard MusicBrainz work names. To choose the locale, use the drop-down under "translate artist names" in the main Picard Options-->Metadata page. Note that this option is not saved as a file tag since, if different choices are made for different releases, different work names may be stored and therefore cannot be grouped together in your player/library manager. The sub-options then allow either the replacement of all work names, where a primary alias exists, just the replacement of work names which are in non-Latin script, or only replace those which are flagged with user "Folksonomy" tags. The tag text needs to be included in the text box, in which case flagged works will be 'aliased' as well as non-Latin script works, if the second sub-option is chosen. Note that the tags may either be anyone's tags ("Look in all tags") or the user's own tags. If selecting "Look in user's own tags only" you **must** be logged in to your MusicBrainz user account (in the Picard Options->General page), otherwise repeated dialogue boxes may be generated and you may need to force restart Picard.
-
-4. "Tags to create" sets the names of the tags that will be created from the sources described above. All these tags will be blanked before filling as specified. Tags specified against more than one source will have later sources appended in the sequence specified, separated by separators as specified.
-
-    * **Work tags**:
-      - "Tags for Work - for software with 2-level capability". Some software (notably Muso) can display a 2-level work hierarchy as well as the work-movement hierarchy. This tag can be use to store the 2-level work name (a double colon :: is used to separate the levels within the tag).
-      - "Tags for Work - for software with 1-level capability". Software which can display a movement and work (but no higher levels) could use any tags specified here. Note that if there are multiple work levels, the intermediate levels will not be tagged. Users wanting all the information should use the tags from the previous option (but it may cause some breaks in the display if levels change) - alternatively the missing work levels can be included in a movement tag (see below).
-      - "Tags for top-level (canonical) work". This is the top-level work held in MB. This can be useful for cataloguing and searching (if the library software is capable).
-
-    * **Movement/Part tags**:
-      (a) "Tags for(computed) movement number". This is not necessarily the embedded movt/part number, but is the sequence number of the movement within its parent work **on the current release**.  
-      (b) "Tags for Movement - excluding embedded movt/part numbers". As below, but without the movement part/number prefix (if applicable)  
-      (c) "Tags for Movement - including embedded movt/part numbers". This tag(s) will contain the full lowest-level part name extracted from the lowest-level work name, according to the chosen tagging style.  
-      For options (b) and (c), the tags can either be filled "for use with multi-level work tags" or "for use with 1-level work tags (intermediate works will prefix movement)" - or different tags for each column.  The latter option will include any intermediate work levels which are missing from a single-level work tag. Use different tag names for these, from the multi-level version, otherwise both versions will be appended, creating a multi-valued tag (a warning will be given).  
-      Note that if a tag is included in (a) and either of (b) or (c), the movement number will be prepended at the beginning of the tag, followed by the selected separator.
-
-   **Strategy for setting tags:** *It is suggested that initially you just use the multi-level work tag and related movement tags, even if your software only has a single-level work capability. This may result in work names being repeated in work headings, but may look better than the alternative of having work names repeated in movement names. This is the default.* 
-
-   *If this does not look good you can then compare it with the alternative approach and change as required for specific releases. If your software does not have any "work" capability, then you can still get the full work details by, for example, specifying "title" as both a work and a movement tag.*
-
-5. "Partial recordings, arrangements and medleys" gives various options where recordings are not just simply of a named complete work.
-
-    * **Partial recordings**:
-      If this option is selected, partial recordings will be treated as a sub-part of the whole recording and will have the related text (in the adjacent box) included in its name. Note that this text is at the end of the canonical name, but the latter will probably be stripped from the sub-part as it duplicates the recording work name; any title text will be appended to the whole. Note that, if "Consistent with lowest level work description" is chosen in section 2, the text may be treated as a "prefix" similar to those in the "Advanced" tab. If this eliminates other similar prefixes and has unwanted effects, then either change the desired text slightly (e.g. surround with brackets) or use the "Full MusicBrainz work hierarchy" option in section 2.  Note that similar text between the partial work and its 'parent' will be removed which will frequently result in no text other than the specified 'partial text', unless extended metadata is used resulting in appended text in {}.
-
-    * **Arrangements**:
-      If this option is selected, works which are arrangements of other works will have the latter treated in the same manner as "parent" works, except that the arrangement work name will be prefixed by the text provided. Note that similar text between the arranged work and its parent will be removed unless this results in no text, in which case a stricter comparison (as for the derivation of 'part' names from works) will be used.
-      
-    **Important note:** *If the Partial or Arrangement options are changed (i.e. selected/deselected) then quit and restart Picard as the work structure is fundamentally different. If the related text (only) is changed then the release can simply be refreshed.*
-
-    * **Medleys**
-      These can occur in two ways in MusicBrainz: (a) the recording is described as a "medley of" a number of works and (b) the track is described as (more than one) "medley including a recording of" a work. See [Homecoming](https://musicbrainz.org/release/393913a2-7fde-4ed5-8be6-ca5c2c0ccf0d) for examples of both (tracks 8, 9 and 11). In the first case, the specified text will be included in brackets after the work name, whereas in the second case, the track will be treated as a recording of multiple works and the specified text will appear in the parent work name.
-
-6. "SongKong-compatible tag usage".
-
-    "Use work tags on file (no look up on MB) if Use Cache selected": This will enable the existing work tags on the file to be used in preference to looking up on MusicBrainz, if those tags are SongKong-compatible (which should be the case if SongKong has been used or if the SongKong tags have been previously written by this plugin). If present, this can speed up processing considerably, but obviously any new data on MusicBrainz will be missed. For the option to operate, "Use cache" also needs to be selected. Although faster, some of the subtleties of a full look-up will be missed - for example, parent works which are arrangements will not be highlighted as such, some arrangers or composers of original works may be omitted and some medley information may be missed. **In general, therefore, the use of this option will result in poorer metadata than allowing the full database look-up to run. It is not recommended unless speed is more important than quality.**
-
-    "Write SongKong-compatible work tags" does what it says. These can then be used by the previous option, if the release is subsequently reloaded into Picard, to speed things up (assuming the reload was not to pick up new work data).
-
-    The default for both these options is unchecked.
-
-    Note that Picard and SongKong use the tag musicbrainz\_workid to mean different things. If Picard has overwritten the SongKong tag (not a problem if this plugin is used) then a warning will be given and the works will be looked up on MusicBrainz. Also note that once a release is loaded, subsequent refreshes will use the cache (if option is ticked) in preference to the file tags.
-
-**Note for iTunes users:** *iTunes and Picard do not work well together. iTunes can display work and movement for m4a(mp4) files, but Picard does not write the movement tag. To work round this, write the movement to the "subtitle" tag assuming that is not otherwise used, and use a simple Mp3tag action to convert it to MOVEMENTNAME before importing to iTunes. If you are writing to a FLAC file which will subsequently be converted to m4a then different tag names may be required; e.g. using dBpoweramp, write the movement to "movement name". In both cases use "work" for the work. To store the top\_work, use "grouping" if writing directly to m4a, but "style" if writing to FLAC followed by dBpoweramp conversion. You can put multiple tags into the boxes described above so that your options are multi-purpose. N.B. if work tags are specified and the work has at least one level (i.e. at least work: movement), then the tag "show work movement" will be set to 1. This is used by iTunes to trigger the hierarchical display and should work both directly with m4a files and indirectly via files which are subsequently converted.*
-
-## Genres etc. tab
-
-This section is dependent on both the artists and workparts sections. If either of those sections are not run then this section will not operate correctly. At the very top of the tab is a checkbox "Use Muso reference database...". For [Muso](http://klarita.net/muso.html) users, selecting this enables you to use reference data for genres, composers and periods which have been entered in Muso's "Options->Classical Music" section. Regardless as to whether this is selected, there are then three main coloured sections, each with a number of subsections. The details in each section differ depending on whether the "Muso" option is selected.  The screen print below shows the options assuming it is not selected (differences occurring when "Muso" is selected are discussed later):
-
-![Genres etc.](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-plain/)
-
-1. "Genres". Two separate tags may be used to store genre information, a main genre tage (usually just "genre") and a sub-genre tag. These need to be specified at the top of the section. If either is left blank then the related processing will not run.
-
-    * **Source of genres**
-    Any or all of four sources may be selected. In each case, any values found are treated as "candidate genres" - they will only be applied to the specified genre and sub-genre tags in accordance with the criteria in the "allowed genres" section (see below).
-      
-      (a) "Existing file tag". The contents of the existing file tag (as specified above - main genre tag only) will be included as candidate genres. Note that, if this tag name is not "genre", then the contents of the tag "genre" will be included as well.
-      
-      (b) "Folksonomy work tags". This will use the folksonomy tags for **works** (including parent works) as a possible source of genres. To use the folksonomy tags for **releases/tracks**, select the main Picard option in Options->Metadata->"Use folksonomy tags as genre". Again (unlike vanilla Picard) these are candidate genres, and will only be published if they match the allowed genres.
-      
-      (c) "Work-type". The work-type attribute of works or parent works will be used as a candidate genre.
-      
-      (d) "Infer from artist metadata". This option was on the artist tab in version 0.9.1 and prior. Owing to the additional genre processing now available, the operation of this option is slightly restricted compared to the earlier versions. It attempts to create candidate genres based on information in the artist-related tags. Values provided are:
-	Orchestral, Concerto, Choral, Opera, Duet, ,Trio, Quartet, Chamber music, Aria ('classical values') and Vocal, Song, Instrumental ('generic values'). If the track is a recorded work and the track artist is the composer (i.e. MusicBrainz 'classical style'), the candidate genre values will also include "Classical". The 'classical values' will only be included as candidate genres if the track is deemed to be 'classical' by some part of the genre processing section.
-	
-	* **Allowed genres**
-	Four boxes are provided for lists of genres which are "allowed" to appear in the specified tags. Each list should be comma-separated (and no commas in any genre name). Candidate genres matching those in a "main genre" box will be added to the specified main genre tag. Similarly for sub-genres. If a candidate genre matches a 'classical genre' (in one of the top two boxes), then the track will be deemed to be "Classical" (see next part for more details). 
-	
-	  If none of the boxes are filled, then all genres found will be included.
-
-      If only one main genre box is filled (e.g. "classical main genres") and there is a matching genre found, then remaining genres will only be included if they match genres in that box or the related sub-genre box. So in this case if "classical sub-genres" is filled and "general sub-genres" is not, then only matching genres will be included.
-
-      If both "classical" and "general" main genre boxes are filled, then only genres matching those boxes or "classical sub-genres" will be included.
-     
-      You may also enter a genre name to be used if no matching main genre is found (otherwise the tag will be blank). 
-      
-     * **"Classical" genre**
-     Normally (i.e. by default) a work will only be deemed to be 'classical' if it is inferred from the MusicBrainz style (see "source of genres") or if a candidate genre matches a "Classical" genre or sub-genre list. However, you may select that all tracks are 'classical' regardless. There is also an option to exclude the word "Classical" from any genre tag, but still treat the work as classical. If a work is deemed to be classical, a tag may be written with a specified value as set out in the last two boxes of this section. For example, to be consistent with SonKong/Jaikoz, you could set "is\_classical" to "1".
-     
-3. "Instruments and keys".
-    * **Instruments**
-    Specify the tag name you wish instrument names to appear in. Instruments will be sourced from performer relationships. Instrument names may either be the standard MusicBrainz names or the "credited as" names in the performer relationship, or both. Vocal types are treated similarly to instruments. (Note that, in v0.9.1 and prior, instruments were written to the same tag as inferred genres. If you wish to continue this, then you may use the same tag name here as for the genre tag.)
-    
-    * **Keys**
-    Specify the tag name in which you wish the key signatures of works to appear. Keys will be obtained from all work levels (assuming these have been looked up): for example, Dvořák's Largo From the New World will be shown as D♭ major, C# minor (the main keys of the movement) and E minor (the home key of the overall work).
-    
-    "Include key(s) in work names" gives the option to include the key signature for a work in brackets after the name of the work in the metadata. Keys will be added in the appropriate levels: e.g. Dvořák's New World Symphony will get (E minor) at the work level, but only movements with different keys will be annotated viz. "II. Largo (D-flat major, C-Sharp minor)". The default sub-option is to only add these details if the key signature is missing from the work title (other sub-options are to never or to always include the information).
-    
-4. "Periods and dates".
-
-    * **Work dates**
-    Specify the tag name to hold work dates. Work dates will be given as a "year" value only, e.g. "1808" or a range: "1808-1810". The sources of these dates is specified in the next part. If the movement has a composed date(s), this will be used, otherwise the the dates from the parent work will be used (if available).
-    
-    "Source of work dates". Select which sources to use - from composed, published and premiered, then decide whether to use them in preferential order (e.g. if "composed date" exists, then the others will not be used) or to show them all.
-    
-    "Include workdate in work name ..." operates analogously to  "Include key(s) in work names" described above. (Work dates will be used in preference order, i.e. composed - published - premiered, with only the first available date being shown).
-    
-    * **Periods**
-    This section will use work dates, where available, to determine the "classical period" to which it belongs, by means of a "period map" (Muso users can also use composer dates - see below). 
-    
-    Specify the tag name to hold the period data. The period map should then be entered in the format "Period name, Start\_year, End\_year; Period name2, Start\_year, End\_year;"  etc. Periods may overlap. Do not use commas or semi-colons within period names. Start and end years must be integers.
-    
-## Genres etc. tab - Muso-specific processing
-
-Users of [Muso](http://klarita.net/muso.html) have additional capabilities, illustrated in the following screen, which appear when the option "Use Muso reference database ..." is selected at the top of the tab.
-
-![Genres etc. - Muso](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-muso/)
-
-For these options to work, the path/name of the Muso reference database needs to be specified on the advanced tab. The default path is "C:\\Users\\Public\\Music\\muso\\database" and the default filename is "Reference.xml". The additional options are as follows.
-
-1. "Use Muso classical genres". If this is selected, the box for classical main genres is eliminated and the genre list from Muso's "Tools->Options->Classical Music->Classical Music Genres" is used instead.
-
-2. "Use Muso composer list to determine if classical". If the composer name is in Muso's list "Tools->Options->Classical Music->Composer Roster", then the work will be deemed to be classical. If this option is selected, a further option appears to "Treat arrangers as for composers" - if selected then arrangers will also be looked up in the roster.
-
-3. "Use Muso composer dates (if no work date) to determine period". The birth date + 20  -> death dates of Muso's composer roster will be used to assign periods if no work date is available. If this option is selected, a further option appears to "Treat arrangers as for composers" - if selected then arrangers' working lives will also be used to determine periods.
-
-   (This might be replaced / supplemented by MusicBrainz in  the future, but would involve another 1-second lookup per composer).
-   
-4. "Use Muso map". Replace the period map with the one in Muso at "Tools->Options->Classical Music->Classical Music Periods"
-
-Note that non-Muso users may also use this functionality, if they wish, by manually creating a reference xml file with the relevant tags, e.g.:
-
-    <ClassicalGenre>  
-    <Name>Cantata</Name>  
-    </ClassicalGenre>   
-    <Composer>  
-    <Name>Max REGER</Name>  
-    <Birth>1873</Birth>  
-    <Death>1916</Death>  
-    </Composer>  
-    <ClassicalPeriod>  
-    <Name>Early Romantic</Name>  
-    <Start_x0020_Date>1800</Start_x0020_Date>  
-    <End_x0020_Date>1850</End_x0020_Date>  
-    </ClassicalPeriod>  
   
 ## Advanced tab
 
 Hopefully, this tab should not be much used. In any case, it should not need to be changed frequently. There are seven sections as shown in the sceeen print below:
 
-![Advanced options](http://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/advanced/)
+![Advanced options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/advanced/)
 
 1. "General". There is only one checkbox - "Do not run Classical Extras for tracks where no pre-existing file is detected (warning tag will be written)". This option will disable Classical Extras processing if no file is present; this means (for example) that single discs from box sets can be loaded without incurring the additional processing overhead (work look-ups etc.) for all the other discs. Also if a compilation album is loaded, where the tracks are on multiple releases, the plugin will only process the release tracks which match. If a file is present but it does not yet have a MusicBrainz trackid tag, then it will initially be treated in the same way as a non-existent file; however, after the initial loading it will (if matched by Picard) be given a MB trackid and "refreshing" the release will result in any such tracks being processed by Classical Extras, while the unmatched tracks are left untouched.
 
@@ -370,12 +376,14 @@ If it is important that only whole words are to be matched, be sure to include a
 3. "Work levels". This section has parameters applicable to the "works and parts" functions.
 
 	* **Max number of re-tries to access works (in case of server errors)**. Sometimes MB lookups fail. Unfortunately Picard (currently) has no automatic "retry" function. The plugin will attempt to retry for the specified number of attempts. If it still fails, the hidden variable \_cwp\_error will be set with a message; if error logging is checked in section 5, an error message will be written to the log and the contents of \_cwp\_error will be written out to a special tag called "001\_errors" which should appear prominently in the bottom pane of Picard. The problem may be resolved by refreshing, otherwise there may be a problem with the MB database availability. It is unlikely to be a software problem with the plugin.
+	
+	* **Allow blank part names for arrangements and part recordings, if an arrangement/partial label is provided**. The default is checked (true) - in which case where an arrangement has the same name as the original work, the part will just show the arrangement/partial label (e.g. "Arrangement:"). If the option is blank (false), there will be text for the part name (which may be the same name as the parent work). Note that if "extended" metadata is being used, then blank part names will always have the title metadata added {in curly brackets} regardless of whether it is similar to the canonical part name.
 
 	* **Removal of common text between parent and child works**. This section controls the naming of parts, by stripping parent text from the work name. If the work begins with the parent name followed by punctuation then the common text will always be stripped to give the part name (even if there are punctuation or some other minor differences). 
 	
-	  However, common text which is not followed by punctuation or which is not at the start may also be stripped: to prevent this, set "Minimum number of similar words required before eliminating (other than at start)" to zero. Otherwise common text longer than the specified number of words (default = 2) will be stripped. 
+	  However, common text which is not followed by punctuation or which is not at the start may also be stripped: to prevent this, set "Minimum number of similar words required before eliminating (other than at start)" to zero. Otherwise common text longer than the specified number of words (default = 2) will be stripped. (Note that this minimum is over-ridden by the previous option - i.e. if a smaller number of words than the minimum could be eliminated and would result in a blank part name, and that is allowed by the previous option, then the words will be removed).
 	
-	* **How title metadata should be included in extended metadata**. This subsection contains various parameters affecting the processing of strings in titles. (Some of it also affects the elimination of common text between parent and child works referred to above). Because titles are free-form, not all circumstances can be anticipated. If pure canonical works are used ("Use only metadata from canonical works" and, if necessary, "Full MusicBrainz work hierarchy" on the Works and parts tab, section 2) then this processing should be irrelevant, but no text from titles will be included. Some explanations are given below:
+	* **How title metadata should be included in extended metadata**. This subsection contains various parameters affecting the processing of strings in titles, where these are used to "extend" the text in work names. This is generally only relevant if "Use canonical work metadata enhanced with title text" is selected on the "Works and parts" tab, although the "prefixes" section is also relevant if "Use only metadata from title text" is selected. Because titles are free-form, not all circumstances can be anticipated. If pure canonical works are used ("Use only metadata from canonical works" and, if necessary, "Full MusicBrainz work hierarchy" on the Works and parts tab, section 2) then this processing should be irrelevant, but no text from titles will be included. Some explanations are given below:
 
       * "Proximity of new words". When using extended metadata - i.e. "metadata enhanced with title text", the plugin will attempt to remove similar words in the canonical work name (in MusicBrainz) and the title before extending the canonical name. After removing such words, a rather "bitty" result may occur. To avoid this, any new words with the specified proximity will have the words between them (or up to the start/end) included even if they repeat words in the work name.
       
@@ -383,13 +391,14 @@ If it is important that only whole words are to be matched, be sure to include a
       
       * "Proportion of a string to be matched ... for it to be considered essentially similar..." (default = 66%). If the title and work descriptions are largely the same then the title text will not be used to extend the work text, even if there are some new words.
       
-      * "Prepositions". Words listed here will not generally be treated as "new" (i.e. if they are in the title text but not in the work text, they will not be included in the "extended" text) unless they precede a new word which is not itself a preposition. Note that, although the term "preposition" is used here, because that is the obvious usage, any word can be listed. A group of more than one such words will be treated as new if they are not in the work text and they precede a new word which is not listed as a preposition.
+      * "Prepositions and conjunctions". Words listed here will not generally be treated as "new" (i.e. if they are in the title text but not in the work text, they will not be included in the "extended" text) unless they precede a new word which is not itself a preposition. Note that, although the term "preposition" is used here, because that is the obvious usage, any word can be listed. A group of more than one such words will be treated as new if they are not in the work text and they precede a new word which is not listed as a preposition.
 
       * "Prefixes". When using "metadata from titles" or extended metadata, the structure of the works in MusicBrainz is used to infer the structure in the title text, so strings that are repeated between tracks which are part of the same MusicBrainz work will be treated as "higher level". This can lead to anomalies if, for instance, the titles are "Work name: Part 1", "Work name: Part 2", "Part" is repeated and so will be treated as part of the parent work name. Specifying such words in "Prefixes" will prevent this.
 
-      * "Synonyms". These words will be considered equivalent when comparing work name and title text. Thus if one word appears in the work name, that and its synonym will be removed from the title in extending the metadata (subject to the proximity setting above). Note that only single word synonyms are allowed, with no duplicates or punctuation. Each entry should be a pair (2-tuple) in the form *(key word, equivalent word)* - no quote marks are necessary. Each pair should be separated by a forward slash - /.
+      * "Synonyms". These words/phrases will be considered equivalent when comparing work name and title text. Thus if one word/phrase appears in the work name, it and its synonyms will be removed from the title in extending the metadata (subject to the proximity setting above). Each entry should be a tuple in the form *(key word/phrase, ...,  equivalent word/phrase)* - no quote marks are necessary. Each tuple should be separated by a forward slash - /. Tuples may contain multiple synonyms - each item in a tuple will be treated as similar when comparing works/parts and titles. The text in tags will be unaltered. Spaces and punctuation are permitted, as are regular expressions, but unless entering regex, use backslash \ to escape any regex metacharacters \ ^ $ . | ? * + ( ) [ ] {   
+      Also escape commas , and forward slashes /. Do not enclose strings in quote marks. The last member of the tuple should be the canonical form (i.e. the one to which others are converted for comparison) and must be a normal string (not a regex). The sequence of synonyms within a tuple may be important, particularly if one synonym is a subset of another - always list the longer one first, as the matching will proceed in the listed order. Thus if "nro" and "nr" are synonyms of "no", then list them thus: (nro, nr, no). This will ensure that "nro" gets matched to "nro" and not to "nr".
 
-      * "Replacements". These words/phrases will be replaced in the title text in extended metadata, regardless of the text in the work name. Each entry should be a pair (2-tuple) in the form *(original text, replacement text)* - no quote marks are necessary. Each pair should be separated by a forward slash - /. If required, the original text (to be replaced) can be a regular expression, in which case it must be surrounded by double exclamation marks, thus: *(!!regex here!!, replacement text here)*
+      * "Replacements". These are entered in a similar fashion to synonyms. The difference is that the last item in a tuple will be used to replace any text in earlier items in the tuple. This last element may also be left blank (after the preceding comma) in order to remove any text matching any of the earlier items.
 
 4. "Genres etc. ...". This is only required if Muso-specific options are used for genres/periods. Specify the path and file name for the reference database (the default is the Muso default for a shared  database). Note that the database is only loaded when Picard starts so you will need to restart Picard is these options are changed.
 
@@ -411,7 +420,7 @@ If it is important that only whole words are to be matched, be sure to include a
 
    ***Note that* *very occasionally (if the tag containing the options has been corrupted) use of this option may cause an error. In such a case you will need to deselect the "over-ride" option and set the required options manually; then save the resulting tags and the corrupted tag should be over-written***
 
-   The last checkbox, "Overwrite options in Options Pages", is for **VERY CAREFUL USE ONLY**. It will cause any options read from the saved tags (if the relevant box has been ticked) to over-write the options on the plugin Options Page UI. The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, and will always be turned off when starting Picard, to prevent inadvertant use. Far better is to make a **backup copy** of the picard.ini file.
+   The last checkbox, "Overwrite options in Options Pages", is for **VERY CAREFUL USE ONLY**. It will cause any options read from the saved tags to over-write the options on the plugin Options Page UI. (Note that it will only operate if all the "Over-ride plugin options..." boxes are checked as well.) The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, and will always be turned off when starting Picard, to prevent inadvertant use. Far better is to make a **backup copy** of the picard.ini file.
 
 # Information on hidden variables
 
@@ -562,16 +571,18 @@ Leave the "title" tag unchanged or make it a combination of work and movement.
 # Possible Enhancements
 All planned functionality has been included in version 2.0. Please post any suggestions for improvements to the forum.
 
-# Technical Matters
+# Technical Matters (of possible interest to developers)
 Issues were encountered with the Picard API in that there is not a documented way to let Picard know that it is still doing asynchronous tasks in the background and has not finished processing metadata. Many thanks to @dns\_server for assistance in dealing with this and to @sophist for the albumartist\_website code which I have borrowed from. I have tried to add some more comments to help any others trying the same techniques.
 
 Also, the documentation of the XML lookup is virtually non-existent. The response is an XmlNode object (not a dict, although it is represented as one). Each node has a name with {attribs, text, children} values. The structure is more clearly understood if the web-based lookup is used (which is well documented at https://musicbrainz.org/doc/Development/XML_Web_Service/Version_2 ) as this gives an XML response. I wrote a function (parse\_data) to parse XmlNode objects, or lists thereof, for a (parameterised) hierarchy of nodes (and optional attribs value tests) in order to extract required data from the response. This may be of use to other plugin authors. The situation has been made slightly better in Picard 2.0 as the objects returned from register_track_metadata_processor are standard JSON. See https://musicbrainz.org/doc/Development/JSON_Web_Service. My parse_data function works with JSON as well as XmlNode formats, but the arguments you need to provide to it are different as the formats are structured differently. Picard 2.0 allows tagger.webservice calls to specify XML or default to JSON. This plugin has now migrated over to JSON-only.
 
 To get the whole picture, in XML, for a release, use (for example) https://musicbrainz.org/ws/2/release/f3bb4fdd-5db0-43a8-be73-7a1747f6c2ef?inc=release-groups+media+recordings+artist-credits+artists+aliases+labels+isrcs+collections+artist-rels+release-rels+url-rels+recording-rels+work-rels+recording-level-rels+work-level-rels. (Add &fmt=JSON at the end to get the JSON response). This simulates the response given by Picard with the "Use release relationships" and "Use track relationships" options selected. Note that the Picard album\_metadata\_processor returns releaseXmlNode (as JSON from Picard 2.0 on) which is everything from the Release node of the XML downwards, whereas track\_metadata\_processor returns trackXmlNode which is everything from a Track node downwards (release -> medium-list -> medium -> track-list is above track). Replace all hyphens in XML with underscores when parsing the Python object (JSON uses hyphens).
 
+Care needs to be taken when using the metadata property in Picard (e.g. as in track.metadata). This returns an object of class Metadata, which looks just like a dictionary but isn't. All values are in fact lists, which works as follows: when a value is set, it is always set as a list - i.e. a list value is entered as it is, but a string  is set as a list : viz. ['string']. Then, when getting an item from the object, multiple values are joined to create a string. Thus track.metadata['item'] and track.metadata.get('item') will return list.join('; ') - i.e. a string with the list values separated by semi-colons - not the list. To get the list, you need to use track.metadata.getall('item'). The plugin stores work ids, internally and in "hidden variables" (such as _cwp_workid_0), as tuples. The Metadata class puts these into a string before setting the value in the object as a list, so the resulting value is ["(wid1, wid2, ...)"]. In order to extract the original tuple, the eval function is required.
+
 A large variety of releases were used to test this plugin, but there may still be bugs, so further testing is welcome. The following release was particularly complex and useful for testing: https://musicbrainz.org/release/ec519fde-94ee-4812-9717-659d91be11d4. Also this release was a bit tricky - a large box set with some works appearing as originals and in arrangements: https://musicbrainz.org/release/5288f266-bab8-45bd-83e4-555730f02fa0.
 
-# Very technical matters
+# Very technical matters (probably not of interest to anyone)
 I've done a bit of research and observed the following behaviour in Picard when using the  `register_track_metadata_processor()` API:
 1. If a new album (i.e. not yet tagged by Picard and with no MBIDs) is loaded, clustered and looked-up/scanned, resulting in the matched files being shown in the right-hand pane, then:
     * `track.metadata` gives the lookup result from MB - i.e. no file information, just the track info.

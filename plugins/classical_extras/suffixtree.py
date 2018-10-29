@@ -15,8 +15,6 @@ Changed to allow a range of different special characters in case $ is in a strin
 """
 
 import sys
-import re
-import argparse
 
 END_OF_STRING = sys.maxsize
 
@@ -257,6 +255,7 @@ def multi_lcs(strings_list):
     :return: a list of longest common strings (or lists)
     (more than one is possible if they are distinct and of the same length)
     """
+
     if not isinstance(strings_list, list):
         return {'response': [], 'error': 'Argument is not a list'}
     arg_type = type(strings_list[0])
