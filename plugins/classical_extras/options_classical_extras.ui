@@ -26,16 +26,7 @@
    <property name="spacing">
     <number>6</number>
    </property>
-   <property name="leftMargin">
-    <number>9</number>
-   </property>
-   <property name="topMargin">
-    <number>9</number>
-   </property>
-   <property name="rightMargin">
-    <number>9</number>
-   </property>
-   <property name="bottomMargin">
+   <property name="margin">
     <number>9</number>
    </property>
    <item>
@@ -66,7 +57,7 @@
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>5</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -103,7 +94,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-69</y>
             <width>1086</width>
             <height>1071</height>
            </rect>
@@ -113,7 +104,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_13">
            <item>
-            <widget class="QFrame" name="frame_9">
+            <widget class="QFrame" name="artists_run_frame">
              <property name="palette">
               <palette>
                <active>
@@ -323,7 +314,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QLabel" name="label_79">
+               <widget class="QLabel" name="infer_worktypes_old_label">
                 <property name="text">
                  <string>(Note that the &quot;infer work-types&quot; option has moved to the &quot;genres&quot; tab)</string>
                 </property>
@@ -340,14 +331,14 @@
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="label_43">
+            <widget class="QLabel" name="naming_style_note_label">
              <property name="text">
               <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; font-style:italic;&quot;&gt;The naming style for 'artist' tags is set in the main Picard Options-&amp;gt;Metadata section&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_18">
+            <widget class="QFrame" name="naming_options_frame_2">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -358,20 +349,11 @@
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_93">
+               <widget class="QLabel" name="naming_options_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(176, 220, 192);</string>
                 </property>
@@ -381,7 +363,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QFrame" name="frame_23">
+               <widget class="QFrame" name="naming_options_frame">
                 <property name="palette">
                  <palette>
                   <active>
@@ -512,7 +494,7 @@
                   </widget>
                  </item>
                  <item row="3" column="1">
-                  <widget class="QGroupBox" name="groupBox_7">
+                  <widget class="QGroupBox" name="credited_as_options_box">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -521,7 +503,7 @@
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_18">
                     <item>
-                     <widget class="QGroupBox" name="groupBox_26">
+                     <widget class="QGroupBox" name="names_to_use_box">
                       <property name="toolTip">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the source for 'as-credited' names - whether these are applied depends on the sub-options choices.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
@@ -628,7 +610,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QGroupBox" name="groupBox_27">
+                     <widget class="QGroupBox" name="places_to_use_them_box">
                       <property name="toolTip">
                        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select the tag types where any 'as-credited' names will be applied - whether these are applied depends on the sub-options choices.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                       </property>
@@ -672,7 +654,7 @@
                   </widget>
                  </item>
                  <item row="4" column="0" colspan="2">
-                  <widget class="QGroupBox" name="groupBox_25">
+                  <widget class="QGroupBox" name="naming_sub_options_box">
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(250, 250, 250);</string>
                    </property>
@@ -714,7 +696,7 @@
                   </widget>
                  </item>
                  <item row="3" column="0">
-                  <widget class="QGroupBox" name="groupBox_24">
+                  <widget class="QGroupBox" name="MB_std_names_aliases_box_outer">
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(211, 248, 224);</string>
                    </property>
@@ -723,7 +705,7 @@
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_24">
                     <item>
-                     <widget class="QGroupBox" name="groupBox_23">
+                     <widget class="QGroupBox" name="MB_std_names_aliases_box_inner">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(250, 250, 250);</string>
                       </property>
@@ -774,7 +756,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_19">
+            <widget class="QFrame" name="recording_artists_options_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -785,20 +767,11 @@
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_94">
+               <widget class="QLabel" name="recording_artist_options_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(176, 220, 192);</string>
                 </property>
@@ -808,7 +781,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_29">
+               <widget class="QGroupBox" name="recording_artists_options_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -917,7 +890,7 @@
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_24">
                  <item>
-                  <widget class="QGroupBox" name="groupBox_34">
+                  <widget class="QGroupBox" name="naming_convention_box">
                    <property name="whatsThis">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;In classical music (in MusicBrainz), recording artists will usually be performers whereas track artists are composers. By default, the naming convention for performers (set in the previous section) will be used (although only the as-credited name set for the recording artist will be applied). Alternatively, the naming convention for track artists can be used - which is determined by the main Picard metadat options.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -960,7 +933,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_30">
+                  <widget class="QGroupBox" name="ra_replace_merge_options_box">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                      <horstretch>0</horstretch>
@@ -1014,7 +987,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_20">
+            <widget class="QFrame" name="other_artist_options_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -1025,20 +998,11 @@
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_95">
+               <widget class="QLabel" name="other_artist_options_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(176, 220, 192);</string>
                 </property>
@@ -1048,7 +1012,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_5">
+               <widget class="QGroupBox" name="other_artist_options_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -1154,7 +1118,7 @@
                   <number>6</number>
                  </property>
                  <item row="0" column="1">
-                  <widget class="QGroupBox" name="groupBox_9">
+                  <widget class="QGroupBox" name="annotations_lh_box">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter text to appear in annotations. Do not use any quotation marks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -1166,7 +1130,7 @@
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_15">
                     <item>
-                     <widget class="QFrame" name="frame_5">
+                     <widget class="QFrame" name="chorusmaster_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1210,7 +1174,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_3">
+                     <widget class="QFrame" name="concertmaster_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1245,7 +1209,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_12">
+                     <widget class="QFrame" name="lyricist_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1277,7 +1241,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_7">
+                     <widget class="QFrame" name="librettist_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1309,7 +1273,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_10">
+                     <widget class="QFrame" name="translator_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1344,7 +1308,7 @@
                   </widget>
                  </item>
                  <item row="0" column="0">
-                  <widget class="QGroupBox" name="groupBox_8">
+                  <widget class="QGroupBox" name="other_artist_checkboxes_box">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select as required. See &amp;quot;What's this&amp;quot; for details.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -1418,7 +1382,7 @@
                   </widget>
                  </item>
                  <item row="0" column="2">
-                  <widget class="QGroupBox" name="groupBox_28">
+                  <widget class="QGroupBox" name="annotations_rh_box">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter text to appear in annotations. Do not use any quotation marks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -1430,7 +1394,7 @@
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_21">
                     <item>
-                     <widget class="QFrame" name="frame_17">
+                     <widget class="QFrame" name="writer_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1459,7 +1423,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_16">
+                     <widget class="QFrame" name="arranger_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1488,7 +1452,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_4">
+                     <widget class="QFrame" name="orchestrator_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1523,7 +1487,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_11">
+                     <widget class="QFrame" name="reconstructed_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1555,7 +1519,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_8">
+                     <widget class="QFrame" name="revised_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(211, 248, 224);</string>
                       </property>
@@ -1606,7 +1570,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_21">
+            <widget class="QFrame" name="lyrics_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -1617,20 +1581,11 @@
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_96">
+               <widget class="QLabel" name="lyrics_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(204, 168, 161);</string>
                 </property>
@@ -1640,7 +1595,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_31">
+               <widget class="QGroupBox" name="lyrics_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -1756,7 +1711,7 @@
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_32">
+                  <widget class="QGroupBox" name="lyrics_and_notes_tags_frame">
                    <property name="toolTip">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter a valid tag name (no spaces, punctuation or special charcaters other than underline; use lower case)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -1765,7 +1720,7 @@
                    </property>
                    <layout class="QVBoxLayout" name="verticalLayout_30">
                     <item>
-                     <widget class="QFrame" name="frame_13">
+                     <widget class="QFrame" name="lyrics_tags_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(204, 168, 161);</string>
                       </property>
@@ -1797,7 +1752,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_14">
+                     <widget class="QFrame" name="album_notes_tags_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(204, 168, 161);</string>
                       </property>
@@ -1829,7 +1784,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QFrame" name="frame_15">
+                     <widget class="QFrame" name="track_notes_tags_frame">
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(204, 168, 161);</string>
                       </property>
@@ -1921,7 +1876,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_25">
            <item>
-            <widget class="QFrame" name="frame_2">
+            <widget class="QFrame" name="works_run_frame">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                <horstretch>0</horstretch>
@@ -2069,7 +2024,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_26">
+            <widget class="QFrame" name="work_style_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -2080,20 +2035,11 @@
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_99">
+               <widget class="QLabel" name="work_style_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(205, 230, 255);</string>
                 </property>
@@ -2103,7 +2049,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="Style">
+               <widget class="QGroupBox" name="work_style_box">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
                   <horstretch>0</horstretch>
@@ -2229,7 +2175,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout">
                  <item>
-                  <widget class="QGroupBox" name="groupBox_4">
+                  <widget class="QGroupBox" name="works_source_box">
                    <property name="whatsThis">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;There are 3 options for determing the principal source of the works metadata&lt;/p&gt;&lt;p&gt;      - &amp;quot;Use only metadata from title text&amp;quot;. The plugin will attempt to extract the hierarchy of works from the track title by looking for repetitions and patterns. If the title does not contain all the work names in the hierarchy then obviously this will limit what can be provided.&lt;/p&gt;&lt;p&gt;      - &amp;quot;Use only metadata from canonical works&amp;quot;. The hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will be in the language of the release.&lt;/p&gt;&lt;p&gt;      - &amp;quot;Use canonical work metadata enhanced with title text&amp;quot;. This supplements the canonical data with text from the titles &lt;span style=&quot; font-weight:600;&quot;&gt;where it is significantly different&lt;/span&gt;. The supplementary data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations - see image below for an example (using the Muso library manager).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -2271,7 +2217,7 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_16">
+                  <widget class="QGroupBox" name="source_of_canonical_box">
                    <property name="enabled">
                     <bool>true</bool>
                    </property>
@@ -2312,7 +2258,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_27">
+            <widget class="QFrame" name="work_aliases_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -2323,20 +2269,11 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_100">
+               <widget class="QLabel" name="work_aliases_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 186, 189);</string>
                 </property>
@@ -2346,7 +2283,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_18">
+               <widget class="QGroupBox" name="work_aliases_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -2452,7 +2389,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <layout class="QHBoxLayout" name="horizontalLayout_16">
                  <item>
-                  <widget class="QGroupBox" name="groupBox_19">
+                  <widget class="QGroupBox" name="replace_MBworknames_box">
                    <property name="title">
                     <string>Replace MB work names?</string>
                    </property>
@@ -2478,7 +2415,7 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_20">
+                  <widget class="QGroupBox" name="what_to_replace_outer_box">
                    <property name="styleSheet">
                     <string notr="true"/>
                    </property>
@@ -2487,7 +2424,7 @@ p, li { white-space: pre-wrap; }
                    </property>
                    <layout class="QHBoxLayout" name="horizontalLayout_17">
                     <item>
-                     <widget class="QGroupBox" name="groupBox_22">
+                     <widget class="QGroupBox" name="what_to_replace_radios_box">
                       <property name="title">
                        <string/>
                       </property>
@@ -2517,7 +2454,7 @@ p, li { white-space: pre-wrap; }
                      </widget>
                     </item>
                     <item>
-                     <widget class="QGroupBox" name="groupBox_21">
+                     <widget class="QGroupBox" name="works_alias_tags_box">
                       <property name="title">
                        <string>Tags (&quot;Folksonomy&quot;) identifying works to be replaced by aliases</string>
                       </property>
@@ -2559,7 +2496,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_28">
+            <widget class="QFrame" name="works_parts_tags_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -2570,20 +2507,11 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_101">
+               <widget class="QLabel" name="work_parts_tags_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(255, 194, 158);</string>
                 </property>
@@ -2593,7 +2521,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="Tags">
+               <widget class="QGroupBox" name="works_parts_tags_box">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
                   <horstretch>0</horstretch>
@@ -2708,7 +2636,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_9">
                  <item>
-                  <widget class="QGroupBox" name="groupBox_2">
+                  <widget class="QGroupBox" name="works_tags_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -2825,16 +2753,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -2911,16 +2830,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -2997,16 +2907,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -3045,7 +2946,7 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox">
+                  <widget class="QGroupBox" name="parts_tags_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -3152,16 +3053,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -3264,16 +3156,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -3320,16 +3203,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -3381,7 +3255,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_29">
+            <widget class="QFrame" name="partial_arrangements_medleys_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -3392,20 +3266,11 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_102">
+               <widget class="QLabel" name="partial_arrangements_medleys_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(195, 168, 179);</string>
                 </property>
@@ -3415,7 +3280,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_12">
+               <widget class="QGroupBox" name="partial_arrangements_medleys_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -3532,7 +3397,7 @@ text-decoration: underline;</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_13">
+                  <widget class="QGroupBox" name="partial_box">
                    <property name="whatsThis">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If this option is selected, partial recordings will be treated as a sub-part of the whole recording and will have the related text included in its name. Note that this text is at the end of the canonical name, but the latter will probably be stripped from the sub-part as it duplicates the recording work name; any title text will be appended to the whole. Note that, if &amp;quot;Consistent with lowest level work description&amp;quot; is chosen in section 2, the text may be treated as a &amp;quot;prefix&amp;quot; similar to those in the &amp;quot;Advanced&amp;quot; tab. If this eliminates other similar prefixes and has unwanted effects, then either change the desired text slightly (e.g. surround with brackets) or use the &amp;quot;Full MusicBrainz work hierarchy&amp;quot; option in section 2.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -3550,7 +3415,7 @@ text-decoration: underline;</string>
                     <item>
                      <widget class="QLineEdit" name="cwp_partial_text">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(250, 250, 250);</string>
@@ -3561,7 +3426,7 @@ text-decoration: underline;</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_14">
+                  <widget class="QGroupBox" name="arrangements_box">
                    <property name="whatsThis">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If this option is selected, works which are arrangements of other works will have the latter treated in the same manner as &amp;quot;parent&amp;quot; works, except that the arrangement work name will be prefixed by the text provided.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
@@ -3579,10 +3444,13 @@ text-decoration: underline;</string>
                     <item>
                      <widget class="QLineEdit" name="cwp_arrangements_text">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(250, 250, 250);</string>
+                      </property>
+                      <property name="dragEnabled">
+                       <bool>false</bool>
                       </property>
                      </widget>
                     </item>
@@ -3590,7 +3458,7 @@ text-decoration: underline;</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_15">
+                  <widget class="QGroupBox" name="medleys_box">
                    <property name="title">
                     <string>Medleys</string>
                    </property>
@@ -3608,7 +3476,7 @@ text-decoration: underline;</string>
                     <item>
                      <widget class="QLineEdit" name="cwp_medley_text">
                       <property name="enabled">
-                       <bool>false</bool>
+                       <bool>true</bool>
                       </property>
                       <property name="styleSheet">
                        <string notr="true">background-color: rgb(250, 250, 250);</string>
@@ -3625,7 +3493,7 @@ text-decoration: underline;</string>
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_30">
+            <widget class="QFrame" name="songkong_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -3646,7 +3514,7 @@ text-decoration: underline;</string>
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_103">
+               <widget class="QLabel" name="songkong_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(182, 182, 62);</string>
                 </property>
@@ -3656,7 +3524,7 @@ text-decoration: underline;</string>
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_17">
+               <widget class="QGroupBox" name="songkong_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -3811,14 +3679,14 @@ text-decoration: underline;</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-456</y>
             <width>1084</width>
             <height>1310</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_13">
            <item row="2" column="0">
-            <widget class="QFrame" name="frame_34">
+            <widget class="QFrame" name="genre_tag_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -3829,20 +3697,11 @@ text-decoration: underline;</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_104">
+               <widget class="QLabel" name="genre_tag_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(138, 222, 187);</string>
                 </property>
@@ -3852,7 +3711,7 @@ text-decoration: underline;</string>
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_35">
+               <widget class="QGroupBox" name="genre_tag_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -3989,7 +3848,7 @@ text-decoration: underline;</string>
             </widget>
            </item>
            <item row="5" column="0">
-            <widget class="QFrame" name="frame_33">
+            <widget class="QFrame" name="classical_genre_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -4000,20 +3859,11 @@ text-decoration: underline;</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_107">
+               <widget class="QLabel" name="classical_genre_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(138, 222, 187);</string>
                 </property>
@@ -4023,7 +3873,7 @@ text-decoration: underline;</string>
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_38">
+               <widget class="QGroupBox" name="classical_genre_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -4221,7 +4071,7 @@ text-decoration: underline;</string>
             </widget>
            </item>
            <item row="6" column="0">
-            <widget class="QFrame" name="frame_35">
+            <widget class="QFrame" name="instruments_keys_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -4232,20 +4082,11 @@ text-decoration: underline;</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_108">
+               <widget class="QLabel" name="instruments_keys_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(225, 168, 171);</string>
                 </property>
@@ -4255,7 +4096,7 @@ text-decoration: underline;</string>
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_39">
+               <widget class="QGroupBox" name="instruments_keys_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -4358,7 +4199,7 @@ text-decoration: underline;</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_34">
                  <item>
-                  <widget class="QGroupBox" name="groupBox_45">
+                  <widget class="QGroupBox" name="instruments_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -4475,7 +4316,7 @@ text-decoration: underline;</string>
                      </widget>
                     </item>
                     <item row="1" column="0" colspan="2">
-                     <widget class="QGroupBox" name="groupBox_40">
+                     <widget class="QGroupBox" name="instruments_source_box">
                       <property name="title">
                        <string>Name sources to use for instruments (select at least one, otherwise no instruments will be included in tag)</string>
                       </property>
@@ -4501,7 +4342,7 @@ text-decoration: underline;</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_47">
+                  <widget class="QGroupBox" name="keys_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -4618,7 +4459,7 @@ text-decoration: underline;</string>
                      </widget>
                     </item>
                     <item row="1" column="0" colspan="2">
-                     <widget class="QGroupBox" name="groupBox_52">
+                     <widget class="QGroupBox" name="keys_include_box">
                       <property name="title">
                        <string>Include key(s) in work name?</string>
                       </property>
@@ -4660,7 +4501,7 @@ text-decoration: underline;</string>
             </widget>
            </item>
            <item row="4" column="0">
-            <widget class="QFrame" name="frame_32">
+            <widget class="QFrame" name="allowed_genres_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -4671,20 +4512,11 @@ text-decoration: underline;</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_106">
+               <widget class="QLabel" name="allowed_filters_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(138, 222, 187);</string>
                 </property>
@@ -4707,7 +4539,7 @@ text-decoration: underline;</string>
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_36">
+               <widget class="QGroupBox" name="genre_filters_frame">
                 <property name="palette">
                  <palette>
                   <active>
@@ -4813,7 +4645,7 @@ text-decoration: underline;</string>
                 </property>
                 <layout class="QGridLayout" name="gridLayout_6">
                  <item row="2" column="0" colspan="2">
-                  <widget class="QGroupBox" name="groupBox_43">
+                  <widget class="QGroupBox" name="classical_genres_box">
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(190, 236, 219);</string>
                    </property>
@@ -4887,7 +4719,7 @@ text-decoration: underline;</string>
                   </widget>
                  </item>
                  <item row="3" column="0" colspan="2">
-                  <widget class="QGroupBox" name="groupBox_44">
+                  <widget class="QGroupBox" name="general_genres_box">
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(190, 236, 219);</string>
                    </property>
@@ -4977,7 +4809,7 @@ text-decoration: underline;</string>
             </widget>
            </item>
            <item row="3" column="0">
-            <widget class="QFrame" name="frame_31">
+            <widget class="QFrame" name="source_of_genres_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -4988,20 +4820,11 @@ text-decoration: underline;</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_105">
+               <widget class="QLabel" name="source_of_genres_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(138, 222, 187);</string>
                 </property>
@@ -5011,7 +4834,7 @@ text-decoration: underline;</string>
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_37">
+               <widget class="QGroupBox" name="source_of_genres_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -5154,7 +4977,7 @@ text-decoration: underline;</string>
             </widget>
            </item>
            <item row="7" column="0">
-            <widget class="QFrame" name="frame_36">
+            <widget class="QFrame" name="periods_dates_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -5165,16 +4988,7 @@ text-decoration: underline;</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
@@ -5188,7 +5002,7 @@ text-decoration: underline;</string>
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_41">
+               <widget class="QGroupBox" name="periods_dates_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -5291,7 +5105,7 @@ text-decoration: underline;</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_32">
                  <item>
-                  <widget class="QGroupBox" name="groupBox_48">
+                  <widget class="QGroupBox" name="dates_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -5394,7 +5208,7 @@ text-decoration: underline;</string>
                    </property>
                    <layout class="QGridLayout" name="gridLayout_10">
                     <item row="1" column="0" colspan="3">
-                     <widget class="QGroupBox" name="groupBox_42">
+                     <widget class="QGroupBox" name="dates_box_inner">
                       <property name="title">
                        <string>Source of work dates for above tag</string>
                       </property>
@@ -5489,7 +5303,7 @@ text-decoration: underline;</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_49">
+                  <widget class="QGroupBox" name="periods_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -5646,7 +5460,7 @@ text-decoration: underline;</string>
                      </widget>
                     </item>
                     <item row="5" column="2">
-                     <widget class="QLabel" name="label_87">
+                     <widget class="QLabel" name="period_map_annotation_label">
                       <property name="text">
                        <string> (Period name, Start year, End year; Period name2, ... etc.) - periods may overlap [Do not use commas or semi-colons within period name]</string>
                       </property>
@@ -5706,7 +5520,7 @@ text-decoration: underline;</string>
             <x>0</x>
             <y>0</y>
             <width>1084</width>
-            <height>885</height>
+            <height>917</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_33">
@@ -5721,7 +5535,7 @@ text-decoration: underline;</string>
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_22">
+            <widget class="QFrame" name="initial_tag_processing_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -5732,16 +5546,7 @@ text-decoration: underline;</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
@@ -5756,7 +5561,7 @@ text-decoration: underline;</string>
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_11">
+               <widget class="QGroupBox" name="initial_tag_processing_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -5862,7 +5667,7 @@ text-decoration: underline;</string>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_17">
                  <item>
-                  <widget class="QGroupBox" name="artist_tags">
+                  <widget class="QGroupBox" name="tags_to_blank">
                    <property name="palette">
                     <palette>
                      <active>
@@ -6040,7 +5845,7 @@ text-decoration: underline;</string>
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_24">
+            <widget class="QFrame" name="tagmap_details_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -6051,16 +5856,7 @@ text-decoration: underline;</string>
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
@@ -6074,7 +5870,7 @@ text-decoration: underline;</string>
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="artist_tags_2">
+               <widget class="QGroupBox" name="tagmap_details_box">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                   <horstretch>0</horstretch>
@@ -6231,16 +6027,7 @@ p, li { white-space: pre-wrap; }
                     <property name="sizeConstraint">
                      <enum>QLayout::SetDefaultConstraint</enum>
                     </property>
-                    <property name="leftMargin">
-                     <number>1</number>
-                    </property>
-                    <property name="topMargin">
-                     <number>1</number>
-                    </property>
-                    <property name="rightMargin">
-                     <number>1</number>
-                    </property>
-                    <property name="bottomMargin">
+                    <property name="margin">
                      <number>1</number>
                     </property>
                     <item>
@@ -6439,16 +6226,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -6622,16 +6400,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -6805,16 +6574,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -6988,16 +6748,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -7171,16 +6922,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -7354,16 +7096,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -7537,16 +7270,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -7720,16 +7444,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -7903,16 +7618,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -8086,16 +7792,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -8269,16 +7966,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -8452,16 +8140,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -8635,16 +8314,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -8818,16 +8488,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -9001,16 +8662,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -9184,16 +8836,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -9287,14 +8930,14 @@ p, li { white-space: pre-wrap; }
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-33</y>
+            <y>0</y>
             <width>1084</width>
-            <height>1408</height>
+            <height>1416</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_18">
            <item>
-            <widget class="QFrame" name="frame_37">
+            <widget class="QFrame" name="advanced_general_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -9305,16 +8948,7 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
@@ -9328,7 +8962,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_3">
+               <widget class="QGroupBox" name="advanced_general_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -9444,7 +9078,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_38">
+            <widget class="QFrame" name="advanced_artists_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -9455,20 +9089,11 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_111">
+               <widget class="QLabel" name="advanced_artists_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(208, 208, 156);</string>
                 </property>
@@ -9478,7 +9103,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="advanced_artists">
+               <widget class="QGroupBox" name="advanced_artists_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -9587,14 +9212,14 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_20">
                  <item>
-                  <widget class="QLabel" name="label_112">
+                  <widget class="QLabel" name="ensemble_strings_label">
                    <property name="text">
                     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Ensemble strings&lt;/span&gt; (separate names by commas)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                    </property>
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="run_options_2">
+                  <widget class="QGroupBox" name="ensemble_strings_box">
                    <property name="title">
                     <string/>
                    </property>
@@ -9602,16 +9227,7 @@ p, li { white-space: pre-wrap; }
                     <property name="spacing">
                      <number>2</number>
                     </property>
-                    <property name="leftMargin">
-                     <number>9</number>
-                    </property>
-                    <property name="topMargin">
-                     <number>9</number>
-                    </property>
-                    <property name="rightMargin">
-                     <number>9</number>
-                    </property>
-                    <property name="bottomMargin">
+                    <property name="margin">
                      <number>9</number>
                     </property>
                     <item>
@@ -9666,7 +9282,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_39">
+            <widget class="QFrame" name="advanced_workparts_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -9677,20 +9293,11 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_113">
+               <widget class="QLabel" name="advanced_workparts_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(208, 208, 156);</string>
                 </property>
@@ -9700,7 +9307,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="advanced_works">
+               <widget class="QGroupBox" name="advanced_workparts_box">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -9813,16 +9420,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -9867,16 +9465,7 @@ p, li { white-space: pre-wrap; }
                    <property name="spacing">
                     <number>6</number>
                    </property>
-                   <property name="leftMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="topMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="rightMargin">
-                    <number>0</number>
-                   </property>
-                   <property name="bottomMargin">
+                   <property name="margin">
                     <number>0</number>
                    </property>
                    <item>
@@ -9908,7 +9497,7 @@ p, li { white-space: pre-wrap; }
                   </layout>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_51">
+                  <widget class="QGroupBox" name="parent_child_text_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -10022,16 +9611,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -10079,7 +9659,7 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="run_options_3a">
+                  <widget class="QGroupBox" name="title_metadata_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -10196,16 +9776,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -10244,16 +9815,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -10292,16 +9854,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -10337,16 +9890,7 @@ p, li { white-space: pre-wrap; }
                       <property name="spacing">
                        <number>6</number>
                       </property>
-                      <property name="leftMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="topMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="rightMargin">
-                       <number>0</number>
-                      </property>
-                      <property name="bottomMargin">
+                      <property name="margin">
                        <number>0</number>
                       </property>
                       <item>
@@ -10479,7 +10023,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_40">
+            <widget class="QFrame" name="advanced_genres_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -10490,20 +10034,11 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
-               <widget class="QLabel" name="label_116">
+               <widget class="QLabel" name="advanced_genres_label">
                 <property name="styleSheet">
                  <string notr="true">background-color: rgb(208, 208, 156);</string>
                 </property>
@@ -10513,7 +10048,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_46">
+               <widget class="QGroupBox" name="advanced_genres_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -10657,7 +10192,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_41">
+            <widget class="QFrame" name="logging_frame">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -10668,16 +10203,7 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
@@ -10691,7 +10217,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_6">
+               <widget class="QGroupBox" name="logging_box">
                 <property name="palette">
                  <palette>
                   <active>
@@ -10821,7 +10347,7 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_50">
+                  <widget class="QGroupBox" name="custom_logging_box">
                    <property name="styleSheet">
                     <string notr="true">background-color: rgb(229, 229, 159);</string>
                    </property>
@@ -10853,7 +10379,7 @@ p, li { white-space: pre-wrap; }
             </widget>
            </item>
            <item>
-            <widget class="QFrame" name="frame_42">
+            <widget class="QFrame" name="special_tags_frame_outer">
              <property name="frameShape">
               <enum>QFrame::StyledPanel</enum>
              </property>
@@ -10864,16 +10390,7 @@ p, li { white-space: pre-wrap; }
               <property name="spacing">
                <number>0</number>
               </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
+              <property name="margin">
                <number>0</number>
               </property>
               <item>
@@ -10887,7 +10404,7 @@ p, li { white-space: pre-wrap; }
                </widget>
               </item>
               <item>
-               <widget class="QFrame" name="frame_6">
+               <widget class="QFrame" name="special_tags_frame_inner">
                 <property name="palette">
                  <palette>
                   <active>
@@ -10993,7 +10510,7 @@ p, li { white-space: pre-wrap; }
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_16">
                  <item>
-                  <widget class="QGroupBox" name="groupBox_33">
+                  <widget class="QGroupBox" name="save_options_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -11156,7 +10673,7 @@ p, li { white-space: pre-wrap; }
                   </widget>
                  </item>
                  <item>
-                  <widget class="QGroupBox" name="groupBox_10">
+                  <widget class="QGroupBox" name="override_box">
                    <property name="palette">
                     <palette>
                      <active>
@@ -11464,32 +10981,16 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>cea_ra_use</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox_30</receiver>
+   <receiver>ra_replace_merge_options_box</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>368</x>
-     <y>552</y>
+     <y>483</y>
     </hint>
     <hint type="destinationlabel">
      <x>621</x>
-     <y>526</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>use_cea</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBox_29</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>107</x>
-     <y>73</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>77</x>
-     <y>499</y>
+     <y>457</y>
     </hint>
    </hints>
   </connection>
@@ -11501,27 +11002,27 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>631</x>
-     <y>536</y>
+     <y>467</y>
     </hint>
     <hint type="destinationlabel">
      <x>631</x>
-     <y>559</y>
+     <y>490</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>use_cea</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox_31</receiver>
+   <receiver>lyrics_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>138</x>
-     <y>75</y>
+     <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
-     <y>938</y>
+     <x>562</x>
+     <y>933</y>
     </hint>
    </hints>
   </connection>
@@ -11544,16 +11045,16 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>cea_split_lyrics</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox_32</receiver>
+   <receiver>lyrics_and_notes_tags_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>139</x>
-     <y>1016</y>
+     <y>947</y>
     </hint>
     <hint type="destinationlabel">
      <x>364</x>
-     <y>962</y>
+     <y>893</y>
     </hint>
    </hints>
   </connection>
@@ -11576,44 +11077,28 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>use_cea</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox_5</receiver>
+   <receiver>other_artist_options_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>138</x>
-     <y>75</y>
+     <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>128</x>
-     <y>639</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>use_cea</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>artist_tags</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>75</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>129</x>
-     <y>99</y>
+     <x>562</x>
+     <y>682</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>cea_arrangers</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox_9</receiver>
+   <receiver>annotations_lh_box</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>149</x>
-     <y>680</y>
+     <y>611</y>
     </hint>
     <hint type="destinationlabel">
      <x>468</x>
@@ -11624,12 +11109,12 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>cea_arrangers</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox_28</receiver>
+   <receiver>annotations_rh_box</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>149</x>
-     <y>680</y>
+     <y>611</y>
     </hint>
     <hint type="destinationlabel">
      <x>830</x>
@@ -11792,8 +11277,8 @@ p, li { white-space: pre-wrap; }
      <y>691</y>
     </hint>
     <hint type="destinationlabel">
-     <x>191</x>
-     <y>692</y>
+     <x>298</x>
+     <y>710</y>
     </hint>
    </hints>
   </connection>
@@ -11804,12 +11289,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>719</y>
+     <x>119</x>
+     <y>742</y>
     </hint>
     <hint type="destinationlabel">
-     <x>191</x>
-     <y>720</y>
+     <x>298</x>
+     <y>740</y>
     </hint>
    </hints>
   </connection>
@@ -11820,12 +11305,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>747</y>
+     <x>119</x>
+     <y>772</y>
     </hint>
     <hint type="destinationlabel">
-     <x>191</x>
-     <y>748</y>
+     <x>298</x>
+     <y>770</y>
     </hint>
    </hints>
   </connection>
@@ -11836,12 +11321,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>775</y>
+     <x>119</x>
+     <y>802</y>
     </hint>
     <hint type="destinationlabel">
-     <x>191</x>
-     <y>776</y>
+     <x>298</x>
+     <y>800</y>
     </hint>
    </hints>
   </connection>
@@ -11852,12 +11337,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>803</y>
+     <x>119</x>
+     <y>832</y>
     </hint>
     <hint type="destinationlabel">
-     <x>191</x>
-     <y>804</y>
+     <x>298</x>
+     <y>830</y>
     </hint>
    </hints>
   </connection>
@@ -11868,12 +11353,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>831</y>
+     <x>119</x>
+     <y>862</y>
     </hint>
     <hint type="destinationlabel">
-     <x>191</x>
-     <y>832</y>
+     <x>298</x>
+     <y>860</y>
     </hint>
    </hints>
   </connection>
@@ -11884,35 +11369,35 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>116</x>
-     <y>859</y>
+     <x>119</x>
+     <y>892</y>
     </hint>
     <hint type="destinationlabel">
-     <x>191</x>
-     <y>860</y>
+     <x>298</x>
+     <y>890</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>use_cea</sender>
    <signal>toggled(bool)</signal>
-   <receiver>advanced_artists</receiver>
+   <receiver>advanced_artists_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>138</x>
-     <y>75</y>
+     <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>137</y>
+     <x>562</x>
+     <y>199</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>use_cwp</sender>
    <signal>toggled(bool)</signal>
-   <receiver>advanced_works</receiver>
+   <receiver>advanced_workparts_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -11920,20 +11405,20 @@ p, li { white-space: pre-wrap; }
      <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>326</y>
+     <x>562</x>
+     <y>692</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>use_cea</sender>
    <signal>toggled(bool)</signal>
-   <receiver>frame_23</receiver>
+   <receiver>naming_options_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>138</x>
-     <y>75</y>
+     <y>6</y>
     </hint>
     <hint type="destinationlabel">
      <x>128</x>
@@ -11944,71 +11429,23 @@ p, li { white-space: pre-wrap; }
   <connection>
    <sender>use_cea</sender>
    <signal>toggled(bool)</signal>
-   <receiver>label_93</receiver>
+   <receiver>recording_artists_options_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
      <x>138</x>
-     <y>75</y>
+     <y>6</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>133</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>use_cea</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_94</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>75</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>129</x>
-     <y>486</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>use_cea</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_95</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>75</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>129</x>
-     <y>623</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>use_cea</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_96</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>69</x>
-     <y>75</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>74</x>
-     <y>922</y>
+     <x>562</x>
+     <y>469</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>use_cwp</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Style</receiver>
+   <receiver>work_style_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -12016,31 +11453,15 @@ p, li { white-space: pre-wrap; }
      <y>63</y>
     </hint>
     <hint type="destinationlabel">
-     <x>39</x>
-     <y>122</y>
+     <x>562</x>
+     <y>158</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>use_cwp</sender>
    <signal>toggled(bool)</signal>
-   <receiver>label_99</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>112</x>
-     <y>71</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>115</x>
-     <y>103</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>use_cwp</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBox_18</receiver>
+   <receiver>work_aliases_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -12048,15 +11469,15 @@ p, li { white-space: pre-wrap; }
      <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>111</x>
-     <y>249</y>
+     <x>562</x>
+     <y>305</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>use_cwp</sender>
    <signal>toggled(bool)</signal>
-   <receiver>label_100</receiver>
+   <receiver>works_parts_tags_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -12064,15 +11485,15 @@ p, li { white-space: pre-wrap; }
      <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>130</x>
-     <y>243</y>
+     <x>562</x>
+     <y>566</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>use_cwp</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Tags</receiver>
+   <receiver>songkong_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -12080,47 +11501,239 @@ p, li { white-space: pre-wrap; }
      <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>416</y>
+     <x>562</x>
+     <y>1008</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>use_cwp</sender>
+   <sender>cwp_use_muso_refdb</sender>
    <signal>toggled(bool)</signal>
-   <receiver>label_101</receiver>
-   <slot>setEnabled(bool)</slot>
+   <receiver>cwp_muso_genres</receiver>
+   <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>76</y>
+     <x>78</x>
+     <y>-373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>119</x>
-     <y>393</y>
+     <x>104</x>
+     <y>-109</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>use_cwp</sender>
+   <sender>cwp_use_muso_refdb</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox_12</receiver>
-   <slot>setEnabled(bool)</slot>
+   <receiver>cwp_muso_genres</receiver>
+   <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>76</y>
+     <x>109</x>
+     <y>-373</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>781</y>
+     <x>137</x>
+     <y>-109</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_use_muso_refdb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_muso_classical</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>150</x>
+     <y>-373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>151</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_use_muso_refdb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_muso_classical</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>169</x>
+     <y>-373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>197</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_use_muso_refdb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_muso_dates</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>573</x>
+     <y>-373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>710</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_use_muso_refdb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_muso_periods</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>573</x>
+     <y>-373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>181</x>
+     <y>810</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_use_muso_refdb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_muso_dates</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>573</x>
+     <y>-373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>594</x>
+     <y>710</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_use_muso_refdb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_muso_periods</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>573</x>
+     <y>-373</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>181</x>
+     <y>810</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_muso_genres</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_genres_classical_main</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>226</x>
+     <y>-109</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>485</x>
+     <y>-129</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_muso_classical</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_genres_arranger_as_composer</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>108</x>
+     <y>110</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>121</x>
+     <y>133</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_muso_dates</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_periods_arranger_as_composer</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>98</x>
+     <y>710</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>108</x>
+     <y>733</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_muso_periods</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_period_map</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>175</x>
+     <y>810</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>542</x>
+     <y>756</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_muso_periods</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>period_map_annotation_label</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>118</x>
+     <y>810</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>545</x>
+     <y>833</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_genres_filter</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>genre_filters_frame</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>41</x>
+     <y>-207</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>38</x>
+     <y>-182</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>use_cwp</sender>
    <signal>toggled(bool)</signal>
-   <receiver>frame_29</receiver>
+   <receiver>partial_arrangements_medleys_frame</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -12134,290 +11747,18 @@ p, li { white-space: pre-wrap; }
    </hints>
   </connection>
   <connection>
-   <sender>use_cwp</sender>
+   <sender>cwp_titles</sender>
    <signal>toggled(bool)</signal>
-   <receiver>groupBox_17</receiver>
-   <slot>setEnabled(bool)</slot>
+   <receiver>source_of_canonical_box</receiver>
+   <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>76</y>
+     <x>135</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
-     <x>129</x>
-     <y>1012</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>use_cwp</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_103</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>139</x>
-     <y>76</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>130</x>
-     <y>996</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>use_cea</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_111</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>138</x>
-     <y>75</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>130</x>
-     <y>121</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>use_cwp</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_113</receiver>
-   <slot>setEnabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>139</x>
-     <y>76</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>130</x>
-     <y>310</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_genres</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>78</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>104</x>
-     <y>347</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_genres</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>109</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>137</x>
-     <y>347</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_classical</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>150</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>151</x>
-     <y>566</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_classical</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>169</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>197</x>
-     <y>566</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_dates</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>573</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>594</x>
-     <y>1166</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_periods</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>573</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>181</x>
-     <y>1266</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_dates</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>573</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>594</x>
-     <y>1166</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_periods</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>573</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>181</x>
-     <y>1266</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_muso_genres</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_genres_classical_main</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>226</x>
-     <y>347</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>485</x>
-     <y>327</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_muso_classical</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_genres_arranger_as_composer</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>108</x>
-     <y>566</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>121</x>
-     <y>589</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_muso_dates</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_periods_arranger_as_composer</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>98</x>
-     <y>1166</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>108</x>
-     <y>1189</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_muso_periods</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_period_map</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>175</x>
-     <y>1266</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>542</x>
-     <y>1212</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_muso_periods</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>label_87</receiver>
-   <slot>setHidden(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>118</x>
-     <y>1266</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>545</x>
-     <y>1289</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_genres_filter</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>groupBox_36</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>41</x>
-     <y>249</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>38</x>
-     <y>274</y>
+     <x>582</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>
