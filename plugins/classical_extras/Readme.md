@@ -40,7 +40,7 @@ After installation, go to the Options Page and modify choices as required. There
 ## Artists tab
 There are five coloured sections as shown in the screen image below:
 
-![Artist options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/artists/)
+![Artist options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/artists/xx)
 
 1. "Create extra artist metadata" should be selected otherwise this section will not run. This is the default.
 
@@ -133,7 +133,7 @@ There are five coloured sections as shown in the screen image below:
 
 There six coloured sections as shown in the screen print below:
 
-![Works and parts options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/work-parts/)
+![Works and parts options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/work-parts/xx)
 
 1. "Include all work levels" should be selected otherwise this section will not run. This is the default.
 
@@ -148,7 +148,7 @@ There six coloured sections as shown in the screen print below:
       - "Use only metadata from canonical works". The names from the hierarchy in the MB database will be used. Assuming the work is correctly entered in MB, this should provide all the data. However the text may differ from the track titles and will be the same for all recordings. It may also be in the language of the composer whereas the titles will probably be in the language of the release. (This language issue can also be addressed by using aliases - see below).
       - "Use canonical work metadata enhanced with title text". This supplements the canonical data with text from the titles **where it is significantly different**. The supplementary title data will be in curly brackets. This is clearly the most complete metadata style of the three but may lead to long descriptions. It is particularly useful for providing translations - see image below for an example (using the Muso library manager). In this example, title text that is similar to that in the canonical text has been eliminated to make the text shorter - the mannr of doing this is controlled by settings on the Advanced tab.
 
-      ![Respighi](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/respighi/)
+      ![Respighi](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/respighi/xx)
 
     * **Source of canonical work text**. Where either of the second two options above are chosen, there is a further choice to be made:
       - "Full MusicBrainz work hierarchy". The names of each level of work are used to populate the relevant tags. E.g. if ""Concert Fantasy for Piano and Orchestra, op. 56: I. Quasi Rondo" (level 0) is part of "Concert Fantasia, op. 56" (level 1) then that is how they will appear, since there is no repetition of text between parent and child. So, while accurate, this option might sometimes be rather verbose.
@@ -213,7 +213,7 @@ There six coloured sections as shown in the screen print below:
 
 This section is dependent on both the artists and workparts sections. If either of those sections are not run then this section will not operate correctly. At the very top of the tab is a checkbox "Use Muso reference database...". For [Muso](http://klarita.net/muso.html) users, selecting this enables you to use reference data for genres, composers and periods which have been entered in Muso's "Options->Classical Music" section. Regardless as to whether this is selected, there are then three main coloured sections, each with a number of subsections. The details in each section differ depending on whether the "Muso" option is selected.  The screen print below shows the options assuming it is not selected (differences occurring when "Muso" is selected are discussed later):
 
-![Genres etc.](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-plain/)
+![Genres etc.](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-plain/xx)
 
 1. "Genres". Two separate tags may be used to store genre information, a main genre tage (usually just "genre") and a sub-genre tag. These need to be specified at the top of the section. If either is left blank then the related processing will not run.
 
@@ -265,7 +265,7 @@ This section is dependent on both the artists and workparts sections. If either 
 
 Users of [Muso](http://klarita.net/muso.html) have additional capabilities, illustrated in the following screen, which appear when the option "Use Muso reference database ..." is selected at the top of the tab.
 
-![Genres etc. - Muso](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-muso/)
+![Genres etc. - Muso](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/genres-muso/xx)
 
 For these options to work, the path/name of the Muso reference database needs to be specified on the advanced tab. The default path is "C:\\Users\\Public\\Music\\muso\\database" and the default filename is "Reference.xml". The additional options are as follows.
 
@@ -298,7 +298,7 @@ Note that non-Muso users may also use this functionality, if they wish, by manua
 ## Tag mapping tab
 There are two coloured sections as shown in the screen image below:
 
-![Tag mapping options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/tag-mapping/)
+![Tag mapping options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/tag-mapping/xx)
 
 Note that either the "Create extra artist metadata" option on the Artist tab or "Include all work levels" on the Works tab needs to be selected for these sections to run.
 
@@ -366,7 +366,7 @@ Note that either the "Create extra artist metadata" option on the Artist tab or 
 
 Hopefully, this tab should not be much used. In any case, it should not need to be changed frequently. There are seven sections as shown in the sceeen print below:
 
-![Advanced options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/advanced/)
+![Advanced options](https://highmossergate.co.uk/digitalsymphony/classical-extras-screenshots/advanced/xx)
 
 1. "General". There is only one checkbox - "Do not run Classical Extras for tracks where no pre-existing file is detected (warning tag will be written)". This option will disable Classical Extras processing if no file is present; this means (for example) that single discs from box sets can be loaded without incurring the additional processing overhead (work look-ups etc.) for all the other discs. Also if a compilation album is loaded, where the tracks are on multiple releases, the plugin will only process the release tracks which match. If a file is present but it does not yet have a MusicBrainz trackid tag, then it will initially be treated in the same way as a non-existent file; however, after the initial loading it will (if matched by Picard) be given a MB trackid and "refreshing" the release will result in any such tracks being processed by Classical Extras, while the unmatched tracks are left untouched.
 
