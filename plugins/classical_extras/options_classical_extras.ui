@@ -57,7 +57,7 @@
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -1863,7 +1863,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-168</y>
             <width>1084</width>
             <height>1022</height>
            </rect>
@@ -4507,6 +4507,12 @@ text-decoration: underline;</string>
              </property>
              <property name="frameShadow">
               <enum>QFrame::Raised</enum>
+             </property>
+             <property name="lineWidth">
+              <number>1</number>
+             </property>
+             <property name="midLineWidth">
+              <number>0</number>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_50">
               <property name="spacing">
@@ -11514,11 +11520,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>78</x>
-     <y>-373</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>104</x>
-     <y>-109</y>
+     <y>347</y>
     </hint>
    </hints>
   </connection>
@@ -11530,11 +11536,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>109</x>
-     <y>-373</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>137</x>
-     <y>-109</y>
+     <y>347</y>
     </hint>
    </hints>
   </connection>
@@ -11546,11 +11552,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>150</x>
-     <y>-373</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>151</x>
-     <y>110</y>
+     <y>566</y>
     </hint>
    </hints>
   </connection>
@@ -11562,11 +11568,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>169</x>
-     <y>-373</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>197</x>
-     <y>110</y>
+     <y>566</y>
     </hint>
    </hints>
   </connection>
@@ -11578,11 +11584,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>573</x>
-     <y>-373</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>594</x>
-     <y>710</y>
+     <y>1166</y>
     </hint>
    </hints>
   </connection>
@@ -11594,11 +11600,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>573</x>
-     <y>-373</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>181</x>
-     <y>810</y>
+     <y>1266</y>
     </hint>
    </hints>
   </connection>
@@ -11610,11 +11616,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>573</x>
-     <y>-373</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>594</x>
-     <y>710</y>
+     <y>1166</y>
     </hint>
    </hints>
   </connection>
@@ -11626,11 +11632,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>573</x>
-     <y>-373</y>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>181</x>
-     <y>810</y>
+     <y>1266</y>
     </hint>
    </hints>
   </connection>
@@ -11642,11 +11648,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>226</x>
-     <y>-109</y>
+     <y>347</y>
     </hint>
     <hint type="destinationlabel">
      <x>485</x>
-     <y>-129</y>
+     <y>327</y>
     </hint>
    </hints>
   </connection>
@@ -11658,11 +11664,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>108</x>
-     <y>110</y>
+     <y>566</y>
     </hint>
     <hint type="destinationlabel">
      <x>121</x>
-     <y>133</y>
+     <y>589</y>
     </hint>
    </hints>
   </connection>
@@ -11674,11 +11680,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>98</x>
-     <y>710</y>
+     <y>1166</y>
     </hint>
     <hint type="destinationlabel">
      <x>108</x>
-     <y>733</y>
+     <y>1189</y>
     </hint>
    </hints>
   </connection>
@@ -11690,11 +11696,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>175</x>
-     <y>810</y>
+     <y>1266</y>
     </hint>
     <hint type="destinationlabel">
      <x>542</x>
-     <y>756</y>
+     <y>1212</y>
     </hint>
    </hints>
   </connection>
@@ -11706,11 +11712,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>118</x>
-     <y>810</y>
+     <y>1266</y>
     </hint>
     <hint type="destinationlabel">
      <x>545</x>
-     <y>833</y>
+     <y>1289</y>
     </hint>
    </hints>
   </connection>
@@ -11722,11 +11728,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>41</x>
-     <y>-207</y>
+     <y>249</y>
     </hint>
     <hint type="destinationlabel">
      <x>38</x>
-     <y>-182</y>
+     <y>274</y>
     </hint>
    </hints>
   </connection>
@@ -11759,6 +11765,38 @@ p, li { white-space: pre-wrap; }
     <hint type="destinationlabel">
      <x>582</x>
      <y>137</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_titles</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>partial_arrangements_medleys_frame</receiver>
+   <slot>setHidden(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>263</x>
+     <y>150</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>562</x>
+     <y>864</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>use_cache</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_use_sk</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>918</x>
+     <y>68</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>847</y>
     </hint>
    </hints>
   </connection>

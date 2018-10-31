@@ -759,7 +759,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName("scrollArea_3")
         self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 1084, 1022))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, -168, 1084, 1022))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -1793,6 +1793,8 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.allowed_genres_frame = QtWidgets.QFrame(self.scrollAreaWidgetContents_5)
         self.allowed_genres_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.allowed_genres_frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.allowed_genres_frame.setLineWidth(1)
+        self.allowed_genres_frame.setMidLineWidth(0)
         self.allowed_genres_frame.setObjectName("allowed_genres_frame")
         self.verticalLayout_50 = QtWidgets.QVBoxLayout(self.allowed_genres_frame)
         self.verticalLayout_50.setContentsMargins(0, 0, 0, 0)
@@ -4051,7 +4053,7 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.label_8.setBuddy(self.cwp_retries)
 
         self.retranslateUi(ClassicalExtrasOptionsPage)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(1)
         self.cea_ra_use.toggled['bool'].connect(self.ra_replace_merge_options_box.setEnabled)
         self.cea_ra_replace_ta.toggled['bool'].connect(self.cea_ra_noblank_ta.setEnabled)
         self.use_cea.toggled['bool'].connect(self.lyrics_frame.setEnabled)
@@ -4101,6 +4103,8 @@ class Ui_ClassicalExtrasOptionsPage(object):
         self.cwp_genres_filter.toggled['bool'].connect(self.genre_filters_frame.setVisible)
         self.use_cwp.toggled['bool'].connect(self.partial_arrangements_medleys_frame.setEnabled)
         self.cwp_titles.toggled['bool'].connect(self.source_of_canonical_box.setDisabled)
+        self.cwp_titles.toggled['bool'].connect(self.partial_arrangements_medleys_frame.setHidden)
+        self.use_cache.toggled['bool'].connect(self.cwp_use_sk.setEnabled)
         QtCore.QMetaObject.connectSlotsByName(ClassicalExtrasOptionsPage)
 
     def retranslateUi(self, ClassicalExtrasOptionsPage):

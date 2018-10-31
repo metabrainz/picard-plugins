@@ -8462,6 +8462,10 @@ class PartLevels():
         if isinstance(work, list):
             result = []
             for w, work_item in enumerate(work):
+                if workId and isinstance(workId, list):
+                    sub_workId = workId[w]
+                else:
+                    sub_workId = workId
                 result.append(
                     self.strip_parent_from_work(
                         track,
@@ -8471,7 +8475,7 @@ class PartLevels():
                         part_level,
                         extend,
                         parentId,
-                        workId[w])[0])
+                        sub_workId)[0])
             return result, parent
         if not isinstance(parent, str):
             # in case it is a list - make sure it is a string
