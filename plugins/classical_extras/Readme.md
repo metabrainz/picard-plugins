@@ -231,21 +231,19 @@ This section is dependent on both the artists and workparts sections. If either 
 	
 	* **Allowed genres**
 	A check-box (ticked by default) enables this section. If it is unchecked, then no genre filtering is applied - all 'candidate genres' will be written to the genre tab.  
-	Four boxes are provided for lists of genres which are "allowed" to appear in the specified tags. Each list should be comma-separated (and no commas in any genre name). Candidate genres matching those in a "main genre" box will be added to the specified main genre tag. Similarly for sub-genres. If a candidate genre matches a 'classical genre' (in one of the top two boxes), then the track will be deemed to be "Classical" (see next part for more details).
-     
-      You may also enter a genre name to be used if no matching main genre is found (otherwise the tag will be blank). 
-      
-     * **"Classical" genre**
+	Four boxes are provided for lists of genres which are "allowed" to appear in the specified tags. Each list should be comma-separated (and no commas in any genre name). Candidate genres matching those in a "main genre" box will be added to the specified main genre tag. Similarly for sub-genres. If a candidate genre matches a 'classical genre' (in one of the top two boxes), then the track will be deemed to be "Classical" (see next part for more details).  
+You may also enter a genre name to be used if no matching main genre is found (otherwise the tag will be blank). 
+
+    * **"Classical" genre**
      Normally (i.e. by default) a work will only be deemed to be 'classical' if it is inferred from the MusicBrainz style (see "source of genres") or if a candidate genre matches a "Classical" genre or sub-genre list. However, you may select that all tracks are 'classical' regardless. There is also an option to exclude the word "Classical" from any genre tag, but still treat the work as classical. If a work is deemed to be classical, a tag may be written with a specified value as set out in the last two boxes of this section. For example, to be consistent with SonKong/Jaikoz, you could set "is\_classical" to "1".  
-     
+  
 2. "Instruments and keys".
     * **Instruments**
     Specify the tag name you wish instrument names to appear in. Instruments will be sourced from performer relationships. Instrument names may either be the standard MusicBrainz names or the "credited as" names in the performer relationship, or both. Vocal types are treated similarly to instruments. (Note that, in v0.9.1 and prior, instruments were written to the same tag as inferred genres. If you wish to continue this, then you may use the same tag name here as for the genre tag.)
     
     * **Keys**
-    Specify the tag name in which you wish the key signatures of works to appear. Keys will be obtained from all work levels (assuming these have been looked up): for example, Dvořák's Largo From the New World will be shown as D♭ major, C# minor (the main keys of the movement) and E minor (the home key of the overall work).
-    
-    "Include key(s) in work names" gives the option to include the key signature for a work in brackets after the name of the work in the metadata. Keys will be added in the appropriate levels: e.g. Dvořák's New World Symphony will get (E minor) at the work level, but only movements with different keys will be annotated viz. "II. Largo (D-flat major, C-Sharp minor)". The default sub-option is to only add these details if the key signature is missing from the work title (other sub-options are to never or to always include the information.  
+    Specify the tag name in which you wish the key signatures of works to appear. Keys will be obtained from all work levels (assuming these have been looked up): for example, Dvořák's Largo From the New World will be shown as D♭ major, C# minor (the main keys of the movement) and E minor (the home key of the overall work).  
+"Include key(s) in work names" gives the option to include the key signature for a work in brackets after the name of the work in the metadata. Keys will be added in the appropriate levels: e.g. Dvořák's New World Symphony will get (E minor) at the work level, but only movements with different keys will be annotated viz. "II. Largo (D-flat major, C-Sharp minor)". The default sub-option is to only add these details if the key signature is missing from the work title (other sub-options are to never or to always include the information.  
     
 3. "Periods and dates".
 
