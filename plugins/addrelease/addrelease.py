@@ -121,6 +121,41 @@ class AddClusterAsRelease(AddObjectAsEntity):
         self.discnumber_shift = -1
 
     def extract_discnumber(self, metadata):
+        """
+        >>> from picard.metadata import Metadata
+        >>> m = Metadata()
+        >>> AddClusterAsRelease().extract_discnumber(m)
+        0
+        >>> m["discnumber"] = "boop"
+        >>> AddClusterAsRelease().extract_discnumber(m)
+        0
+        >>> m["discnumber"] = "1"
+        >>> AddClusterAsRelease().extract_discnumber(m)
+        0
+        >>> m["discnumber"] = 1
+        >>> AddClusterAsRelease().extract_discnumber(m)
+        0
+        >>> m["discnumber"] = -1
+        >>> AddClusterAsRelease().extract_discnumber(m)
+        0
+        >>> m["discnumber"] = "1/1"
+        >>> AddClusterAsRelease().extract_discnumber(m)
+        0
+        >>> m["discnumber"] = "2/2"
+        >>> AddClusterAsRelease().extract_discnumber(m)
+        1
+        >>> a = AddClusterAsRelease()
+        >>> m["discnumber"] = "-2/2"
+        >>> a.extract_discnumber(m)
+        0
+        >>> m["discnumber"] = "-1/4"
+        >>> a.extract_discnumber(m)
+        1
+        >>> m["discnumber"] = "1/4"
+        >>> a.extract_discnumber(m)
+        3
+
+        """
         # As per https://musicbrainz.org/doc/Development/Release_Editor_Seeding#Tracklists_data
         # the medium numbers ("m") must be starting with 0.
         # Maybe the existing tags don't have disc numbers in them or
@@ -209,3 +244,7 @@ class AddFileAsRelease(AddObjectAsEntity):
 register_cluster_action(AddClusterAsRelease())
 register_file_action(AddFileAsRecording())
 register_file_action(AddFileAsRelease())
+
+if __name__ == "__main__":
+    import doctest
+    doctest.testmod()
