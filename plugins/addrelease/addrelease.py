@@ -9,7 +9,7 @@ PLUGIN_DESCRIPTION = "Adds a plugin context menu option to clusters and single\
 PLUGIN_VERSION = "0.7.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 
-from picard import config
+from picard import config, log
 from picard.cluster import Cluster
 from picard.const import MUSICBRAINZ_SERVERS
 from picard.file import File
@@ -116,38 +116,47 @@ class AddClusterAsRelease(AddObjectAsEntity):
     objtype = Cluster
     submit_path = '/release/add'
 
+    def __init__(self):
+        super().__init__()
+        self.discnumber_shift = -1
+
+    def extract_discnumber(self, metadata):
+        # As per https://musicbrainz.org/doc/Development/Release_Editor_Seeding#Tracklists_data
+        # the medium numbers ("m") must be starting with 0.
+        # Maybe the existing tags don't have disc numbers in them or
+        # they're starting with something smaller than or equal to 0, so try
+        # to produce a sane disc number.
+        try:
+            discnumber = metadata.get("discnumber", "1")
+            m = int(discnumber)
+            if m <= 0:
+                # A disc number was smaller than or equal to 0 - all other
+                # disc numbers need to be changed to accommodate that.
+                self.discnumber_shift = max(self.discnumber_shift, 0 - m)
+            m = m + self.discnumber_shift
+        except Exception as e:
+            # The most likely reason for an exception at this point is a
+            # ValueError because the disc number in the tags was not a
+            # number. Just log the exception and assume the medium number
+            # is 0.
+            log.info("Trying to get the disc number of %s caused the following error: %s; assuming 0",
+                     metadata["~filename"], e)
+            m = 0
+        return m
+
     def set_form_values(self, cluster):
         nv = self.add_form_value
 
         nv("artist_credit.names.0.artist.name", cluster.metadata["albumartist"])
         nv("name", cluster.metadata["album"])
 
-        discnumber_shift = -1
         for i, file in enumerate(cluster.files):
             try:
                 i = int(file.metadata["tracknumber"]) - 1
             except:
                 pass
-            # As per https://musicbrainz.org/doc/Development/Release_Editor_Seeding#Tracklists_data
-            # the medium numbers ("m") must be starting with 0.
-            # Maybe the existing tags don't have disc numbers in them or
-            # they're starting with something smaller than or equal to 0, so try
-            # to produce a sane disc number.
-            try:
-                m = int(file.metadata.get("discnumber", 1))
-                if m <= 0:
-                    # A disc number was smaller than or equal to 0 - all other
-                    # disc numbers need to be changed to accommodate that.
-                    discnumber_shift = max(discnumber_shift, 0 - m)
-                m = m + discnumber_shift
-            except Exception as e:
-                # The most likely reason for an exception at this point is a
-                # ValueError because the disc number in the tags was not a
-                # number. Just log the exception and assume the medium number
-                # is 0.
-                file.log.info("Trying to get the disc number of %s caused the following error: %s; assuming 0",
-                              file.filename, e)
-                m = 0
+
+            m = self.extract_discnumber(file.metadata)
 
             # add a track-level name-value
             def tnv(n, v):
