@@ -6,7 +6,7 @@ PLUGIN_DESCRIPTION = "Adds a plugin context menu option to clusters and single\
  files to help you quickly add them as releases or standalone recordings to\
  the MusicBrainz database via the website by pre-populating artists,\
  track names and times."
-PLUGIN_VERSION = "0.7.2"
+PLUGIN_VERSION = "0.7.3"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from picard import config, log
@@ -128,6 +128,8 @@ class AddClusterAsRelease(AddObjectAsEntity):
         # to produce a sane disc number.
         try:
             discnumber = metadata.get("discnumber", "1")
+            # Split off any totaldiscs information
+            discnumber = discnumber.split("/", 1)[0]
             m = int(discnumber)
             if m <= 0:
                 # A disc number was smaller than or equal to 0 - all other
