@@ -1,3 +1,4 @@
+import doctest
 import os
 import glob
 import json
@@ -87,6 +88,10 @@ class GenerateTestCase(unittest.TestCase):
             self.assertIsInstance(data['version'], str)
 
 
+def load_tests(loader, tests, ignore):
+    from plugins.addrelease import addrelease
+    tests.addTests(doctest.DocTestSuite(addrelease))
+    return tests
 
 
 if __name__ == '__main__':
