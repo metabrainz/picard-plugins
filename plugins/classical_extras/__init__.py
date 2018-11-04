@@ -5422,11 +5422,11 @@ class PartLevels():
         # publishing
         for track in self.tracks[album]:
             self.publish_metadata(release_id, album, track)
-        """
-        The messages below are normally commented out as they get VERY long if there are a lot of albums loaded
-        For extreme debugging, remove the comments and just run one or a few albums
-        Do not forget to comment out again.
-        """
+        # #
+        # The messages below are normally commented out as they get VERY long if there are a lot of albums loaded
+        # For extreme debugging, remove the comments and just run one or a few albums
+        # Do not forget to comment out again.
+        # #
         # write_log(release_id, 'info', 'Self.parts: %s', self.parts)
         # write_log(release_id, 'info', 'Self.trackback: %s', self.trackback)
 
