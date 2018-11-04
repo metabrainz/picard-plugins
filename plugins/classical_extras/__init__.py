@@ -108,7 +108,6 @@ import os
 from PyQt5.QtCore import QXmlStreamReader
 from picard.const import USER_DIR
 import operator
-from builtins import str
 import picard.plugins.classical_extras.const
 
 
