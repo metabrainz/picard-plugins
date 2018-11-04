@@ -108,6 +108,7 @@ import os
 from PyQt5.QtCore import QXmlStreamReader
 from picard.const import USER_DIR
 import operator
+import ast
 import picard.plugins.classical_extras.const
 
 
@@ -2706,7 +2707,7 @@ def interpret(tag):
     if isinstance(tag, str):
         try:
             tag = tag.strip(' \n\t')
-            return eval(tag)
+            return ast.literal_eval(tag)
         except SyntaxError:
             return tag
     else:
