@@ -5375,20 +5375,20 @@ class PartLevels():
                 self.trackback[album][topId],
                 ref_height,
                 top_info)
-            """
-                trackback is a tree in the form {album: {id: , children:{id: , children{},
-                                                                        id: etc},
-                                                        id: etc} }
-                process_trackback uses the trackback tree to derive title and level_0 based hierarchies
-                from the structure. It also returns a tuple (id, tracks), where tracks has the structure
-                {'track': [(track, height), (track, height), ...tuples...]
-                'work': [[worknames], [worknames], ...lists...]
-                'tracknumber': [num, num, ...integers...]
-                'title':  [title, title, ...strings...]}
-                each list is the same length - i.e. the number of tracks for the top work
-                there can be more than one workname for a track
-                height is the number of part levels for the related track
-            """
+            ##
+            #     trackback is a tree in the form {album: {id: , children:{id: , children{},
+            #                                                             id: etc},
+            #                                             id: etc} }
+            #     process_trackback uses the trackback tree to derive title and level_0 based hierarchies
+            #     from the structure. It also returns a tuple (id, tracks), where tracks has the structure
+            #     {'track': [(track, height), (track, height), ...tuples...]
+            #     'work': [[worknames], [worknames], ...lists...]
+            #     'tracknumber': [num, num, ...integers...]
+            #     'title':  [title, title, ...strings...]}
+            #     each list is the same length - i.e. the number of tracks for the top work
+            #     there can be more than one workname for a track
+            #     height is the number of part levels for the related track
+            ##
             if answer:
                 tracks = answer[1]['track']
                 write_log(release_id, 'info', "TRACKS: %s", tracks)
