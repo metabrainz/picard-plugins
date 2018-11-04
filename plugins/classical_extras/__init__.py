@@ -4070,13 +4070,13 @@ class PartLevels():
                 ", " + options["cwp_partial_text"] + ' '
         else:
             options["cwp_removewords_p"] = options["cwp_removewords"]
-        """ Explanation:
-        If "Partial" is selected then the level 0 work name will have PARTIAL_TEXT appended to it.
-        If a recording is split across several tracks then each sub-part (quasi-movement) will have the same name
-        (with the PARTIAL_TEXT added). If level 0 is used to source work names then the level 1 work name will be
-        changed to be this repeated name and will therefore also include PARTIAL_TEXT.
-        So we need to add PARTIAL_TEXT to the prefixes list to ensure it is excluded from the level 1 work name.
-        """
+        # Explanation:
+        # If "Partial" is selected then the level 0 work name will have PARTIAL_TEXT appended to it.
+        # If a recording is split across several tracks then each sub-part (quasi-movement) will have the same name
+        # (with the PARTIAL_TEXT added). If level 0 is used to source work names then the level 1 work name will be
+        # changed to be this repeated name and will therefore also include PARTIAL_TEXT.
+        # So we need to add PARTIAL_TEXT to the prefixes list to ensure it is excluded from the level 1 work name.
+        #
         write_log(
                 release_id,
                 'debug',
