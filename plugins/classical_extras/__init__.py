@@ -577,7 +577,7 @@ def get_references_from_file(release_id, path, filename):
         genre_dict_list = create_dict_from_ref_list(
             options, release_id, genre_list, keys, tags)
 
-    except IOError or FileNotFoundError or UnicodeDecodeError:
+    except (IOError, FileNotFoundError, UnicodeDecodeError):
         if options['cwp_muso_genres'] or options['cwp_muso_classical'] or options['cwp_muso_dates'] or options['cwp_muso_periods']:
             write_log(
                 release_id,
@@ -587,7 +587,8 @@ def get_references_from_file(release_id, path, filename):
                     path,
                     filename))
     finally:
-        return {
+        xml_file.close()
+    return {
             'composers': composer_dict_list,
             'periods': period_dict_list,
             'genres': genre_dict_list}
@@ -734,13 +735,13 @@ def get_options(release_id, album, track):
                     'warning',
                     'No trackid in track %s',
                     track)
-    """
-    Note that, on initial load, new_metadata == orig_metadata; but, after refresh, new_metadata will have
-    the same track metadata as tm (plus the file metadata as per orig_metadata), so a trackid match
-    is then possible for files that do not have musicbrainz_trackid in orig_metadata. That is why
-    new_metadata is used in the above test, rather than orig_metadata, but orig_metadata is then used below
-    to get the saved options.
-    """
+    #
+    # Note that, on initial load, new_metadata == orig_metadata; but, after refresh, new_metadata will have
+    # the same track metadata as tm (plus the file metadata as per orig_metadata), so a trackid match
+    # is then possible for files that do not have musicbrainz_trackid in orig_metadata. That is why
+    # new_metadata is used in the above test, rather than orig_metadata, but orig_metadata is then used below
+    # to get the saved options.
+    #
 
     # Find the tag with the options:-
     if track_file:
@@ -1788,8 +1789,8 @@ def longest_common_sequence(list1, list2, minstart=0, maxstart=0):
 
 
 def substart_finder(mylist, pattern):
-    for i in range(len(mylist)):
-        if mylist[i] == pattern[0] and mylist[i:i + len(pattern)] == pattern:
+    for i, list_item in enumerate(mylist):
+        if list_item == pattern[0] and mylist[i:i + len(pattern)] == pattern:
             return i
     return len(mylist)  # if nothing found
 
@@ -3309,10 +3310,6 @@ class ExtraArtists():
                 track = tup[0]
                 ref = ref_track[track]
                 if track == ref:
-                    indi = True
-                else:
-                    indi = False
-                if track == ref:
                     start = substart_finder(tup[1], common)
                     length = len(common)
                     end = min(start + length, len(tup[1]))
@@ -3338,7 +3335,7 @@ class ExtraArtists():
         write_log(release_id, 'debug', 'Ending lyrics processing')
 
         for track in self.track_listing[album]:
-            self.write_metadata(release_id, album, track)
+            self.write_metadata(release_id, options, album, track)
         self.track_listing[album] = []
         write_log(
                 release_id,
@@ -3347,7 +3344,7 @@ class ExtraArtists():
                 album)
 
 
-    def write_metadata(self, release_id, album, track):
+    def write_metadata(self, release_id, options, album, track):
         """
         Write the metadat for this track
         :param release_id:
@@ -3361,7 +3358,7 @@ class ExtraArtists():
 
         # set inferred genres before any tags are blanked
         if options['cwp_genres_infer']:
-            self.infer_genres(release_id, track, tm)
+            self.infer_genres(release_id, options, track, tm)
 
         # album
         if not options['classical_work_parts']:
@@ -3415,7 +3412,7 @@ class ExtraArtists():
                             self.cea_options)))
 
 
-    def infer_genres(self, release_id, track, tm):
+    def infer_genres(self, release_id, options, track, tm):
         """
         Infer a genre from the artist/instrument metadata
         :param release_id:
@@ -4696,7 +4693,7 @@ class PartLevels():
         if tuples:
             new_queue = []
             prev_album = None
-            for tup_num, (track, album) in enumerate(tuples):
+            for (track, album) in tuples:
                 release_id = track.metadata['musicbrainz_albumid']
                 # Note that this need to be set here as the work may cover
                 # multiple albums
@@ -6814,18 +6811,11 @@ class PartLevels():
                 # arrangement or partial annotations
                 diff = movement
             write_log(release_id, 'info', "DIFF PART - MOVT. ti =%s", diff)
-            if diff:
-                no_diff = False
-            else:
-                no_diff = True
             write_log(release_id,
                           'info',
                           'medley indicator for %s is %s',
                           tm['~cwp_workid_0'],
                           self.parts[interpret(tm['~cwp_workid_0'])]['medley'])
-            if self.parts[interpret(tm['~cwp_workid_0'])
-                          ]['medley'] and options['cwp_medley']:
-                no_diff = False
 
             if type2_medley:
                 tm['~cwp_extended_part'] = "{" + movement + "}"
@@ -7832,7 +7822,6 @@ class PartLevels():
         match = RE_KEYS.search(s)
         s_canon = s
         if match:
-            key = match.group()
             if match.group(2):
                 k2 = re.sub(
                     r'\-sharp|\u266F',
@@ -7880,7 +7869,6 @@ class PartLevels():
             regex_match = regex.search(s)
             if regex_match:
                 test_reg = regex_match.group().strip()
-                ok = test_reg
                 s_canon = s_canon.replace(test_reg, syn_subs[syn_ind])
 
         write_log(release_id, 'info', 'canonized item = %s', s_canon)
@@ -8047,10 +8035,6 @@ class PartLevels():
         matches_2 = re.finditer(
             regex_2, s_scrubbed, re.UNICODE | re.IGNORECASE)
         for match in matches_2:
-            test_b = match.group()
-            test_b1 = match.group(1)
-            test_b2 = match.group(2)
-            # The above are just for debugging in an IDE)
             if match.group(1) and match.group(1) == match.group():
                 s_test_list.append(
                     self.canonize_synonyms(
