@@ -5199,7 +5199,8 @@ class PartLevels():
         itemsFound = [workItems, artists]
         return itemsFound
 
-    def album_add_request(self, release_id, album):
+    @staticmethod
+    def album_add_request(release_id, album):
         """
         To keep track as to whether all lookups have been processed
         :param release_id: name for log file - usually =musicbrainz_albumid
@@ -5214,7 +5215,8 @@ class PartLevels():
                 "Added album request - requests: %s",
                 album._requests)
 
-    def album_remove_request(self, release_id, album):
+    @staticmethod
+    def album_remove_request(release_id, album):
         """
         To keep track as to whether all lookups have been processed
         :param release_id: name for log file - usually =musicbrainz_albumid
@@ -6309,7 +6311,8 @@ class PartLevels():
                 "Ending module %s",
                 'make_annotations')
 
-    def derive_from_title(self, release_id, track, title):
+    @staticmethod
+    def derive_from_title(release_id, track, title):
         """
         Attempt to parse title to get components
         :param release_id: name for log file - usually =musicbrainz_albumid
@@ -7783,7 +7786,9 @@ class PartLevels():
                     None)
             return None
 
-    def canonize_opus(self, release_id, track, s):
+
+    @staticmethod
+    def canonize_opus(release_id, track, s):
         """
         make opus numbers etc. into one-word items
         :param release_id:
@@ -7811,7 +7816,8 @@ class PartLevels():
         write_log(release_id, 'info', 'canonized item = %s', s_canon)
         return s_canon
 
-    def canonize_key(self, release_id, track, s):
+    @staticmethod
+    def canonize_key(release_id, track, s):
         """
         make keys into standardized one-word items
         :param release_id:
@@ -7845,7 +7851,8 @@ class PartLevels():
         write_log(release_id, 'info', 'canonized item = %s', s_canon)
         return s_canon
 
-    def canonize_synonyms(self, release_id, tuples, s):
+    @staticmethod
+    def canonize_synonyms(release_id, tuples, s):
         """
         make synonyms equal
         :param release_id:
@@ -8135,7 +8142,8 @@ class PartLevels():
         write_log(release_id, 'info', "%s: %s", text_type, synonyms)
         return synonyms
 
-    def stencil(self, release_id, matches_tuple, test_string):
+    @staticmethod
+    def stencil(release_id, matches_tuple, test_string):
         """
         Produce lists of matching items, AND the items in between, in equal length lists
         :param release_id:
