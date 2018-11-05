@@ -1671,19 +1671,15 @@ def from_roman(s):
     return result
 
 
-def turbo_lcs(release_id, multi_list, ERROR, DEBUG, INFO):
+def turbo_lcs(release_id, multi_list):
     """
     Picks the best longest common string method to use
     Works with a list of lists or a list of strings
     :param release_id:
     :param multi_list: a list of strings or a list of lists
-    :param ERROR: Boolean to indicate if log_error set
-    :param DEBUG: Boolean to indicate if log_debug set
-    :param INFO: Boolean to indicate if log_info set
     :return: longest common substring/list
     """
-    if DEBUG:
-        write_log(release_id, 'debug', 'In turbo_lcs')
+    write_log(release_id, 'debug', 'In turbo_lcs')
     if not isinstance(multi_list, list):
         return None
     list_sum = sum([len(x) for x in multi_list])
@@ -1701,24 +1697,21 @@ def turbo_lcs(release_id, multi_list, ERROR, DEBUG, INFO):
         # but it should work provided it is included in the package
         if "error" not in lcs_dict:
             if "response" in lcs_dict:
-                if DEBUG:
-                    write_log(
+                write_log(
                         release_id,
-                        'debug',
-                        'LCS returned from suffix tree algo')
+                        'info',
+                        'Longest common string was returned from suffix tree algo')
                 return lcs_dict['response']
             else:
-                if ERROR:
-                    write_log(
+                write_log(
                         release_id,
                         'error',
                         'Suffix tree failure for release %s. Error unknown. Using standard lcs algo instead',
                         release_id)
         else:
-            if DEBUG:
-                write_log(
+            write_log(
                     release_id,
-                    'debug',
+                    'error',
                     'Suffix tree failure for release %s. Error message: %s. Using standard lcs algo instead',
                     release_id,
                     lcs_dict['error'])
@@ -1733,8 +1726,7 @@ def turbo_lcs(release_id, multi_list, ERROR, DEBUG, INFO):
             lcs = longest_common_substring(
                 item, common)
             common = lcs['string']
-    if DEBUG:
-        write_log(release_id, 'debug', 'LCS returned from standard algo')
+    write_log(release_id, 'debug', 'LCS returned from standard algo')
     return common
 
 
@@ -1808,19 +1800,13 @@ def map_tags(options, release_id, album, tm):
     a given track. If, say, Artists calls it and Workparts is not done,
     then it will not execute until Workparts calls it (and vice versa).
     """
-    ERROR = options["log_error"]
-    WARNING = options["log_warning"]
-    DEBUG = options["log_debug"]
-    INFO = options["log_info"]
-    if DEBUG or INFO:
-        write_log(release_id, 'debug', 'In map_tags, checking readiness...')
+
+    write_log(release_id, 'debug', 'In map_tags, checking readiness...')
     if (options['classical_extra_artists'] and '~cea_artists_complete' not in tm) or (
             options['classical_work_parts'] and '~cea_works_complete' not in tm):
-        if INFO:
-            write_log(release_id, 'info', '...not ready')
+        write_log(release_id, 'info', '...not ready')
         return
-    if DEBUG or INFO:
-        write_log(release_id, 'debug', '... processing tag mapping')
+    write_log(release_id, 'debug', '... processing tag mapping')
 
     # blank tags
     blank_tags = options['cea_blank_tag'].split(
@@ -1970,8 +1956,7 @@ def map_tags(options, release_id, album, tm):
         candidate_genres += str_to_list(tm['~cea_work_type'])
     if '~cwp_candidate_genres' in tm:
         candidate_genres += str_to_list(tm['~cwp_candidate_genres'])
-    if INFO:
-        write_log(release_id, 'info', "Candidate genres: %r", candidate_genres)
+    write_log(release_id, 'info', "Candidate genres: %r", candidate_genres)
     untagged_genres = []
     if candidate_genres:
         main_classical_genres = [
@@ -2238,8 +2223,7 @@ def map_tags(options, release_id, album, tm):
                         for source_itemx in sourceline:
                             source_item = source_itemx.strip()
                             source_itema = source_itemx.lstrip()
-                            if INFO:
-                                write_log(
+                            write_log(
                                     release_id, 'info', "Source_item: %s", source_item)
                             if "~cea_" + source_item in tm:
                                 si = tm['~cea_' + source_item]
@@ -2259,8 +2243,7 @@ def map_tags(options, release_id, album, tm):
                         source = sourceline[0]
                     no_names_source = re.sub('(_names)$', 's', source)
                     source_sort = sort_suffix(source)
-                    if INFO:
-                        write_log(
+                    write_log(
                             release_id,
                             'info',
                             "Tag mapping: Line: %s, Source: %s, Tag: %s, no_names_source: %s, sort: %s, item %s",
@@ -2274,20 +2257,17 @@ def map_tags(options, release_id, album, tm):
                     if '~cea_' + source in tm or '~cwp_' + source in tm:
                         for prefix in ['~cea_', '~cwp_']:
                             if prefix + source in tm:
-                                if INFO:
-                                    write_log(release_id, 'info', prefix)
+                                write_log(release_id, 'info', prefix)
                                 append_tag(release_id, tm, tag,
                                            tm[prefix + source], ['; '])
                                 if sort_tags:
                                     if prefix + no_names_source + source_sort in tm:
-                                        if INFO:
-                                            write_log(
+                                        write_log(
                                                 release_id, 'info', prefix + " sort")
                                         append_tag(release_id, tm, tag + sort,
                                                    tm[prefix + no_names_source + source_sort], ['; '])
                     elif source in tm or '~' + source in tm:
-                        if INFO:
-                            write_log(release_id, 'info', "Picard")
+                        write_log(release_id, 'info', "Picard")
                         for p in ['', '~']:
                             if p + source in tm:
                                 append_tag(release_id, tm, tag,
@@ -2296,8 +2276,7 @@ def map_tags(options, release_id, album, tm):
                             if "~" + source + source_sort in tm:
                                 source = "~" + source
                             if source + source_sort in tm:
-                                if INFO:
-                                    write_log(
+                                write_log(
                                         release_id, 'info', "Picard sort")
                                 append_tag(release_id, tm, tag + sort,
                                            tm[source + source_sort], ['; ', '/ '])
@@ -2308,17 +2287,17 @@ def map_tags(options, release_id, album, tm):
                         pass
 
     # write error messages to tags
-    if ERROR and "~cea_error" in tm:
+    if options['log_error'] and "~cea_error" in tm:
         for error in str_to_list(tm['~cea_error']):
             ecode = error[0]
             append_tag(release_id, tm, '001_errors:' + ecode, error)
-    if WARNING and "~cea_warning" in tm:
+    if options['log_warning'] and "~cea_warning" in tm:
         for warning in str_to_list(tm['~cea_warning']):
             wcode = warning[0]
         append_tag(release_id, tm, '002_warnings:' + wcode, warning)
 
     # delete unwanted tags
-    if not DEBUG:
+    if not options['log_debug']:
         if '~cea_works_complete' in tm:
             del tm['~cea_works_complete']
         if '~cea_artists_complete' in tm:
@@ -2350,7 +2329,7 @@ def map_tags(options, release_id, album, tm):
                         del orig_metadata[delete_item]
                         if delete_item != '002_warnings:7':  # to avoid circularity!
                             warn.append(delete_item)
-            if warn and WARNING:
+            if warn and options['log_warning']:
                 append_tag(
                     release_id,
                     tm,
@@ -2933,8 +2912,6 @@ class ExtraArtists():
         # CONSTANTS
         self.ERROR = options["log_error"]
         self.WARNING = options["log_warning"]
-        self.DEBUG = options["log_debug"]
-        self.INFO = options["log_info"]
         self.ORCHESTRAS = options["cea_orchestras"].split(',')
         self.CHOIRS = options["cea_choirs"].split(',')
         self.GROUPS = options["cea_groups"].split(',')
@@ -3299,10 +3276,7 @@ class ExtraArtists():
                 prev = lyric_tuple[1]
             common = turbo_lcs(
                 release_id,
-                unique_lyrics,
-                self.ERROR,
-                self.DEBUG,
-                self.INFO)
+                unique_lyrics)
 
         if common:
             unique = []
@@ -4046,8 +4020,6 @@ class PartLevels():
         # CONSTANTS
         self.ERROR = options["log_error"]
         self.WARNING = options["log_warning"]
-        self.DEBUG = options["log_debug"]
-        self.INFO = options["log_info"]
         self.SEPARATORS = ['; ']
         self.EQ = "EQ_TO_BE_REVERSED"  # phrase to indicate that a synonym has been used
 
@@ -5118,7 +5090,7 @@ class PartLevels():
                                             'direction:backward',
                                             'work')
             if (
-                    'part of collection' in relation_attribute) and not options['cwp_collections'] and self.INFO:
+                    'part of collection' in relation_attribute) and not options['cwp_collections']:
                 write_log(
                     release_id,
                     'info',
@@ -6057,7 +6029,7 @@ class PartLevels():
             else:
                 tm['~cwp' + meta_str + '_work_' + str(lev)] = tm['~cwp_work_' + str(lev)]
 
-        if missing_levels > 0 and self.INFO:
+        if missing_levels > 0:
             write_log(release_id, 'info', 'lower work name is now %r', tm.getall(
                 '~cwp' + meta_str + '_work_' + str(part_level - 1)))
         # now fix the repeated work name at this level
@@ -8197,8 +8169,7 @@ class PartLevels():
         write_log(release_id, 'debug', "boiling %s", s)
         s = s.lower()
         s = replace_roman_numerals(s)
-        s = s.replace(self.EQ.lower(), '')\
-            .replace('sch', 'sh')\
+        s = s.replace('sch', 'sh')\
             .replace(u'\xdf', 'ss')\
             .replace('sz', 'ss')\
             .replace(u'\u0153', 'oe')\
