@@ -23,7 +23,7 @@ PLUGIN_DESCRIPTION = '''Uses AcousticBrainz for mood and genre.
 WARNING: Experimental plugin. All guarantees voided by use.'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "1.1"
+PLUGIN_VERSION = "1.1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
@@ -39,6 +39,11 @@ ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 50)
 
 
 def result(album, metadata, data, reply, error):
+    if error or not "highlevel" in data:
+        album._requests -= 1
+        album._finalize_loading(None)
+        return
+
     moods = []
     genres = []
     try:
@@ -60,12 +65,13 @@ def result(album, metadata, data, reply, error):
 
 
 def process_track(album, metadata, release, track):
-    album.tagger.webservice.download(
+    album.tagger.webservice.get(
         ACOUSTICBRAINZ_HOST,
         ACOUSTICBRAINZ_PORT,
         "/%s/high-level" % (metadata["musicbrainz_recordingid"]),
         partial(result, album, metadata),
-        priority=True
+        priority=True,
+        parse_response_type=None
     )
     album._requests += 1
 
