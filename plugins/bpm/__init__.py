@@ -12,7 +12,7 @@ PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums. Linux only version with dependancy on Aubio and Numpy"""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "1.2"
+PLUGIN_VERSION = "1.3"
 PLUGIN_API_VERSIONS = ["2.0"]
 # PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
@@ -128,6 +128,7 @@ class BPMOptionsPage(OptionsPage):
         self.ui = Ui_BPMOptionsPage()
         self.ui.setupUi(self)
         self.ui.slider_parameter.valueChanged.connect(self.update_parameters)
+        self.update_parameters()
 
     def load(self):
         cfg = self.config.setting
@@ -139,7 +140,7 @@ class BPMOptionsPage(OptionsPage):
 
     def update_parameters(self):
         val = self.ui.slider_parameter.value()
-        samplerate, buf_size, hop_size = [string_(v) for v in
+        samplerate, buf_size, hop_size = [str(v) for v in
                                           bpm_slider_settings[val]]
         self.ui.samplerate_value.setText(samplerate)
         self.ui.win_s_value.setText(buf_size)
