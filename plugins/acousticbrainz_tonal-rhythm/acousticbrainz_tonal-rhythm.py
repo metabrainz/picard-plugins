@@ -27,7 +27,7 @@ from the AcousticBrainz database.<br/><br/>
 '''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = '1.1'
+PLUGIN_VERSION = '1.1.1'
 PLUGIN_API_VERSIONS = ["2.0"]  # Requires support for TKEY which is in 1.4
 
 from picard import log
@@ -45,7 +45,7 @@ ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 50)
 class AcousticBrainz_Key:
 
     def get_data(self, album, track_metadata, trackXmlNode, releaseXmlNode):
-        if not musicbrainz_recordingid in track_metadata:            
+        if not musicbrainz_recordingid in track_metadata:
             log.error("%s: Error parsing response. No MusicBrainz recording id found.",
                       PLUGIN_NAME)
             return
