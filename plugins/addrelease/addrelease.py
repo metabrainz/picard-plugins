@@ -171,11 +171,10 @@ class AddClusterAsRelease(AddObjectAsEntity):
                 # disc numbers need to be changed to accommodate that.
                 self.discnumber_shift = max(self.discnumber_shift, 0 - m)
             m = m + self.discnumber_shift
-        except Exception as e:
+        except ValueError as e:
             # The most likely reason for an exception at this point is a
-            # ValueError because the disc number in the tags was not a
-            # number. Just log the exception and assume the medium number
-            # is 0.
+            # because the disc number in the tags was not a number. Just log
+            # the exception and assume the medium number is 0.
             log.info("Trying to get the disc number of %s caused the following error: %s; assuming 0",
                      metadata["~filename"], e)
             m = 0
