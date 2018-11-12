@@ -32,7 +32,11 @@ class wikidata:
         # cache, items that have been found
         # key: mbid, value: list of strings containing the genre's
         self.cache = {}
-        
+
+        # find the mb url if this exists
+        self.mb_host = config.setting["server_host"]
+        self.mb_port = config.setting["server_port"]
+
     # not used
     def process_release(self, album, metadata, release):
         self.ws = album.tagger.webservice
@@ -63,9 +67,8 @@ class wikidata:
                 genre_list = self.cache.get(item_id)
                 new_genre = set(metadata.getall("genre"))
                 new_genre.update(genre_list)
-                metadata["genre"] = list(new_genre)
-                if album._requests == 0:
-                    album._finalize_loading(None)
+                #sort the new genre list so that they don't appear as new entries (not a change) next time
+                metadata["genre"] = sorted(new_genre)
                 return
             else:
                 # pending requests are handled by adding the metadata object to a
@@ -75,27 +78,20 @@ class wikidata:
                         'WIKIDATA: request already pending, add it to the list of items to update once this has been found')
                     self.requests[item_id].append(metadata)
 
-                    album._requests += 1
-                    self.albums[item_id].append(album)
                 else:
                     self.requests[item_id] = [metadata]
                     album._requests += 1
                     self.albums[item_id] = [album]
 
                     log.debug('WIKIDATA: first request for this item')
-
                     log.info('WIKIDATA: about to call musicbrainz to look up %s ' % item_id)
-                    # find the wikidata url if this exists
-                    host = config.setting["server_host"]
-                    port = config.setting["server_port"]
 
                     path = '/ws/2/%s/%s' % (type, item_id)
                     queryargs = {"inc": "url-rels"}
-                    self.ws.get(host, port, path,
-                            partial(self.musicbrainz_release_lookup,
-                                    item_id, metadata),
-                            parse_response_type="xml", priority=False,
-                            important=False, queryargs=queryargs)
+
+                    self.ws.get(self.mb_host, self.mb_port, path, partial(self.musicbrainz_release_lookup, item_id,
+                                                                          metadata),
+                                parse_response_type="xml", priority=False, important=False, queryargs=queryargs)
 
     def musicbrainz_release_lookup(self, item_id, metadata, response, reply, error):
         found = False
@@ -129,8 +125,7 @@ class wikidata:
         with self.lock:
             for album in self.albums[item_id]:
                 album._requests -= 1
-                log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' %
-                          album._requests)
+                log.debug('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % album._requests)
                 if not album._requests:
                     self.albums[item_id].remove(album)
                     album._finalize_loading(None)
@@ -180,8 +175,7 @@ class wikidata:
 
         with self.lock:
             if len(genre_list) > 0:
-                log.info('WiKIDATA: final list of wikidata id found: %s' %
-                         genre_entries)
+                log.info('WIKIDATA: final list of wikidata id found: %s' % genre_entries)
                 log.info('WIKIDATA: final list of genre: %s' % genre_list)
 
                 log.debug('WIKIDATA: total items to update: %s ' %
@@ -189,15 +183,15 @@ class wikidata:
                 for metadata in self.requests[item_id]:
                     new_genre = set(metadata.getall("genre"))
                     new_genre.update(genre_list)
-                    metadata["genre"] = list(new_genre)
+                    #sort the new genre list so that they don't appear as new entries (not a change) next time
+                    metadata["genre"] = sorted(new_genre)
                     self.cache[item_id] = genre_list
                     log.debug('WIKIDATA: setting genre : %s ' % genre_list)
 
             else:
                 log.info('WIKIDATA: Genre not found in wikidata')
 
-            log.info('WIKIDATA: Seeing if we can finalize tags %s  ' %
-                     len(self.albums[item_id]))
+            log.info('WIKIDATA: Seeing if we can finalize tags %s  ' % len(self.albums[item_id]))
 
             for album in self.albums[item_id]:
                 album._requests -= 1
