@@ -33,23 +33,27 @@ class wikidata:
         # key: mbid, value: list of strings containing the genre's
         self.cache = {}
 
-        # find the mb url if this exists
-        self.mb_host = config.setting["server_host"]
-        self.mb_port = config.setting["server_port"]
+        # metabrainz url
+        self.mb_host = ''
+        self.mb_port = ''
+
+        # web service & logger
+        self.ws = None
+        self.log = None
 
     # not used
     def process_release(self, album, metadata, release):
         self.ws = album.tagger.webservice
         self.log = album.log
         item_id = dict.get(metadata, 'musicbrainz_releasegroupid')[0]
-        
+
         log.info('WIKIDATA: processing release group %s ' % item_id)
         self.process_request(metadata, album, item_id, type='release-group')
         for artist in dict.get(metadata, 'musicbrainz_albumartistid'):
             item_id = artist
             log.info('WIKIDATA: processing release artist %s' % item_id)
             self.process_request(metadata, album, item_id, type='artist')
-            
+
     # Main processing function
     # First see if we have already found what we need in the cache, finalize loading
     # Next see if we are already looking for the item
@@ -183,7 +187,7 @@ class wikidata:
                 for metadata in self.requests[item_id]:
                     new_genre = set(metadata.getall("genre"))
                     new_genre.update(genre_list)
-                    #sort the new genre list so that they don't appear as new entries (not a change) next time
+                    # sort the new genre list so that they don't appear as new entries (not a change) next time
                     metadata["genre"] = sorted(new_genre)
                     self.cache[item_id] = genre_list
                     log.debug('WIKIDATA: setting genre : %s ' % genre_list)
@@ -191,7 +195,7 @@ class wikidata:
             else:
                 log.info('WIKIDATA: Genre not found in wikidata')
 
-            log.info('WIKIDATA: Seeing if we can finalize tags %s  ' % len(self.albums[item_id]))
+            log.info('WIKIDATA: Seeing if we can finalize tags %d  ' % len(self.albums[item_id]))
 
             for album in self.albums[item_id]:
                 album._requests -= 1
@@ -201,6 +205,8 @@ class wikidata:
                 log.info('WIKIDATA:  TOTAL REMAINING REQUESTS %s' % album._requests)
 
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
+        self.mb_host = config.setting["server_host"]
+        self.mb_port = config.setting["server_port"]
         self.ws = album.tagger.webservice
         self.log = album.log
 
