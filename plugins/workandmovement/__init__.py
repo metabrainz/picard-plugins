@@ -28,7 +28,10 @@ PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
 import re
 
-from .roman import fromRoman, RomanError
+from .roman import (
+    fromRoman,
+    RomanError,
+)
 
 from picard import log
 from picard.metadata import register_track_metadata_processor
@@ -81,12 +84,25 @@ def is_child_work(rel):
             and rel['type'] == 'parts')
 
 
+def number_to_int(s):
+    """
+    Converts a numeric string to int. `s` can also be a Roman numeral.
+    """
+    try:
+        return int(s)
+    except ValueError:
+        try:
+            return fromRoman(s)
+        except RomanError as e:
+            raise ValueError(e)
+
+
 _re_work_title = re.compile(r'(?P<work>.*):\s+(?P<movementnumber>[IVXLCDM]+)\.\s+(?P<movement>.*)')
 def parse_work_name(title):
     return _re_work_title.search(title)
 
 
-def normalize_movement_name(work):
+def create_work_and_movement_from_title(work):
     """
     Attempts to parse work.title in the form "<Work>: <Number>. <Movement>",
     where <Number> is in Roman numerals.
@@ -94,27 +110,51 @@ def normalize_movement_name(work):
     a `parent` work if not already present.
     """
     title = work.title
-    m = parse_work_name(title)
-    if m:
-        work.title = m.group('movement')
+    match = parse_work_name(title)
+    if match:
+        work.title = match.group('movement')
         work.is_movement = True
         try:
-            number = fromRoman(m.group('movementnumber'))
-        except RomanError as e:
+            number = number_to_int(match.group('movementnumber'))
+        except ValueError as e:
             log.error(e)
             number = 0
         if not work.part_number:
             work.part_number = number
         elif work.part_number != number:
-            log.warn('Movement number mismatch for "%s": %s != %i' % (
-                     title, m.group('movementnumber'), work.part_number))
+            log.warning('Movement number mismatch for "%s": %s != %i' % (
+                     title, match.group('movementnumber'), work.part_number))
         if not work.parent:
-            work.parent = Work(m.group('work'))
+            work.parent = Work(match.group('work'))
             work.parent.is_work = True
-        elif work.parent.title != m.group('work'):
-            log.warn('Movement work name mismatch for "%s": "%s" != "%s"' % (
-                     title, m.group('work'), work.parent.title))
+        elif work.parent.title != match.group('work'):
+            log.warning('Movement work name mismatch for "%s": "%s" != "%s"' % (
+                     title, match.group('work'), work.parent.title))
     return work
+
+
+_re_part_number = re.compile(r'(?P<number>[0-9IVXLCDM]+)\.?\s+')
+def normalize_movement_title(work):
+    """
+    Removes the parent work title and part number from the beginning of `work.title`.
+    This ensures movement names don't contain duplicated information even if
+    they do not follow the strict naming format used by `create_work_and_movement_from_title`.
+    """
+    movement_title = work.title
+    if work.parent:
+        work_title = work.parent.title
+        if movement_title.startswith(work_title):
+            movement_title = movement_title[len(work_title):].lstrip(':').strip()
+    match = _re_part_number.match(movement_title)
+    if match:
+        # Only remove the number if it matches the part_number
+        try:
+            number = number_to_int(match.group('number'))
+            if number == work.part_number:
+                movement_title = _re_part_number.sub("", movement_title)
+        except ValueError as e:
+            log.warning(e)
+    return movement_title
 
 
 def parse_work(work_rel):
@@ -131,6 +171,7 @@ def parse_work(work_rel):
                     if 'work' in rel:
                         work.parent = parse_work(rel['work'])
                         work.parent.is_work = True
+                    work.title = normalize_movement_title(work)
                 else:
                     # Not a movement, but still part of a larger work.
                     # Mark it as a work.
@@ -176,11 +217,11 @@ def process_track(album, metadata, track, release):
                 break
 
     unset_work(metadata)
-    work = normalize_movement_name(work)
+    if not work.is_movement:
+        work = create_work_and_movement_from_title(work)
 
     if work.is_movement and work.parent and work.parent.is_work:
-        movement = work.title
-        metadata['movement'] = movement
+        metadata['movement'] = work.title
         if work.part_number:
             metadata['movementnumber'] = work.part_number
         set_work(metadata, work.parent)
