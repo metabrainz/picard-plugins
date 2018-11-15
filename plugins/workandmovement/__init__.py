@@ -184,12 +184,12 @@ def parse_work(work_rel):
 
 
 def unset_work(metadata):
-    metadata.set('work', '')
-    metadata.set('musicbrainz_workid', '')
-    metadata.set('movement', '')
-    metadata.set('movementnumber', '')
-    metadata.set('movementtotal', '')
-    metadata.set('showmovement', '')
+    metadata.delete('work')
+    metadata.delete('musicbrainz_workid')
+    metadata.delete('movement')
+    metadata.delete('movementnumber')
+    metadata.delete('movementtotal')
+    metadata.delete('showmovement')
 
 
 def set_work(metadata, work):
