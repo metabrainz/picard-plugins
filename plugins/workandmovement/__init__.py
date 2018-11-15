@@ -28,12 +28,14 @@ PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
 import re
 
+from .roman import fromRoman
+
 from picard import log
 from picard.metadata import register_track_metadata_processor
 
 
 class Work:
-    def __init__(self, title, id):
+    def __init__(self, title, id=None):
         self.id = id
         self.title = title
         self.is_movement = False
@@ -79,16 +81,36 @@ def is_child_work(rel):
             and rel['type'] == 'parts')
 
 
-part_number_re = re.compile(r'^[0-9IVXLC]+\.\s+')
-def remove_part_number(title):
-    return part_number_re.sub("", title)
+_re_work_title = re.compile(r'(?P<work>.*):\s+(?P<movementnumber>[IVXLCDM]+)\.\s+(?P<movement>.*)')
+def parse_work_name(title):
+    return _re_work_title.search(title)
 
 
-def normalize_movement_name(work, movement):
-    if movement.startswith(work):
-        movement = movement[len(work):].lstrip(':').strip()
-    # TODO: Extract the actual number, compate it to ordering-key
-    return remove_part_number(movement)
+def normalize_movement_name(work):
+    """
+    Attempts to parse work.title in the form "<Work>: <Number>. <Movement>",
+    where <Number> is in Roman numerals.
+    Sets the `is_movement` and `part_number` properties on `work` and creates
+    a `parent` work if not already present.
+    """
+    title = work.title
+    m = parse_work_name(title)
+    if m:
+        work.title = m.group('movement')
+        work.is_movement = True
+        number = fromRoman(m.group('movementnumber'))
+        if not work.part_number:
+            work.part_number = number
+        elif work.part_number != number:
+            log.warn('Movement number mismatch for "%s": %s != %i' % (
+                     title, m.group('movementnumber'), work.part_number))
+        if not work.parent:
+            work.parent = Work(m.group('work'))
+            work.parent.is_work = True
+        elif work.parent.title != m.group('work'):
+            log.warn('Movement work name mismatch for "%s": "%s" != "%s"' % (
+                     title, m.group('work'), work.parent.title))
+    return work
 
 
 def parse_work(work_rel):
@@ -140,6 +162,7 @@ def process_track(album, metadata, track, release):
     if not 'relations' in recording:
         return
 
+    work = Work(recording['title'])
     for rel in recording['relations']:
         if is_performance_work(rel):
             work = parse_work(rel['work'])
@@ -149,14 +172,15 @@ def process_track(album, metadata, track, release):
                 break
 
     unset_work(metadata)
-    if work:
-        if work.is_movement and work.parent and work.parent.is_work:
-            movement = normalize_movement_name(work.parent.title, work.title)
-            metadata['movement'] = movement
-            metadata['movementnumber'] = work.part_number
-            set_work(metadata, work.parent)
-        elif work.is_work:
-            set_work(metadata, work)
+    work = normalize_movement_name(work)
+
+    if work.is_movement and work.parent and work.parent.is_work:
+        movement = work.title
+        metadata['movement'] = movement
+        metadata['movementnumber'] = work.part_number
+        set_work(metadata, work.parent)
+    elif work.is_work:
+        set_work(metadata, work)
 
 
 register_track_metadata_processor(process_track)
