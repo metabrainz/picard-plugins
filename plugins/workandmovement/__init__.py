@@ -28,7 +28,7 @@ PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
 import re
 
-from .roman import fromRoman
+from .roman import fromRoman, RomanError
 
 from picard import log
 from picard.metadata import register_track_metadata_processor
@@ -98,7 +98,11 @@ def normalize_movement_name(work):
     if m:
         work.title = m.group('movement')
         work.is_movement = True
-        number = fromRoman(m.group('movementnumber'))
+        try:
+            number = fromRoman(m.group('movementnumber'))
+        except RomanError as e:
+            log.error(e)
+            number = 0
         if not work.part_number:
             work.part_number = number
         elif work.part_number != number:
@@ -177,7 +181,8 @@ def process_track(album, metadata, track, release):
     if work.is_movement and work.parent and work.parent.is_work:
         movement = work.title
         metadata['movement'] = movement
-        metadata['movementnumber'] = work.part_number
+        if work.part_number:
+            metadata['movementnumber'] = work.part_number
         set_work(metadata, work.parent)
     elif work.is_work:
         set_work(metadata, work)
