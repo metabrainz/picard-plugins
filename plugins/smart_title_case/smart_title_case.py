@@ -27,7 +27,7 @@ Leaves words containing embedded uppercase as-is i.e. USA or DoA.<br />
 For Artist/AlbumArtist, title cases only artists not join phrases<br />
 e.g. The Beatles feat. The Who.
 """
-PLUGIN_VERSION = "0.2"
+PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-3.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
@@ -117,7 +117,7 @@ def title_case(tagger, metadata, release, track=None):
         if artist_string in metadata and artists_list in metadata:
             artist = metadata.getall(artist_string)
             artists = metadata.getall(artists_list)
-            new_artists = map(string_title_case, artists)
+            new_artists = list(map(string_title_case, artists))
             new_artist = [artist_title_case(x, artists, new_artists) for x in artist]
             if artists != new_artists and artist != new_artist:
                 log.debug("SmartTitleCase: %s: %s replaced with %s", artist_string, artist, new_artist)
