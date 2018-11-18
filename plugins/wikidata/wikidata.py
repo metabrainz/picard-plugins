@@ -13,22 +13,23 @@ PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
 
-from picard import config, log
-from picard.metadata import register_track_metadata_processor
 from functools import partial
 import threading
 
+from picard import config, log
+from picard.metadata import register_track_metadata_processor
 
-class wikidata:
+
+class Wikidata:
 
     def __init__(self):
         self.lock = threading.Lock()
         # Key: mbid, value: List of metadata entries to be updated when we have parsed everything
         self.requests = {}
-        
+
         # Key: mbid, value: List of items to track the number of outstanding requests
         self.albums = {}
-        
+
         # cache, items that have been found
         # key: mbid, value: list of strings containing the genre's
         self.cache = {}
@@ -66,9 +67,9 @@ class wikidata:
             log.debug('WIKIDATA: Looking up cache for item  %s' % item_id)
             log.debug('WIKIDATA: requests %s' % album._requests)
             log.debug('WIKIDATA: TYPE %s' % type)
-            if item_id in list(self.cache.keys()):
+            if item_id in self.cache:
                 log.info('WIKIDATA: found in cache')
-                genre_list = self.cache.get(item_id)
+                genre_list = self.cache[item_id]
                 new_genre = set(metadata.getall("genre"))
                 new_genre.update(genre_list)
                 #sort the new genre list so that they don't appear as new entries (not a change) next time
@@ -77,7 +78,7 @@ class wikidata:
             else:
                 # pending requests are handled by adding the metadata object to a
                 # list of things to be updated when the genre is found
-                if item_id in list(self.albums.keys()):
+                if item_id in self.albums:
                     log.debug(
                         'WIKIDATA: request already pending, add it to the list of items to update once this has been found')
                     self.requests[item_id].append(metadata)
@@ -210,24 +211,24 @@ class wikidata:
         self.ws = album.tagger.webservice
         self.log = album.log
 
-        for release_group in dict.get(metadata, 'musicbrainz_releasegroupid', []):
+        for release_group in metadata.getall('musicbrainz_releasegroupid'):
             log.debug('WIKIDATA: looking up release group metadata for %s ' % release_group)
             self.process_request(metadata, album, release_group, type='release-group')
 
-        for artist in dict.get(metadata, 'musicbrainz_albumartistid', []):
+        for artist in metadata.getall('musicbrainz_albumartistid'):
             log.info('WIKIDATA: processing release artist %s' % artist)
             self.process_request(metadata, album, artist, type='artist')
 
-        for artist in dict.get(metadata, 'musicbrainz_artistid'):
+        for artist in metadata.getall('musicbrainz_artistid'):
             log.info('WIKIDATA: processing track artist %s' % artist)
             self.process_request(metadata, album, artist, type='artist')
 
         if 'musicbrainz_workid' in metadata:
-            for workid in dict.get(metadata, 'musicbrainz_workid'):
+            for workid in metadata.getall('musicbrainz_workid'):
                 log.info('WIKIDATA: processing track artist %s' % workid)
                 self.process_request(metadata, album, workid, type='work')
 
 
-wikidata = wikidata()
+wikidata = Wikidata()
 # register_album_metadata_processor(wikidata.process_release)
 register_track_metadata_processor(wikidata.process_track)
