@@ -38,8 +38,8 @@ from picard.metadata import register_track_metadata_processor
 
 
 class Work:
-    def __init__(self, title, id=None):
-        self.id = id
+    def __init__(self, title, mbid=None):
+        self.mbid = mbid
         self.title = title
         self.is_movement = False
         self.is_work = False
@@ -51,12 +51,12 @@ class Work:
         if self.parent:
             s.append(str(self.parent))
         if self.is_movement:
-            type = 'Movement'
+            work_type = 'Movement'
         elif self.is_work:
-            type = 'Work'
+            work_type = 'Work'
         else:
-            type = 'Unknown'
-        s.append('%s %i: %s' % (type, self.part_number, self.title))
+            work_type = 'Unknown'
+        s.append('%s %i: %s' % (work_type, self.part_number, self.title))
         return '\n'.join(s)
 
 
@@ -194,7 +194,7 @@ def unset_work(metadata):
 
 def set_work(metadata, work):
     metadata['work'] = work.title
-    metadata['musicbrainz_workid'] = work.id
+    metadata['musicbrainz_workid'] = work.mbid
     metadata['showmovement'] = 1
 
 
