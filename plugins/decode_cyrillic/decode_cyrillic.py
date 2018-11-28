@@ -25,12 +25,12 @@ from __future__ import print_function
 PLUGIN_NAME = "Decode Cyrillic"
 PLUGIN_AUTHOR = "aeontech"
 PLUGIN_DESCRIPTION = '''
-This plugin helps you quickly convert mis-encoded cyrillic Windows-1251 tags 
+This plugin helps you quickly convert mis-encoded cyrillic Windows-1251 tags
 to proper UTF-8 encoded strings. If your track/album names look something like
 "Àëèñà â ñò›àíå ÷óäåñ", run this plugin from the context menu
 before running the "Lookup" or "Scan" tools
 '''
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["1.0", "2.0"]
 PLUGIN_LICENSE = "MIT"
 PLUGIN_LICENSE_URL = "https://opensource.org/licenses/MIT"
@@ -40,10 +40,10 @@ from picard.cluster import Cluster
 from picard.ui.itemviews import BaseAction, register_cluster_action
 
 _decode_tags = [
-    'title', 
-    'albumartist', 
-    'artist', 
-    'album', 
+    'title',
+    'albumartist',
+    'artist',
+    'album',
     'artistsort'
 ]
 # _from_encoding = "latin1"
@@ -52,7 +52,7 @@ _decode_tags = [
 
 # TODO:
 # - extend to support multiple codepage decoding, not just cp1251->latin1
-#   instead, try the common variations, and show a dialog to the user, 
+#   instead, try the common variations, and show a dialog to the user,
 #   allowing him to select the correct transcoding. See 2cyr.com for example.
 # - also see http://stackoverflow.com/questions/23326531/how-to-decode-cp1252-string
 
@@ -61,8 +61,9 @@ class DecodeCyrillic(BaseAction):
 
     def unmangle(self, tag, value):
         try:
+            print(value, value.encode('latin1'))
             unmangled_value = value.encode('latin1').decode('cp1251')
-        except UnicodeEncodeError:
+        except UnicodeError:
             unmangled_value = value
             log.debug("%s: could not unmangle tag %s; original value: %s" % (PLUGIN_NAME, tag, value))
         return unmangled_value
@@ -84,7 +85,7 @@ class DecodeCyrillic(BaseAction):
 
                 log.debug("%s: Trying to unmangle file - original metadata %s" % (PLUGIN_NAME, file.orig_metadata))
 
-                for tag in _decode_tags:    
+                for tag in _decode_tags:
 
                     if not (tag in file.metadata):
                         continue
