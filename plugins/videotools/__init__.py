@@ -20,9 +20,9 @@
 PLUGIN_NAME = 'Video tools'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Improves the video support in Picard by adding support for Matroska, WebM, AVI, QuickTime and MPEG files (renaming and fingerprinting only, no tagging) and providing $is_audio() and $is_video() scripting functions.'
-PLUGIN_VERSION = "0.2"
+PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["1.3.0", "2.0"]
-PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from picard.formats import register_format

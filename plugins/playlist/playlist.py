@@ -16,9 +16,9 @@ PLUGIN_AUTHOR = "Francis Chin, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Generate an Extended M3U playlist (.m3u8 file, UTF8
 encoded text). Relative pathnames are used where audio files are in the same
 directory as the playlist, otherwise absolute (full) pathnames are used."""
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
-PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 import os.path

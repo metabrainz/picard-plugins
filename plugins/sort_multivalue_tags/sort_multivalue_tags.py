@@ -23,9 +23,9 @@ Note: Some multi-value tags are excluded for the following reasons:
 <li>The sequence of one tag is linked to the sequence of another e.g. Label and Catalogue number.</li>
 </ol>
 '''
-PLUGIN_VERSION = "0.3"
+PLUGIN_VERSION = "0.4"
 PLUGIN_API_VERSIONS = ["0.15", "2.0"]
-PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from picard.metadata import register_track_metadata_processor

@@ -29,7 +29,7 @@ e.g. The Beatles feat. The Who.
 """
 PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["2.0"]
-PLUGIN_LICENSE = "GPL-3.0"
+PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 
 import re, unicodedata

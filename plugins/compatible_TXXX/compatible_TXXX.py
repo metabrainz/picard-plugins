@@ -7,7 +7,7 @@ by using only a single value for TXXX frames. Multiple value TXXX frames \
 technically don't comply with the ID3 specification."""
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["2.0"]
-PLUGIN_LICENSE = "GPL-2.0 or later"
+PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from picard import config
