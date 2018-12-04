@@ -112,11 +112,11 @@ def apply_translations_and_sally(tag_to_count, sally, factor):
     return list(ret.items())
 
 
-def _tags_finalize(album, metadata, tags, next):
+def _tags_finalize(album, metadata, tags, get_next):
     """Processes the tag metadata to decide which tags to use and sets metadata"""
 
-    if next:
-        next(tags)
+    if get_next:
+        get_next(tags)
     else:
         cfg = album.tagger.config.setting
 
@@ -334,7 +334,7 @@ def _tags_finalize(album, metadata, tags, next):
                     metadata["comment:Songs-DB_Custom1"] = "18%s0s" % str(metadata["originalyear"])[2]
 
 
-def _tags_downloaded(album, metadata, sally, factor, next, current, data, reply, error):
+def _tags_downloaded(album, metadata, sally, factor, get_next, current, data, reply, error):
     q = QtCore.QUrlQuery(reply.url())
     cachetag = q.queryItemValue('artist')
     if q.queryItemValue('method') == "Track.getTopTags":
@@ -362,7 +362,7 @@ def _tags_downloaded(album, metadata, sally, factor, next, current, data, reply,
 
         _cache[cachetag] = tag_to_count
         tags = apply_translations_and_sally(tag_to_count, sally, factor)
-        _tags_finalize(album, metadata, current + tags, next)
+        _tags_finalize(album, metadata, current + tags, get_next)
 
         # Process any pending requests for the same URL
         if cachetag in _pending_xmlws_requests:
@@ -379,7 +379,7 @@ def _tags_downloaded(album, metadata, sally, factor, next, current, data, reply,
         album._finalize_loading(None)
 
 
-def get_tags(album, metadata, artist, next, current, track=None, cachetag=None):
+def get_tags(album, metadata, artist, get_next, current, track=None, cachetag=None):
     """Get tags from an URL."""
 
     # Ensure config is loaded (or reloaded if has been changed)
@@ -407,17 +407,17 @@ def get_tags(album, metadata, artist, next, current, track=None, cachetag=None):
 
     if cachetag in _cache:
         tags = apply_translations_and_sally(_cache[cachetag], sally, factor)
-        _tags_finalize(album, metadata, current + tags, next)
+        _tags_finalize(album, metadata, current + tags, get_next)
     else:
 
         # If we have already sent a request for this URL, delay this call until later
         if cachetag in _pending_xmlws_requests:
-            _pending_xmlws_requests[cachetag].append(partial(get_tags, album, metadata, artist, next, current, track=track, cachetag=cachetag))
+            _pending_xmlws_requests[cachetag].append(partial(get_tags, album, metadata, artist, get_next, current, track=track, cachetag=cachetag))
         else:
             _pending_xmlws_requests[cachetag] = []
             album._requests += 1
             album.tagger.webservice.get(LASTFM_HOST, LASTFM_PORT, LASTFM_PATH,
-                                   partial(_tags_downloaded, album, metadata, sally, factor, next, current),
+                                   partial(_tags_downloaded, album, metadata, sally, factor, get_next, current),
                                    parse_response_type="xml", queryargs=queryargs, priority=True, important=True)
 
 
@@ -491,20 +491,20 @@ class LastfmOptionsPage(OptionsPage):
 
     # function to check all translations and make sure a corresponding word
     # exists in word lists, notify in message translations pointing nowhere.
-    def check_translations(self):
-        cfg = self.config.setting
-        translations = (cfg["lastfm_genre_translations"].replace("\n", "|"))
-        tr2 = list(item for item in translations.split('|'))
-        wordlists = (cfg["lastfm_genre_major"] + cfg["lastfm_genre_minor"] + cfg["lastfm_genre_country"] + cfg["lastfm_genre_occasion"]
-                     + cfg["lastfm_genre_mood"] + cfg["lastfm_genre_decade"] + cfg["lastfm_genre_year"] + cfg["lastfm_genre_category"])
-        # TODO need to check to see if translations are in wordlists
-        QtGui.QMessageBox.information(
-            self, self.tr("QMessageBox.showInformation()"), ",".join(tr2))
+#    def check_translations(self):
+#        cfg = self.config.setting
+#        translations = (cfg["lastfm_genre_translations"].replace("\n", "|"))
+#        tr2 = list(item for item in translations.split('|'))
+#        wordlists = (cfg["lastfm_genre_major"] + cfg["lastfm_genre_minor"] + cfg["lastfm_genre_country"] + cfg["lastfm_genre_occasion"]
+#                     + cfg["lastfm_genre_mood"] + cfg["lastfm_genre_decade"] + cfg["lastfm_genre_year"] + cfg["lastfm_genre_category"])
+#        # TODO need to check to see if translations are in wordlists
+#        QtGui.QMessageBox.information(
+#            self, self.tr("QMessageBox.showInformation()"), ",".join(tr2))
 
     # function to check that word lists contain no duplicate entries, notify
     # in message duplicates and which lists they appear in
     def check_words(self):
-        cfg = self.config.setting
+        # cfg = self.config.setting
         # Create a set for each option cfg option
 
         word_sets = {
