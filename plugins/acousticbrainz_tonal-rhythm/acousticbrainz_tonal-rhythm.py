@@ -25,16 +25,18 @@ PLUGIN_DESCRIPTION = '''Add's the following tags:
 </ul>
 from the AcousticBrainz database.<br/><br/>
 '''
-PLUGIN_LICENSE = "GPL-2.0"
+PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = '1.1.1'
+PLUGIN_VERSION = '1.1.2'
 PLUGIN_API_VERSIONS = ["2.0"]  # Requires support for TKEY which is in 1.4
+
+from json import JSONDecodeError
 
 from picard import log
 from picard.metadata import register_track_metadata_processor
 from functools import partial
 from picard.webservice import ratecontrol
-from picard.util import parse_json
+from picard.util import load_json
 
 ACOUSTICBRAINZ_HOST = "acousticbrainz.org"
 ACOUSTICBRAINZ_PORT = 80
@@ -45,7 +47,7 @@ ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 50)
 class AcousticBrainz_Key:
 
     def get_data(self, album, track_metadata, trackXmlNode, releaseXmlNode):
-        if not musicbrainz_recordingid in track_metadata:
+        if "musicbrainz_recordingid" not in track_metadata:
             log.error("%s: Error parsing response. No MusicBrainz recording id found.",
                       PLUGIN_NAME)
             return
@@ -71,7 +73,7 @@ class AcousticBrainz_Key:
             self.album_remove_request(album)
             return
         try:
-            data = parse_json(response)
+            data = load_json(response)
         except JSONDecodeError:
             log.error("%s: Network error retrieving AcousticBrainz data for recordingId %s",
                       PLUGIN_NAME, track_metadata['musicbrainz_recordingid'])
@@ -100,5 +102,6 @@ class AcousticBrainz_Key:
         album._requests -= 1
         if album._requests == 0:
             album._finalize_loading(None)
+
 
 register_track_metadata_processor(AcousticBrainz_Key().get_data)
