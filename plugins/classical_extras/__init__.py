@@ -81,7 +81,7 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.2'
+PLUGIN_VERSION = '2.0.3'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -542,6 +542,7 @@ def get_references_from_file(release_id, path, filename):
     composer_dict_list = []
     period_dict_list = []
     genre_dict_list = []
+    xml_file = None
     try:
         xml_file = open(os.path.join(path, filename), encoding="utf8")
         reply = xml_file.read()
@@ -587,7 +588,8 @@ def get_references_from_file(release_id, path, filename):
                     path,
                     filename))
     finally:
-        xml_file.close()
+        if xml_file:
+            xml_file.close()
     return {
             'composers': composer_dict_list,
             'periods': period_dict_list,
