@@ -136,7 +136,7 @@ class Cuesheet(object):
                 line2 = " ".join([self.quote(s) for s in line])
                 line2 = " " * indent + line2 + "\n"
                 lines.append(line2.encode("UTF-8"))
-        with open(encode_filename(self.filename), "wt") as f:
+        with open(encode_filename(self.filename), "wb") as f:
             f.writelines(lines)
 
 
