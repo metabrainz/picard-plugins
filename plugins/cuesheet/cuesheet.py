@@ -134,8 +134,9 @@ class Cuesheet(object):
                     elif line[0] != "FILE":
                         indent = 4
                 line2 = " ".join([self.quote(s) for s in line])
-                lines.append(" " * indent + line2.encode("UTF-8") + "\n")
-        with open(encode_filename(self.filename), "wt") as f:
+                line2 = " " * indent + line2 + "\n"
+                lines.append(line2.encode("UTF-8"))
+        with open(encode_filename(self.filename), "wb") as f:
             f.writelines(lines)
 
 
