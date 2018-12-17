@@ -3,7 +3,7 @@
 PLUGIN_NAME = "Generate Cuesheet"
 PLUGIN_AUTHOR = "Lukáš Lalinský, Sambhav Kothari"
 PLUGIN_DESCRIPTION = "Generate cuesheet (.cue file) from an album."
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 
