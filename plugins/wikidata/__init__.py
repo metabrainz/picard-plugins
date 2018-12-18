@@ -8,17 +8,51 @@
 PLUGIN_NAME = 'wikidata-genre'
 PLUGIN_AUTHOR = 'Daniel Sobey, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'query wikidata to get genre tags'
-PLUGIN_VERSION = '1.2'
+PLUGIN_VERSION = '1.3'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
 
+import re
 from functools import partial
 from picard import config, log
 from picard.metadata import register_track_metadata_processor
+from picard.plugins.wikidata.ui_options_wikidata import Ui_WikidataOptionsPage
+from picard.ui.options import register_options_page, OptionsPage
+
+
+def parse_ignored_tags(ignore_tags_setting):
+    ignore_tags = []
+    for tag in ignore_tags_setting.lower().split(','):
+        tag = tag.strip()
+        if tag.startswith('/') and tag.endswith('/'):
+            try:
+                tag = re.compile(tag[1:-1])
+            except re.error:
+                log.error(
+                    'Error parsing ignored tag "%s"', tag, exc_info=True)
+        ignore_tags.append(tag)
+    return ignore_tags
+
+
+def matches_ignored(ignore_tags, tag):
+    tag = tag.lower().strip()
+    for pattern in ignore_tags:
+        if hasattr(pattern, 'match'):
+            match = pattern.match(tag)
+        else:
+            match = pattern == tag
+        if match:
+            return True
+    return False
 
 
 class Wikidata:
+
+    RELEASE_GROUP = 1
+    ARTIST = 2
+    WORK = 3
+
 
     def __init__(self):
         # Key: mbid, value: List of metadata entries to be updated when we have parsed everything
@@ -38,6 +72,14 @@ class Wikidata:
         # web service & logger
         self.ws = None
         self.log = None
+
+        # settings from options, options
+        self.use_release_group_genres = False
+        self.use_artist_genres = False
+        self.use_artist_only_if_no_release = False
+        self.use_work_genres = True
+        self.ignore_these_genres = ''
+        self.genre_delimiter = ''
 
     # not used
     def process_release(self, album, metadata, release):
@@ -69,7 +111,7 @@ class Wikidata:
             new_genre = set(metadata.getall("genre"))
             new_genre.update(genre_list)
             #sort the new genre list so that they don't appear as new entries (not a change) next time
-            metadata["genre"] = sorted(new_genre)
+            metadata["genre"] = self.genre_delimiter.join(sorted(new_genre))
             return
         else:
             # pending requests are handled by adding the metadata object to a
@@ -100,27 +142,27 @@ class Wikidata:
             log.error('WIKIDATA: Error retrieving release group info')
         else:
             if 'metadata' in response.children:
-                if 'release_group' in response.metadata[0].children:
+                if 'release_group' in response.metadata[0].children and self.use_release_group_genres:
                     if 'relation_list' in response.metadata[0].release_group[0].children:
                         for relation in response.metadata[0].release_group[0].relation_list[0].relation:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found = True
                                 wikidata_url = relation.target[0].text
-                                self.process_wikidata(wikidata_url, item_id)
-                if 'artist' in response.metadata[0].children:
+                                self.process_wikidata(Wikidata.RELEASE_GROUP, wikidata_url, item_id)
+                if 'artist' in response.metadata[0].children and self.use_artist_genres:
                     if 'relation_list' in response.metadata[0].artist[0].children:
                         for relation in response.metadata[0].artist[0].relation_list[0].relation:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found = True
                                 wikidata_url = relation.target[0].text
-                                self.process_wikidata(wikidata_url, item_id)
-                if 'work' in response.metadata[0].children:
+                                self.process_wikidata(Wikidata.ARTIST, wikidata_url, item_id)
+                if 'work' in response.metadata[0].children and self.use_work_genres:
                     if 'relation_list' in response.metadata[0].work[0].children:
                         for relation in response.metadata[0].work[0].relation_list[0].relation:
                             if relation.type == 'wikidata' and 'target' in relation.children:
                                 found = True
                                 wikidata_url = relation.target[0].text
-                                self.process_wikidata(wikidata_url, item_id)
+                                self.process_wikidata(Wikidata.WORK, wikidata_url, item_id)
         if not found:
             log.debug('WIKIDATA: No wikidata url found for item_id: %s ', item_id)
 
@@ -134,17 +176,17 @@ class Wikidata:
             self.requests.clear()
             log.info('WIKIDATA: Finished.')
 
-    def process_wikidata(self, wikidata_url, item_id):
+    def process_wikidata(self, genre_source_type, wikidata_url, item_id):
         album = self.itemAlbums[item_id]
         album._requests += 1
         item = wikidata_url.split('/')[4]
         path = "/wiki/Special:EntityData/" + item + ".rdf"
         log.debug('WIKIDATA: Fetching from wikidata.org%s' % path)
         self.ws.get('www.wikidata.org', 443, path,
-                    partial(self.parse_wikidata_response, item, item_id),
+                    partial(self.parse_wikidata_response, item, item_id, genre_source_type),
                     parse_response_type="xml", priority=False, important=False)
 
-    def parse_wikidata_response(self, item, item_id, response, reply, error):
+    def parse_wikidata_response(self, item, item_id, genre_source_type, response, reply, error):
         genre_entries = []
         genre_list = []
         if error:
@@ -172,8 +214,11 @@ class Wikidata:
                                     for node2 in list1:
                                         if node2.attribs.get('lang') == 'en':
                                             genre = node2.text.title()
-                                            genre_list.append(genre)
-                                            log.debug('Our genre is: %s' % genre)
+                                            if not matches_ignored(self.ignore_these_genres, genre):
+                                                genre_list.append(genre)
+                                                log.debug('New genre has been found and ALLOWED: %s' % genre)
+                                            else:
+                                                log.debug('New genre has been found, but IGNORED: %s' % genre)
 
         if len(genre_list) > 0:
             log.debug('WIKIDATA: item_id: %s' % item_id)
@@ -181,30 +226,52 @@ class Wikidata:
             log.debug('WIKIDATA: Final list of genre: %s' % genre_list)
             log.info('WIKIDATA: Total items to update: %d ' % len(self.requests[item_id]))
             for metadata in self.requests[item_id]:
+                if genre_source_type == Wikidata.RELEASE_GROUP:
+                    metadata['release_group_genre_sourced'] = True
+                elif genre_source_type == Wikidata.ARTIST:
+                    if self.use_artist_only_if_no_release and metadata['release_group_genre_sourced']:
+                        if item_id not in self.cache:
+                            self.cache[item_id] = []
+                        log.debug('wikidata: NOT setting Artist-sourced genre: %s ' % genre_list)
+                        continue
                 new_genre = set(metadata.getall("genre"))
                 new_genre.update(genre_list)
                 # sort the new genre list so that they don't appear as new entries (not a change) next time
-                metadata["genre"] = sorted(new_genre)
+                metadata["genre"] = self.genre_delimiter.join(sorted(genre_list))
                 self.cache[item_id] = genre_list
-                log.debug('WIKIDATA: Setting genre: %s ' % genre_list)
+                log.debug('wikidata: setting genre: %s ' % genre_list)
         else:
-            log.debug('WIKIDATA: Genre not found in wikidata')
+            log.debug('wikidata: genre not found in wikidata')
 
-        log.debug('WIKIDATA: Seeing if we can finalize tags...')
+        log.debug('wikidata: seeing if we can finalize tags...')
 
         album = self.itemAlbums[item_id]
         album._requests -= 1
         if not album._requests:
             self.itemAlbums = {k: v for k, v in self.itemAlbums.items() if v != album}
             album._finalize_loading(None)
-        log.info('WIKIDATA: Total remaining requests: %s' % album._requests)
+        log.info('wikidata: total remaining requests: %s' % album._requests)
         if not self.itemAlbums:
             self.requests.clear()
-            log.info('WIKIDATA: Finished.')
+            log.info('wikidata: finished.')
+
 
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
         self.mb_host = config.setting["server_host"]
         self.mb_port = config.setting["server_port"]
+        self.use_release_group_genres = config.setting["wikidata_use_release_group_genres"]
+        self.use_work_genres = config.setting["wikidata_use_work_genres"]
+        # Some changed settings could invalidate the cache, so clear it to be safe
+        if self.use_artist_genres != config.setting["wikidata_use_artist_genres"]:
+            self.use_artist_genres = config.setting["wikidata_use_artist_genres"]
+            self.cache.clear()
+        if self.use_artist_only_if_no_release != config.setting["wikidata_use_artist_only_if_no_release"]:
+            self.use_artist_only_if_no_release = config.setting["wikidata_use_artist_only_if_no_release"]
+            self.cache.clear()
+        if self.ignore_these_genres != parse_ignored_tags(config.setting["wikidata_ignore_these_genres"]):
+            self.ignore_these_genres = parse_ignored_tags(config.setting["wikidata_ignore_these_genres"])
+            self.cache.clear()
+        self.genre_delimiter = config.setting["wikidata_genre_delimiter"]
         self.ws = album.tagger.webservice
         self.log = album.log
 
@@ -227,5 +294,50 @@ class Wikidata:
                 self.process_request(metadata, album, workid, type='work')
 
 
+class WikidataOptionsPage(OptionsPage):
+    NAME = "wikidata"
+    TITLE = "wikidata-genre"
+    PARENT = "plugins"
+
+    options = [
+        config.BoolOption("setting", "wikidata_use_release_group_genres", True),
+        config.BoolOption("setting", "wikidata_use_artist_genres", True),
+        config.BoolOption("setting", "wikidata_use_artist_only_if_no_release", True),
+        config.BoolOption("setting", "wikidata_use_work_genres", True),
+        config.TextOption("setting", "wikidata_ignore_these_genres", "seen live, favorites, /\\d+ of \\d+ stars/"),
+        config.TextOption("setting", "wikidata_genre_delimiter", "; "),
+    ]
+
+    def __init__(self, parent=None):
+        super(WikidataOptionsPage, self).__init__(parent)
+        self.ui = Ui_WikidataOptionsPage()
+        self.ui.setupUi(self)
+
+    def info(self):
+        pass
+
+    def load(self):
+        setting = config.setting
+        self.ui.use_release_group_genres.setChecked(setting["wikidata_use_release_group_genres"])
+        self.ui.use_artist_genres.setChecked(setting["wikidata_use_artist_genres"])
+        self.ui.use_artist_only_if_no_release.setChecked(setting["wikidata_use_artist_only_if_no_release"])
+        self.ui.use_work_genres.setChecked(setting["wikidata_use_work_genres"])
+        self.ui.ignore_these_genres.setText(setting["wikidata_ignore_these_genres"])
+        self.ui.genre_delimiter.setEditText(setting["wikidata_genre_delimiter"])
+
+    def save(self):
+        global _cache
+        setting = config.setting
+        if setting["wikidata_ignore_these_genres"] != str(self.ui.ignore_these_genres.text()):
+            _cache = {}
+        setting["wikidata_use_release_group_genres"] = self.ui.use_release_group_genres.isChecked()
+        setting["wikidata_use_artist_genres"] = self.ui.use_artist_genres.isChecked()
+        setting["wikidata_use_artist_only_if_no_release"] = self.ui.use_artist_only_if_no_release.isChecked()
+        setting["wikidata_use_work_genres"] = self.ui.use_work_genres.isChecked()
+        setting["wikidata_ignore_these_genres"] = str(self.ui.ignore_these_genres.text())
+        setting["wikidata_genre_delimiter"] = str(self.ui.genre_delimiter.currentText())
+
+
 wikidata = Wikidata()
 register_track_metadata_processor(wikidata.process_track)
+register_options_page(WikidataOptionsPage)
