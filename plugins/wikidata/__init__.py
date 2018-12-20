@@ -24,6 +24,8 @@ from picard.ui.options import register_options_page, OptionsPage
 def parse_ignored_tags(ignore_tags_setting):
     ignore_tags = []
     for tag in ignore_tags_setting.lower().split(','):
+        if not tag:
+            break
         tag = tag.strip()
         if tag.startswith('/') and tag.endswith('/'):
             try:
@@ -36,14 +38,15 @@ def parse_ignored_tags(ignore_tags_setting):
 
 
 def matches_ignored(ignore_tags, tag):
-    tag = tag.lower().strip()
-    for pattern in ignore_tags:
-        if hasattr(pattern, 'match'):
-            match = pattern.match(tag)
-        else:
-            match = pattern == tag
-        if match:
-            return True
+    if ignore_tags:
+        tag = tag.lower().strip()
+        for pattern in ignore_tags:
+            if hasattr(pattern, 'match'):
+                match = pattern.match(tag)
+            else:
+                match = pattern == tag
+            if match:
+                return True
     return False
 
 
@@ -77,8 +80,11 @@ class Wikidata:
         self.use_release_group_genres = False
         self.use_artist_genres = False
         self.use_artist_only_if_no_release = False
+        self.ignore_genres_from_these_artists = ''
+        self.ignore_genres_from_these_artists_list = []
         self.use_work_genres = True
         self.ignore_these_genres = ''
+        self.ignore_these_genres_list = []
         self.genre_delimiter = ''
 
     # not used
@@ -217,7 +223,7 @@ class Wikidata:
                                     for node2 in list1:
                                         if node2.attribs.get('lang') == 'en':
                                             genre = node2.text.title()
-                                            if not matches_ignored(self.ignore_these_genres, genre):
+                                            if not matches_ignored(self.ignore_these_genres_list, genre):
                                                 genre_list.append(genre)
                                                 log.debug('New genre has been found and ALLOWED: %s' % genre)
                                             else:
@@ -233,13 +239,14 @@ class Wikidata:
                 if genre_source_type == Wikidata.RELEASE_GROUP:
                     metadata['release_group_genre_sourced'] = True
                 elif genre_source_type == Wikidata.ARTIST:
-                    if self.use_artist_only_if_no_release and metadata['release_group_genre_sourced']:
+                    if self.use_artist_only_if_no_release and metadata['release_group_genre_sourced'] or \
+                            matches_ignored(self.ignore_genres_from_these_artists_list, metadata.get("artist")):
                         if item_id not in self.cache:
                             self.cache[item_id] = []
-                        log.debug('wikidata: NOT setting Artist-sourced genre: %s ' % genre_list)
+                        log.debug('WIKIDATA: NOT setting Artist-sourced genre: %s ' % genre_list)
                         continue
                     else:
-                        log.debug('wikidata: Setting Artist-sourced genre: %s ' % genre_list)
+                        log.debug('WIKIDATA: Setting Artist-sourced genre: %s ' % genre_list)
 
                 # getall doesn't handle delimiters so we need to check-n-parse here
                 old_genre_metadata = metadata.getall("genre")
@@ -253,20 +260,21 @@ class Wikidata:
                 new_genre = set(old_genre_list)
                 new_genre.update(genre_list)
                 # sort the new genre list so that they don't appear as new entries (not a change) next time
+                log.debug('WIKIDATA: setting metadata genre to : %s ' % new_genre)
                 metadata["genre"] = self.genre_delimiter.join(sorted(new_genre))
+                log.debug('WIKIDATA: setting cache genre to : %s ' % genre_list)
                 self.cache[item_id] = genre_list
-                log.debug('wikidata: setting genre: %s ' % genre_list)
         else:
-            log.debug('wikidata: genre not found in wikidata')
+            log.debug('WIKIDATA: genre not found in wikidata')
 
-        log.debug('wikidata: seeing if we can finalize tags...')
+        log.debug('WIKIDATA: seeing if we can finalize tags...')
 
         album = self.itemAlbums[item_id]
         album._requests -= 1
         if not album._requests:
             self.itemAlbums = {k: v for k, v in self.itemAlbums.items() if v != album}
             album._finalize_loading(None)
-        log.info('wikidata: total remaining requests: %s' % album._requests)
+        log.info('WIKIDATA: total remaining requests: %s' % album._requests)
         if not self.itemAlbums:
             self.requests.clear()
             log.info('WIKIDATA: Finished (B)')
@@ -286,11 +294,18 @@ class Wikidata:
         if self.use_artist_only_if_no_release != config.setting["wikidata_use_artist_only_if_no_release"]:
             self.use_artist_only_if_no_release = config.setting["wikidata_use_artist_only_if_no_release"]
             self.cache.clear()
+        if self.ignore_genres_from_these_artists != parse_ignored_tags(
+                config.setting["wikidata_ignore_genres_from_these_artists"]):
+            self.ignore_genres_from_these_artists_list = parse_ignored_tags(
+                config.setting["wikidata_ignore_genres_from_these_artists"])
+            self.cache.clear()
         if self.use_work_genres != config.setting["wikidata_use_work_genres"]:
             self.use_work_genres = config.setting["wikidata_use_work_genres"]
             self.cache.clear()
         if self.ignore_these_genres != parse_ignored_tags(config.setting["wikidata_ignore_these_genres"]):
             self.ignore_these_genres = parse_ignored_tags(config.setting["wikidata_ignore_these_genres"])
+            self.ignore_these_genres_list = parse_ignored_tags(
+                config.setting["wikidata_ignore_these_genres"])
             self.cache.clear()
         self.genre_delimiter = config.setting["wikidata_genre_delimiter"]
         self.ws = album.tagger.webservice
@@ -324,6 +339,7 @@ class WikidataOptionsPage(OptionsPage):
         config.BoolOption("setting", "wikidata_use_release_group_genres", True),
         config.BoolOption("setting", "wikidata_use_artist_genres", True),
         config.BoolOption("setting", "wikidata_use_artist_only_if_no_release", True),
+        config.TextOption("setting", "wikidata_ignore_genres_from_these_artists", ""),
         config.BoolOption("setting", "wikidata_use_work_genres", True),
         config.TextOption("setting", "wikidata_ignore_these_genres", "seen live, favorites, /\\d+ of \\d+ stars/"),
         config.TextOption("setting", "wikidata_genre_delimiter", "; "),
@@ -342,18 +358,17 @@ class WikidataOptionsPage(OptionsPage):
         self.ui.use_release_group_genres.setChecked(setting["wikidata_use_release_group_genres"])
         self.ui.use_artist_genres.setChecked(setting["wikidata_use_artist_genres"])
         self.ui.use_artist_only_if_no_release.setChecked(setting["wikidata_use_artist_only_if_no_release"])
+        self.ui.ignore_genres_from_these_artists.setText(setting["wikidata_ignore_genres_from_these_artists"])
         self.ui.use_work_genres.setChecked(setting["wikidata_use_work_genres"])
         self.ui.ignore_these_genres.setText(setting["wikidata_ignore_these_genres"])
         self.ui.genre_delimiter.setEditText(setting["wikidata_genre_delimiter"])
 
     def save(self):
-        global _cache
         setting = config.setting
-        if setting["wikidata_ignore_these_genres"] != str(self.ui.ignore_these_genres.text()):
-            _cache = {}
         setting["wikidata_use_release_group_genres"] = self.ui.use_release_group_genres.isChecked()
         setting["wikidata_use_artist_genres"] = self.ui.use_artist_genres.isChecked()
         setting["wikidata_use_artist_only_if_no_release"] = self.ui.use_artist_only_if_no_release.isChecked()
+        setting["wikidata_ignore_genres_from_these_artists"] = str(self.ui.ignore_genres_from_these_artists.text())
         setting["wikidata_use_work_genres"] = self.ui.use_work_genres.isChecked()
         setting["wikidata_ignore_these_genres"] = str(self.ui.ignore_these_genres.text())
         setting["wikidata_genre_delimiter"] = str(self.ui.genre_delimiter.currentText())
