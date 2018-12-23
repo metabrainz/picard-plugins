@@ -252,7 +252,7 @@ class Wikidata:
                 old_genre_metadata = metadata.getall("genre")
                 old_genre_list = []
                 for genre in old_genre_metadata:
-                    if self.genre_delimiter in genre:
+                    if self.genre_delimiter and self.genre_delimiter in genre:
                         old_genre_list.extend(genre.split(self.genre_delimiter))
                     else:
                         old_genre_list.append(genre)
@@ -261,7 +261,11 @@ class Wikidata:
                 new_genre.update(genre_list)
                 # sort the new genre list so that they don't appear as new entries (not a change) next time
                 log.debug('WIKIDATA: setting metadata genre to : %s ' % new_genre)
-                metadata["genre"] = self.genre_delimiter.join(sorted(new_genre))
+                if self.genre_delimiter:
+                    metadata["genre"] = self.genre_delimiter.join(sorted(new_genre))
+                else:
+                    metadata["genre"] = sorted(new_genre)
+
                 log.debug('WIKIDATA: setting cache genre to : %s ' % genre_list)
                 self.cache[item_id] = genre_list
         else:
@@ -280,6 +284,32 @@ class Wikidata:
             log.info('WIKIDATA: Finished (B)')
 
     def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
+        self.update_settings()
+        self.ws = album.tagger.webservice
+        self.log = album.log
+
+        log.info('WIKIDATA: Processing Track...')
+        if self.use_release_group_genres:
+            for release_group in metadata.getall('musicbrainz_releasegroupid'):
+                log.debug('WIKIDATA: Looking up release group metadata for %s ' % release_group)
+                self.process_request(metadata, album, release_group, type='release-group')
+
+        if self.use_artist_genres:
+            for artist in metadata.getall('musicbrainz_albumartistid'):
+                log.debug('WIKIDATA: Processing release artist %s' % artist)
+                self.process_request(metadata, album, artist, type='artist')
+
+        if self.use_artist_genres:
+            for artist in metadata.getall('musicbrainz_artistid'):
+                log.debug('WIKIDATA: Processing track artist %s' % artist)
+                self.process_request(metadata, album, artist, type='artist')
+
+        if self.use_work_genres:
+            for workid in metadata.getall('musicbrainz_workid'):
+                log.debug('WIKIDATA: Processing track artist %s' % workid)
+                self.process_request(metadata, album, workid, type='work')
+
+    def update_settings(self):
         self.mb_host = config.setting["server_host"]
         self.mb_port = config.setting["server_port"]
         self.use_release_group_genres = config.setting[""]
@@ -307,27 +337,8 @@ class Wikidata:
             self.ignore_these_genres_list = parse_ignored_tags(
                 config.setting["wikidata_ignore_these_genres"])
             self.cache.clear()
-        self.genre_delimiter = config.setting["wikidata_genre_delimiter"]
-        self.ws = album.tagger.webservice
-        self.log = album.log
-
-        log.info('WIKIDATA: Processing Track...')
-        for release_group in metadata.getall('musicbrainz_releasegroupid'):
-            log.debug('WIKIDATA: Looking up release group metadata for %s ' % release_group)
-            self.process_request(metadata, album, release_group, type='release-group')
-
-        for artist in metadata.getall('musicbrainz_albumartistid'):
-            log.debug('WIKIDATA: Processing release artist %s' % artist)
-            self.process_request(metadata, album, artist, type='artist')
-
-        for artist in metadata.getall('musicbrainz_artistid'):
-            log.debug('WIKIDATA: Processing track artist %s' % artist)
-            self.process_request(metadata, album, artist, type='artist')
-
-        if 'musicbrainz_workid' in metadata:
-            for workid in metadata.getall('musicbrainz_workid'):
-                log.debug('WIKIDATA: Processing track artist %s' % workid)
-                self.process_request(metadata, album, workid, type='work')
+        if config.setting["write_id3v23"]:
+            self.genre_delimiter = config.setting["wikidata_genre_delimiter"]
 
 
 class WikidataOptionsPage(OptionsPage):
@@ -349,6 +360,9 @@ class WikidataOptionsPage(OptionsPage):
         super(WikidataOptionsPage, self).__init__(parent)
         self.ui = Ui_WikidataOptionsPage()
         self.ui.setupUi(self)
+        if not config.setting["write_id3v23"]:
+            self.ui.genre_delimiter.setEnabled(False);
+            self.ui.genre_delimiter_label.setEnabled(False);
 
     def info(self):
         pass
@@ -361,7 +375,8 @@ class WikidataOptionsPage(OptionsPage):
         self.ui.ignore_genres_from_these_artists.setText(setting["wikidata_ignore_genres_from_these_artists"])
         self.ui.use_work_genres.setChecked(setting["wikidata_use_work_genres"])
         self.ui.ignore_these_genres.setText(setting["wikidata_ignore_these_genres"])
-        self.ui.genre_delimiter.setEditText(setting["wikidata_genre_delimiter"])
+        if config.setting["write_id3v23"]:
+            self.ui.genre_delimiter.setEditText(setting["wikidata_genre_delimiter"])
 
     def save(self):
         setting = config.setting
@@ -371,7 +386,8 @@ class WikidataOptionsPage(OptionsPage):
         setting["wikidata_ignore_genres_from_these_artists"] = str(self.ui.ignore_genres_from_these_artists.text())
         setting["wikidata_use_work_genres"] = self.ui.use_work_genres.isChecked()
         setting["wikidata_ignore_these_genres"] = str(self.ui.ignore_these_genres.text())
-        setting["wikidata_genre_delimiter"] = str(self.ui.genre_delimiter.currentText())
+        if config.setting["write_id3v23"]:
+            setting["wikidata_genre_delimiter"] = str(self.ui.genre_delimiter.currentText())
 
 
 wikidata = Wikidata()
