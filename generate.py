@@ -13,7 +13,7 @@ from get_plugin_data import get_plugin_data
 
 VERSION_TO_BRANCH = {
     None: '2.0',
-    '1.0': 'master',
+    '1.0': '1.0',
     '2.0': '2.0',
 }
 
