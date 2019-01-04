@@ -56,7 +56,6 @@ class Wikidata:
     ARTIST = 2
     WORK = 3
 
-
     def __init__(self):
         # Key: mbid, value: List of metadata entries to be updated when we have parsed everything
         self.requests = {}
@@ -94,11 +93,11 @@ class Wikidata:
         item_id = dict.get(metadata, 'musicbrainz_releasegroupid')[0]
 
         log.info('WIKIDATA: Processing release group %s ' % item_id)
-        self.process_request(metadata, album, item_id, type='release-group')
+        self.process_request(metadata, album, item_id, item_type='release-group')
         for artist in dict.get(metadata, 'musicbrainz_albumartistid'):
             item_id = artist
             log.info('WIKIDATA: Processing release artist %s' % item_id)
-            self.process_request(metadata, album, item_id, type='artist')
+            self.process_request(metadata, album, item_id, item_type='artist')
 
     # Main processing function
     # First see if we have already found what we need in the cache, finalize loading
@@ -107,10 +106,10 @@ class Wikidata:
     #   Otherwise we are the first one to look up this item, start a new request
     # metadata, map containing the new metadata
     #
-    def process_request(self, metadata, album, item_id, type):
+    def process_request(self, metadata, album, item_id, item_type):
         log.debug('WIKIDATA: Looking up cache for item: %s' % item_id)
         log.debug('WIKIDATA: Album request count: %s' % album._requests)
-        log.debug('WIKIDATA: Item type %s' % type)
+        log.debug('WIKIDATA: Item type %s' % item_type)
         if item_id in self.cache:
             log.debug('WIKIDATA: Found item in cache')
             genre_list = self.cache[item_id]
@@ -135,7 +134,7 @@ class Wikidata:
                 log.debug('WIKIDATA: First request for this item')
                 log.debug('WIKIDATA: About to call Musicbrainz to look up %s ' % item_id)
 
-                path = '/ws/2/%s/%s' % (type, item_id)
+                path = '/ws/2/%s/%s' % (item_type, item_id)
                 queryargs = {"inc": "url-rels"}
 
                 self.ws.get(self.mb_host, self.mb_port, path, partial(self.musicbrainz_release_lookup, item_id,
@@ -259,7 +258,7 @@ class Wikidata:
 
                 new_genre = set(old_genre_list)
                 new_genre.update(genre_list)
-                # sort the new genre list so that they don't appear as new entries (not a change) next time
+                # Sort the new genre list so that they don't appear as new entries (not a change) next time
                 log.debug('WIKIDATA: setting metadata genre to : %s ' % new_genre)
                 if self.genre_delimiter:
                     metadata["genre"] = self.genre_delimiter.join(sorted(new_genre))
@@ -292,22 +291,22 @@ class Wikidata:
         if self.use_release_group_genres:
             for release_group in metadata.getall('musicbrainz_releasegroupid'):
                 log.debug('WIKIDATA: Looking up release group metadata for %s ' % release_group)
-                self.process_request(metadata, album, release_group, type='release-group')
+                self.process_request(metadata, album, release_group, item_type='release-group')
 
         if self.use_artist_genres:
             for artist in metadata.getall('musicbrainz_albumartistid'):
                 log.debug('WIKIDATA: Processing release artist %s' % artist)
-                self.process_request(metadata, album, artist, type='artist')
+                self.process_request(metadata, album, artist, item_type='artist')
 
         if self.use_artist_genres:
             for artist in metadata.getall('musicbrainz_artistid'):
                 log.debug('WIKIDATA: Processing track artist %s' % artist)
-                self.process_request(metadata, album, artist, type='artist')
+                self.process_request(metadata, album, artist, item_type='artist')
 
         if self.use_work_genres:
             for workid in metadata.getall('musicbrainz_workid'):
                 log.debug('WIKIDATA: Processing track artist %s' % workid)
-                self.process_request(metadata, album, workid, type='work')
+                self.process_request(metadata, album, workid, item_type='work')
 
     def update_settings(self):
         self.mb_host = config.setting["server_host"]
@@ -363,6 +362,9 @@ class WikidataOptionsPage(OptionsPage):
         if not config.setting["write_id3v23"]:
             self.ui.genre_delimiter.setEnabled(False);
             self.ui.genre_delimiter_label.setEnabled(False);
+        else:
+            self.ui.genre_delimiter.setEnabled(True);
+            self.ui.genre_delimiter_label.setEnabled(True);
 
     def info(self):
         pass
