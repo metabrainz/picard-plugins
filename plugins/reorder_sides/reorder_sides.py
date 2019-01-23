@@ -28,7 +28,7 @@ PLUGIN_DESCRIPTION = """\
   changers
   (https://en.wikipedia.org/wiki/Record_changer#Automatic_sequencing)
   play in the correct order."""
-PLUGIN_VERSION = '1.1'
+PLUGIN_VERSION = '1.2'
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = 'GPL-3.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-3.0.html'
