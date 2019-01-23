@@ -215,12 +215,12 @@ def reorder_sides(tagger, metadata, *args):
   side_first_tracknumber = side_info[side][1]
   side_last_tracknumber = side_info[side][2]
 
-  metadata['totaldiscs'] = string_(len(all_sides))
-  metadata['discnumber'] = string_(all_sides.index(side) + 1)
+  metadata['totaldiscs'] = str(len(all_sides))
+  metadata['discnumber'] = str(all_sides.index(side) + 1)
 
   metadata['totaltracks'] = \
-    string_(side_last_tracknumber - side_first_tracknumber + 1)
+    str(side_last_tracknumber - side_first_tracknumber + 1)
   metadata['tracknumber'] = \
-    string_(int(metadata['tracknumber']) - side_first_tracknumber + 1)
+    str(int(metadata['tracknumber']) - side_first_tracknumber + 1)
 
 register_track_metadata_processor(reorder_sides)
