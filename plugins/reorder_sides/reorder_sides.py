@@ -102,15 +102,15 @@ def get_side_info(release):
 
   side_info = collections.OrderedDict()
 
-  for medium in release.medium_list[0].medium:
+  for medium in release['media']:
     current_side = None
 
-    for track in medium.track_list[0].track:
-      tracknumber = track.children['number'][0].text
+    for track in medium['tracks']:
+      tracknumber = track['number']
       trackside = tracknumber_to_side(tracknumber)
 
       try:
-        int_tracknumber = int(track.children['position'][0].text)
+        int_tracknumber = int(track['position'])
       except ValueError:
         # Non-integer tracknumber, so give up.
         return None
@@ -137,7 +137,7 @@ def get_side_info(release):
 
       try:
         side_info[current_side] = [
-          int(medium.children['position'][0].text),
+          int(medium['position']),
           int_tracknumber,
           int_tracknumber,
           ]
