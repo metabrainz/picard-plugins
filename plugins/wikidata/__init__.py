@@ -236,9 +236,9 @@ class Wikidata:
 
             for metadata in self.requests[item_id]:
                 if genre_source_type == Wikidata.RELEASE_GROUP:
-                    metadata['release_group_genre_sourced'] = True
+                    metadata['~release_group_genre_sourced'] = True
                 elif genre_source_type == Wikidata.ARTIST:
-                    if self.use_artist_only_if_no_release and metadata['release_group_genre_sourced'] or \
+                    if self.use_artist_only_if_no_release and metadata['~release_group_genre_sourced'] or \
                             matches_ignored(self.ignore_genres_from_these_artists_list, metadata.get("artist")):
                         if item_id not in self.cache:
                             self.cache[item_id] = []
@@ -365,9 +365,6 @@ class WikidataOptionsPage(OptionsPage):
         else:
             self.ui.genre_delimiter.setEnabled(True);
             self.ui.genre_delimiter_label.setEnabled(True);
-
-    def info(self):
-        pass
 
     def load(self):
         setting = config.setting
