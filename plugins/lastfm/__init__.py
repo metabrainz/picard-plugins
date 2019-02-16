@@ -3,7 +3,7 @@
 PLUGIN_NAME = 'Last.fm'
 PLUGIN_AUTHOR = 'Lukáš Lalinský, Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use tags from Last.fm as genre.'
-PLUGIN_VERSION = "0.8"
+PLUGIN_VERSION = "0.9"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 import re
@@ -212,7 +212,7 @@ class LastfmOptionsPage(OptionsPage):
     options = [
         BoolOption("setting", "lastfm_use_track_tags", False),
         BoolOption("setting", "lastfm_use_artist_tags", False),
-        IntOption("setting", "lastfm_min_tag_usage", 15),
+        IntOption("setting", "lastfm_min_tag_usage", 90),
         TextOption("setting", "lastfm_ignore_tags",
                    "seen live, favorites, /\\d+ of \\d+ stars/"),
         TextOption("setting", "lastfm_join_tags", ""),
