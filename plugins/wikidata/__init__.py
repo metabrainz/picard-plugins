@@ -5,7 +5,7 @@
 # terms of the Do What The Fuck You Want To Public License, Version 2,
 # as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.
 
-PLUGIN_NAME = 'wikidata-genre'
+PLUGIN_NAME = 'Wikidata Genre'
 PLUGIN_AUTHOR = 'Daniel Sobey, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'query wikidata to get genre tags'
 PLUGIN_VERSION = '1.3'
