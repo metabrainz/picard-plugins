@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015 Philipp Wolfer
+# Copyright (C) 2015-2019 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,8 +20,8 @@
 PLUGIN_NAME = 'fanart.tv cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
-PLUGIN_VERSION = "1.5"
-PLUGIN_API_VERSIONS = ["2.0"]
+PLUGIN_VERSION = "1.5.1"
+PLUGIN_API_VERSIONS = ["2.0", "2.1"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -29,9 +29,15 @@ from functools import partial
 from PyQt5.QtCore import QUrl
 from PyQt5.QtNetwork import QNetworkReply
 from picard import config, log
-from picard.coverart.providers import CoverArtProvider, register_cover_art_provider
+from picard.coverart.providers import (
+    CoverArtProvider,
+    register_cover_art_provider,
+)
 from picard.coverart.image import CoverArtImage
-from picard.ui.options import register_options_page, OptionsPage
+from picard.ui.options import (
+    register_options_page,
+    OptionsPage,
+)
 from picard.config import TextOption
 from picard.plugins.fanarttv.ui_options_fanarttv import Ui_FanartTvOptionsPage
 
@@ -54,7 +60,7 @@ def cover_sort_key(cover):
 
 class FanartTvCoverArtImage(CoverArtImage):
 
-    """Image from Cover Art Archive"""
+    """Image from fanart.tv"""
 
     support_types = True
     sourceprefix = "FATV"
@@ -67,9 +73,8 @@ class CoverArtProviderFanartTv(CoverArtProvider):
     NAME = "fanart.tv"
 
     def enabled(self):
-        return self._client_key != "" and \
-            super(CoverArtProviderFanartTv, self).enabled() and \
-            not self.coverart.front_image_found
+        return (self._client_key and super().enabled()
+                and not self.coverart.front_image_found)
 
     def queue_images(self):
         release_group_id = self.metadata["musicbrainz_releasegroupid"]
@@ -119,7 +124,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
                             and "albumcover" not in release)):
                     covers = release["cdart"]
                     types = ["medium"]
-                    if not "albumcover" in release:
+                    if "albumcover" not in release:
                         types.append("front")
                     self._select_and_add_cover_art(covers, types)
             except (AttributeError, KeyError, TypeError):
@@ -146,7 +151,7 @@ class FanartTvOptionsPage(OptionsPage):
     ]
 
     def __init__(self, parent=None):
-        super(FanartTvOptionsPage, self).__init__(parent)
+        super().__init__(parent)
         self.ui = Ui_FanartTvOptionsPage()
         self.ui.setupUi(self)
 
