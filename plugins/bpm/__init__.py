@@ -8,11 +8,11 @@
 #
 
 PLUGIN_NAME = "BPM Analyzer"
-PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
+PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari, Philipp Wolfer"
 PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums. Linux only version with dependancy on Aubio and Numpy"""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "1.3"
+PLUGIN_VERSION = "1.4"
 PLUGIN_API_VERSIONS = ["2.0"]
 # PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
@@ -21,6 +21,7 @@ from aubio import source, tempo
 from numpy import median, diff
 from collections import defaultdict
 from functools import partial
+from PyQt5 import QtCore
 from subprocess import check_call
 from picard.album import Album, NatAlbum
 from picard.track import Track
@@ -40,46 +41,26 @@ bpm_slider_settings = {
 }
 
 
-def get_file_bpm(self, path):
-    """ Calculate the beats per minute (bpm) of a given file.
-        path: path to the file
-        buf_size    length of FFT
-        hop_size    number of frames between two consecutive runs
-        samplerate  sampling rate of the signal to analyze
-    """
-
-    samplerate, buf_size, hop_size = bpm_slider_settings[
-        BPMOptionsPage.config.setting["bpm_slider_parameter"]]
-    mediasource = source(path, samplerate, hop_size)
-    samplerate = mediasource.samplerate
-    beattracking = tempo("specdiff", buf_size, hop_size, samplerate)
-    # List of beats, in samples
-    beats = []
-    # Total number of frames read
-    total_frames = 0
-
-    while True:
-        samples, read = mediasource()
-        is_beat = beattracking(samples)
-        if is_beat:
-            this_beat = beattracking.get_last_s()
-            beats.append(this_beat)
-        total_frames += read
-        if read < hop_size:
-            break
-
-    # Convert to periods and to bpm
-    bpms = 60. / diff(beats)
-    return median(bpms)
-
-
 class FileBPM(BaseAction):
     NAME = N_("Calculate BPM...")
+
+    def __init__(self):
+        super().__init__()
+        self._close = False
+        self.thread_pool = QtCore.QThreadPool(self)
+        self.tagger.aboutToQuit.connect(self._cleanup)
+
+    def _cleanup(self):
+        if self._close:
+            return
+        self._close = True
+        self.thread_pool.waitForDone()
 
     def _add_file_to_queue(self, file):
         thread.run_task(
             partial(self._calculate_bpm, file),
-            partial(self._calculate_bpm_callback, file))
+            partial(self._calculate_bpm_callback, file),
+            thread_pool=self.thread_pool)
 
     def callback(self, objs):
         for obj in objs:
@@ -94,8 +75,10 @@ class FileBPM(BaseAction):
             N_('Calculating BPM for "%(filename)s"...'),
             {'filename': file.filename}
         )
-        calculated_bpm = get_file_bpm(self.tagger, file.filename)
+        calculated_bpm = self._get_file_bpm(file.filename)
         # self.tagger.log.debug('%s' % (calculated_bpm))
+        if self._close:
+            return
         file.metadata["bpm"] = str(round(calculated_bpm, 1))
         file.update()
 
@@ -110,6 +93,40 @@ class FileBPM(BaseAction):
                 N_('Could not calculate BPM for "%(filename)s".'),
                 {'filename': file.filename}
             )
+
+    def _get_file_bpm(self, path):
+        """ Calculate the beats per minute (bpm) of a given file.
+            path: path to the file
+            buf_size    length of FFT
+            hop_size    number of frames between two consecutive runs
+            samplerate  sampling rate of the signal to analyze
+        """
+
+        samplerate, buf_size, hop_size = bpm_slider_settings[
+            BPMOptionsPage.config.setting["bpm_slider_parameter"]]
+        mediasource = source(path, samplerate, hop_size)
+        samplerate = mediasource.samplerate
+        beattracking = tempo("specdiff", buf_size, hop_size, samplerate)
+        # List of beats, in samples
+        beats = []
+        # Total number of frames read
+        total_frames = 0
+
+        while True:
+            if self._close:
+                return
+            samples, read = mediasource()
+            is_beat = beattracking(samples)
+            if is_beat:
+                this_beat = beattracking.get_last_s()
+                beats.append(this_beat)
+            total_frames += read
+            if read < hop_size:
+                break
+
+        # Convert to periods and to bpm
+        bpms = 60. / diff(beats)
+        return median(bpms)
 
 
 class BPMOptionsPage(OptionsPage):
