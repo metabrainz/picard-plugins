@@ -26,7 +26,7 @@ PLUGIN_NAME = 'Amazon cover art'
 PLUGIN_AUTHOR = 'MusicBrainz Picard developers'
 PLUGIN_DESCRIPTION = 'Use cover art from Amazon.'
 PLUGIN_VERSION = "1.0"
-PLUGIN_API_VERSIONS = ["2.1"]
+PLUGIN_API_VERSIONS = ["2.2"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
