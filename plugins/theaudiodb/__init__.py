@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'TheAudioDB cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use cover art from TheAudioDB.'
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.0.1"
 PLUGIN_API_VERSIONS = ["2.0", "2.1"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -95,7 +95,11 @@ class CoverArtProviderTheAudioDb(CoverArtProvider):
             error_level("Problem requesting metadata in TheAudioDB plugin: %s", error)
         else:
             try:
-                release = data["album"][0]
+                releases = data.get("album")
+                if not releases:
+                    log.info("No cover art found on TheAudioDB for %s", reply.url().url())
+                    return
+                release = releases[0]
                 albumArtUrl = release.get("strAlbumThumb")
                 cdArtUrl = release.get("strAlbumCDart")
 
@@ -110,10 +114,10 @@ class CoverArtProviderTheAudioDb(CoverArtProvider):
                     if not albumArtUrl:
                         types.append("front")
                     self._select_and_add_cover_art(cdArtUrl, types)
-            except (AttributeError, KeyError, TypeError):
+            except (TypeError):
                 log.error("Problem processing downloaded metadata in TheAudioDB plugin: %s", exc_info=True)
-
-        self.next_in_queue()
+            finally:
+                self.next_in_queue()
 
     def _select_and_add_cover_art(self, url, types):
         log.debug("CoverArtProviderTheAudioDb found artwork %s" % url)
