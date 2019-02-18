@@ -71,7 +71,7 @@ class CoverArtProviderTheAudioDb(CoverArtProvider):
         queryargs = {
             "i": bytes(QUrl.toPercentEncoding(release_group_id)).decode()
         }
-        log.debug("CoverArtProviderTheAudioDb.queue_downloads: %s?i=%s" % (path, queryargs["i"]))
+        log.debug("TheAudioDB: Queued download: %s?i=%s" % (path, queryargs["i"]))
         self.album.tagger.webservice.get(
             THEAUDIODB_HOST,
             THEAUDIODB_PORT,
@@ -92,12 +92,12 @@ class CoverArtProviderTheAudioDb(CoverArtProvider):
                 error_level = log.error
             else:
                 error_level = log.debug
-            error_level("Problem requesting metadata in TheAudioDB plugin: %s", error)
+            error_level("TheAudioDB: Problem requesting metadata: %s", error)
         else:
             try:
                 releases = data.get("album")
                 if not releases:
-                    log.info("No cover art found on TheAudioDB for %s", reply.url().url())
+                    log.debug("TheAudioDB: No cover art found for %s", reply.url().url())
                     return
                 release = releases[0]
                 albumArtUrl = release.get("strAlbumThumb")
@@ -115,12 +115,12 @@ class CoverArtProviderTheAudioDb(CoverArtProvider):
                         types.append("front")
                     self._select_and_add_cover_art(cdArtUrl, types)
             except (TypeError):
-                log.error("Problem processing downloaded metadata in TheAudioDB plugin: %s", exc_info=True)
+                log.error("TheAudioDB: Problem processing downloaded metadata: %s", exc_info=True)
             finally:
                 self.next_in_queue()
 
     def _select_and_add_cover_art(self, url, types):
-        log.debug("CoverArtProviderTheAudioDb found artwork %s" % url)
+        log.debug("TheAudioDB: Found artwork %s" % url)
         self.queue_put(TheAudioDbCoverArtImage(url, types=types))
 
 
