@@ -21,7 +21,6 @@ from aubio import source, tempo
 from numpy import median, diff
 from collections import defaultdict
 from functools import partial
-from PyQt5 import QtCore
 from subprocess import check_call
 from picard.album import Album, NatAlbum
 from picard.track import Track
@@ -47,20 +46,15 @@ class FileBPM(BaseAction):
     def __init__(self):
         super().__init__()
         self._close = False
-        self.thread_pool = QtCore.QThreadPool(self)
         self.tagger.aboutToQuit.connect(self._cleanup)
 
     def _cleanup(self):
-        if self._close:
-            return
         self._close = True
-        self.thread_pool.waitForDone()
 
     def _add_file_to_queue(self, file):
         thread.run_task(
             partial(self._calculate_bpm, file),
-            partial(self._calculate_bpm_callback, file),
-            thread_pool=self.thread_pool)
+            partial(self._calculate_bpm_callback, file))
 
     def callback(self, objs):
         for obj in objs:
