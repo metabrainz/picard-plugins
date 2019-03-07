@@ -33,10 +33,10 @@ def process_result(album, metadata, response, reply, error):
         data = load_json(response)
         lyrics = data['result']['track']['text']
         metadata['lyrics'] = lyrics
-        log.info('{}: lyrics found for track {}'.format(PLUGIN_NAME, metadata['title']))
+        log.debug('{}: lyrics found for track {}'.format(PLUGIN_NAME, metadata['title']))
 
     except:
-        log.info('{}: lyrics NOT found for track {}'.format(PLUGIN_NAME, metadata['title']))
+        log.debug('{}: lyrics NOT found for track {}'.format(PLUGIN_NAME, metadata['title']))
 
     finally:
         album._requests -= 1
@@ -47,23 +47,23 @@ def process_track(album, metadata, release, track):
 
     apikey = config.setting['apiseeds_api_key']
     if (apikey is None):
-        log.error('{}: API key is missing, please provide a valid value'.format(PLUGIN_NAME))
+        log.debug('{}: API key is missing, please provide a valid value'.format(PLUGIN_NAME))
         return
 
     artist = metadata['artist']
     if (artist is None):
-        log.error('{}: artist is missing, please provide a valid value'.format(PLUGIN_NAME))
+        log.debug('{}: artist is missing, please provide a valid value'.format(PLUGIN_NAME))
         return
 
     title = metadata['title']
     if (title is None):
-        log.error('{}: title is missing, please provide a valid value'.format(PLUGIN_NAME))
+        log.debug('{}: title is missing, please provide a valid value'.format(PLUGIN_NAME))
         return
 
     apiseeds_path = '/api/music/lyric/{}/{}'.format(artist, title)
     apiseeds_params = {'apikey': apikey}
     album._requests += 1
-    log.info('{}: GET {}?{}'.format(PLUGIN_NAME, quote(apiseeds_path), urlencode(apiseeds_params)))
+    log.debug('{}: GET {}?{}'.format(PLUGIN_NAME, quote(apiseeds_path), urlencode(apiseeds_params)))
 
     album.tagger.webservice.get(
         APISEEDS_HOST,
