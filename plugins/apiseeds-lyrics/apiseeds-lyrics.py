@@ -1,6 +1,9 @@
 PLUGIN_NAME = 'Apiseeds Lyrics'
-PLUGIN_AUTHOR = 'Avallone Andrea'
-PLUGIN_DESCRIPTION = '''Fetch lyrics from Apiseeds Lyrics which provides millions of lyrics from artist all around the world. Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed. In order to use Apiseeds you need to get a free API key at <em>https://apiseeds.com</em>. Want to contribute? Check out the project page at <em>https://github.com/avalloneandrea/apiseeds-lyrics</em>!'''
+PLUGIN_AUTHOR = 'Andrea Avallone'
+PLUGIN_DESCRIPTION = 'Fetch lyrics from Apiseeds Lyrics, which provides millions of lyrics from artist all around the world. ' \
+                     'Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed. ' \
+                     'In order to use Apiseeds you need to get a free API key at <em>https://apiseeds.com</em>. ' \
+                     'Want to contribute? Check out the project page at <em>https://github.com/avalloneandrea/apiseeds-lyrics</em>!'''
 PLUGIN_VERSION = '1.0.0'
 PLUGIN_API_VERSIONS = ['2.0.0']
 PLUGIN_LICENSE = 'MIT'
@@ -90,7 +93,9 @@ class ApiseedsLyricsOptionsPage(OptionsPage):
         self.box.addWidget(self.label)
 
         self.description = QtWidgets.QLabel(self)
-        self.description.setText('Apiseeds Lyrics provides millions of lyrics from artist all around the world. Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed. In order to use Apiseeds Lyrics you need to get a free API key <a href="https://apiseeds.com">here</a>.')
+        self.description.setText('Apiseeds Lyrics provides millions of lyrics from artist all around the world. '
+                                 'Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed. '
+                                 'In order to use Apiseeds Lyrics you need to get a free API key <a href="https://apiseeds.com">here</a>.')
         self.description.setOpenExternalLinks(True)
         self.box.addWidget(self.description)
 
@@ -112,5 +117,5 @@ class ApiseedsLyricsOptionsPage(OptionsPage):
         config.setting['apiseeds_api_key'] = self.input.text()
 
 
-register_options_page(ApiseedsLyricsOptionsPage)
 register_track_metadata_processor(process_track)
+register_options_page(ApiseedsLyricsOptionsPage)
