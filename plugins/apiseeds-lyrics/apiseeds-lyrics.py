@@ -15,7 +15,6 @@ from picard import config, log
 from picard.config import TextOption
 from picard.metadata import register_track_metadata_processor
 from picard.ui.options import register_options_page, OptionsPage
-from picard.util import load_json
 from picard.webservice import ratecontrol
 from PyQt5 import QtWidgets
 from urllib.parse import quote, urlencode
@@ -30,8 +29,7 @@ ratecontrol.set_minimum_delay((APISEEDS_HOST, APISEEDS_PORT), APISEEDS_RATE_LIMI
 def process_result(album, metadata, response, reply, error):
 
     try:
-        data = load_json(response)
-        lyrics = data['result']['track']['text']
+        lyrics = response['result']['track']['text']
         metadata['lyrics'] = lyrics
         log.debug('{}: lyrics found for track {}'.format(PLUGIN_NAME, metadata['title']))
 
@@ -70,7 +68,7 @@ def process_track(album, metadata, release, track):
         APISEEDS_PORT,
         apiseeds_path,
         partial(process_result, album, metadata),
-        parse_response_type=None,
+        parse_response_type='json',
         priority=True,
         queryargs=apiseeds_params)
 
