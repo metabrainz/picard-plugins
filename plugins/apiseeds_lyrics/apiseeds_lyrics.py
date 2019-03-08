@@ -13,7 +13,7 @@ PLUGIN_AUTHOR = 'Andrea Avallone'
 PLUGIN_DESCRIPTION = 'Fetch lyrics from Apiseeds Lyrics, which provides millions of lyrics from artist all around the world. ' \
                      'Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed. ' \
                      'In order to use Apiseeds you need to get a free API key at <em>https://apiseeds.com</em>. ' \
-                     'Want to contribute? Check out the project page at <em>https://github.com/avalloneandrea/apiseeds-lyrics</em>!'''
+                     'Want to contribute? Check out the project page at <em>https://github.com/avalloneandrea/apiseeds-lyrics</em>!'
 PLUGIN_VERSION = '1.0.2'
 PLUGIN_API_VERSIONS = ['2.0.0']
 PLUGIN_LICENSE = 'MIT'
@@ -24,11 +24,11 @@ class ApiseedsLyricsMetadataProcessor(object):
 
     apiseeds_host = 'orion.apiseeds.com'
     apiseeds_port = 443
-    apiseeds_rate_limit = 60 * 1000 / 200
+    apiseeds_delay = 60 * 1000 / 200  # 200 requests per minute
 
     def __init__(self):
         super(ApiseedsLyricsMetadataProcessor, self).__init__()
-        ratecontrol.set_minimum_delay((self.apiseeds_host, self.apiseeds_port), self.apiseeds_rate_limit)
+        ratecontrol.set_minimum_delay((self.apiseeds_host, self.apiseeds_port), self.apiseeds_delay)
 
     def process_metadata(self, album, metadata, track, release):
 
@@ -62,10 +62,10 @@ class ApiseedsLyricsMetadataProcessor(object):
             queryargs=apiseeds_params)
 
     @staticmethod
-    def process_response(album, metadata, document, reply, error):
+    def process_response(album, metadata, response, reply, error):
 
         try:
-            lyrics = document['result']['track']['text']
+            lyrics = response['result']['track']['text']
             metadata['lyrics'] = lyrics
             log.debug('{}: lyrics found for track {}'.format(PLUGIN_NAME, metadata['title']))
 
