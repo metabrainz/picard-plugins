@@ -61,7 +61,8 @@ class ApiseedsLyricsMetadataProcessor(object):
             priority=True,
             queryargs=apiseeds_params)
 
-    def process_response(self, album, metadata, document, reply, error):
+    @staticmethod
+    def process_response(album, metadata, document, reply, error):
 
         try:
             lyrics = document['result']['track']['text']
