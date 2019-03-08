@@ -20,19 +20,25 @@
 PLUGIN_NAME = 'TheAudioDB cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use cover art from TheAudioDB.'
-PLUGIN_VERSION = "1.0.1"
-PLUGIN_API_VERSIONS = ["2.0", "2.1"]
+PLUGIN_VERSION = "1.0.2"
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from PyQt5.QtCore import QUrl
 from PyQt5.QtNetwork import QNetworkReply
 from picard import config, log
-from picard.coverart.providers import CoverArtProvider, register_cover_art_provider
+from picard.coverart.providers import (
+    CoverArtProvider,
+    register_cover_art_provider,
+)
 from picard.coverart.image import CoverArtImage
-from picard.ui.options import register_options_page, OptionsPage
+from picard.ui.options import (
+    register_options_page,
+    OptionsPage,
+)
 from picard.config import TextOption
-from picard.plugins.theaudiodb.ui_options_theaudiodb import Ui_TheAudioDbOptionsPage
+from .ui_options_theaudiodb import Ui_TheAudioDbOptionsPage
 
 THEAUDIODB_HOST = "www.theaudiodb.com"
 THEAUDIODB_PORT = 443
@@ -52,7 +58,8 @@ class TheAudioDbCoverArtImage(CoverArtImage):
 
     def parse_url(self, url):
         super().parse_url(url)
-        # Workaround for Picard always returning port 80 regardless of the scheme
+        # Workaround for Picard always returning port 80 regardless of the
+        # scheme. No longer necessary for Picard >= 2.1.3
         self.port = self.url.port(443 if self.url.scheme() == 'https' else 80)
 
 
@@ -71,7 +78,7 @@ class CoverArtProviderTheAudioDb(CoverArtProvider):
         queryargs = {
             "i": bytes(QUrl.toPercentEncoding(release_group_id)).decode()
         }
-        log.debug("TheAudioDB: Queued download: %s?i=%s" % (path, queryargs["i"]))
+        log.debug("TheAudioDB: Queued download: %s?i=%s", path, queryargs["i"])
         self.album.tagger.webservice.get(
             THEAUDIODB_HOST,
             THEAUDIODB_PORT,
@@ -97,25 +104,26 @@ class CoverArtProviderTheAudioDb(CoverArtProvider):
             try:
                 releases = data.get("album")
                 if not releases:
-                    log.debug("TheAudioDB: No cover art found for %s", reply.url().url())
+                    log.debug("TheAudioDB: No cover art found for %s",
+                              reply.url().url())
                     return
                 release = releases[0]
-                albumArtUrl = release.get("strAlbumThumb")
-                cdArtUrl = release.get("strAlbumCDart")
+                albumart_url = release.get("strAlbumThumb")
+                cdart_url = release.get("strAlbumCDart")
+                use_cdart = config.setting["theaudiodb_use_cdart"]
 
-                if albumArtUrl:
-                    self._select_and_add_cover_art(albumArtUrl, ["front"])
+                if albumart_url:
+                    self._select_and_add_cover_art(albumart_url, ["front"])
 
-                if cdArtUrl and \
-                    (config.setting["theaudiodb_use_cdart"] == OPTION_CDART_ALWAYS
-                        or (config.setting["theaudiodb_use_cdart"] == OPTION_CDART_NOALBUMART
-                            and not albumArtUrl)):
+                if cdart_url and (use_cdart == OPTION_CDART_ALWAYS
+                                  or (use_cdart == OPTION_CDART_NOALBUMART
+                                      and not albumart_url)):
                     types = ["medium"]
-                    if not albumArtUrl:
+                    if not albumart_url:
                         types.append("front")
-                    self._select_and_add_cover_art(cdArtUrl, types)
+                    self._select_and_add_cover_art(cdart_url, types)
             except (TypeError):
-                log.error("TheAudioDB: Problem processing downloaded metadata: %s", exc_info=True)
+                log.error("TheAudioDB: Problem processing downloaded metadata", exc_info=True)
             finally:
                 self.next_in_queue()
 
