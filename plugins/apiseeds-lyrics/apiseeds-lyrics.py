@@ -1,3 +1,13 @@
+from functools import partial
+from urllib.parse import quote, urlencode
+
+from PyQt5 import QtWidgets
+from picard import config, log
+from picard.config import TextOption
+from picard.metadata import register_track_metadata_processor
+from picard.ui.options import register_options_page, OptionsPage
+from picard.webservice import ratecontrol
+
 PLUGIN_NAME = 'Apiseeds Lyrics'
 PLUGIN_AUTHOR = 'Andrea Avallone'
 PLUGIN_DESCRIPTION = 'Fetch lyrics from Apiseeds Lyrics, which provides millions of lyrics from artist all around the world. ' \
@@ -10,67 +20,60 @@ PLUGIN_LICENSE = 'MIT'
 PLUGIN_LICENSE_URL = 'https://opensource.org/licenses/MIT'
 
 
-from functools import partial
-from picard import config, log
-from picard.config import TextOption
-from picard.metadata import register_track_metadata_processor
-from picard.ui.options import register_options_page, OptionsPage
-from picard.webservice import ratecontrol
-from PyQt5 import QtWidgets
-from urllib.parse import quote, urlencode
+class ApiseedsLyricsMetadataProcessor(object):
 
+    apiseeds_host = 'orion.apiseeds.com'
+    apiseeds_port = 443
+    apiseeds_rate_limit = 60 * 1000 / 200
 
-APISEEDS_HOST = 'orion.apiseeds.com'
-APISEEDS_PORT = 443
-APISEEDS_RATE_LIMIT = 60 * 1000 / 200
-ratecontrol.set_minimum_delay((APISEEDS_HOST, APISEEDS_PORT), APISEEDS_RATE_LIMIT)
+    def __init__(self):
+        super(ApiseedsLyricsMetadataProcessor, self).__init__()
+        ratecontrol.set_minimum_delay((self.apiseeds_host, self.apiseeds_port), self.apiseeds_rate_limit)
 
+    def process_metadata(self, album, metadata, track, release):
 
-def process_result(album, metadata, response, reply, error):
+        apikey = config.setting['apiseeds_apikey']
+        if not apikey:
+            log.debug('{}: API key is missing, please provide a valid value'.format(PLUGIN_NAME))
+            return
 
-    try:
-        lyrics = response['result']['track']['text']
-        metadata['lyrics'] = lyrics
-        log.debug('{}: lyrics found for track {}'.format(PLUGIN_NAME, metadata['title']))
+        artist = metadata['artist']
+        if not artist:
+            log.debug('{}: artist is missing, please provide a valid value'.format(PLUGIN_NAME))
+            return
 
-    except:
-        log.debug('{}: lyrics NOT found for track {}'.format(PLUGIN_NAME, metadata['title']))
+        title = metadata['title']
+        if not title:
+            log.debug('{}: title is missing, please provide a valid value'.format(PLUGIN_NAME))
+            return
 
-    finally:
-        album._requests -= 1
-        album._finalize_loading(None)
+        apiseeds_path = '/api/music/lyric/{}/{}'.format(artist, title)
+        apiseeds_params = {'apikey': apikey}
+        album._requests += 1
+        log.debug('{}: GET {}?{}'.format(PLUGIN_NAME, quote(apiseeds_path), urlencode(apiseeds_params)))
 
+        album.tagger.webservice.get(
+            self.apiseeds_host,
+            self.apiseeds_port,
+            apiseeds_path,
+            partial(self.process_response, album, metadata),
+            parse_response_type='json',
+            priority=True,
+            queryargs=apiseeds_params)
 
-def process_track(album, metadata, release, track):
+    def process_response(self, album, metadata, document, reply, error):
 
-    apikey = config.setting['apiseeds_api_key']
-    if not apikey:
-        log.debug('{}: API key is missing, please provide a valid value'.format(PLUGIN_NAME))
-        return
+        try:
+            lyrics = document['result']['track']['text']
+            metadata['lyrics'] = lyrics
+            log.debug('{}: lyrics found for track {}'.format(PLUGIN_NAME, metadata['title']))
 
-    artist = metadata['artist']
-    if not artist:
-        log.debug('{}: artist is missing, please provide a valid value'.format(PLUGIN_NAME))
-        return
+        except:
+            log.debug('{}: lyrics NOT found for track {}'.format(PLUGIN_NAME, metadata['title']))
 
-    title = metadata['title']
-    if not title:
-        log.debug('{}: title is missing, please provide a valid value'.format(PLUGIN_NAME))
-        return
-
-    apiseeds_path = '/api/music/lyric/{}/{}'.format(artist, title)
-    apiseeds_params = {'apikey': apikey}
-    album._requests += 1
-    log.debug('{}: GET {}?{}'.format(PLUGIN_NAME, quote(apiseeds_path), urlencode(apiseeds_params)))
-
-    album.tagger.webservice.get(
-        APISEEDS_HOST,
-        APISEEDS_PORT,
-        apiseeds_path,
-        partial(process_result, album, metadata),
-        parse_response_type='json',
-        priority=True,
-        queryargs=apiseeds_params)
+        finally:
+            album._requests -= 1
+            album._finalize_loading(None)
 
 
 class ApiseedsLyricsOptionsPage(OptionsPage):
@@ -79,7 +82,7 @@ class ApiseedsLyricsOptionsPage(OptionsPage):
     TITLE = 'Apiseeds Lyrics'
     PARENT = 'plugins'
 
-    options = [TextOption('setting', 'apiseeds_api_key', None)]
+    options = [TextOption('setting', 'apiseeds_apikey', None)]
 
     def __init__(self, parent=None):
 
@@ -109,11 +112,11 @@ class ApiseedsLyricsOptionsPage(OptionsPage):
         self.box.addItem(self.spacer)
 
     def load(self):
-        self.input.setText(config.setting['apiseeds_api_key'])
+        self.input.setText(config.setting['apiseeds_apikey'])
 
     def save(self):
-        config.setting['apiseeds_api_key'] = self.input.text()
+        config.setting['apiseeds_apikey'] = self.input.text()
 
 
-register_track_metadata_processor(process_track)
+register_track_metadata_processor(ApiseedsLyricsMetadataProcessor().process_metadata)
 register_options_page(ApiseedsLyricsOptionsPage)
