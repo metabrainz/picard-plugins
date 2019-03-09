@@ -20,18 +20,18 @@ PLUGIN_DESCRIPTION = """\
   Adds a multi-valued tag of all the instruments (including vocals), for use in
   scripts.
   """
-PLUGIN_VERSION = '1.0'
+PLUGIN_VERSION = '1.1'
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = 'GPL-3.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-3.0.html'
 
-from typing import Generator, Optional
+# TODO: Re-add type annotations. (Revert the commit that added this TODO.)
 
 from picard import metadata
 from picard import plugin
 
 
-def _iterate_instruments(instrument_list: str) -> Generator[str, None, None]:
+def _iterate_instruments(instrument_list):
   """Yields individual instruments from a string listing them.
 
   Args:
@@ -48,7 +48,7 @@ def _iterate_instruments(instrument_list: str) -> Generator[str, None, None]:
     yield instrument
 
 
-def _strip_instrument_prefixes(instrument: str) -> Optional[str]:
+def _strip_instrument_prefixes(instrument):
   """Returns the instrument name without qualifying prefixes, or None.
 
   Args:
