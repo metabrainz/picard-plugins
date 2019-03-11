@@ -83,7 +83,7 @@ class ApiseedsLyricsOptionsPage(OptionsPage):
     TITLE = 'Apiseeds Lyrics'
     PARENT = 'plugins'
 
-    options = [TextOption('setting', 'apiseeds_apikey', None)]
+    options = [TextOption('setting', 'apiseeds_apikey', '')]
 
     def __init__(self, parent=None):
 
