@@ -47,7 +47,7 @@ class ApiseedsLyricsMetadataProcessor(object):
             log.debug('{}: title is missing, please provide a valid value'.format(PLUGIN_NAME))
             return
 
-        apiseeds_path = '/api/music/lyric/{}/{}'.format(artist, title)
+        apiseeds_path = '/api/music/lyric/{}/{}'.format(quote(artist, ''), quote(title, ''))
         apiseeds_params = {'apikey': apikey}
         album._requests += 1
         log.debug('{}: GET {}?{}'.format(PLUGIN_NAME, quote(apiseeds_path), urlencode(apiseeds_params)))
