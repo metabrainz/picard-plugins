@@ -69,7 +69,7 @@ class ApiseedsLyricsMetadataProcessor(object):
             metadata['lyrics'] = lyrics
             log.debug('{}: lyrics found for track {}'.format(PLUGIN_NAME, metadata['title']))
 
-        except:
+        except (TypeError, KeyError):
             log.debug('{}: lyrics NOT found for track {}'.format(PLUGIN_NAME, metadata['title']))
 
         finally:
