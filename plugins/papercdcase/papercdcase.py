@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015 Philipp Wolfer
+# Copyright (C) 2015, 2019 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,9 +19,10 @@
 
 PLUGIN_NAME = 'Paper CD case'
 PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
-PLUGIN_DESCRIPTION = 'Create a paper CD case from an album or cluster using http://papercdcase.com'
-PLUGIN_VERSION = "1.2"
-PLUGIN_API_VERSIONS = ["2.0"]
+PLUGIN_DESCRIPTION = ('Create a paper CD case from an album or cluster '
+                      'using http://papercdcase.com')
+PLUGIN_VERSION = "1.2.1"
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -29,26 +30,28 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 from PyQt5.QtCore import QUrl, QUrlQuery
 from picard.album import Album
 from picard.cluster import Cluster
-from picard.ui.itemviews import BaseAction, register_album_action, register_cluster_action
+from picard.ui.itemviews import (
+    BaseAction,
+    register_album_action,
+    register_cluster_action,
+)
 from picard.util import webbrowser2
 from picard.util import textencoding
 
 
 PAPERCDCASE_URL = 'http://papercdcase.com/advanced.php'
-
-
 URLENCODE_ASCII_CHARS = [ord(' '), ord('%'), ord('&'), ord('/'), ord('?')]
 
 
 def urlencode(s):
-    l = []
+    chars = []
     for c in s:
         n = ord(c)
         if (n < 128 or n > 255) and n not in URLENCODE_ASCII_CHARS:
-            l.append(c)
+            chars.append(c)
         else:
-            l.append('%' + hex(n)[2:].upper())
-    return ''.join(l)
+            chars.append('%' + hex(n)[2:].upper())
+    return ''.join(chars)
 
 
 def build_papercdcase_url(artist, album, tracks):

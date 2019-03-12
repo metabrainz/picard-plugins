@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018 Philipp Wolfer
+# Copyright (C) 2018-2019 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,8 +20,8 @@
 PLUGIN_NAME = 'Work & Movement'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Set work and movement based on work relationships'
-PLUGIN_VERSION = '1.0'
-PLUGIN_API_VERSIONS = ['2.1']
+PLUGIN_VERSION = '1.0.1'
+PLUGIN_API_VERSIONS = ['2.1', '2.2']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
@@ -35,6 +35,10 @@ from .roman import (
 
 from picard import log
 from picard.metadata import register_track_metadata_processor
+
+
+_re_work_title = re.compile(r'(?P<work>.*):\s+(?P<movementnumber>[IVXLCDM]+)\.\s+(?P<movement>.*)')
+_re_part_number = re.compile(r'(?P<number>[0-9IVXLCDM]+)\.?\s+')
 
 
 class Work:
@@ -74,8 +78,8 @@ def is_parent_work(rel):
 
 def is_movement_like(rel):
     return ('movement' in rel['attributes']
-             or 'act' in rel['attributes']
-             or 'ordering-key' in rel)
+            or 'act' in rel['attributes']
+            or 'ordering-key' in rel)
 
 
 def is_child_work(rel):
@@ -97,7 +101,6 @@ def number_to_int(s):
             raise ValueError(e)
 
 
-_re_work_title = re.compile(r'(?P<work>.*):\s+(?P<movementnumber>[IVXLCDM]+)\.\s+(?P<movement>.*)')
 def parse_work_name(title):
     return _re_work_title.search(title)
 
@@ -122,23 +125,23 @@ def create_work_and_movement_from_title(work):
         if not work.part_number:
             work.part_number = number
         elif work.part_number != number:
-            log.warning('Movement number mismatch for "%s": %s != %i' % (
-                     title, match.group('movementnumber'), work.part_number))
+            log.warning('Movement number mismatch for "%s": %s != %i',
+                        title, match.group('movementnumber'), work.part_number)
         if not work.parent:
             work.parent = Work(match.group('work'))
             work.parent.is_work = True
         elif work.parent.title != match.group('work'):
-            log.warning('Movement work name mismatch for "%s": "%s" != "%s"' % (
-                     title, match.group('work'), work.parent.title))
+            log.warning('Movement work name mismatch for "%s": "%s" != "%s"',
+                        title, match.group('work'), work.parent.title)
     return work
 
 
-_re_part_number = re.compile(r'(?P<number>[0-9IVXLCDM]+)\.?\s+')
 def normalize_movement_title(work):
     """
-    Removes the parent work title and part number from the beginning of `work.title`.
-    This ensures movement names don't contain duplicated information even if
-    they do not follow the strict naming format used by `create_work_and_movement_from_title`.
+    Removes the parent work title and part number from the beginning of
+    `work.title`. This ensures movement names don't contain duplicated
+    information even if they do not follow the strict naming format used by
+    `create_work_and_movement_from_title`.
     """
     movement_title = work.title
     if work.parent:
@@ -204,7 +207,7 @@ def process_track(album, metadata, track, release):
     else:
         recording = track
 
-    if not 'relations' in recording:
+    if 'relations' not in recording:
         return
 
     work = Work(recording['title'])

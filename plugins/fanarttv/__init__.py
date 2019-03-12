@@ -19,9 +19,11 @@
 
 PLUGIN_NAME = 'fanart.tv cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
-PLUGIN_DESCRIPTION = 'Use cover art from fanart.tv. To use this plugin you have to register a personal API key on https://fanart.tv/get-an-api-key/'
-PLUGIN_VERSION = "1.5.1"
-PLUGIN_API_VERSIONS = ["2.0", "2.1"]
+PLUGIN_DESCRIPTION = ('Use cover art from fanart.tv. To use this plugin you '
+                      'have to register a personal API key on '
+                      'https://fanart.tv/get-an-api-key/')
+PLUGIN_VERSION = "1.5.2"
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -39,7 +41,7 @@ from picard.ui.options import (
     OptionsPage,
 )
 from picard.config import TextOption
-from picard.plugins.fanarttv.ui_options_fanarttv import Ui_FanartTvOptionsPage
+from .ui_options_fanarttv import Ui_FanartTvOptionsPage
 
 FANART_HOST = "webservice.fanart.tv"
 FANART_PORT = 80
@@ -56,6 +58,10 @@ def cover_sort_key(cover):
         return int(cover["likes"]) if "likes" in cover else 0
     except ValueError:
         return 0
+
+
+def encode_queryarg(arg):
+    return bytes(QUrl.toPercentEncoding(arg)).decode()
 
 
 class FanartTvCoverArtImage(CoverArtImage):
@@ -80,8 +86,8 @@ class CoverArtProviderFanartTv(CoverArtProvider):
         release_group_id = self.metadata["musicbrainz_releasegroupid"]
         path = "/v3/music/albums/%s" % (release_group_id, )
         queryargs = {
-            "api_key": bytes(QUrl.toPercentEncoding(FANART_APIKEY)).decode(),
-            "client_key": bytes(QUrl.toPercentEncoding(self._client_key)).decode(),
+            "api_key": encode_queryarg(FANART_APIKEY),
+            "client_key": encode_queryarg(self._client_key),
         }
         log.debug("CoverArtProviderFanartTv.queue_downloads: %s" % path)
         self.album.tagger.webservice.get(
@@ -108,27 +114,30 @@ class CoverArtProviderFanartTv(CoverArtProvider):
                 error_level = log.error
             else:
                 error_level = log.debug
-            error_level("Problem requesting metadata in fanart.tv plugin: %s", error)
+            error_level("Problem requesting metadata in fanart.tv plugin: %s",
+                        error)
         else:
             try:
                 release = data["albums"][release_group_id]
+                has_cover = "albumcover" in release
+                has_cdart = "cdart" in release
+                use_cdart = config.setting["fanarttv_use_cdart"]
 
-                if "albumcover" in release:
+                if has_cover:
                     covers = release["albumcover"]
                     types = ["front"]
                     self._select_and_add_cover_art(covers, types)
 
-                if "cdart" in release and \
-                    (config.setting["fanarttv_use_cdart"] == OPTION_CDART_ALWAYS
-                        or (config.setting["fanarttv_use_cdart"] == OPTION_CDART_NOALBUMART
-                            and "albumcover" not in release)):
+                if has_cdart and (use_cdart == OPTION_CDART_ALWAYS
+                                  or (use_cdart == OPTION_CDART_NOALBUMART
+                                      and not has_cover)):
                     covers = release["cdart"]
                     types = ["medium"]
-                    if "albumcover" not in release:
+                    if not has_cover:
                         types.append("front")
                     self._select_and_add_cover_art(covers, types)
             except (AttributeError, KeyError, TypeError):
-                log.error("Problem processing downloaded metadata in fanart.tv plugin: %s", exc_info=True)
+                log.error("Problem processing downloaded metadata in fanart.tv plugin", exc_info=True)
 
         self.next_in_queue()
 
@@ -156,22 +165,24 @@ class FanartTvOptionsPage(OptionsPage):
         self.ui.setupUi(self)
 
     def load(self):
-        self.ui.fanarttv_client_key.setText(config.setting["fanarttv_client_key"])
-        if config.setting["fanarttv_use_cdart"] == OPTION_CDART_ALWAYS:
+        setting = config.setting
+        self.ui.fanarttv_client_key.setText(setting["fanarttv_client_key"])
+        if setting["fanarttv_use_cdart"] == OPTION_CDART_ALWAYS:
             self.ui.fanarttv_cdart_use_always.setChecked(True)
-        elif config.setting["fanarttv_use_cdart"] == OPTION_CDART_NEVER:
+        elif setting["fanarttv_use_cdart"] == OPTION_CDART_NEVER:
             self.ui.fanarttv_cdart_use_never.setChecked(True)
-        elif config.setting["fanarttv_use_cdart"] == OPTION_CDART_NOALBUMART:
+        elif setting["fanarttv_use_cdart"] == OPTION_CDART_NOALBUMART:
             self.ui.fanarttv_cdart_use_if_no_albumcover.setChecked(True)
 
     def save(self):
-        config.setting["fanarttv_client_key"] = self.ui.fanarttv_client_key.text()
+        setting = config.setting
+        setting["fanarttv_client_key"] = self.ui.fanarttv_client_key.text()
         if self.ui.fanarttv_cdart_use_always.isChecked():
-            config.setting["fanarttv_use_cdart"] = OPTION_CDART_ALWAYS
+            setting["fanarttv_use_cdart"] = OPTION_CDART_ALWAYS
         elif self.ui.fanarttv_cdart_use_never.isChecked():
-            config.setting["fanarttv_use_cdart"] = OPTION_CDART_NEVER
+            setting["fanarttv_use_cdart"] = OPTION_CDART_NEVER
         elif self.ui.fanarttv_cdart_use_if_no_albumcover.isChecked():
-            config.setting["fanarttv_use_cdart"] = OPTION_CDART_NOALBUMART
+            setting["fanarttv_use_cdart"] = OPTION_CDART_NOALBUMART
 
 
 register_cover_art_provider(CoverArtProviderFanartTv)
