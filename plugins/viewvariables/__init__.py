@@ -3,7 +3,7 @@
 PLUGIN_NAME = 'View script variables'
 PLUGIN_AUTHOR = 'Sophist'
 PLUGIN_DESCRIPTION = '''Display a dialog box listing the metadata variables for the track / file.'''
-PLUGIN_VERSION = '0.6'
+PLUGIN_VERSION = '0.7'
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -87,7 +87,7 @@ class ViewVariablesDialog(QtWidgets.QDialog):
             i += 1
             key_item.setText("_" + key[1:] if key.startswith('~') else key)
             if key in metadata:
-                value = dict.get(metadata, key)
+                value = metadata.getall(key)
                 if len(value) == 1 and value[0] != '':
                     value = value[0]
                 else:
