@@ -22,8 +22,8 @@ PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
 PLUGIN_DESCRIPTION = ('Use cover art from fanart.tv.<br /><br />'
                       'To use this plugin you have to register a personal API key on '
                       '<a href="https://fanart.tv/get-an-api-key/">fanart.tv</a>.')
-PLUGIN_VERSION = "1.5.4"
-PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4"]
+PLUGIN_VERSION = "1.6"
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -33,13 +33,10 @@ from PyQt5.QtNetwork import QNetworkReply
 from picard import config, log
 from picard.coverart.providers import (
     CoverArtProvider,
+    ProviderOptions,
     register_cover_art_provider,
 )
 from picard.coverart.image import CoverArtImage
-from picard.ui.options import (
-    register_options_page,
-    OptionsPage,
-)
 from picard.config import TextOption
 from .ui_options_fanarttv import Ui_FanartTvOptionsPage
 
@@ -64,6 +61,36 @@ def encode_queryarg(arg):
     return bytes(QUrl.toPercentEncoding(arg)).decode()
 
 
+class FanartTvOptionsPage(ProviderOptions):
+
+    _options_ui = Ui_FanartTvOptionsPage
+
+    options = [
+        TextOption("setting", "fanarttv_client_key", ""),
+        TextOption("setting", "fanarttv_use_cdart", OPTION_CDART_NOALBUMART),
+    ]
+
+    def load(self):
+        setting = config.setting
+        self.ui.fanarttv_client_key.setText(setting["fanarttv_client_key"])
+        if setting["fanarttv_use_cdart"] == OPTION_CDART_ALWAYS:
+            self.ui.fanarttv_cdart_use_always.setChecked(True)
+        elif setting["fanarttv_use_cdart"] == OPTION_CDART_NEVER:
+            self.ui.fanarttv_cdart_use_never.setChecked(True)
+        elif setting["fanarttv_use_cdart"] == OPTION_CDART_NOALBUMART:
+            self.ui.fanarttv_cdart_use_if_no_albumcover.setChecked(True)
+
+    def save(self):
+        setting = config.setting
+        setting["fanarttv_client_key"] = self.ui.fanarttv_client_key.text()
+        if self.ui.fanarttv_cdart_use_always.isChecked():
+            setting["fanarttv_use_cdart"] = OPTION_CDART_ALWAYS
+        elif self.ui.fanarttv_cdart_use_never.isChecked():
+            setting["fanarttv_use_cdart"] = OPTION_CDART_NEVER
+        elif self.ui.fanarttv_cdart_use_if_no_albumcover.isChecked():
+            setting["fanarttv_use_cdart"] = OPTION_CDART_NOALBUMART
+
+
 class FanartTvCoverArtImage(CoverArtImage):
 
     """Image from fanart.tv"""
@@ -77,6 +104,8 @@ class CoverArtProviderFanartTv(CoverArtProvider):
     """Use fanart.tv to get cover art"""
 
     NAME = "fanart.tv"
+    TITLE = "fanart.tv"
+    OPTIONS = FanartTvOptionsPage
 
     def enabled(self):
         return (self._client_key and super().enabled()
@@ -125,7 +154,7 @@ class CoverArtProviderFanartTv(CoverArtProvider):
 
                 if has_cover:
                     covers = release["albumcover"]
-                    types = ["front"]
+                    types = ["other"]
                     self._select_and_add_cover_art(covers, types)
 
                 if has_cdart and (use_cdart == OPTION_CDART_ALWAYS
@@ -148,42 +177,4 @@ class CoverArtProviderFanartTv(CoverArtProvider):
         self.queue_put(FanartTvCoverArtImage(url, types=types))
 
 
-class FanartTvOptionsPage(OptionsPage):
-
-    NAME = "fanarttv"
-    TITLE = "fanart.tv"
-    PARENT = "plugins"
-
-    options = [
-        TextOption("setting", "fanarttv_client_key", ""),
-        TextOption("setting", "fanarttv_use_cdart", OPTION_CDART_NOALBUMART),
-    ]
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.ui = Ui_FanartTvOptionsPage()
-        self.ui.setupUi(self)
-
-    def load(self):
-        setting = config.setting
-        self.ui.fanarttv_client_key.setText(setting["fanarttv_client_key"])
-        if setting["fanarttv_use_cdart"] == OPTION_CDART_ALWAYS:
-            self.ui.fanarttv_cdart_use_always.setChecked(True)
-        elif setting["fanarttv_use_cdart"] == OPTION_CDART_NEVER:
-            self.ui.fanarttv_cdart_use_never.setChecked(True)
-        elif setting["fanarttv_use_cdart"] == OPTION_CDART_NOALBUMART:
-            self.ui.fanarttv_cdart_use_if_no_albumcover.setChecked(True)
-
-    def save(self):
-        setting = config.setting
-        setting["fanarttv_client_key"] = self.ui.fanarttv_client_key.text()
-        if self.ui.fanarttv_cdart_use_always.isChecked():
-            setting["fanarttv_use_cdart"] = OPTION_CDART_ALWAYS
-        elif self.ui.fanarttv_cdart_use_never.isChecked():
-            setting["fanarttv_use_cdart"] = OPTION_CDART_NEVER
-        elif self.ui.fanarttv_cdart_use_if_no_albumcover.isChecked():
-            setting["fanarttv_use_cdart"] = OPTION_CDART_NOALBUMART
-
-
 register_cover_art_provider(CoverArtProviderFanartTv)
-register_options_page(FanartTvOptionsPage)
