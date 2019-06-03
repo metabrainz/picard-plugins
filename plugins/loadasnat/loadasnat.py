@@ -47,7 +47,7 @@ class LoadAsNat(BaseAction):
         for track in tracks:
             nat = self.tagger.load_nat(
                 track.metadata['musicbrainz_recordingid'])
-            for file in track.iterfiles():
+            for file in list(track.linked_files):
                 file.move(nat)
                 metadata = file.metadata
                 metadata.delete('albumartist')
