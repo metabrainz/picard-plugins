@@ -22,7 +22,7 @@ PLUGIN_AUTHOR = "Philipp Wolfer"
 PLUGIN_DESCRIPTION = ("Allows loading selected tracks as non-album tracks. "
                       "Useful for tagging single tracks where you do not care "
                       "about the album.")
-PLUGIN_VERSION = "0.2"
+PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["1.4.0", "2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -47,7 +47,7 @@ class LoadAsNat(BaseAction):
         for track in tracks:
             nat = self.tagger.load_nat(
                 track.metadata['musicbrainz_recordingid'])
-            for file in track.iterfiles():
+            for file in list(track.linked_files):
                 file.move(nat)
                 metadata = file.metadata
                 metadata.delete('albumartist')
