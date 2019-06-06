@@ -74,7 +74,8 @@ def zip_files(dest_dir):
                 file_path = os.path.join(root, filename)
                 plugin_files.append(file_path)
 
-        if len(plugin_files) == 1:
+        if (len(plugin_files) == 1
+            and os.path.basename(plugin_files[0]) != '__init__.py'):
             # There's only one file, put it directly into the zipfile
             archive.write(plugin_files[0],
                           os.path.basename(plugin_files[0]),
