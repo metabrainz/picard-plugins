@@ -55,7 +55,7 @@ inconsistencies in the MusicBrainz data (e.g. include English titles from the tr
 are in the composer's language and/or script).
 Also existing file tags can be processed (not possible in native Picard).
 <br /><br />
-See the readme file <a href="https://github.com/MetaTunes/picard-plugins/tree/metabrainz/2.0.2/plugins/classical_extras">
+See the readme file <a href="https://github.com/MetaTunes/picard-plugins/tree/metabrainz/2.0/plugins/classical_extras">
 on GitHub here</a> for full details.
 """
 
@@ -81,7 +81,7 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.2'
+PLUGIN_VERSION = '2.0.4'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -542,6 +542,7 @@ def get_references_from_file(release_id, path, filename):
     composer_dict_list = []
     period_dict_list = []
     genre_dict_list = []
+    xml_file = None
     try:
         xml_file = open(os.path.join(path, filename), encoding="utf8")
         reply = xml_file.read()
@@ -587,7 +588,8 @@ def get_references_from_file(release_id, path, filename):
                     path,
                     filename))
     finally:
-        xml_file.close()
+        if xml_file:
+            xml_file.close()
     return {
             'composers': composer_dict_list,
             'periods': period_dict_list,
@@ -2772,10 +2774,22 @@ def strip_excess_punctuation(s):
             s = s.replace('  ', ' ')
             s = s.strip("&.-:;, ")
             s = s.lstrip("!")
+            s = s.lstrip(u"\u2019")
+            s = s.lstrip(u"\u201D")
+            s = s.rstrip(u"\u201C")
+            s = s.rstrip(u"\u2018")
             if s.count('"') % 2 != 0:
                 s = s.strip('"')
             if s.count("'") % 2 != 0:
                 s = s.strip("'")
+            if s[0] == u"\u201C" and s.count(u"\u201D") == 0:
+                s = s.lstrip(u"\u201C")
+            if s[-1] == u"\u201D" and s.count(u"\u201C") == 0:
+                s = s.rstrip(u"\u201D")
+            if s[0] == u"\u2018" and s.count(u"\u2019") == 0:
+                s = s.lstrip(u"\u2018")
+            if s[-1] == u"\u2019" and s.count(u"\u2018") == 0:
+                s = s.rstrip(u"\u2019")
             if s:
                 if s.count("\"") == 1:
                     s = s.replace('"', '')
@@ -3949,9 +3963,11 @@ class PartLevels():
         # To keep a list for each album of tracks which do not have works -
         # format is {album: [track1, track2, ...], etc}
 
-        self.tracks = collections.defaultdict(list)
+        self.tracks = collections.defaultdict(
+            lambda: collections.defaultdict(dict))
         # To keep a list of all tracks for the album - format is {album:
-        # [track1, track2, ...], etc}
+        # {track1: {movement-group: movementgroup, movement-number: movementnumber},
+        #  track2: {}, ..., etc}, album2: etc}
 
     ########################################
     # SECTION 1 - Initial track processing #
@@ -4701,7 +4717,7 @@ class PartLevels():
                     metaList = self.work_process_metadata(
                         release_id, workId, wid, track, response)
                     parentList = metaList[0]
-                    # returns [parent id, parent name] or None if no parent
+                    # returns [[parent id], [parent name], attribute_list] or None if no parent
                     # found
                     arrangers = metaList[1]
                     # not just arrangers - also composers, lyricists etc.
@@ -4746,6 +4762,7 @@ class PartLevels():
 
                             parentIds = parentList[0]
                             parents = parentList[1]
+                            parent_attributes = parentList[2]
                             write_log(
                                     release_id,
                                     'info',
@@ -4763,6 +4780,7 @@ class PartLevels():
                             for i in del_list:
                                 removed_id = parentIds.pop(i)
                                 removed_name = parents.pop(i)
+                                removed_attribs = parent_attributes.pop(i)
                                 write_log(
                                         release_id, 'error', "Found parent which is descendant of child - "
                                         "not using, to prevent circular references. id = %s,"
@@ -4777,7 +4795,11 @@ class PartLevels():
                                     removed_id +
                                     ', name = ' +
                                     removed_name)
-
+                            is_collection = False
+                            for attribute in parent_attributes:
+                                if attribute['collection']:
+                                    is_collection = True
+                                    break
                             # de-dup parent ids before we start
                             parentIds = list(
                                 collections.OrderedDict.fromkeys(parentIds))
@@ -4824,6 +4846,13 @@ class PartLevels():
                                 self.parts[tuple(parentIds)]['name'] = list(
                                     collections.OrderedDict.fromkeys(self.parts[tuple(parentIds)]['name']))
                                 # list(set()) won't work as need to retain order
+                                self.parts[tuple(parentIds)]['is_collection'] = is_collection
+                                write_log(
+                                    release_id,
+                                    'debug',
+                                    "In work_process. self.parts[%s]['is_collection']: %s",
+                                    tuple(parentIds),
+                                    self.parts[tuple(parentIds)]['is_collection'])
                                 # de-duplicate the parent ids also, otherwise they will be treated as a separate parent
                                 # in the trackback structure
                                 self.parts[wid]['parent'] = list(
@@ -5070,6 +5099,7 @@ class PartLevels():
             options = config.setting
         new_workIds = []
         new_works = []
+        attributes_list = []
         relation_attributes = parse_data(
             release_id,
             relations,
@@ -5079,6 +5109,11 @@ class PartLevels():
             'direction:backward',
             'attributes')
         new_work_list = []
+        write_log(
+            release_id,
+            'debug',
+            "relation_attributes--> %s",
+            relation_attributes)
         for relation_attribute in relation_attributes:
             if (
                     'part of collection' not in relation_attribute) or options['cwp_collections']:
@@ -5089,6 +5124,11 @@ class PartLevels():
                                             'type:parts',
                                             'direction:backward',
                                             'work')
+            attributes_dict = {'collection' : ('part of collection' in relation_attribute),
+                               'movements' : ('movement' in relation_attribute),
+                               'acts' : ('act' in relation_attribute),
+                               'numbers' : ('number' in relation_attribute)}
+            attributes_list += [attributes_dict]
             if (
                     'part of collection' in relation_attribute) and not options['cwp_collections']:
                 write_log(
@@ -5152,9 +5192,10 @@ class PartLevels():
         write_log(
                 release_id,
                 'info',
-                'New works: ids: %s, names: %s',
+                'New works: ids: %s, names: %s, attributes: %s',
                 new_workIds,
-                new_works)
+                new_works,
+                attributes_list)
 
         artists = get_artists(
             options,
@@ -5167,7 +5208,7 @@ class PartLevels():
 
         write_log(release_id, 'info', "ARTISTS %s", artists)
 
-        workItems = (new_workIds, new_works)
+        workItems = (new_workIds, new_works, attributes_list)
         itemsFound = [workItems, artists]
         return itemsFound
 
@@ -5364,10 +5405,14 @@ class PartLevels():
             #     height is the number of part levels for the related track
             ##
             if answer:
-                tracks = answer[1]['track']
+                tracks = sorted(zip(answer[1]['track'], answer[1]['tracknumber']), key=lambda x: x[1])
+                # need them in tracknumber sequence for the movement numbers to be correct
                 write_log(release_id, 'info', "TRACKS: %s", tracks)
                 # work_part_levels = self.trackback[album][topId]['depth']
-                for track in tracks:
+                movement_count = 0
+                prev_movementgroup = None
+                for track, _ in tracks:
+                    movement_count += 1
                     track_meta = track[0]
                     tm = track_meta.metadata
                     if '~cwp_workid_0' in tm:
@@ -5379,14 +5424,27 @@ class PartLevels():
                     title_work_levels = 0
                     if '~cwp_title_work_levels' in tm:
                         title_work_levels = int(tm['~cwp_title_work_levels'])
-                    self.extend_metadata(
+                    movementgroup = self.extend_metadata(
                         release_id,
                         top_info,
                         track_meta,
                         ref_height,
                         title_work_levels)  # revise for new data
                     if track_meta not in self.tracks[album]:
-                        self.tracks[album].append(track_meta)
+                        self.tracks[album][track_meta] = {}
+                    if movementgroup:
+                        if movementgroup != prev_movementgroup:
+                            movement_count = 1
+                        write_log(
+                            release_id,
+                            'debug',
+                            "processing movements for track: %s - movement-group is %s",
+                            track, movementgroup)
+                        self.tracks[album][track_meta]['movement-group'] = movementgroup
+                        self.tracks[album][track_meta]['movement-number'] = movement_count
+                        self.parts[tuple(movementgroup)]['movement-total'] = movement_count
+                    prev_movementgroup = movementgroup
+
                 write_log(
                         release_id,
                         'debug',
@@ -5394,8 +5452,8 @@ class PartLevels():
                         topId)
         # Need to redo the loop so that all album-wide tm is updated before
         # publishing
-        for track in self.tracks[album]:
-            self.publish_metadata(release_id, album, track)
+        for track, movement_info in self.tracks[album].items():
+            self.publish_metadata(release_id, album, track, movement_info)
         # #
         # The messages below are normally commented out as they get VERY long if there are a lot of albums loaded
         # For extreme debugging, remove the comments and just run one or a few albums
@@ -5599,6 +5657,7 @@ class PartLevels():
                             tracks['track'].append((track, height))
                         else:
                             tracks['track'] = [(track, height)]
+                        tracks['tracknumber'] = [int(tm['tracknumber'])]
                         write_log(release_id, 'info', "Tracks: %s", tracks)
 
                 response = (workId, tracks)
@@ -5890,28 +5949,6 @@ class PartLevels():
                                                         str(level)]
                                     if level > 0:
                                         self.level0_warn(release_id, tm, level)
-
-                # set movement number
-                if name_type == 'title':  # so we only do it once
-                    if part_level == 1:
-                        if sorted_tracknumbers:
-                            curr_num = tracks['tracknumber'][track_index]
-                            posn = sorted_tracknumbers.index(curr_num) + 1
-                            write_log(
-                                    release_id,
-                                    'info',
-                                    "Sorted track numbers. Track %s: Sequence in work is %s",
-                                    track_meta,
-                                    posn)
-                        else:
-                            posn = track_index + 1
-                            write_log(
-                                release_id,
-                                'info',
-                                "Unable to sort track numbers. Track %s: Sequence in work is %s",
-                                track_meta,
-                                posn)
-                        tm['~cwp_movt_num'] = str(posn)
 
 
     def create_work_levels(self, release_id, name_type, tracks, track, track_index,
@@ -6393,7 +6430,7 @@ class PartLevels():
                     'debug',
                     'NO PART LEVELS. Metadata = %s',
                     tm)
-            return
+            return None
         part_levels = int(tm['~cwp_part_levels'])
         write_log(
                 release_id,
@@ -6407,6 +6444,9 @@ class PartLevels():
 
         # previously: ref_height = work_part_levels - ref_level,
         # where this ref-level is the level for the top-named work
+        # so ref_height is effectively the "single work album" indicator (1 or 0) -
+        #   i.e. where all tracks are part of one work which is implicitly the album
+        #   without there being a groupheading for it
         ref_level = part_levels - ref_height
         # work_ref_level = work_part_levels - ref_height # not currently used
 
@@ -6553,6 +6593,27 @@ class PartLevels():
             inter_work = None
             work_titles = None
 
+        # determine movement grouping (highest level that is not a collection)
+        if '~cwp_workid_top' in tm:
+            movementgroup = interpret(tm['~cwp_workid_top'])
+            n = part_levels
+            write_log(
+                    release_id,
+                    'debug',
+                    "In extend. self.parts[%s]['is_collection']: %s",
+                    movementgroup,
+                    self.parts[movementgroup]['is_collection'])
+            while self.parts[movementgroup]['is_collection']:
+                n -= 1
+                if n < 0:
+                    # shouldn't happen in theory as bottom level can't be a collection, but just in case...
+                    break
+                if '~cwp_workid_'  + str(n) in tm:
+                    movementgroup = interpret(tm['~cwp_workid_'  + str(n)])
+                else:
+                    break
+
+        # set part text (initially)
         if part:
             part_main = part[0]
         else:
@@ -6564,7 +6625,11 @@ class PartLevels():
         if self.parts[interpret(tm['~cwp_workid_0'])
                       ]['medley'] and options['cwp_medley']:
             if options["cwp_medley_text"]:
-                groupheading = groupheading + \
+                if part_levels > 0:
+                    medleyheading = groupheading + ':: ' + part[0]
+                else:
+                    medleyheading = groupheading
+                groupheading = medleyheading + \
                     ' (' + options["cwp_medley_text"] + ')'
             type2_medley = True
 
@@ -6776,6 +6841,11 @@ class PartLevels():
                 release_id, track, tm, work_compare, movement)
             # compare with the fullest possible work name, not the stripped one
             #  - to maximise the duplication elimination
+            if diff and self.parts[interpret(tm['~cwp_workid_0'])]['partial']:
+                diff = movement
+            # for partial tracks, do not eliminate the title text as it is
+            # frequently deliberately a component of the the overall work txt
+            # (unless it is identical)
             unimplemented_option = True
             # Possible future option to (not) fill part with title text if it
             # would otherwise have no text other than arrangement or partial
@@ -6828,25 +6898,34 @@ class PartLevels():
                 options['cwp_single_work_sep']).strip(
                 options['cwp_multi_work_sep'])
         write_log(release_id, 'debug', "....done")
-        return None
+        return movementgroup
 
     ##########################################################
     # SECTION 6- Write metadata to tags according to options #
     ##########################################################
 
-    def publish_metadata(self, release_id, album, track):
+    def publish_metadata(self, release_id, album, track, movement_info={}):
         """
         Write out the metadata according to user options
         :param release_id: name for log file - usually =musicbrainz_albumid
         unless called outside metadata processor
         :param album:
         :param track:
+        :param movement_info: format is {'movement-group': movementgroup, 'movement-number': movementnumber}
         :return:
         """
         write_log(release_id, 'debug', "IN PUBLISH METADATA for %s", track)
         options = self.options[track]
         tm = track.metadata
         tm['~cwp_version'] = PLUGIN_VERSION
+
+        # set movement grouping tags (hidden vars)
+        if movement_info:
+            movementtotal = self.parts[tuple(movement_info['movement-group'])]['movement-total']
+            if movementtotal > 1:
+                tm['~cwp_movt_num'] = movement_info['movement-number']
+                tm['~cwp_movt_tot'] = movementtotal
+
         # album composers needed by map_tags (set in set_work_artists)
         if 'composer_lastnames' in self.album_artists[album]:
             last_names = seq_last_names(self, album)
@@ -6898,6 +6977,8 @@ class PartLevels():
         movt_no_tags = options["cwp_movt_no_tag"].split(",")
         movt_no_tags = [x.strip(' ') for x in movt_no_tags]
         movt_no_sep = options["cwp_movt_no_sep"]
+        movt_tot_tags = options["cwp_movt_tot_tag"].split(",")
+        movt_tot_tags = [x.strip(' ') for x in movt_tot_tags]
         gh_tags = options["cwp_work_tag_multi"].split(",")
         gh_tags = [x.strip(' ') for x in gh_tags]
         gh_sep = options["cwp_multi_work_sep"]
@@ -6935,26 +7016,45 @@ class PartLevels():
                     tm,
                     'show work movement',
                     '1')  # for iTunes
+                self.append_tag(
+                    release_id,
+                    tm,
+                    'showmovement',
+                    '1')  # consistent with Picard tag docs
         for tag in top_tags:
             if '~cwp_work_top' in tm:
                 self.append_tag(release_id, tm, tag, tm['~cwp_work_top'])
 
+        if '~cwp_movt_num' in tm and len(tm['~cwp_movt_num']) > 0:
+            movt_num_punc = tm['~cwp_movt_num'] + movt_no_sep + ' '
+        else:
+            movt_num_punc = ''
+
         for tag in movt_no_tags:
-            self.append_tag(release_id, tm, tag, tm['~cwp_movt_num'])
-            if tag in movt_inc_tags + movt_exc_tags:
-                self.append_tag(release_id, tm, tag, movt_no_sep)
+            if tag not in movt_inc_tags + movt_exc_tags + movt_inc_1_tags + movt_exc_1_tags:
+                self.append_tag(release_id, tm, tag, tm['~cwp_movt_num'])
+
+        for tag in movt_tot_tags:
+            self.append_tag(release_id, tm, tag, tm['~cwp_movt_tot'])
 
         for tag in movt_exc_tags:
+            if tag in movt_no_tags:
+                movt = movt_num_punc + movt
             self.append_tag(release_id, tm, tag, movt)
 
         for tag in movt_inc_tags:
+            if tag in movt_no_tags:
+                part = movt_num_punc + part
             self.append_tag(release_id, tm, tag, part)
+
 
         for tag in movt_inc_1_tags + movt_exc_1_tags:
             if tag in movt_inc_1_tags:
                 pt = part
             else:
                 pt = movt
+            if tag in movt_no_tags:
+                pt = movt_num_punc + pt
             if inter_work and inter_work != "":
                 if tag in movt_exc_tags + movt_inc_tags and tag != "":
                     write_log(
@@ -7156,10 +7256,8 @@ class PartLevels():
         clean_parent = re.sub("(?u)[\W]", ' ', parent)
         # now allow the spaces to be filled with up to 2 non-letters
         pattern_parent = clean_parent.replace(" ", "\W{0,2}")
-        if extend:
-            pattern_parent = "(.*\s|^)(\W*" + pattern_parent + ")(\W*\s)(.*)"
-        else:
-            pattern_parent = "(.*\s|^)(\W*" + pattern_parent + "\W?)(.*)"
+        pattern_parent = "(^|.*?\s)(\W*" + pattern_parent + "\W?)(.*)"
+        # (removed previous alternative pattern for extend=true, owing to catastrophic backtracking)
         write_log(
                 release_id,
                 'info',
@@ -7170,18 +7268,13 @@ class PartLevels():
         m = p.search(work)
         if m:
             write_log(release_id, 'info', "Matched...")
-            if extend:
-                if m.group(1):
-                    stripped_work = m.group(1) + u"\u2026" + m.group(4)
-                else:
-                    stripped_work = m.group(4)
+            if m.group(1):
+                stripped_work = m.group(1) + u"\u2026" + m.group(3)
             else:
-                if m.group(1):
-                    stripped_work = m.group(1) + u"\u2026" + m.group(3)
-                else:
-                    stripped_work = m.group(3)
+                stripped_work = m.group(3)
             # may not have a full work name in the parent (missing op. no.
             # etc.)
+            stripped_work = stripped_work.lstrip(":;,.- ")
         else:
             write_log(release_id, 'info', "No match...")
             stripped_work = work
@@ -7267,6 +7360,7 @@ class PartLevels():
                                 else:
                                     stripped_work = prev_stripped_work  # do not allow empty parts
                     counter += 1
+            stripped_work = strip_excess_punctuation(stripped_work)
             write_log(
                     release_id,
                     'info',
@@ -7296,6 +7390,8 @@ class PartLevels():
                 work)
         write_log(release_id, 'info', "Stripped work: %s", stripped_work)
         # Changed full_parent to parent after removal of 'extend' logic above
+        stripped_work = strip_excess_punctuation(stripped_work)
+        write_log(release_id, 'info', "Stripped work after punctuation removal: %s", stripped_work)
         return stripped_work, parent
 
     def diff_pair(

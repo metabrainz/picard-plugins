@@ -470,17 +470,17 @@ WORKPARTS_OPTIONS = [
     {'option': 'cwp_movt_tag_inc',
      'name': 'movement tag inc num',
      'type': 'Text',
-     'default': 'part, movement name, subtitle'
+     'default': 'part, movement, subtitle'
      },
     {'option': 'cwp_movt_tag_exc',
      'name': 'movement tag exc num',
      'type': 'Text',
-     'default': 'movement'
+     'default': ''
      },
     {'option': 'cwp_movt_tag_inc1',
      'name': '1-level movement tag inc num',
      'type': 'Text',
-     'default': ''
+     'default': 'movement'
      },
     {'option': 'cwp_movt_tag_exc1',
      'name': '1-level movement tag exc num',
@@ -490,7 +490,12 @@ WORKPARTS_OPTIONS = [
     {'option': 'cwp_movt_no_tag',
      'name': 'movement num tag',
      'type': 'Text',
-     'default': 'movement_no'
+     'default': 'movementnumber'
+     },
+    {'option': 'cwp_movt_tot_tag',
+     'name': 'movement tot tag',
+     'type': 'Text',
+     'default': 'movementtotal'
      },
     {'option': 'cwp_work_tag_multi',
      'name': 'multi-level work tag',

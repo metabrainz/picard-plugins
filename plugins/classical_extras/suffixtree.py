@@ -262,7 +262,7 @@ def multi_lcs(strings_list):
     for item in strings_list:
         if not isinstance(item, arg_type):
             return {'response': [], 'error': 'List members are not of the same type'}
-    if arg_type is not list and arg_type is not str and arg_type is not unicode:
+    if arg_type is not list and arg_type is not str:
         return {'response': [], 'error': 'List members are not lists or strings'}
 
     suffix_tree = SuffixTree()
