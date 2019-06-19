@@ -413,6 +413,13 @@ WORKPARTS_OPTIONS = [
      'type': 'Integer',
      'default': 100
      },
+    {'option': 'cwp_fill_part',
+     # Fill part name with title text if it would otherwise
+     # have no text other than arrangement or partial annotations
+     'name': 'disallow empty part names',
+     'type': 'Boolean',
+     'default': True
+     },
     {'option': 'cwp_prepositions',
      'name': 'prepositions',
      'type': 'Text',
@@ -466,6 +473,11 @@ WORKPARTS_OPTIONS = [
      'value': 'Level_0',
      'type': 'Boolean',
      'default': False
+     },
+    {'option': 'cwp_derive_works_from_title',
+     'name': 'Derive works from title',
+     'type': 'Boolean',
+     'default': True
      },
     {'option': 'cwp_movt_tag_inc',
      'name': 'movement tag inc num',

@@ -11,7 +11,10 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
-Version 2.0.4: Fix occasional regex backtracking crash. Make naming of movement tags consistent with Picard docs.
+Version 2.0.4: Fix occasional regex backtracking crash. Make naming of movement tags consistent with Picard docs. 
+Added an option to attempt to get works and movement info from title if there are no work relationships (requires title in form "work: movement"). 
+If Muso-specific genre processing is selected (or XML reference file is provided including classical composers) and there is no composer (because of a lack of work relationship) 
+then the plugin will check the listed artist against the reference list of classical composers and, if there is a match, will populate the composer metadata and set the genre to classical.
 
 Version 2.0.3: Fix exception when references XML file does not exist
 
@@ -162,7 +165,11 @@ There six coloured sections as shown in the screen print below:
       Work: "Concert Fantasia, op. 56", Movement: "for Piano and Orchestra, … : I. Quasi Rondo"  
       This still repeats "for Piano and Orchestra" for each movement as this text is in level 0, not level 1 (where it only appears as disambiguation). Arguably the best way to fix this is to have consistent work names in MB. (Of course, this specific example may have been fixed in MB by now, but the principle still holds). The strategy below has been updated to reflect this
 
-   **Strategy for setting style:** *It is suggested that you start with "extended/enhanced" style and the "Full MusicBrainz work hierarchy" as the source (this is the default) and tweak the advanced settings if necessary. If this does not give acceptable results, try switching to "Consistent with lowest level work description". If the "enhanced" details in curly brackets (from the track title) give odd results then, again, try tweaking the advanced settings (see later section) or switch the style to "canonical works" only. Any remaining oddities are probably in the MusicBrainz data, which may require editing.*
+   **Strategy for setting style:** *It is suggested that you start with "extended/enhanced" style and the "Full MusicBrainz work hierarchy" as the source (this is the default) and tweak the advanced settings if necessary. If this does not give acceptable results, try switching to "Consistent with lowest level work description". If the "enhanced" details in curly brackets (from the track title) give odd results then, again, try tweaking the advanced settings (see later section) or switch the style to "canonical works" only. Any remaining oddities are probably in the MusicBrainz data, which may require editing.*  
+   
+   * **"Attempt to get works and movement info from title if there are no work relationships? (Requires title in form "work: movement")"**. 
+   Pretty much what it says. It may be that the track is classical, but no work relationships exist in MusicBrainz. In this case, Classical Extras will attempt to infer work and movement from the title, provided they are separated by ": " (which is the Classical Style Guideline). 
+   In this case, the other tag style settings are irrelevant. Note that if there is no related work, then there will not be a composer metadata item in MusicBrainz. However, you can use tag mapping to set this or (better) use Muso (or and XML reference file) to determine classical composers (see Genres section).
 
 3. "Aliases"
 
@@ -178,7 +185,7 @@ There six coloured sections as shown in the screen print below:
     * **Movement/Part tags**:
       (a) "Tags for (computed) movement number". This is not necessarily the embedded movt/part number, but is the sequence number of the movement within its parent work **on the current release**. 
       (For these purposes, the "parent work" is the highest level work of which the track/movement is a a part but which is not a collection)   
-      (b) (not shown in screenshot) "Tags for (computed) total number of movements". This will be the total number of movements in the parent work as numbered above.  
+      (b) "Tags for (computed) total number of movements". This will be the total number of movements in the parent work as numbered above.  
       (c) "Tags for Movement - excluding embedded movt/part numbers". As below, but without the movement part/number prefix (if applicable)  
       (d) "Tags for Movement - including embedded movt/part numbers". This tag(s) will contain the full lowest-level part name extracted from the lowest-level work name, according to the chosen tagging style.  
       For options (c) and (d), the tags can either be filled "for use with multi-level work tags" or "for use with 1-level work tags (intermediate works will prefix movement)" - or different tags for each column.  The latter option will include any intermediate work levels which are missing from a single-level work tag. Use different tag names for these, from the multi-level version, otherwise both versions will be appended, creating a multi-valued tag (a warning will be given).  
@@ -301,6 +308,10 @@ Note that non-Muso users may also use this functionality, if they wish, by manua
     <Start_x0020_Date>1800</Start_x0020_Date>  
     <End_x0020_Date>1850</End_x0020_Date>  
     </ClassicalPeriod>  
+
+If the Muso reference (or XML) database is selected (which includes a classical composers list) and there is no composer for the track (because of a lack of work relationship) 
+then the plugin will check the listed artist against the reference list of classical composers and, if there is a match, will populate the composer metadata and
+ (if "use Muso composer list to determine if classical" is selected) will set the genre to classical.
 
 ## Tag mapping tab
 There are two coloured sections as shown in the screen image below:

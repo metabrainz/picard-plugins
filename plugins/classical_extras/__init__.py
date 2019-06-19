@@ -1864,11 +1864,21 @@ def map_tags(options, release_id, album, tm):
     arranger_found = False
     arranger_born_list = []
     arranger_died_list = []
+    no_composer_in_metadata = False
     if options['cwp_use_muso_refdb'] and options['cwp_muso_classical'] or options['cwp_muso_dates']:
         if COMPOSER_DICT:
-            composer_list = str_to_list(tm['~cwp_composer_names'])
+            if '~cwp_composer_names' in tm:
+                composer_list = str_to_list(tm['~cwp_composer_names'])
+            else:
+                # maybe there were no works linked,
+                # but it might still a classical track (based on composer name)
+                no_composer_in_metadata = True
+                composer_list = str_to_list(tm['artists'])
+                composersort_list = str_to_list(tm['~artists_sort'])
+                write_log(release_id, 'info', "No composer metadata for track %s. Using artists %r", tm['title'],
+                          composer_list)
             lc_composer_list = [c.lower() for c in composer_list]
-            for composer in lc_composer_list:
+            for ind, composer in enumerate(lc_composer_list):
                 for classical_composer in COMPOSER_DICT:
                     if composer in classical_composer['lc_name']:
                         if options['cwp_muso_classical']:
@@ -1878,6 +1888,13 @@ def map_tags(options, release_id, album, tm):
                             composer_born_list = classical_composer['birth']
                             composer_died_list = classical_composer['death']
                         composer_found = True
+                        if no_composer_in_metadata:
+                            composersort = composersort_list[ind]
+                            append_tag(release_id, tm, 'composer', composer_list[ind])
+                            append_tag(release_id, tm, '~cwp_composer_names', composer_list[ind])
+                            append_tag(release_id, tm, 'composersort', composersort)
+                            append_tag(release_id, tm, '~cwp_composers_sort', composersort)
+                            append_tag(release_id, tm, '~cwp_composer_lastnames', composersort.split(', ')[0])
                         break
                 if not composer_found:
                     composer_index = lc_composer_list.index(composer)
@@ -1971,6 +1988,8 @@ def map_tags(options, release_id, album, tm):
         if main_classical_genres or sub_classical_genres or options['cwp_genres_classical_all']:
             is_classical = True
             main_classical_genres.append('Classical')
+            candidate_genres.append('Classical')
+            write_log(release_id, 'info', "Main classical genres for track %s: %r", tm['title'], main_classical_genres)
             candidate_genres += str_to_list(tm['~cea_work_type_if_classical'])
             # next two are repeated statements, but a separate fn would be
             # clumsy too!
@@ -2773,7 +2792,8 @@ def strip_excess_punctuation(s):
             s_prev = s
             s = s.replace('  ', ' ')
             s = s.strip("&.-:;, ")
-            s = s.lstrip("!")
+            s = s.lstrip("!)]}")
+            s = s.rstrip("([{")
             s = s.lstrip(u"\u2019")
             s = s.lstrip(u"\u201D")
             s = s.rstrip(u"\u201C")
@@ -2782,13 +2802,13 @@ def strip_excess_punctuation(s):
                 s = s.strip('"')
             if s.count("'") % 2 != 0:
                 s = s.strip("'")
-            if s[0] == u"\u201C" and s.count(u"\u201D") == 0:
+            if len(s) > 0 and s[0] == u"\u201C" and s.count(u"\u201D") == 0:
                 s = s.lstrip(u"\u201C")
-            if s[-1] == u"\u201D" and s.count(u"\u201C") == 0:
+            if len(s) > 0 and s[-1] == u"\u201D" and s.count(u"\u201C") == 0:
                 s = s.rstrip(u"\u201D")
-            if s[0] == u"\u2018" and s.count(u"\u2019") == 0:
+            if len(s) > 0 and s[0] == u"\u2018" and s.count(u"\u2019") == 0:
                 s = s.lstrip(u"\u2018")
-            if s[-1] == u"\u2019" and s.count(u"\u2018") == 0:
+            if len(s) > 0 and s[-1] == u"\u2019" and s.count(u"\u2018") == 0:
                 s = s.rstrip(u"\u2019")
             if s:
                 if s.count("\"") == 1:
@@ -4777,10 +4797,9 @@ class PartLevels():
                                     if work_item in self.child_listing and parentId in self.child_listing[
                                             work_item]:
                                         del_list.append(i)
-                            for i in del_list:
+                            for i in list(set(del_list)):
                                 removed_id = parentIds.pop(i)
                                 removed_name = parents.pop(i)
-                                removed_attribs = parent_attributes.pop(i)
                                 write_log(
                                         release_id, 'error', "Found parent which is descendant of child - "
                                         "not using, to prevent circular references. id = %s,"
@@ -5467,6 +5486,14 @@ class PartLevels():
         # Finally process the orphan tracks
         if album in self.orphan_tracks:
             for track in self.orphan_tracks[album]:
+                tm = track.metadata
+                options = self.options[track]
+                if options['cwp_derive_works_from_title']:
+                    work, movt, inter_work = self.derive_from_title(release_id, track, tm['title'])
+                    tm['~cwp_extended_work'] = tm['~cwp_extended_groupheading'] = tm['~cwp_title_work'] = \
+                        tm['~cwp_title_groupheading'] = tm['~cwp_work'] = tm['~cwp_groupheading']= work
+                    tm['~cwp_part'] = tm['~cwp_extended_part'] = tm['~cwp_title_part_0'] = movt
+                    tm['~cwp_inter_work'] = tm['~cwp_extended_inter_work'] = tm['~cwp_inter_title_work'] = inter_work
                 self.publish_metadata(release_id, album, track)
         write_log(release_id, 'debug', "PROCESS ALBUM function complete")
 
@@ -6338,11 +6365,12 @@ class PartLevels():
         tm = track.metadata
         movt = title
         work = ""
+        colons = title.count(":")
+        inter_work = None
         if '~cwp_part_levels' in tm:
             part_levels = int(tm['~cwp_part_levels'])
             if int(tm['~cwp_work_part_levels']
                    ) > 0:  # we have a work with movements
-                colons = title.count(":")
                 if colons > 0:
                     title_split = title.split(': ', 1)
                     title_rsplit = title.rsplit(': ', 1)
@@ -6352,8 +6380,18 @@ class PartLevels():
                     else:
                         work = title_split[0]
                         movt = title_split[1]
+        else:
+            # No works found so try and just get parts from title
+            if colons > 0:
+                title_split = title.rsplit(': ', 1)
+                work = title_split[0]
+                if colons > 1:
+                    colon_ind = work.rfind(':')
+                    work = work[:colon_ind]
+                    inter_work = work[colon_ind+1:]
+                movt = title_split[1]
         write_log(release_id, 'info', "Work %s, Movt %s", work, movt)
-        return work, movt
+        return work, movt, inter_work
 
     def process_work_artists(
             self,
@@ -6841,17 +6879,19 @@ class PartLevels():
                 release_id, track, tm, work_compare, movement)
             # compare with the fullest possible work name, not the stripped one
             #  - to maximise the duplication elimination
-            if diff and self.parts[interpret(tm['~cwp_workid_0'])]['partial']:
+            reverse_diff = self.diff_pair(
+                release_id, track, tm, movement, vanilla_part)
+            # for the reverse comparison use the part name without any work details or annotation
+            if diff and reverse_diff and self.parts[interpret(tm['~cwp_workid_0'])]['partial']:
                 diff = movement
             # for partial tracks, do not eliminate the title text as it is
             # frequently deliberately a component of the the overall work txt
             # (unless it is identical)
-            unimplemented_option = True
-            # Possible future option to (not) fill part with title text if it
+            fill_part = options['cwp_fill_part']
+            # To fill part with title text if it
             # would otherwise have no text other than arrangement or partial
             # annotations
-            # TODO - consider implementing option
-            if not diff and not vanilla_part and part_levels > 0 and unimplemented_option:
+            if not diff and not vanilla_part and part_levels > 0 and fill_part:
                 # In other words the movement will have no text other than
                 # arrangement or partial annotations
                 diff = movement
