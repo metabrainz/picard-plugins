@@ -19,9 +19,9 @@ from picard import metadata
 
 PLUGIN_NAME = "Non-ASCII Equivalents"
 PLUGIN_AUTHOR = "Anderson Mesquita <andersonvom@trysometinghere>"
-PLUGIN_VERSION = "0.1"
+PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15", "2.0"]
-PLUGIN_LICENSE = "GPLv3"
+PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://gnu.org/licenses/gpl.html"
 PLUGIN_DESCRIPTION = '''Replaces accented and otherwise non-ASCII characters
 with a somewhat equivalent version of their ASCII counterparts. This allows old

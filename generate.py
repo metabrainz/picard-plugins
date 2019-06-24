@@ -7,13 +7,13 @@ import json
 import zipfile
 
 from hashlib import md5
-from subprocess import call
+from subprocess import check_call
 
 from get_plugin_data import get_plugin_data
 
 VERSION_TO_BRANCH = {
-    None: 'master',
-    '1.0': 'master',
+    None: '2.0',
+    '1.0': '1.0',
     '2.0': '2.0',
 }
 
@@ -74,7 +74,8 @@ def zip_files(dest_dir):
                 file_path = os.path.join(root, filename)
                 plugin_files.append(file_path)
 
-        if len(plugin_files) == 1:
+        if (len(plugin_files) == 1
+            and os.path.basename(plugin_files[0]) != '__init__.py'):
             # There's only one file, put it directly into the zipfile
             archive.write(plugin_files[0],
                           os.path.basename(plugin_files[0]),
@@ -106,12 +107,12 @@ if __name__ == '__main__':
     parser.add_argument('--no-zip', action='store_false', dest='zip', help="Do not generate the zip files in the build output")
     parser.add_argument('--no-json', action='store_false', dest='json', help="Do not generate the json file in the build output")
     args = parser.parse_args()
-    call(["git", "checkout", "-q", VERSION_TO_BRANCH[args.version], '--', 'plugins'])
+    check_call(["git", "checkout", "-q", VERSION_TO_BRANCH[args.version], '--', 'plugins'])
     dest_dir = os.path.abspath(os.path.join(args.build_dir, args.version or ''))
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
     if args.pull:
-        call(["git", "pull", "-q"])
+        check_call(["git", "pull", "-q"])
     if args.json:
         build_json(dest_dir)
     if args.zip:
