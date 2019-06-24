@@ -413,6 +413,13 @@ WORKPARTS_OPTIONS = [
      'type': 'Integer',
      'default': 100
      },
+    {'option': 'cwp_fill_part',
+     # Fill part name with title text if it would otherwise
+     # have no text other than arrangement or partial annotations
+     'name': 'disallow empty part names',
+     'type': 'Boolean',
+     'default': True
+     },
     {'option': 'cwp_prepositions',
      'name': 'prepositions',
      'type': 'Text',
@@ -467,20 +474,25 @@ WORKPARTS_OPTIONS = [
      'type': 'Boolean',
      'default': False
      },
+    {'option': 'cwp_derive_works_from_title',
+     'name': 'Derive works from title',
+     'type': 'Boolean',
+     'default': True
+     },
     {'option': 'cwp_movt_tag_inc',
      'name': 'movement tag inc num',
      'type': 'Text',
-     'default': 'part, movement name, subtitle'
+     'default': 'part, movement, subtitle'
      },
     {'option': 'cwp_movt_tag_exc',
      'name': 'movement tag exc num',
      'type': 'Text',
-     'default': 'movement'
+     'default': ''
      },
     {'option': 'cwp_movt_tag_inc1',
      'name': '1-level movement tag inc num',
      'type': 'Text',
-     'default': ''
+     'default': 'movement'
      },
     {'option': 'cwp_movt_tag_exc1',
      'name': '1-level movement tag exc num',
@@ -490,7 +502,12 @@ WORKPARTS_OPTIONS = [
     {'option': 'cwp_movt_no_tag',
      'name': 'movement num tag',
      'type': 'Text',
-     'default': 'movement_no'
+     'default': 'movementnumber'
+     },
+    {'option': 'cwp_movt_tot_tag',
+     'name': 'movement tot tag',
+     'type': 'Text',
+     'default': 'movementtotal'
      },
     {'option': 'cwp_work_tag_multi',
      'name': 'multi-level work tag',
