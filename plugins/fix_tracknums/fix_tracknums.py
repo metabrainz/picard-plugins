@@ -54,9 +54,9 @@ How to use:
   </li>
 </ol>
 '''
-PLUGIN_VERSION = '0.1'
+PLUGIN_VERSION = '0.2'
 PLUGIN_API_VERSIONS = ['0.15', '1.0', '2.0']
-PLUGIN_LICENSE = 'GPL-3.0'
+PLUGIN_LICENSE = 'GPL-3.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl.txt'
 
 from picard import log

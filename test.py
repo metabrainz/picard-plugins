@@ -1,3 +1,4 @@
+import doctest
 import os
 import glob
 import json
@@ -5,12 +6,6 @@ import shutil
 import tempfile
 import unittest
 from generate import build_json, zip_files
-
-# python 2 & 3 compatibility
-try:
-    basestring
-except NameError:
-    basestring = str
 
 
 class GenerateTestCase(unittest.TestCase):
@@ -86,11 +81,17 @@ class GenerateTestCase(unittest.TestCase):
 
         # All plugins should contain all required fields
         for module_name, data in plugin_json.items():
-            self.assertIsInstance(data['name'], basestring)
+            self.assertIsInstance(data['name'], str)
             self.assertIsInstance(data['api_versions'], list)
-            self.assertIsInstance(data['author'], basestring)
-            self.assertIsInstance(data['description'], basestring)
-            self.assertIsInstance(data['version'], basestring)
+            self.assertIsInstance(data['author'], str)
+            self.assertIsInstance(data['description'], str)
+            self.assertIsInstance(data['version'], str)
+
+
+def load_tests(loader, tests, ignore):
+    from plugins.addrelease import addrelease
+    tests.addTests(doctest.DocTestSuite(addrelease))
+    return tests
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 PLUGIN_NAME = "Tango.info Adapter"
-PLUGIN_AUTHOR = "Felix Elsner, Sambhav Kothari"
+PLUGIN_AUTHOR = "Felix Elsner, Sambhav Kothari, Philipp Wolfer"
 PLUGIN_DESCRIPTION = """
 <p>Load genre, date and vocalist tags from the online database
 <a href"http://tango.info">tango.info</a>.</p>
@@ -8,7 +8,7 @@ PLUGIN_DESCRIPTION = """
 it does not cause unnecessary server load for either MusicBrainz.org
 or tango.info</p>
 """
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -98,18 +98,16 @@ class TangoInfoTagger:
             #         )
             return
 
-        tint = str("0%s-%s-%s" % (
-                        barcode,
-                        str(track_metadata["discnumber"])\
-                                if track_metadata.get("discnumber") else "1",
-                        str(track_metadata["tracknumber"])
-                        ))
+        tint = "0%s-%s-%s" % (
+            barcode,
+            str(track_metadata.get("discnumber", "1")),
+            str(track_metadata["tracknumber"]))
 
         if barcode in self.albumpage_cache:
             if self.albumpage_cache[barcode]:
                 if not self.albumpage_cache[barcode].get(tint):
-                    log.debug("%s: No information on tango.info for barcode \
-                            %s" % (PLUGIN_NAME, barcode))
+                    log.debug("%s: No information on tango.info for barcode %s",
+                              PLUGIN_NAME, barcode)
                 else:
                     for field in ['genre', 'date', 'vocal']:
                         # Checks, as not to overwrite with empty data
@@ -117,8 +115,8 @@ class TangoInfoTagger:
                             track_metadata[field] = self\
                                     .albumpage_cache[barcode][tint][field]
             else:
-                log.debug("%s: No information on tango.info for barcode %s" \
-                        % (PLUGIN_NAME, barcode))
+                log.debug("%s: No information on tango.info for barcode %s",
+                          PLUGIN_NAME, barcode)
         else:
             #log.debug("%s: Adding to queue: %s, new track: %s" \
             #       % (PLUGIN_NAME, barcode, album._new_tracks[-1]))
@@ -133,30 +131,29 @@ class TangoInfoTagger:
 
         if self.albumpage_queue.append(barcode, (track, album, tint)):
             log.debug("%s: Downloading from tango.info: track %s, album %s, \
-                  with TINT %s" % (\
-                    PLUGIN_NAME, str(track), str(album), tint)
-            )
+                  with TINT %s", PLUGIN_NAME, str(track), str(album), tint)
 
             host = 'tango.info'
             port = 443
             path = '/%s' % (barcode)
 
             # Call website_process as a partial func
-            return album.tagger.webservice.get(host, port, path,
+            return album.tagger.webservice.download(host, port, path,
                         partial(self.website_process, barcode, zeros),
-                        parse_response_type=None, priority=False, important=False)
+                        priority=False, important=False)
 
     def website_process(self, barcode, zeros, response, reply, error):
 
         if error:
-            log.error("%s: Error retrieving info for barcode %s" % \
-                    PLUGIN_NAME, barcode)
+            log.error("%s: Error retrieving info for barcode %s",
+                      PLUGIN_NAME, barcode)
             tuples = self.albumpage_queue.remove(barcode)
-            for track, album in tuples:
+            for track, album, tint in tuples:
                 self.album_remove_request(album)
             return
 
-        tangoinfo_album_data = self.barcode_process_metadata(barcode, response)
+        html = bytes(response).decode()
+        tangoinfo_album_data = self.barcode_process_metadata(barcode, html)
 
         self.albumpage_cache[barcode] = tangoinfo_album_data
         tuples = self.albumpage_queue.remove(barcode)
@@ -164,13 +161,12 @@ class TangoInfoTagger:
         if tangoinfo_album_data:
             if zeros > 0:
                 log.debug("%s: "
-            "tango.info does not seem to have data for barcode %s.  However, "
-            "retrying with barcode %s (i.e. the same with 0 prepended) was "
-            "successful. This most likely means either MusicBrainz or "
-            "tango.info has stored a wrong barcode for this release. You might "
-            "want to investigate this discrepancy and report it." \
-                          % (PLUGIN_NAME, barcode[zeros:], barcode)
-                )
+                    "tango.info does not seem to have data for barcode %s.  However, "
+                    "retrying with barcode %s (i.e. the same with 0 prepended) was "
+                    "successful. This most likely means either MusicBrainz or "
+                    "tango.info has stored a wrong barcode for this release. You might "
+                    "want to investigate this discrepancy and report it.",
+                    PLUGIN_NAME, barcode[zeros:], barcode)
 
             for track, album, tint in tuples:
                 tm = track.metadata
@@ -193,22 +189,21 @@ class TangoInfoTagger:
                     "Could not load album with barcode %s even with zero "
                     "prepended(%s).  This most likely means tango.info does "
                     "not have a release for this barcode (or MusicBrainz has a "
-                    "wrong barcode)" \
-                          % (PLUGIN_NAME, barcode[1:], barcode)
-                )
+                    "wrong barcode)",
+                    PLUGIN_NAME, barcode[1:], barcode)
                 for track, album, tint in tuples:
                     self.album_remove_request(album)
                 return
 
-            log.debug("%s: Retrying with 0-padded barcode for barcode %s" % \
-                    (PLUGIN_NAME, barcode))
+            log.debug("%s: Retrying with 0-padded barcode for barcode %s",
+                      PLUGIN_NAME, barcode)
 
             for track, album, tint in tuples:
                 retry_barcode = "0" + str(barcode)
                 retry_tint = "0" + tint
                 # Try again with new barcode, but at most two times(param zero)
                 self.website_add_track(
-                        album, track, retry_barcode, retry_tint, zeros=(zeros+1)
+                    album, track, retry_barcode, retry_tint, zeros=(zeros+1)
                 )
                 self.album_remove_request(album)
 
@@ -224,11 +219,16 @@ class TangoInfoTagger:
 
         # Check whether we have a concealed 404 and get the homepage
         if "<title>Contents - tango.info</title>" in response:
-            log.debug("%s: No album with barcode %s on tango.info" % \
-                    (PLUGIN_NAME, barcode))
+            log.debug("%s: No album with barcode %s on tango.info",
+                      PLUGIN_NAME, barcode)
             return
 
-        table = re.findall(table_regex, response)[0]
+        table = table_regex.search(response)
+        if not table:
+            log.warning("%s: No table found on page for barcode %s on tango.info",
+                        PLUGIN_NAME, barcode)
+            return
+
         albuminfo = {}
         trcontent = [match.groups()[0] for match in trs.finditer(table)]
 
