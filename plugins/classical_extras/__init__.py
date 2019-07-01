@@ -81,7 +81,7 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.4'
+PLUGIN_VERSION = '2.0.5'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -1274,6 +1274,62 @@ def create_artist_data(release_id, options, log_options, tm, relations,
         if log_options['log_info']:
             write_log(release_id, 'info', 'sorted artists = %s', artists)
     return artists, instruments
+
+
+def get_series(options, release_id, relations):
+    """
+    Get series info (depends on lookup having used inc=series-rel)
+    :param options:
+    :param release_id:
+    :param relations:
+    :return:
+    """
+    # if options['log_debug'] or options['log_info']:
+    #     write_log(
+    #         release_id,
+    #         'debug',
+    #         'In get_series.  relations: %s',
+    #         relations)
+    # series_name_list =[]
+    # series_id_list = []
+    # for series_rels in relations:
+    #     series_rel = parse_data(
+    #         release_id,
+    #         series_rels,
+    #         [],
+    #         'target-type:series',
+    #         'type:part-of')
+    #     if options['log_debug'] or options['log_info']:
+    #         write_log(
+    #             release_id,
+    #             'debug',
+    #             'series_rel =  %s',
+    #             series_rel)
+    #     series_name_list.extend(
+    #         parse_data(release_id, series_rel, [], 'series', 'name')
+    #     )
+    #     series_id_list.extend(
+    #         parse_data(release_id, series_rel, [], 'series', 'id')
+    #     )
+    type_list = parse_data(
+        release_id,
+        relations,
+        [],
+        'target-type:series',
+        'type:part of')
+    if type_list:
+        for type_item in type_list:
+            series_name_list = parse_data(
+                release_id, type_item, [], 'series', 'name')
+            series_id_list = parse_data(
+                release_id, type_item, [], 'series', 'id')
+            series_number_list = parse_data(
+                release_id, type_item, [], 'attribute-values', 'number')
+        return {'name_list': series_name_list, 'id_list': series_id_list, 'number_list': series_number_list}
+    else:
+        return None
+
+
 
 def apply_artist_style(
         options,
@@ -2890,6 +2946,9 @@ class ExtraArtists():
         # NB this last one is for completeness - not actually used by
         # ExtraArtists, but here to remove pep8 error
 
+        self.album_series_list = collections.defaultdict(dict)
+        # series relationships - format is {'name_list': series names, 'id_list': series ids, 'number_list': number within series}
+
     def add_artist_info(
             self,
             album,
@@ -2915,8 +2974,9 @@ class ExtraArtists():
             write_log(
                 release_id,
                 'debug',
-                'STARTING ARTIST PROCESSING FOR ALBUM %s, TRACK %s',
+                'STARTING ARTIST PROCESSING FOR ALBUM %s, DISC %s, TRACK %s',
                 track_metadata['album'],
+                track_metadata['discnumber'],
                 track_metadata['tracknumber'] +
                 ' ' +
                 track_metadata['title'])
@@ -3006,6 +3066,10 @@ class ExtraArtists():
                     options, release_id, tm, relation_list, 'release')['instruments']
                 self.album_instruments[album] = album_instrumentList
 
+                # get series information
+                self.album_series_list = get_series(
+                    options, release_id, relation_list)
+
             else:
                 if album in self.album_performers:
                     album_performerList = self.album_performers[album]
@@ -3017,6 +3081,22 @@ class ExtraArtists():
                     tm['~cea_instruments_all'] = self.album_instruments[album][2]
                     # Should be OK to initialise these here as recording artists
                     # yet to be processed
+
+            # Fill release info not given by vanilla Picard
+            if self.album_series_list:
+                tm['series'] = self.album_series_list['name_list'] if 'name_list' in self.album_series_list else None
+                tm['musicbrainz_seriesid'] = self.album_series_list['id_list'] if 'id_list' in self.album_series_list else None
+                tm['series_number'] = self.album_series_list['number_list'] if 'number_list' in self.album_series_list else None
+                ## TODO add label id too
+            recording_relation_list = parse_data(
+                release_id, trackXmlNode, [], 'recording', 'relations')
+            recording_series_list = get_series(
+                options, release_id, recording_relation_list)
+            write_log(
+                release_id,
+                'info',
+                'Recording_series_list = %s',
+                recording_series_list)
 
             track_artist_list = parse_data(
                 release_id, trackXmlNode, [], 'artist-credit')
@@ -4018,8 +4098,9 @@ class PartLevels():
             write_log(
                 release_id,
                 'debug',
-                'STARTING WORKS PROCESSING FOR ALBUM %s, TRACK %s',
+                'STARTING WORKS PROCESSING FOR ALBUM %s, DISC %s, TRACK %s',
                 track_metadata['album'],
+                track_metadata['discnumber'],
                 track_metadata['tracknumber'] +
                 ' ' +
                 track_metadata['title'])
@@ -4645,7 +4726,7 @@ class PartLevels():
 
     def work_process(self, workId, tries, response, reply, error):
         """
-        Top routine to process the XML node response from the lookup
+        Top routine to process the XML/JSON node response from the lookup
         NB This function may operate over multiple albums (as well as multiple tracks)
         :param workId:
         :param tries:
@@ -4835,8 +4916,8 @@ class PartLevels():
                                     # Make sure we haven't done this
                                     # relationship before, perhaps for another
                                     # album
-                                    if set(
-                                            self.works_cache[wid]) != set(parentIds):
+                                    if not (set(
+                                            self.works_cache[wid]) >= set(parentIds)):
                                         prev_ids = tuple(self.works_cache[wid])
                                         prev_name = self.parts[prev_ids]['name']
                                         self.works_cache[wid] = add_list_uniquely(
@@ -5417,7 +5498,7 @@ class PartLevels():
             #     from the structure. It also returns a tuple (id, tracks), where tracks has the structure
             #     {'track': [(track, height), (track, height), ...tuples...]
             #     'work': [[worknames], [worknames], ...lists...]
-            #     'tracknumber': [num, num, ...integers...]
+            #     'tracknumber': [num, num, ...floats of form n.nnn = disc.track...]
             #     'title':  [title, title, ...strings...]}
             #     each list is the same length - i.e. the number of tracks for the top work
             #     there can be more than one workname for a track
@@ -5684,7 +5765,8 @@ class PartLevels():
                             tracks['track'].append((track, height))
                         else:
                             tracks['track'] = [(track, height)]
-                        tracks['tracknumber'] = [int(tm['tracknumber'])]
+                        tracks['tracknumber'] = [int(tm['discnumber']) + (int(tm['tracknumber']) / 1000)]
+                        # Hopefully no more than 999 tracks per disc!
                         write_log(release_id, 'info', "Tracks: %s", tracks)
 
                 response = (workId, tracks)
@@ -5780,12 +5862,14 @@ class PartLevels():
                             tracks['work'] = [work]
                         if 'tracknumber' not in tm:
                             tm['tracknumber'] = 0
+                        if 'discnumber' not in tm:
+                            tm['discnumber'] = 0
                         if 'tracknumber' in tracks:
                             tracks['tracknumber'].append(
-                                int(tm['tracknumber']))
+                                int(tm['discnumber']) + (int(tm['tracknumber']) / 1000))
                         else:
                             tracks['tracknumber'] = [
-                                int(tm['tracknumber'])]
+                                int(tm['discnumber']) + (int(tm['tracknumber']) / 1000)]
             if tracks and 'track' in tracks:
                 track = tracks['track'][0][0]
                 # NB this will only be the first track of tracks, but its
@@ -7055,12 +7139,12 @@ class PartLevels():
                     release_id,
                     tm,
                     'show work movement',
-                    '1')  # for iTunes
+                    '1')  # original tag for iTunes, kept for backwards compatibility
                 self.append_tag(
                     release_id,
                     tm,
                     'showmovement',
-                    '1')  # consistent with Picard tag docs
+                    '1')  # new tag for iTunes & MusicBee, consistent with Picard tag docs
         for tag in top_tags:
             if '~cwp_work_top' in tm:
                 self.append_tag(release_id, tm, tag, tm['~cwp_work_top'])
