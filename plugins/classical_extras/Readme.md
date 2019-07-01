@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 2.0.5: Add extra error trapping for circular work references. Alpha test of release series tags if Picard provides series-rels with release lookup.
+
 Version 2.0.4: Fix occasional regex backtracking crash. Make naming of movement tags consistent with Picard docs. 
 Added an option to attempt to get works and movement info from title if there are no work relationships (requires title in form "work: movement"). 
 If Muso-specific genre processing is selected (or XML reference file is provided including classical composers) and there is no composer (because of a lack of work relationship) 
