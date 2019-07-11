@@ -28,7 +28,7 @@ PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from picard import log
-from picard.album import Track
+from picard.track import Track
 from picard.ui.itemviews import (
     BaseAction,
     register_track_action,
