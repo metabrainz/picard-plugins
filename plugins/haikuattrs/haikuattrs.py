@@ -60,6 +60,8 @@ if sys.platform == 'haiku1':
         be.fs_read_attr.restype = c_ssize_t
         be.fs_read_attr.argtypes = [c_int, c_char_p, c_uint32, c_size_t,
                                     c_void_p, c_size_t]
+        be.fs_remove_attr.restype = c_int
+        be.fs_remove_attr.argtypes = [c_int, c_char_p]
         be.fs_write_attr.restype = c_ssize_t
         be.fs_write_attr.argtypes = [c_int, c_char_p, c_uint32, c_size_t,
                                      c_void_p, c_size_t]
@@ -110,6 +112,9 @@ if be:
             fd, attr.name, info.type, 0, buffer, len(buffer), bytes_read, result))
         return result
 
+    def remove_attr(fd, attr):
+        return be.fs_remove_attr(fd, attr.name) == 0
+
     def write_attr(fd, attr, attr_value):
         if attr.type == b'LONG':
             try:
@@ -148,6 +153,8 @@ if be:
                     if not write_attr(fd, attr, value):
                         log.error('haikuattrs: setting %s=%s for %s failed' % (
                             attr.name, value, file.filename))
+                else:
+                    remove_attr(fd, attr)
         finally:
             os.close(fd)
 
