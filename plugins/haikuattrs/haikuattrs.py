@@ -19,8 +19,8 @@
 
 PLUGIN_NAME = 'Haiku BFS Attributes'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
-PLUGIN_DESCRIPTION = 'Save metadata to Haiku BFS attributes.'
-PLUGIN_VERSION = "1.0.0"
+PLUGIN_DESCRIPTION = 'Save and load metadata to/from Haiku BFS attributes.'
+PLUGIN_VERSION = "1.1.0"
 PLUGIN_API_VERSIONS = ["2.2"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -30,21 +30,38 @@ import os
 import struct
 import sys
 from collections import namedtuple
-from ctypes import (CDLL, byref, c_char_p, c_int, c_size_t, c_ssize_t,
+from ctypes import (CDLL, POINTER, Structure, byref, c_char_p, c_int, c_size_t, c_ssize_t,
                     c_uint32, c_void_p, cast)
 from ctypes.util import find_library
 from functools import partial
 
 from picard import log
-from picard.file import register_file_post_save_processor
+from picard.file import (
+    register_file_post_load_processor,
+    register_file_post_save_processor,
+    )
 from picard.util import thread
 
 if sys.platform == 'haiku1':
+
+    class AttrInfo(Structure):
+        _fields_ = [
+            ('type', c_uint32),
+            ('size', c_size_t)]
+
+        def __repr__(self):
+            return 'AttrInfo(type=%r, size=%r)' % (self.type, self.size)
+
     try:
         libbe_path = find_library('be') or 'libbe.so'
         be = CDLL(libbe_path, use_errno=True)
+        be.fs_stat_attr.restype = c_int
+        be.fs_stat_attr.argtypes = [c_int, c_char_p, POINTER(AttrInfo)]
+        be.fs_read_attr.restype = c_ssize_t
+        be.fs_read_attr.argtypes = [c_int, c_char_p, c_uint32, c_size_t,
+                                    c_void_p, c_size_t]
         be.fs_write_attr.restype = c_ssize_t
-        be.fs_write_attr.argtypes = [c_int, c_char_p, c_uint32, c_int,
+        be.fs_write_attr.argtypes = [c_int, c_char_p, c_uint32, c_size_t,
                                      c_void_p, c_size_t]
     except OSError:
         log.error('haikuattrs: unable to load libbe', exc_info=True)
@@ -67,7 +84,33 @@ if be:
         '~rating'    : Attr(b'LONG', b'Media:Rating'),
     }
 
-    def set_attr(fd, attr, attr_value):
+    def get_numeric_type(attr):
+        return struct.unpack('>I', attr.type)[0]
+
+    def read_attr(fd, attr):
+        info = AttrInfo()
+        if be.fs_stat_attr(fd, attr.name, byref(info)) == -1:
+            return None
+
+        buffer = b'\0' * info.size
+        bytes_read = be.fs_read_attr(fd, attr.name, info.type, 0,
+                                     buffer, len(buffer))
+
+        result = None
+        if bytes_read > -1:
+            buffer = buffer[:bytes_read]
+            if attr.type == b'LONG':
+                result = str(struct.unpack('=I', buffer)[0])
+            elif attr.type == b'CSTR':
+                result = buffer.decode('utf-8', errors='replace')
+            else:
+                raise ValueError('Unsupported attribute type %s' % attr.type)
+
+        log.debug("haikuattrs: fs_read_attr(%r, %r, %r, %r, %r, %r) -> %r: %r" % (
+            fd, attr.name, info.type, 0, buffer, len(buffer), bytes_read, result))
+        return result
+
+    def write_attr(fd, attr, attr_value):
         if attr.type == b'LONG':
             try:
                 attr_value = int(attr_value)
@@ -82,7 +125,7 @@ if be:
         else:
             raise ValueError('Unsupported attribute type %s' % attr.type)
 
-        int_type = struct.unpack('>I', attr.type)[0]
+        int_type = get_numeric_type(attr)
         ret_val = be.fs_write_attr(fd, attr.name, int_type, 0, buffer, length)
         log.debug("haikuattrs: fs_write_attr(%r, %r, %r, %r, %r, %r) -> %r" % (
             fd, attr.name, int_type, 0, buffer, length, ret_val))
@@ -102,7 +145,7 @@ if be:
                             value = int(value) * 2
                         except ValueError:
                             continue
-                    if not set_attr(fd, attr, value):
+                    if not write_attr(fd, attr, value):
                         log.error('haikuattrs: setting %s=%s for %s failed' % (
                             attr.name, value, file.filename))
         finally:
@@ -115,9 +158,38 @@ if be:
         else:
             log.debug('haikuattrs: attributes set for %s' % file.filename)
 
-    def set_bfs_attributes_processor(file):
+    def load_attrs_to_metadata(file):
+        fd = os.open(file.filename, os.O_RDONLY)
+        filename, _ = os.path.splitext(file.base_filename)
+        try:
+            for tag, attr in attr_map.items():
+                # Ignore tags for which metadata is included in the file
+                value = file.metadata[tag]
+                if value and not (tag == 'title' and value == filename):
+                    continue
+                value = read_attr(fd, attr)
+                if value:
+                    file.metadata[tag] = value
+        finally:
+            os.close(fd)
+
+    def load_attrs_to_metadata_finished(file, result=None, error=None):
+        if error:
+            log.error('haikuattrs: loading attributes for %s failed: %r' % (
+                file.filename, error))
+        else:
+            log.debug('haikuattrs: attributes loaded for %s' % file.filename)
+            file.update()
+
+    def on_file_load_processor(file):
+         thread.run_task(
+            partial(load_attrs_to_metadata, file),
+            partial(load_attrs_to_metadata_finished, file))
+
+    def on_file_save_processor(file):
         thread.run_task(
             partial(set_attrs_from_metadata, file),
             partial(set_attrs_from_metadata_finished, file))
 
-    register_file_post_save_processor(set_bfs_attributes_processor)
+    register_file_post_load_processor(on_file_load_processor)
+    register_file_post_save_processor(on_file_save_processor)
