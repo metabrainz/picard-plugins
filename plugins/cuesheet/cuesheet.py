@@ -182,14 +182,16 @@ class GenerateCuesheet(BaseAction):
                 t.set("INDEX", "01", "%02d:%02d:%02d" % (mm, ss, ff))
                 for file in track.linked_files:
                     audio_filename = file.filename
+                    extension = audio_filename.split(".")[-1].lower()
                     if os.path.dirname(filename) == os.path.dirname(audio_filename):
                         audio_filename = os.path.basename(audio_filename)
-                    if audio_filename.split(".")[-1].lower() in ["mp3", "mp2", "m2a"]:
-                        cuesheet.tracks[i].set("FILE", audio_filename, "MP3")
-                    elif audio_filename.split(".")[-1].lower() in ["aiff", "aif", "aifc"]:
-                        cuesheet.tracks[i].set("FILE", audio_filename, "AIFF")
+                    if extension in ["mp3", "mp2", "m2a"]:
+                        file_type = "MP3"
+                    elif extension in ["aiff", "aif", "aifc"]:
+                        file_type = "AIFF"
                     else:
-                        cuesheet.tracks[i].set("FILE", audio_filename, "WAV")
+                        file_type = "WAV"
+                    cuesheet.tracks[i].set("FILE", audio_filename, file_type)
 
             cuesheet.write()
 
