@@ -3,7 +3,7 @@
 PLUGIN_NAME = "Generate Cuesheet"
 PLUGIN_AUTHOR = "Lukáš Lalinský, Sambhav Kothari"
 PLUGIN_DESCRIPTION = "Generate cuesheet (.cue file) from an album."
-PLUGIN_VERSION = "1.1"
+PLUGIN_VERSION = "1.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 
@@ -182,9 +182,16 @@ class GenerateCuesheet(BaseAction):
                 t.set("INDEX", "01", "%02d:%02d:%02d" % (mm, ss, ff))
                 for file in track.linked_files:
                     audio_filename = file.filename
+                    extension = audio_filename.split(".")[-1].lower()
                     if os.path.dirname(filename) == os.path.dirname(audio_filename):
                         audio_filename = os.path.basename(audio_filename)
-                    cuesheet.tracks[i].set("FILE", audio_filename, "MP3")
+                    if extension in ["mp3", "mp2", "m2a"]:
+                        file_type = "MP3"
+                    elif extension in ["aiff", "aif", "aifc"]:
+                        file_type = "AIFF"
+                    else:
+                        file_type = "WAV"
+                    cuesheet.tracks[i].set("FILE", audio_filename, file_type)
 
             cuesheet.write()
 
