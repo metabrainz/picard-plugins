@@ -190,7 +190,7 @@ class GenerateCuesheet(BaseAction):
                     elif extension in ["aiff", "aif", "aifc"]:
                         file_type = "AIFF"
                     else:
-                        file_type = "WAV"
+                        file_type = "WAVE"
                     cuesheet.tracks[i].set("FILE", audio_filename, file_type)
 
             cuesheet.write()
