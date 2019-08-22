@@ -23,7 +23,7 @@ PLUGIN_DESCRIPTION = '''Uses AcousticBrainz for mood and genre.
 WARNING: Experimental plugin. All guarantees voided by use.'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "1.1.1"
+PLUGIN_VERSION = "1.2.0"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
@@ -47,9 +47,9 @@ def result(album, metadata, data, reply, error):
     moods = []
     genres = []
     try:
-        data = load_json(data)
-        if "highlevel" in data:
-            data = data["highlevel"]
+        data = load_json(data).get(metadata["musicbrainz_recordingid"])
+        if data and "0" in data and "highlevel" in data["0"]:
+            data = data["0"]["highlevel"]
             for k, v in data.items():
                 if k.startswith("genre_") and not v["value"].startswith("not_"):
                     genres.append(v["value"])
@@ -67,13 +67,18 @@ def result(album, metadata, data, reply, error):
 
 
 def process_track(album, metadata, release, track):
+    queryargs = {
+        "recording_ids": metadata["musicbrainz_recordingid"],
+        "map_classes": "true"
+    }
     album.tagger.webservice.get(
         ACOUSTICBRAINZ_HOST,
         ACOUSTICBRAINZ_PORT,
-        "/%s/high-level" % (metadata["musicbrainz_recordingid"]),
+        "/api/v1/high-level",
         partial(result, album, metadata),
         priority=True,
-        parse_response_type=None
+        parse_response_type=None,
+        queryargs=queryargs
     )
     album._requests += 1
 
