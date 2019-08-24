@@ -23,35 +23,33 @@ PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15", "2.0"]
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://gnu.org/licenses/gpl.html"
-PLUGIN_DESCRIPTION = '''Replaces Windows forbidden symbols: :, /, *, ?, ", ., | etc. with a similar UNICODE version.
-
-Currently replaces characters on "album", "artist", "title", "albumartist", "releasetype", "label" tags.'''
-
+PLUGIN_DESCRIPTION = '''Replaces Windows forbidden symbols: :, /, *, ?, ", ., | etc.
+                    with a similar UNICODE version.
+                    Currently replaces characters on "album", "artist",
+                    "title", "albumartist", "releasetype", "label" tags.'''
 
 CHAR_TABLE = {
 
     # forbidden
     ":": "∶",
-	"/": "⁄",
-	"*": "∗",
+    "/": "⁄",
+    "*": "∗",
     "?": "？",
     '"': '″',
-    '\\':'⧵',
-    '.':'․',
-    '|':'ǀ',
-    '<':'‹',
-    '>':'›'
-
-
+    '\\': '⧵',
+    '.': '․',
+    '|': 'ǀ',
+    '<': '‹',
+    '>': '›'
 }
 
 FILTER_TAGS = [
     "album",
     "artist",
     "title",
-	"albumartist",
-	"releasetype",
-	"label",
+    "albumartist",
+    "releasetype",
+    "label",
 ]
 
 
@@ -60,8 +58,11 @@ def sanitize(char):
         return CHAR_TABLE[char]
     return char
 
+
 def ascii(word):
     return "".join(sanitize(char) for char in word)
+
+
 def replace_forbidden(value):
     return [ascii(x) for x in value]
 
