@@ -16,17 +16,21 @@
 # this program. If not, see <http://www.gnu.org/licenses/>.
 
 from picard import metadata
+from picard.script import register_script_function
 
 PLUGIN_NAME = "Replace Forbidden Symbols"
 PLUGIN_AUTHOR = "Alex Rustler <alex_rustler@rambler.ru>"
-PLUGIN_VERSION = "0.1"
+PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15", "2.0", "2.2"]
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://gnu.org/licenses/gpl.html"
 PLUGIN_DESCRIPTION = '''Replaces Windows forbidden symbols: :, /, *, ?, ", ., | etc.
                     with a similar UNICODE version.
                     Currently replaces characters on "album", "artist",
-                    "title", "albumartist", "releasetype", "label" tags.'''
+                    "title", "albumartist", "releasetype", "label" tags.
+                    Also add $replace_forbidden() function for Tagger.
+                    Example: $set(composer,$script_forbidden(%composer%))
+'''
 
 CHAR_TABLE = {
 
@@ -67,6 +71,10 @@ def replace_forbidden(value):
     return [fix_forbidden(x) for x in value]
 
 
+def script_replace_forbidden(parser, value):
+    return fix_forbidden(value)
+
+
 def main(tagger, metadata, release, track=None):
     for name, value in metadata.rawitems():
         if name in FILTER_TAGS:
@@ -75,3 +83,5 @@ def main(tagger, metadata, release, track=None):
 
 metadata.register_track_metadata_processor(main)
 metadata.register_album_metadata_processor(main)
+
+register_script_function(script_replace_forbidden, name="replace_forbidden")
