@@ -20,7 +20,7 @@ from picard import metadata
 PLUGIN_NAME = "Replace Forbidden Symbols"
 PLUGIN_AUTHOR = "Alex Rustler <alex_rustler@rambler.ru>"
 PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15", "2.0"]
+PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15", "2.0", "2.2"]
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://gnu.org/licenses/gpl.html"
 PLUGIN_DESCRIPTION = '''Replaces Windows forbidden symbols: :, /, *, ?, ", ., | etc.
@@ -59,18 +59,18 @@ def sanitize(char):
     return char
 
 
-def ascii(word):
+def fix_forbidden(word):
     return "".join(sanitize(char) for char in word)
 
 
 def replace_forbidden(value):
-    return [ascii(x) for x in value]
+    return [fix_forbidden(x) for x in value]
 
 
 def main(tagger, metadata, release, track=None):
     for name, value in metadata.rawitems():
         if name in FILTER_TAGS:
-            metadata[name] = [ascii(x) for x in value]
+            metadata[name] = replace_forbidden(value)
 
 
 metadata.register_track_metadata_processor(main)
