@@ -19,7 +19,7 @@ from picard import metadata
 
 PLUGIN_NAME = "Non-ASCII Equivalents"
 PLUGIN_AUTHOR = "Anderson Mesquita <andersonvom@trysometinghere>"
-PLUGIN_VERSION = "0.2"
+PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15", "2.0"]
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://gnu.org/licenses/gpl.html"
@@ -141,7 +141,7 @@ def ascii(word):
     return "".join(sanitize(char) for char in word)
 
 
-def main(tagger, metadata, release, track=None):
+def main(tagger, metadata, *args):
     for name, value in metadata.rawitems():
         if name in FILTER_TAGS:
             metadata[name] = [ascii(x) for x in value]

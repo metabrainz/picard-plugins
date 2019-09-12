@@ -8,7 +8,7 @@
 PLUGIN_NAME = 'Wikidata Genre'
 PLUGIN_AUTHOR = 'Daniel Sobey, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'query wikidata to get genre tags'
-PLUGIN_VERSION = '1.4'
+PLUGIN_VERSION = '1.4.1'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
@@ -282,7 +282,7 @@ class Wikidata:
             self.requests.clear()
             log.info('WIKIDATA: Finished (B)')
 
-    def process_track(self, album, metadata, trackXmlNode, releaseXmlNode):
+    def process_track(self, album, metadata, track, release):
         self.update_settings()
         self.ws = album.tagger.webservice
         self.log = album.log

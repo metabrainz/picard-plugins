@@ -8,7 +8,7 @@
 PLUGIN_NAME = "Title Case"
 PLUGIN_AUTHOR = "Javier Kohen, Sambhav Kothari"
 PLUGIN_DESCRIPTION = "Capitalize First Character In Every Word Of A Title"
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.0.1"
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -59,7 +59,7 @@ from picard.metadata import (
 )
 
 
-def title_case(tagger, metadata, release, track=None):
+def title_case(tagger, metadata, *args):
     for name, value in metadata.rawitems():
         if name in ["title", "album", "artist"]:
             metadata[name] = [title(x) for x in value]

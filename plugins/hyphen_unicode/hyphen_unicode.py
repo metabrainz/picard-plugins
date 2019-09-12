@@ -20,7 +20,7 @@ from picard import metadata
 
 PLUGIN_NAME = "Hyphen unicode"
 PLUGIN_AUTHOR = "Alan Swanson <revier@improbability.net>"
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.0.1"
 PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15", "2.0"]
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://gnu.org/licenses/gpl.html"
@@ -30,7 +30,7 @@ that do not support HYPHEN and to prevent visually duplicate filenames
 differentiated only by their hyphens.
 
 Unicode duplicated hyphen from ASCII as an unambiguous way to designate a
-hyphen from a minus whilst still being typographically indentical. Since 
+hyphen from a minus whilst still being typographically indentical. Since
 text processing on music tags is rare so choice is purely pedantic esepcially
 as keyboards only have HYPHEN-MINUS.
 
@@ -69,7 +69,7 @@ def ascii(word):
     return "".join(sanitize(char) for char in word)
 
 
-def main(tagger, metadata, release, track=None):
+def main(tagger, metadata, *args):
     for name, value in metadata.rawitems():
         if name in FILTER_TAGS:
             metadata[name] = [ascii(x) for x in value]

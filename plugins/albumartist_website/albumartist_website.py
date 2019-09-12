@@ -4,7 +4,7 @@ PLUGIN_NAME = 'Album Artist Website'
 PLUGIN_AUTHOR = 'Sophist, Sambhav Kothari'
 PLUGIN_DESCRIPTION = '''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
-PLUGIN_VERSION = '1.0'
+PLUGIN_VERSION = '1.0.1'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -64,7 +64,7 @@ class AlbumArtistWebsite:
         self.website_cache = {}
         self.website_queue = self.ArtistWebsiteQueue()
 
-    def add_artist_website(self, album, track_metadata, trackXmlNode, releaseXmlNode):
+    def add_artist_website(self, album, track_metadata, track_node, release_node):
         albumArtistIds = dict.get(track_metadata,'musicbrainz_albumartistid', [])
         for artistId in albumArtistIds:
             if artistId in self.website_cache:
