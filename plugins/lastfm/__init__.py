@@ -3,7 +3,7 @@
 PLUGIN_NAME = 'Last.fm'
 PLUGIN_AUTHOR = 'Lukáš Lalinský, Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use tags from Last.fm as genre.'
-PLUGIN_VERSION = "0.9"
+PLUGIN_VERSION = "0.10"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 import re
@@ -181,7 +181,7 @@ def get_artist_tags(album, metadata, artist, min_usage,
     get_tags(album, metadata, queryargs, min_usage, ignore, next_, current)
 
 
-def process_track(album, metadata, release, track):
+def process_track(album, metadata, track, release):
     use_track_tags = config.setting["lastfm_use_track_tags"]
     use_artist_tags = config.setting["lastfm_use_artist_tags"]
     min_tag_usage = config.setting["lastfm_min_tag_usage"]

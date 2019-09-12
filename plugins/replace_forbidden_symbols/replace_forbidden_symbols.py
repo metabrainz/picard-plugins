@@ -20,7 +20,7 @@ from picard.script import register_script_function
 
 PLUGIN_NAME = "Replace Forbidden Symbols"
 PLUGIN_AUTHOR = "Alex Rustler <alex_rustler@rambler.ru>"
-PLUGIN_VERSION = "0.2"
+PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15", "2.0", "2.2"]
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://gnu.org/licenses/gpl.html"
@@ -75,7 +75,7 @@ def script_replace_forbidden(parser, value):
     return fix_forbidden(value)
 
 
-def main(tagger, metadata, release, track=None):
+def main(tagger, metadata, *args):
     for name, value in metadata.rawitems():
         if name in FILTER_TAGS:
             metadata[name] = replace_forbidden(value)

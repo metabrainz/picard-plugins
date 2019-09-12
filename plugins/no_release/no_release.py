@@ -3,7 +3,7 @@
 PLUGIN_NAME = 'No release'
 PLUGIN_AUTHOR = 'Johannes Weißl, Philipp Wolfer'
 PLUGIN_DESCRIPTION = '''Do not store specific release information in releases of unknown origin.'''
-PLUGIN_VERSION = '0.2'
+PLUGIN_VERSION = '0.3'
 PLUGIN_API_VERSIONS = ['2.0']
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -97,17 +97,17 @@ class NoReleaseOptionsPage(OptionsPage):
         config.setting['norelease_enable'] = self.ui.norelease_enable.isChecked()
 
 
-def NoReleaseAlbumProcessor(tagger, metadata, release):
+def no_release_album_processor(tagger, metadata, release):
     if config.setting['norelease_enable']:
         strip_release_specific_metadata(metadata)
 
 
-def NoReleaseTrackProcessor(tagger, metadata, track, release):
+def no_release_track_processor(tagger, metadata, track, release):
     if config.setting['norelease_enable']:
         strip_release_specific_metadata(metadata)
 
 
-register_album_metadata_processor(NoReleaseAlbumProcessor)
-register_track_metadata_processor(NoReleaseTrackProcessor)
+register_album_metadata_processor(no_release_album_processor)
+register_track_metadata_processor(no_release_track_processor)
 register_album_action(NoReleaseAction())
 register_options_page(NoReleaseOptionsPage)

@@ -27,7 +27,7 @@ from the AcousticBrainz database.<br/><br/>
 '''
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = '1.1.2'
+PLUGIN_VERSION = '1.1.3'
 PLUGIN_API_VERSIONS = ["2.0"]  # Requires support for TKEY which is in 1.4
 
 from json import JSONDecodeError
@@ -46,7 +46,7 @@ ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 50)
 
 class AcousticBrainz_Key:
 
-    def get_data(self, album, track_metadata, trackXmlNode, releaseXmlNode):
+    def get_data(self, album, track_metadata, track_node, release_node):
         if "musicbrainz_recordingid" not in track_metadata:
             log.error("%s: Error parsing response. No MusicBrainz recording id found.",
                       PLUGIN_NAME)

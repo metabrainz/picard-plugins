@@ -1,7 +1,7 @@
 PLUGIN_NAME = 'Musixmatch Lyrics'
 PLUGIN_AUTHOR = 'm-yn, Sambhav Kothari, Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Fetch first 30% of lyrics from Musixmatch'
-PLUGIN_VERSION = '1.1'
+PLUGIN_VERSION = '1.1.1'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -41,7 +41,7 @@ def handle_result(album, metadata, data, reply, error):
         album._finalize_loading(error)
 
 
-def process_track(album, metadata, release, track):
+def process_track(album, metadata, track, release):
     apikey = config.setting['musixmatch_api_key']
     if not apikey:
         log.warning('MusixMatch: No API key configured')

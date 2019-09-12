@@ -8,7 +8,7 @@ PLUGIN_DESCRIPTION = """
 it does not cause unnecessary server load for either MusicBrainz.org
 or tango.info</p>
 """
-PLUGIN_VERSION = "1.1"
+PLUGIN_VERSION = "1.1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -82,8 +82,7 @@ class TangoInfoTagger:
         self.albumpage_cache = {}
         self.albumpage_queue = self.TangoInfoScrapeQueue()
 
-    def add_tangoinfo_data(self, album, track_metadata,
-            trackXmlNode, releaseXmlNode):
+    def add_tangoinfo_data(self, album, track_metadata, track, release):
         #log.debug("%s: Track metadata: %s " % (PLUGIN_NAME, track_metadata))
 
         # BARCODE or barcode

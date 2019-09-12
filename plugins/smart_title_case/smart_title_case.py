@@ -27,7 +27,7 @@ Leaves words containing embedded uppercase as-is i.e. USA or DoA.<br />
 For Artist/AlbumArtist, title cases only artists not join phrases<br />
 e.g. The Beatles feat. The Who.
 """
-PLUGIN_VERSION = "0.3"
+PLUGIN_VERSION = "0.4"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
@@ -105,7 +105,7 @@ from picard.metadata import (
     register_album_metadata_processor,
 )
 
-def title_case(tagger, metadata, release, track=None):
+def title_case(tagger, metadata, *args):
     for name in title_tags:
         if name in metadata:
             values = metadata.getall(name)
