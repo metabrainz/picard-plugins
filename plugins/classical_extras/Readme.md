@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 2.0.6: Fixed crash on Picard 2.2.
+
 Version 2.0.5: Add extra error trapping for circular work references. Alpha test of release series tags if Picard provides series-rels with release lookup.
 
 Version 2.0.4: Fix occasional regex backtracking crash. Make naming of movement tags consistent with Picard docs. 

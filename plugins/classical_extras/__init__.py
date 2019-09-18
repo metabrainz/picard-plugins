@@ -81,7 +81,7 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.5'
+PLUGIN_VERSION = '2.0.6'
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -8425,7 +8425,9 @@ class ClassicalExtrasOptionsPage(OptionsPage):
     opts = plugin_options('artists') + plugin_options('tag') + plugin_options('tag_detail') +\
         plugin_options('workparts') + plugin_options('genres') + plugin_options('other')
 
-    options = []
+    options = [
+        IntOption("persist", 'ce_tab', 0)
+    ]
     # custom logging for non-album-related messages is written to startup.log
     for opt in opts:
         if 'type' in opt:
@@ -8472,17 +8474,8 @@ class ClassicalExtrasOptionsPage(OptionsPage):
                        'cwp_use_muso_refdb', ]
 
         # open at last used tab
-        if 'ce_tab' in config.setting:
-            # seems to be the only way to get the value -
-            # config.setting['ce_tab'] returns None
-            cfg = config.setting.__dict__[
-                '_ConfigSection__config']['setting/ce_tab']
-            if isinstance(cfg, str) and cfg.isdigit():
-                cfg_val = int(cfg)
-            elif isinstance(cfg, int):
-                cfg_val = cfg
-            else:
-                cfg_val = 0
+        if 'ce_tab' in config.persist:
+            cfg_val = config.persist['ce_tab'] or 0
             if 0 <= cfg_val <= 5:
                 self.ui.tabWidget.setCurrentIndex(cfg_val)
         else:
@@ -8526,8 +8519,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
             plugin_options('workparts') + plugin_options('genres') + plugin_options('other')
 
         # save tab setting
-        # works for setting, but not for getting
-        config.setting['ce_tab'] = self.ui.tabWidget.currentIndex()
+        config.persist['ce_tab'] = self.ui.tabWidget.currentIndex()
 
         for opt in opts:
             if opt['option'] == 'classical_work_parts':
