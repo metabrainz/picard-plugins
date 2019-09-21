@@ -78,7 +78,7 @@ def reconvert(value):
     result = value
     for key in REPLACE_TABLE:
         result = result.replace(key, REPLACE_TABLE[key])
-    
+
     return result
 
 
@@ -94,5 +94,5 @@ def process_tracks(tagger, metadata, track, release):
             metadata[name] = [reconvert(v) for v in value]
 
 
-metadata.register_album_metadata_processor(process_album)
-metadata.register_track_metadata_processor(process_tracks)
+register_album_metadata_processor(process_album)
+register_track_metadata_processor(process_tracks)
