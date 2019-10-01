@@ -8,12 +8,13 @@
 PLUGIN_NAME = "Title Case"
 PLUGIN_AUTHOR = "Javier Kohen, Sambhav Kothari"
 PLUGIN_DESCRIPTION = "Capitalize First Character In Every Word Of A Title"
-PLUGIN_VERSION = "1.0.1"
+PLUGIN_VERSION = "1.0.2"
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 import unicodedata
+from picard.plugin import PluginPriority
 
 
 def iswbound(char):
@@ -64,5 +65,5 @@ def title_case(tagger, metadata, *args):
         if name in ["title", "album", "artist"]:
             metadata[name] = [title(x) for x in value]
 
-register_track_metadata_processor(title_case)
-register_album_metadata_processor(title_case)
+register_track_metadata_processor(title_case, priority=PluginPriority.LOW)
+register_album_metadata_processor(title_case, priority=PluginPriority.LOW)
