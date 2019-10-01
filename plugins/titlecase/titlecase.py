@@ -52,7 +52,7 @@ def title(string):
     #   Lots of Japanese songs use entirely upper-case English titles,
     #   so I don't like this change... - JoeW
     #if string == string.upper(): string = string.lower()
-    return utitle(string_(string))
+    return utitle(str(string))
 
 from picard.metadata import (
     register_track_metadata_processor,
