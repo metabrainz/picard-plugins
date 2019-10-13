@@ -38,7 +38,7 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 PLUGIN_USER_GUIDE_URL = "https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md"
 
-from picard import config, log
+from picard import log
 from picard.metadata import (register_album_metadata_processor,
                              register_track_metadata_processor)
 from picard.plugin import PluginPriority
