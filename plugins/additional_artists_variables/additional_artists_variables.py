@@ -19,7 +19,6 @@
 
 PLUGIN_NAME = 'Additional Artists Variables'
 PLUGIN_AUTHOR = 'Bob Swift (rdswift)'
-PLUGIN_USER_GUIDE_URL = 'https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md'
 PLUGIN_DESCRIPTION = '''
 This plugin provides specialized album and track variables for use in
 naming scripts. It is based on the "Album Artist Extension" plugin, but
@@ -29,12 +28,14 @@ Extension" plugin because the variables are provided with different
 names.  This will require changes to existing scripts if switching to
 this plugin.
 <br /><br />
-Please see the <a href="{0}">user guide</a> on GitHub for more information.
-'''.format(PLUGIN_USER_GUIDE_URL,)
+Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md">user guide</a> on GitHub for more information.
+'''
 PLUGIN_VERSION = '0.5'
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
+
+PLUGIN_USER_GUIDE_URL = 'https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md'
 
 from picard import log
 from picard.metadata import (register_album_metadata_processor,
