@@ -31,7 +31,7 @@ this plugin.
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md">user guide</a> on GitHub for more information.
 '''
 PLUGIN_VERSION = '0.5'
-PLUGIN_API_VERSIONS = ['2.0']
+PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
@@ -150,19 +150,16 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
         destination_metadata['~artists_{0}_all_sort_primary'.format(source_type,)] = sort_pri_artist
     if artist_count:
         destination_metadata['~artists_{0}_all_count'.format(source_type,)] = artist_count
-    return None
 
 
 def make_album_vars(album, album_metadata, release_metadata):
     album_id = release_metadata['id'] if release_metadata else 'No Album ID'
     process_artists(album_id, release_metadata, album_metadata, 'album')
-    return None
 
 
 def make_track_vars(album, album_metadata, track_metadata, release_metadata):
     album_id = release_metadata['id'] if release_metadata else 'No Album ID'
     process_artists(album_id, track_metadata, album_metadata, 'track')
-    return None
 
 
 def metadata_error(album_id, metadata_element, metadata_group):
