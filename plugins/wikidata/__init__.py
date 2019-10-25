@@ -8,8 +8,8 @@
 PLUGIN_NAME = 'Wikidata Genre'
 PLUGIN_AUTHOR = 'Daniel Sobey, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'query wikidata to get genre tags'
-PLUGIN_VERSION = '1.4.1'
-PLUGIN_API_VERSIONS = ["2.0"]
+PLUGIN_VERSION = '1.4.2'
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
 
@@ -90,11 +90,11 @@ class Wikidata:
     def process_release(self, album, metadata, release):
         self.ws = album.tagger.webservice
         self.log = album.log
-        item_id = dict.get(metadata, 'musicbrainz_releasegroupid')[0]
+        item_id = metadata.getall('musicbrainz_releasegroupid')[0]
 
         log.info('WIKIDATA: Processing release group %s ' % item_id)
         self.process_request(metadata, album, item_id, item_type='release-group')
-        for artist in dict.get(metadata, 'musicbrainz_albumartistid'):
+        for artist in metadata.getall('musicbrainz_albumartistid'):
             item_id = artist
             log.info('WIKIDATA: Processing release artist %s' % item_id)
             self.process_request(metadata, album, item_id, item_type='artist')
