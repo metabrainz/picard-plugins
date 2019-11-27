@@ -17,7 +17,7 @@ PLUGIN_API_VERSIONS = ["2.0"]
 # PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
-from audio import source, tempo
+from aubio import source, tempo
 from numpy import median, diff
 from collections import defaultdict
 from functools import partial
