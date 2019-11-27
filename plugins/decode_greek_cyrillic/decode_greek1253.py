@@ -24,19 +24,18 @@
 # THE SOFTWARE.
 
 from __future__ import print_function
-PLUGIN_NAME = "Decode Greek"
-PLUGIN_AUTHOR = "aeontech"
+PLUGIN_NAME = "Decode Cyrillic Greek"
+PLUGIN_AUTHOR = "aeontech, Lefteris NeNpO"
+PLUGIN_VERSION = "1.3"
+PLUGIN_API_VERSIONS = ["1.0", "2.0"]
+PLUGIN_LICENSE = "MIT"
+PLUGIN_LICENSE_URL = "https://opensource.org/licenses/MIT"
 PLUGIN_DESCRIPTION = '''
 This plugin helps you quickly convert mis-encoded Greek Windows-1253 tags
 to proper UTF-8 encoded strings. If your track/album names look something like
 "Àëèñà â ñò›àíå ÷óäåñ", run this plugin from the context menu
 before running the "Lookup" or "Scan" tools
 '''
-PLUGIN_VERSION = "1.2"
-PLUGIN_API_VERSIONS = ["1.0", "2.0"]
-PLUGIN_LICENSE = "MIT"
-PLUGIN_LICENSE_URL = "https://opensource.org/licenses/MIT"
-
 from picard import log
 from picard.cluster import Cluster
 from picard.ui.itemviews import BaseAction, register_cluster_action
@@ -44,63 +43,42 @@ from picard.ui.itemviews import BaseAction, register_cluster_action
 _decode_tags = [
     'title',
     'albumartist',
+    'albumartistsort',
     'artist',
+    'artistsort',
     'album',
-    'artistsort'
+    'comment:',
+    'comment:ID3v1 Comment'
 ]
-# _from_encoding = "latin1"
-# _to_encoding   = "cp1251"
-
-
-# TODO:
-# - extend to support multiple codepage decoding, not just cp1251->latin1
-#   instead, try the common variations, and show a dialog to the user,
-#   allowing him to select the correct transcoding. See 2cyr.com for example.
-# - also see http://stackoverflow.com/questions/23326531/how-to-decode-cp1252-string
-
 class DecodeGreek(BaseAction):
     NAME = "Unmangle Greek metadata"
-
     def unmangle(self, tag, value):
         try:
-            print(value, value.encode('latin1'))
+            log.debug("%s: %s => %r" % (PLUGIN_NAME, value, value.encode('latin1')))
             unmangled_value = value.encode('latin1').decode('cp1253')
         except UnicodeError:
             unmangled_value = value
             log.debug("%s: could not unmangle tag %s; original value: %s" % (PLUGIN_NAME, tag, value))
         return unmangled_value
-
     def callback(self, objs):
         for cluster in objs:
             if not isinstance(cluster, Cluster):
                 continue
-
             for tag in _decode_tags:
                 if not (tag in cluster.metadata):
                     continue
-
                 cluster.metadata[tag] = self.unmangle(tag, cluster.metadata[tag])
-
             log.debug("cluster name is %s by %s" % (cluster.metadata['album'], cluster.metadata['albumartist']))
-
-            for _name, file in enumerate(cluster.files):
-
+            for file in cluster.files:
                 log.debug("%s: Trying to unmangle file - original metadata %s" % (PLUGIN_NAME, file.orig_metadata))
-
                 for tag in _decode_tags:
-
                     if not (tag in file.metadata):
                         continue
-
                     unmangled_tag = self.unmangle(tag, file.metadata[tag])
-
                     file.orig_metadata[tag] = unmangled_tag
                     file.metadata[tag] = unmangled_tag
-
                     file.orig_metadata.changed = True
                     file.metadata.changed = True
                     file.update(signal=True)
-
             cluster.update()
-
 register_cluster_action(DecodeGreek())
