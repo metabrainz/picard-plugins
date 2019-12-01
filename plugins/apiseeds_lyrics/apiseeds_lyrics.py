@@ -14,7 +14,7 @@ PLUGIN_DESCRIPTION = 'Fetch lyrics from Apiseeds Lyrics, which provides millions
                      'Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed. ' \
                      'In order to use Apiseeds you need to get a free API key at <em>https://apiseeds.com</em>. ' \
                      'Want to contribute? Check out the project page at <em>https://github.com/avalloneandrea/apiseeds-lyrics</em>!'
-PLUGIN_VERSION = '1.0.4'
+PLUGIN_VERSION = '1.0.5'
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = 'MIT'
 PLUGIN_LICENSE_URL = 'https://opensource.org/licenses/MIT'
@@ -24,7 +24,7 @@ class ApiseedsLyricsMetadataProcessor(object):
 
     apiseeds_host = 'orion.apiseeds.com'
     apiseeds_port = 443
-    apiseeds_delay = 60 * 1000 / 200  # 200 requests per minute
+    apiseeds_delay = 60 * 1000 / 100  # 100 requests per minute
 
     def __init__(self):
         super(ApiseedsLyricsMetadataProcessor, self).__init__()
