@@ -1339,6 +1339,9 @@ def get_series(options, release_id, relations):
         'target-type:series',
         'type:part of')
     if type_list:
+        series_name_list = []
+        series_id_list = []
+        series_number_list = []
         for type_item in type_list:
             series_name_list = parse_data(
                 release_id, type_item, [], 'series', 'name')
@@ -1786,6 +1789,8 @@ def turbo_lcs(release_id, multi_list):
                         'info',
                         'Longest common string was returned from suffix tree algo')
                 return lcs_dict['response']
+
+     ## If suffix tree fails, write errors to log before proceeding with alternative
             else:
                 write_log(
                         release_id,
@@ -1962,6 +1967,7 @@ def map_tags(options, release_id, album, tm):
     no_composer_in_metadata = False
     if options['cwp_use_muso_refdb'] and options['cwp_muso_classical'] or options['cwp_muso_dates']:
         if COMPOSER_DICT:
+            composersort_list = []
             if '~cwp_composer_names' in tm:
                 composer_list = str_to_list(tm['~cwp_composer_names'])
             else:
@@ -2410,7 +2416,7 @@ def map_tags(options, release_id, album, tm):
     if options['log_warning'] and "~cea_warning" in tm:
         for warning in str_to_list(tm['~cea_warning']):
             wcode = warning[0]
-        append_tag(release_id, tm, '002_warnings:' + wcode, warning)
+            append_tag(release_id, tm, '002_warnings:' + wcode, warning)
 
     # delete unwanted tags
     if not options['log_debug']:
@@ -2651,7 +2657,9 @@ def get_relation_credits(
     :param self:
     :param options: UI options
     :param album: current album
-    :param obj: XmloOde
+    :param obj: Xmlnode
+    :param lang: language
+    :param credited: credited-as name
     :return: None
     Note that direct recording relationships will over-ride indirect ones (via work)
     """
@@ -3426,6 +3434,7 @@ class ExtraArtists():
         common = []
         tmlyrics_dict = {}
         tmlyrics_sort = []
+        options = {}
         for track in self.track_listing[album]:
             options = self.options[track]
             if options['cea_split_lyrics'] and options['cea_lyrics_tag']:
@@ -3494,8 +3503,9 @@ class ExtraArtists():
 
     def write_metadata(self, release_id, options, album, track):
         """
-        Write the metadat for this track
+        Write the metadata for this track
         :param release_id:
+        :param options:
         :param album:
         :param track:
         :return:
@@ -3564,6 +3574,7 @@ class ExtraArtists():
         """
         Infer a genre from the artist/instrument metadata
         :param release_id:
+        :param options:
         :param track:
         :param tm: track metadata
         :return:
@@ -4852,6 +4863,8 @@ class PartLevels():
         if tuples:
             new_queue = []
             prev_album = None
+            album = tuples[0][1] # just added to prevent technical "reference before assignment" error
+            release_id = 'No_release_id'
             for (track, album) in tuples:
                 release_id = track.metadata['musicbrainz_albumid']
                 # Note that this need to be set here as the work may cover
@@ -5131,7 +5144,8 @@ class PartLevels():
         unless called outside metadata processor
         NB release_id may be from a different album than the original, if works lookups are identical
         :param workId:
-        :param wid:
+        :param wid: The work id tuple of which workId is a member
+        :param track:
         :param response:
         :return:
         """
@@ -6639,6 +6653,7 @@ class PartLevels():
         write_log(release_id, 'debug', 'IN EXTEND_METADATA')
         tm = track.metadata
         options = self.options[track]
+        movementgroup = ()
         if '~cwp_part_levels' not in tm:
             write_log(
                     release_id,
@@ -7372,7 +7387,7 @@ class PartLevels():
         if self.WARNING and "~cwp_warning" in tm:
             for warning in str_to_list(tm['~cwp_warning']):
                 wcode = warning[0]
-            self.append_tag(release_id, tm, '002_warnings:' + wcode, warning)
+                self.append_tag(release_id, tm, '002_warnings:' + wcode, warning)
 
 
     def append_tag(self, release_id, tm, tag, source, sep=None):
@@ -7425,6 +7440,7 @@ class PartLevels():
         :param part_level:
         :param extend:
         :param parentId:
+        :param workId:
         :return:
         """
         # extend=True is used [ NO LONGER to find "full_parent" names] + (with parentId)
@@ -7628,6 +7644,7 @@ class PartLevels():
         :param tm:
         :param mb_item:
         :param title_item:
+        :param remove_numbers: remove movement numbers when comparing (not currently called with False by anything)
         :return: Reduced title item
         """
         write_log(release_id, 'debug', "Inside DIFF_PAIR")
@@ -8078,6 +8095,7 @@ class PartLevels():
         """
         make opus numbers etc. into one-word items
         :param release_id:
+        :param track:
         :param s: A string
         :return:
         """
@@ -8107,6 +8125,7 @@ class PartLevels():
         """
         make keys into standardized one-word items
         :param release_id:
+        :param track:
         :param s: A string
         :return:
         """
@@ -8197,6 +8216,7 @@ class PartLevels():
         Turn a string into a list of 'words', where words may also be phrases which
         are then 'canonized' - i.e. turned into equivalents for comparison purposes
         :param release_id:
+        :param track:
         :param s: string
         :return: s_tuple: a tuple of all the **match objects** (re words and defined phrases)
                  s_test_tuple: a tuple of the matched and canonized words and phrases (i.e. a tuple of strings, not objects)
