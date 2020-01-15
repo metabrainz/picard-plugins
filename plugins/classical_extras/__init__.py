@@ -2162,7 +2162,7 @@ def map_tags(options, release_id, album, tm):
 
     # instruments and keys
     if options['cwp_instruments_MB_names'] and options['cwp_instruments_credited_names'] and tm['~cea_instruments_all']:
-        instruments = str_to_list(['~cea_instruments_all'])
+        instruments = str_to_list(tm['~cea_instruments_all'])
     elif options['cwp_instruments_MB_names'] and tm['~cea_instruments']:
         instruments = str_to_list(tm['~cea_instruments'])
     elif options['cwp_instruments_credited_names'] and tm['~cea_instruments_credited']:
