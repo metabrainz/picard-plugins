@@ -1,5 +1,5 @@
 # General Information
-This is the documentation for version 2.0.4 of "classical\_extras". There may be beta versions later than this - check [my github site](https://github.com/MetaTunes/picard-plugins/tree/metabrainz/2.0/plugins/classical_extras) for newer releases. For further help, please review [the forum thread](https://community.metabrainz.org/t/classical-extras-2-0/394627) or post any new questions there. It only works with Picard version 2.0, **NOT** earlier versions. If you are using Picard 1.4.x, please choose the ["1.0" branch on github](https://github.com/MetaTunes/picard-plugins/tree/1.0/plugins/classical_extras) and use the latest release there - also use the [earlier forum thread](https://community.metabrainz.org/t/classical-extras-plugin/300217).
+This is the documentation for version 2.0.7 of "classical\_extras". There may be beta versions later than this - check [my github site](https://github.com/MetaTunes/picard-plugins/tree/metabrainz/2.0/plugins/classical_extras) for newer releases. For further help, please review [the forum thread](https://community.metabrainz.org/t/classical-extras-2-0/394627) or post any new questions there. It only works with Picard versions 2.0 and above, **NOT** earlier versions. If you are using Picard 1.4.x, please choose the ["1.0" branch on github](https://github.com/MetaTunes/picard-plugins/tree/1.0/plugins/classical_extras) and use the latest release there - also use the [earlier forum thread](https://community.metabrainz.org/t/classical-extras-plugin/300217).
 
 This version has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section). "Classical Extras" populates tags and hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through multiple work-part levels until the top is reached. The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how hidden variables are written to file tags, as well as a variety of other options.
 
@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 2.0.7: Bug fixes for compatibility with Picard 2.2+. Ability to specify additional columns in Picard UI (see detailed notes at the end of the "Advanced" tab section). Minor enhancements.
+
 Version 2.0.6: Fixed crash on Picard 2.2.
 
 Version 2.0.5: Add extra error trapping for circular work references. Alpha test of release series tags if Picard provides series-rels with release lookup.
@@ -386,7 +388,7 @@ Note that either the "Create extra artist metadata" option on the Artist tab or 
   
 ## Advanced tab
 
-Hopefully, this tab should not be much used. In any case, it should not need to be changed frequently. There are seven sections as shown in the sceeen print below:
+Hopefully, this tab should not be much used. In any case, it should not need to be changed frequently. There are six main sections as shown in the screeen print below:
 
 ![Advanced options](https://music.highmossergate.co.uk/classical-extras-screenshots/advanced/)
 
@@ -395,7 +397,7 @@ Hopefully, this tab should not be much used. In any case, it should not need to 
 2. "Artists". This has only one subsection - "Ensemble strings" - which permits the listing of strings by which ensembles of different types may be identified. This is used by the plugin to place performer details in the relevant hidden variables and thus make them available for use in the "Tag mapping" tab as sources for any required tags. 
 If it is important that only whole words are to be matched, be sure to include a space after the string.
 
-3. "Work levels". This section has parameters applicable to the "works and parts" functions.
+3. "Works and parts". This section has parameters applicable to the "works and parts" functions.
 
 	* **Max number of re-tries to access works (in case of server errors)**. Sometimes MB lookups fail. Unfortunately Picard (currently) has no automatic "retry" function. The plugin will attempt to retry for the specified number of attempts. If it still fails, the hidden variable \_cwp\_error will be set with a message; if error logging is checked in section 5, an error message will be written to the log and the contents of \_cwp\_error will be written out to a special tag called "001\_errors" which should appear prominently in the bottom pane of Picard. The problem may be resolved by refreshing, otherwise there may be a problem with the MB database availability. It is unlikely to be a software problem with the plugin.
 	
@@ -432,17 +434,25 @@ If it is important that only whole words are to be matched, be sure to include a
    
    Selecting "full" will slow Picard, but should not normally result in hanging or crashing.
 
-6. "Save plugin details and options in a tag?" can be used so that the user has a record of the version of Classical Extras which generated the tags and which options were selected to achieve the resulting tags. Note that the tags will be blanked first so this will only show the last options used on a particular file. The same tag can be used for both sets of options, resulting in a multi-valued tag. All the options in the Classical Extras UI are saved **except** those which are asterisked.
+6. "Classical Extras Special Tags". This has a number of subsections:
+ 
+   *"Save plugin details and options in a tag?"* can be used so that the user has a record of the version of Classical Extras which generated the tags and which options were selected to achieve the resulting tags. Note that the tags will be blanked first so this will only show the last options used on a particular file. The same tag can be used for both sets of options, resulting in a multi-valued tag. All the options in the Classical Extras UI are saved **except** those which are asterisked.
 
    The tag contents are in dict format. The options in these tags can then be used to over-ride the displayed options subsequently (see below).
 
    N.B. The "Tag name for artist/misc. options" also saves the Picard options for 'translate\_artist\_names' and 'standardize\_artists' as these interact with the Classical Extras options.
 
-7. "Over-ride plugin options displayed in UI with options from local file tags". If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride.
+   *"Over-ride plugin options displayed in UI with options from local file tags"*. If options have previously been saved (see above), selecting these will cause the saved options to be used in preference to the displayed options. The displayed options will not be affected and will be used if no saved options are present. The default is for no over-ride.
 
    ***Note that* *very occasionally (if the tag containing the options has been corrupted) use of this option may cause an error. In such a case you will need to deselect the "over-ride" option and set the required options manually; then save the resulting tags and the corrupted tag should be over-written***
 
-   The last checkbox, "Overwrite options in Options Pages", is for **VERY CAREFUL USE ONLY**. It will cause any options read from the saved tags to over-write the options on the plugin Options Page UI. (Note that it will only operate if all the "Over-ride plugin options..." boxes are checked as well.) The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, and will always be turned off when starting Picard, to prevent inadvertant use. Far better is to make a **backup copy** of the picard.ini file.
+   *"Overwrite options in Options Pages"*, is for **VERY CAREFUL USE ONLY**. It will cause any options read from the saved tags to over-write the options on the plugin Options Page UI. (Note that it will only operate if all the "Over-ride plugin options..." boxes are checked as well.) The intended use of this is if for some reason the user's preferred options have been erased/reverted to default - by using this option, the previously-used choices from a reliable filed album can be used to populate the Options Page. The box will automatically be unticked after loading/refreshing one album, and will always be turned off when starting Picard, to prevent inadvertant use. Far better is to make a **backup copy** of the picard.ini file.
+   
+   *Additional section added in v2.0.7 "Show additional tags in Picard UI"*. This enables display of any tags as columns in the Picard right-hand panel. Also tags (or groups of tags) which are different from file tags can be flagged - see the screen copy below:
+   
+   ![Special tags](https://music.highmossergate.co.uk/classical-extras-screenshots/special-tags/)
+   
+   Follow the instructions on the screen to enter the options. Then, if you right-click on the column headings in the right-hand panel of Picard, you should see all the options listed from which you can select which columns to show.
 
 # Information on hidden variables
 
@@ -450,7 +460,7 @@ This section is for users who want to write their own scripts, or add additional
 
 ## Works and parts
 
-- \_cwp\_wor    k\_n, where n is an integer >=0 : The MB work name at level n. For n=0, the tag is the same as the current standard Picard tag "work"
+- \_cwp\_work\_n, where n is an integer >=0 : The MB work name at level n. For n=0, the tag is the same as the current standard Picard tag "work"
 - \_cwp\_work\_top : The top work name (i.e. for maximal n). Thus, if max n = N, \_cwp\_work\_top will be equivalent to \_cwp\_work\_N. Note, however, that this will always be the "canonical" MB name, not one derived from titles or the lowest level work name and that no annotations (e.g. key or work year) will be added (whereas they will be added to \_cwp\_work\_N). Nevertheless, if "replace work names by aliases" has been selected and is applicable, the relevant alias will be used.
 - \_cwp\_workid\_n : The matching work id for each work name. For n=0, the tag is the same as the standard Picard tag "MusicBrainz Work Id"
 - \_cwp\_workid\_top : The matching work id for the top work name.
@@ -574,6 +584,10 @@ Most of the genres, keys and date information requires the works and parts secti
 - \_cwp\_premiered\_dates : Date premiered (integer) or range (integer-integer).
 - \_cwp\_untagged\_genres : Genres in \_cwp\_candidate\_genres which have been filtered out as they are not in any "allowed" list.
 - \_cwp\_unrostered\_composers : For Muso users: composers who are not in Muso's classical composers roster.
+
+## Special tags for ui
+
+A number of hidden variables are created (v.2.0.7+) as part of the processing for the additional tags for the UI as described at the end of the "Advanced" tab section. The ones of the form \_tagname_OLD hold the previous value of the tag 'tagname' on the file. The ones of the form \_tagname_DIFF hold a flag '*****' if the value of 'tagname' has changed from the previous one on file (only for tags specified on the options page). The ones of the form \_columnheading_VAL hold the values to be displayed in the column 'columnheading' as specified in the options.
 
 # Software-specific notes
 

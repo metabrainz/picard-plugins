@@ -57,7 +57,7 @@
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="Artists">
       <property name="toolTip">
@@ -3741,7 +3741,7 @@ text-decoration: underline;</string>
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-26</y>
             <width>1084</width>
             <height>1310</height>
            </rect>
@@ -8998,9 +8998,9 @@ p, li { white-space: pre-wrap; }
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-389</y>
+            <y>-853</y>
             <width>1084</width>
-            <height>1450</height>
+            <height>1707</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -10950,6 +10950,71 @@ p, li { white-space: pre-wrap; }
                    </property>
                   </widget>
                  </item>
+                 <item>
+                  <widget class="Line" name="line_2">
+                   <property name="orientation">
+                    <enum>Qt::Horizontal</enum>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QCheckBox" name="ce_show_ui_tags">
+                   <property name="text">
+                    <string>Show additional tags in Picard UI (rhs panel) - N.B. RESTART NEEDED FOR CHANGE TO TAKE EFFECT</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QGroupBox" name="groupBox">
+                   <property name="styleSheet">
+                    <string notr="true">background-color: rgb(229, 229, 159);</string>
+                   </property>
+                   <property name="title">
+                    <string>Additional columns for Picard UI to show specific tags*</string>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_42">
+                    <item>
+                     <widget class="QLabel" name="label_94">
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;RESTART PICARD AFTER CHANGING THESE&lt;/span&gt; - otherwise changes will not take effect&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QTextEdit" name="ce_ui_tags">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>16777215</width>
+                        <height>120</height>
+                       </size>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">background-color: rgb(250, 250, 250);</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QLabel" name="label_8">
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="text">
+                       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Notes:&lt;/p&gt;&lt;p&gt;1. Use the format &lt;span style=&quot; font-style:italic;&quot;&gt;column_name_A: (include_tag_1, include_tag_2) / column_name_B: include_tag_3 &lt;/span&gt; etc. (i.e. put multiple tags to be concatenated in brackets)&lt;br/&gt;2. To just flag tags that have changed, rather than show the contents, add _DIFF at the end of the tag name&lt;br/&gt;3. If more than one tag name is included for a column, then:&lt;br/&gt;(a) if the tags are _DIFF tags, then the column will be flagged if any of them have changed&lt;br/&gt;(b) otherwise the tag contents will be concatenated&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
+                  </widget>
+                 </item>
                 </layout>
                </widget>
               </item>
@@ -11093,12 +11158,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>368</x>
-     <y>483</y>
+     <x>515</x>
+     <y>552</y>
     </hint>
     <hint type="destinationlabel">
-     <x>621</x>
-     <y>457</y>
+     <x>1085</x>
+     <y>511</y>
     </hint>
    </hints>
   </connection>
@@ -11109,12 +11174,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>631</x>
-     <y>467</y>
+     <x>1075</x>
+     <y>536</y>
     </hint>
     <hint type="destinationlabel">
-     <x>631</x>
-     <y>490</y>
+     <x>704</x>
+     <y>559</y>
     </hint>
    </hints>
   </connection>
@@ -11125,8 +11190,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>138</x>
-     <y>6</y>
+     <x>158</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
      <x>562</x>
@@ -11157,12 +11222,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>139</x>
-     <y>947</y>
+     <x>160</x>
+     <y>1016</y>
     </hint>
     <hint type="destinationlabel">
-     <x>364</x>
-     <y>893</y>
+     <x>610</x>
+     <y>947</y>
     </hint>
    </hints>
   </connection>
@@ -11189,8 +11254,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>138</x>
-     <y>6</y>
+     <x>158</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
      <x>562</x>
@@ -11205,8 +11270,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>149</x>
-     <y>611</y>
+     <x>180</x>
+     <y>680</y>
     </hint>
     <hint type="destinationlabel">
      <x>468</x>
@@ -11221,8 +11286,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>149</x>
-     <y>611</y>
+     <x>180</x>
+     <y>680</y>
     </hint>
     <hint type="destinationlabel">
      <x>830</x>
@@ -11493,12 +11558,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>138</x>
-     <y>6</y>
+     <x>158</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>562</x>
-     <y>199</y>
+     <x>573</x>
+     <y>-721</y>
     </hint>
    </hints>
   </connection>
@@ -11513,8 +11578,8 @@ p, li { white-space: pre-wrap; }
      <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>562</x>
-     <y>692</y>
+     <x>573</x>
+     <y>-228</y>
     </hint>
    </hints>
   </connection>
@@ -11525,8 +11590,8 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>138</x>
-     <y>6</y>
+     <x>158</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
      <x>128</x>
@@ -11541,12 +11606,12 @@ p, li { white-space: pre-wrap; }
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>138</x>
-     <y>6</y>
+     <x>158</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>562</x>
-     <y>469</y>
+     <x>572</x>
+     <y>499</y>
     </hint>
    </hints>
   </connection>
@@ -11609,8 +11674,8 @@ p, li { white-space: pre-wrap; }
      <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>562</x>
-     <y>1008</y>
+     <x>573</x>
+     <y>1047</y>
     </hint>
    </hints>
   </connection>
@@ -11621,12 +11686,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>78</x>
-     <y>83</y>
+     <x>89</x>
+     <y>-357</y>
     </hint>
     <hint type="destinationlabel">
-     <x>104</x>
-     <y>347</y>
+     <x>136</x>
+     <y>-94</y>
     </hint>
    </hints>
   </connection>
@@ -11637,44 +11702,44 @@ p, li { white-space: pre-wrap; }
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>109</x>
-     <y>83</y>
+     <x>120</x>
+     <y>-357</y>
     </hint>
     <hint type="destinationlabel">
-     <x>137</x>
-     <y>347</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_classical</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>150</x>
-     <y>83</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>151</x>
-     <y>566</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cwp_use_muso_refdb</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>cwp_muso_classical</receiver>
-   <slot>setChecked(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
      <x>169</x>
-     <y>83</y>
+     <y>-94</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_use_muso_refdb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_muso_classical</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>161</x>
+     <y>-357</y>
     </hint>
     <hint type="destinationlabel">
-     <x>197</x>
-     <y>566</y>
+     <x>173</x>
+     <y>126</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cwp_use_muso_refdb</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>cwp_muso_classical</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>180</x>
+     <y>-357</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>219</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>
@@ -11685,12 +11750,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
-     <y>83</y>
+     <x>584</x>
+     <y>-357</y>
     </hint>
     <hint type="destinationlabel">
-     <x>594</x>
-     <y>1166</y>
+     <x>626</x>
+     <y>726</y>
     </hint>
    </hints>
   </connection>
@@ -11701,12 +11766,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
-     <y>83</y>
+     <x>584</x>
+     <y>-357</y>
     </hint>
     <hint type="destinationlabel">
-     <x>181</x>
-     <y>1266</y>
+     <x>213</x>
+     <y>826</y>
     </hint>
    </hints>
   </connection>
@@ -11717,12 +11782,12 @@ p, li { white-space: pre-wrap; }
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
-     <y>83</y>
+     <x>584</x>
+     <y>-357</y>
     </hint>
     <hint type="destinationlabel">
-     <x>594</x>
-     <y>1166</y>
+     <x>626</x>
+     <y>726</y>
     </hint>
    </hints>
   </connection>
@@ -11733,12 +11798,12 @@ p, li { white-space: pre-wrap; }
    <slot>setChecked(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
-     <y>83</y>
+     <x>584</x>
+     <y>-357</y>
     </hint>
     <hint type="destinationlabel">
-     <x>181</x>
-     <y>1266</y>
+     <x>213</x>
+     <y>826</y>
     </hint>
    </hints>
   </connection>
@@ -11750,11 +11815,11 @@ p, li { white-space: pre-wrap; }
    <hints>
     <hint type="sourcelabel">
      <x>226</x>
-     <y>347</y>
+     <y>-94</y>
     </hint>
     <hint type="destinationlabel">
-     <x>485</x>
-     <y>327</y>
+     <x>618</x>
+     <y>-80</y>
     </hint>
    </hints>
   </connection>
@@ -11765,12 +11830,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>108</x>
-     <y>566</y>
+     <x>130</x>
+     <y>126</y>
     </hint>
     <hint type="destinationlabel">
-     <x>121</x>
-     <y>589</y>
+     <x>143</x>
+     <y>149</y>
     </hint>
    </hints>
   </connection>
@@ -11781,12 +11846,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>98</x>
-     <y>1166</y>
+     <x>130</x>
+     <y>726</y>
     </hint>
     <hint type="destinationlabel">
-     <x>108</x>
-     <y>1189</y>
+     <x>140</x>
+     <y>749</y>
     </hint>
    </hints>
   </connection>
@@ -11797,12 +11862,12 @@ p, li { white-space: pre-wrap; }
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>175</x>
-     <y>1266</y>
+     <x>207</x>
+     <y>826</y>
     </hint>
     <hint type="destinationlabel">
-     <x>542</x>
-     <y>1212</y>
+     <x>777</x>
+     <y>826</y>
     </hint>
    </hints>
   </connection>
@@ -11813,12 +11878,12 @@ p, li { white-space: pre-wrap; }
    <slot>setHidden(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>118</x>
-     <y>1266</y>
+     <x>150</x>
+     <y>826</y>
     </hint>
     <hint type="destinationlabel">
-     <x>545</x>
-     <y>1289</y>
+     <x>780</x>
+     <y>845</y>
     </hint>
    </hints>
   </connection>
@@ -11829,12 +11894,12 @@ p, li { white-space: pre-wrap; }
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>41</x>
-     <y>249</y>
+     <x>53</x>
+     <y>-201</y>
     </hint>
     <hint type="destinationlabel">
-     <x>38</x>
-     <y>274</y>
+     <x>50</x>
+     <y>-120</y>
     </hint>
    </hints>
   </connection>
@@ -11849,8 +11914,8 @@ p, li { white-space: pre-wrap; }
      <y>76</y>
     </hint>
     <hint type="destinationlabel">
-     <x>223</x>
-     <y>752</y>
+     <x>234</x>
+     <y>816</y>
     </hint>
    </hints>
   </connection>
@@ -11897,8 +11962,24 @@ p, li { white-space: pre-wrap; }
      <y>68</y>
     </hint>
     <hint type="destinationlabel">
-     <x>298</x>
-     <y>847</y>
+     <x>320</x>
+     <y>1071</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>ce_show_ui_tags</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBox</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>55</x>
+     <y>529</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>42</x>
+     <y>563</y>
     </hint>
    </hints>
   </connection>

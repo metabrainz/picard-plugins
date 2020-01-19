@@ -936,6 +936,17 @@ OTHER_OPTIONS = [
     {'option': 'ce_no_run',
      'type': 'Boolean',
      'default': False
+     },
+    {'option': 'ce_show_ui_tags',
+     'type': 'Boolean',
+     'default': False
+     },
+    {'option': 'ce_ui_tags',
+     ## Note that this is not just for work parts (although that is the main use),
+     # but cwp prefix is to make use of code for synonyms
+     'name': 'tags for ui columns',
+     'type': 'PlainText',
+     'default': 'Work diff: (groupheading_DIFF, work_DIFF, top_work_DIFF, grouping_DIFF) / Part diff: (part_DIFF, movement_DIFF) / Missing file metadata: 002_important_warning'
      }
 ]
 
