@@ -14,9 +14,8 @@ class RemovePerfectAlbums(BaseAction):
 
     def callback(self, objs):
         for album in objs:
-            if (isinstance(album, Album) and album.is_complete() and album.get_num_unmatched_files() == 0
-              	and album.get_num_matched_tracks() == len(list(album.iterfiles()))
-              	and album.get_num_unsaved_files() == 0 and album.loaded == True):
+            if (isinstance(album, Album) and album.loaded and album.is_complete()
+              	and album.get_num_unsaved_files() == 0):
                 self.tagger.remove_album(album)
 
 register_album_action(RemovePerfectAlbums())
