@@ -11,14 +11,16 @@ from PyQt5.QtCore import QCoreApplication
 from picard.album import Album
 from picard.ui.itemviews import BaseAction, register_album_action
 
+
 class RemovePerfectAlbums(BaseAction):
     NAME = 'Remove perfect albums'
 
     def callback(self, objs):
         for album in objs:
-            if (isinstance(album, Album) and album.loaded and album.is_complete()
-              	and album.get_num_unsaved_files() == 0):
+            if (isinstance(album, Album) and album.loaded
+               and album.is_complete() and album.get_num_unsaved_files() == 0):
                 self.tagger.remove_album(album)
             QCoreApplication.processEvents()
+
 
 register_album_action(RemovePerfectAlbums())
