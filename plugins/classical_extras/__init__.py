@@ -81,8 +81,8 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.7'
-PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
+PLUGIN_VERSION = '2.0.8'
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -5256,9 +5256,13 @@ class PartLevels():
                 self.parts[wid]['tags'] = tags
                 for ind, w in enumerate(wid):
                     if w == workId:
-                        # alias should be a one item list but...
-                        self.parts[wid]['alias'][ind] = '; '.join(
-                            alias)
+                        # alias should be a one item list but just in case it isn't...
+                        if len(self.parts[wid]['alias']) > ind:
+                            # The condition here is just to trap errors caused by database inconsistencies
+                            # (e.g. a part is shown as a recording of two works, one of which is an arrangement
+                            # of the other - this can create a two-item wid with a one-item self.parts[wid]['name']
+                            self.parts[wid]['alias'][ind] = '; '.join(
+                                alias)
         relation_list = parse_data(release_id, response, [], 'relations')
         return self.work_process_relations(
             release_id, track, workId, wid, relation_list)

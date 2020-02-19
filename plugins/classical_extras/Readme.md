@@ -1,5 +1,5 @@
 # General Information
-This is the documentation for version 2.0.7 of "classical\_extras". There may be beta versions later than this - check [my github site](https://github.com/MetaTunes/picard-plugins/tree/metabrainz/2.0/plugins/classical_extras) for newer releases. For further help, please review [the forum thread](https://community.metabrainz.org/t/classical-extras-2-0/394627) or post any new questions there. It only works with Picard versions 2.0 and above, **NOT** earlier versions. If you are using Picard 1.4.x, please choose the ["1.0" branch on github](https://github.com/MetaTunes/picard-plugins/tree/1.0/plugins/classical_extras) and use the latest release there - also use the [earlier forum thread](https://community.metabrainz.org/t/classical-extras-plugin/300217).
+This is the documentation for version 2.0.8 of "classical\_extras". There may be beta versions later than this - check [my github site](https://github.com/MetaTunes/picard-plugins/tree/metabrainz/2.0/plugins/classical_extras) for newer releases. For further help, please review [the forum thread](https://community.metabrainz.org/t/classical-extras-2-0/394627) or post any new questions there. It only works with Picard versions 2.0 and above, **NOT** earlier versions. If you are using Picard 1.4.x, please choose the ["1.0" branch on github](https://github.com/MetaTunes/picard-plugins/tree/1.0/plugins/classical_extras) and use the latest release there - also use the [earlier forum thread](https://community.metabrainz.org/t/classical-extras-plugin/300217).
 
 This version has only been tested with FLAC and mp3 files. It does work with m4a files, but Picard does not write all m4a tags (see further notes for iTunes users at the end of the "works and parts tab" section). "Classical Extras" populates tags and hidden variables in Picard with information from the MusicBrainz database about the recording, artists and work(s), and of any containing works, passing up through multiple work-part levels until the top is reached. The "Options" page (Options->Options->Plugins->Classical Extras) allows the user to determine how hidden variables are written to file tags, as well as a variety of other options.
 
@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 2.0.8: Add error trapping for certain MB database inconsistencies.
+
 Version 2.0.7: Bug fixes for compatibility with Picard 2.2+. Ability to specify additional columns in Picard UI (see detailed notes at the end of the "Advanced" tab section). Minor enhancements.
 
 Version 2.0.6: Fixed crash on Picard 2.2.
