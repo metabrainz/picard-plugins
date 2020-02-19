@@ -11,6 +11,8 @@ Tags are output depending on the choices specified by the user in the Options Pa
 If the Options Page does not provide sufficient flexibility, users familiar with scripting can write Tagger Scripts to access the hidden variables directly.
 
 ## Updates
+Version 2.0.9: Bug fix
+
 Version 2.0.8: Add error trapping for certain MB database inconsistencies.
 
 Version 2.0.7: Bug fixes for compatibility with Picard 2.2+. Ability to specify additional columns in Picard UI (see detailed notes at the end of the "Advanced" tab section). Minor enhancements.
