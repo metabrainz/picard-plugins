@@ -81,7 +81,7 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.9'
+PLUGIN_VERSION = '2.0.10'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -6450,6 +6450,11 @@ class PartLevels():
             candidate_genres += self.parts[workId]['folks_genres']
         if options['cwp_genres_use_worktype'] and 'worktype_genres' in self.parts[workId]:
             candidate_genres += self.parts[workId]['worktype_genres']
+            self.append_tag(
+                release_id,
+                tm,
+                '~cwp_worktype_genres',
+                self.parts[workId]['worktype_genres'])
         self.append_tag(
             release_id,
             tm,
