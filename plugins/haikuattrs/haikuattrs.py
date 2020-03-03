@@ -30,8 +30,8 @@ import os
 import struct
 import sys
 from collections import namedtuple
-from ctypes import (CDLL, POINTER, Structure, byref, c_char_p, c_int, c_size_t, c_ssize_t,
-                    c_uint32, c_void_p, cast)
+from ctypes import (CDLL, POINTER, Structure, byref, c_char_p, c_int, c_size_t,
+                    c_ssize_t, c_uint32, c_void_p, cast)
 from ctypes.util import find_library
 from functools import partial
 
@@ -192,7 +192,7 @@ if be:
             file.update()
 
     def on_file_load_processor(file):
-         thread.run_task(
+        thread.run_task(
             partial(load_attrs_to_metadata, file),
             partial(load_attrs_to_metadata_finished, file))
 
