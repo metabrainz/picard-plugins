@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2015-2019 Philipp Wolfer
+# Copyright (c) 2015-2020 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,11 +20,12 @@
 PLUGIN_NAME = 'TheAudioDB cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use cover art from TheAudioDB.'
-PLUGIN_VERSION = "1.0.2"
-PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
+PLUGIN_VERSION = "1.1"
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
+from base64 import b64decode
 from PyQt5.QtCore import QUrl
 from PyQt5.QtNetwork import QNetworkReply
 from picard import config, log
@@ -42,7 +43,7 @@ from .ui_options_theaudiodb import Ui_TheAudioDbOptionsPage
 
 THEAUDIODB_HOST = "www.theaudiodb.com"
 THEAUDIODB_PORT = 443
-THEAUDIODB_APIKEY = "195003"
+THEAUDIODB_APIKEY = 'MWQ2NTY1NjQ2OTRmMTM0ZDY1NjU2NA=='
 
 OPTION_CDART_ALWAYS = "always"
 OPTION_CDART_NEVER = "never"
@@ -69,12 +70,16 @@ class CoverArtProviderTheAudioDb(CoverArtProvider):
 
     NAME = "TheAudioDB"
 
+    def __init__(self, coverart):
+        super().__init__(coverart)
+        self.__api_key = b64decode(THEAUDIODB_APIKEY).decode()
+
     def enabled(self):
         return super().enabled() and not self.coverart.front_image_found
 
     def queue_images(self):
         release_group_id = self.metadata["musicbrainz_releasegroupid"]
-        path = "/api/v1/json/%s/album-mb.php" % (THEAUDIODB_APIKEY, )
+        path = "/api/v1/json/%s/album-mb.php" % self.__api_key
         queryargs = {
             "i": bytes(QUrl.toPercentEncoding(release_group_id)).decode()
         }
