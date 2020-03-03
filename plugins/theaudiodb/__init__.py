@@ -39,6 +39,7 @@ from picard.ui.options import (
     OptionsPage,
 )
 from picard.config import TextOption
+from picard.webservice import ratecontrol
 from .ui_options_theaudiodb import Ui_TheAudioDbOptionsPage
 
 THEAUDIODB_HOST = "www.theaudiodb.com"
@@ -48,6 +49,10 @@ THEAUDIODB_APIKEY = 'MWQ2NTY1NjQ2OTRmMTM0ZDY1NjU2NA=='
 OPTION_CDART_ALWAYS = "always"
 OPTION_CDART_NEVER = "never"
 OPTION_CDART_NOALBUMART = "noalbumart"
+
+
+# No rate limit for TheAudioDB.
+ratecontrol.set_minimum_delay((THEAUDIODB_HOST, THEAUDIODB_PORT), 0)
 
 
 class TheAudioDbCoverArtImage(CoverArtImage):
