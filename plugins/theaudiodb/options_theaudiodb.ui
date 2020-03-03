@@ -54,7 +54,7 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Cantarell'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This plugin loads cover art from &lt;a href=&quot;https://www.theaudiodb.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;TheAudioDB&lt;/span&gt;&lt;/a&gt;. If you want to improve the results of this plugin please contribute.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This plugin loads cover art from &lt;a href=&quot;https://www.theaudiodb.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#1b6acb;&quot;&gt;TheAudioDB&lt;/span&gt;&lt;/a&gt;. TheAudioDB is a community Database of audio artwork and data. Their content is only possible thanks to the hard work of volunteer editors. If you like this plugin, please consider &lt;a href=&quot;https://www.theaudiodb.com/forum-new/ucp.php?mode=register&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#1b6acb;&quot;&gt;registering&lt;/span&gt;&lt;/a&gt; as an editor or supporting the TheAudioDB &lt;a href=&quot;https://www.patreon.com/thedatadb&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#1b6acb;&quot;&gt;patreon campaign&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="textFormat">
          <enum>Qt::RichText</enum>
@@ -101,20 +101,7 @@ p, li { white-space: pre-wrap; }
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <spacer name="verticalSpacer_2">
+    <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
