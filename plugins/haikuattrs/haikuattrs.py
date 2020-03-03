@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'Haiku BFS Attributes'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Save and load metadata to/from Haiku BFS attributes.'
-PLUGIN_VERSION = "1.1.1"
+PLUGIN_VERSION = "1.1.2"
 PLUGIN_API_VERSIONS = ["2.2", "2.3"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -144,11 +144,14 @@ if be:
                 value = file.orig_metadata[tag]
                 if value:
                     if tag == 'date':
-                        value = int(value[:4])
+                        value = value[:4]
                     elif tag == '~rating':
                         try:
                             value = int(value) * 2
                         except ValueError:
+                            log.warning(
+                                'haikuattrs: rating %r for %s is not an integer value',
+                                value, file.filename)
                             continue
                     if not write_attr(fd, attr, value):
                         log.error('haikuattrs: setting %s=%s for %s failed' % (
