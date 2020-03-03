@@ -20,8 +20,8 @@
 PLUGIN_NAME = 'Haiku BFS Attributes'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Save and load metadata to/from Haiku BFS attributes.'
-PLUGIN_VERSION = "1.1.0"
-PLUGIN_API_VERSIONS = ["2.2"]
+PLUGIN_VERSION = "1.1.1"
+PLUGIN_API_VERSIONS = ["2.2", "2.3"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -170,13 +170,16 @@ if be:
         filename, _ = os.path.splitext(file.base_filename)
         try:
             for tag, attr in attr_map.items():
-                # Ignore tags for which metadata is included in the file
+                # Ignore tags for which metadata is included in the file.
+                # But ignore the special case where the title has been set to
+                # the filename.
                 value = file.metadata[tag]
                 if value and not (tag == 'title' and value == filename):
                     continue
                 value = read_attr(fd, attr)
                 if value:
                     file.metadata[tag] = value
+                    file.orig_metadata[tag] = value
         finally:
             os.close(fd)
 
