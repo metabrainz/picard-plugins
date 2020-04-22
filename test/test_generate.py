@@ -5,6 +5,8 @@ import json
 import shutil
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 from generate import build_json, zip_files
 
 
@@ -25,15 +27,23 @@ class GenerateTestCase(unittest.TestCase):
         self.addCleanup(shutil.rmtree, self.dest_dir)
         self.plugin_file = os.path.join(self.dest_dir, self.PLUGIN_FILE)
 
+    @staticmethod
+    def with_suppressed_stdout(func, *args, **kwargs):
+        out = StringIO()
+        try:
+            with redirect_stdout(out):
+                func(*args, **kwargs)
+        except Exception:
+            print(out.getvalue())
+            raise
+
     def test_generate_json(self):
         """
         Generates the json data from all the plugins
         and asserts that all plugins are accounted for.
         """
 
-        print("\n#########################################\n")
-
-        build_json(self.dest_dir)
+        self.with_suppressed_stdout(build_json, self.dest_dir)
 
         # Load the json file
         with open(self.plugin_file, "r") as in_file:
@@ -52,9 +62,7 @@ class GenerateTestCase(unittest.TestCase):
         that all folders are accounted for.
         """
 
-        print("\n\n#########################################\n")
-
-        zip_files(self.dest_dir)
+        self.with_suppressed_stdout(zip_files, self.dest_dir)
 
         # All zip files in plugin_dir
         plugin_zips = glob.glob(os.path.join(self.dest_dir, "*.zip"))
@@ -71,9 +79,7 @@ class GenerateTestCase(unittest.TestCase):
         for all the plugins.
         """
 
-        print("\n#########################################\n")
-
-        build_json(self.dest_dir)
+        self.with_suppressed_stdout(build_json, self.dest_dir)
 
         # Load the json file
         with open(self.plugin_file, "r") as in_file:
@@ -86,17 +92,3 @@ class GenerateTestCase(unittest.TestCase):
             self.assertIsInstance(data['author'], str)
             self.assertIsInstance(data['description'], str)
             self.assertIsInstance(data['version'], str)
-
-
-def load_tests(loader, tests, ignore):
-    from plugins.addrelease import addrelease
-    tests.addTests(doctest.DocTestSuite(addrelease))
-    from plugins import decade
-    tests.addTests(doctest.DocTestSuite(decade))
-    from plugins.standardise_feat import standardise_feat
-    tests.addTests(doctest.DocTestSuite(standardise_feat))
-    return tests
-
-
-if __name__ == '__main__':
-    unittest.main()
