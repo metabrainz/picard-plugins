@@ -18,17 +18,11 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 from picard.script import register_script_function
 
 
-def transltag(tag):
-    if tag.startswith("~"):
-        return "_" + tag[1:]
-    return tag
-
-
 @register_script_function
 def keep(parser, *keeptags):
     tags = list(parser.context.keys())
     for tag in tags:
-        if (transltag(tag) in keeptags or
+        if (tag in keeptags or
             tag.startswith("musicbrainz_") or
             tag.startswith("~")):
             continue
