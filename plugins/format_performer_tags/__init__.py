@@ -18,7 +18,7 @@
 # 02110-1301, USA.
 
 PLUGIN_NAME = 'Format Performer Tags'
-PLUGIN_AUTHOR = 'Bob Swift (rdswift), Philipp Wolfer'
+PLUGIN_AUTHOR = 'Bob Swift, Philipp Wolfer'
 PLUGIN_DESCRIPTION = '''
 This plugin provides options with respect to the formatting of performer
 tags.  It has been developed using the 'Standardise Performers' plugin by
@@ -27,7 +27,7 @@ each of the tracks.  The format of the resulting tags can be customized
 in the option settings page.
 '''
 
-PLUGIN_VERSION = "0.6"
+PLUGIN_VERSION = "0.7"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -59,6 +59,8 @@ def rewrite_tag(key, values, metadata, word_dict, settings):
     mainkey, subkey = key.split(':', 1)
     if not subkey:
         return
+    if subkey in WORD_LIST:
+        subkey = 'unspecified'
     log.debug("%s: Formatting Performer [%s: %s]", PLUGIN_NAME, subkey, values,)
     instruments = performers_split(subkey)
     for instrument in instruments:
@@ -66,7 +68,8 @@ def rewrite_tag(key, values, metadata, word_dict, settings):
             log.debug("%s: instrument (first pass): '%s'", PLUGIN_NAME, instrument,)
         if instrument in WORD_LIST:
             instruments[0] = "{0} {1}".format(instruments[0], instrument,)
-            instruments.remove(instrument)
+            if instrument and instrument in instruments:
+                instruments.remove(instrument)
     groups = { 1: [], 2: [], 3: [], 4: [], }
     words = instruments[0].split()
     for word in words[:]:
