@@ -46,6 +46,7 @@ from picard.plugins.format_performer_tags.ui_options_format_performer_tags impor
 performers_split = re.compile(r", | and ").split
 
 WORD_LIST = ['guest', 'solo', 'additional']
+UNSPECIFIED_INSTRUMENT = 'unspecified'
 
 
 def get_word_dict(settings):
@@ -56,11 +57,18 @@ def get_word_dict(settings):
 
 
 def rewrite_tag(key, values, metadata, word_dict, settings):
-    mainkey, subkey = key.split(':', 1)
+    if DEV_TESTING:
+        log.debug("%s: Raw Performer Key [%s: %s]", PLUGIN_NAME, key, values,)
+    if ':' not in key:
+        mainkey = key
+        subkey = UNSPECIFIED_INSTRUMENT
+    else:
+        mainkey, subkey = key.split(':', 1)
     if not subkey:
-        return
-    if subkey in WORD_LIST:
-        subkey = 'unspecified'
+        subkey = UNSPECIFIED_INSTRUMENT
+    temp_list = subkey.split()
+    if all(item in WORD_LIST for item in temp_list):
+        subkey += ' ' + UNSPECIFIED_INSTRUMENT
     log.debug("%s: Formatting Performer [%s: %s]", PLUGIN_NAME, subkey, values,)
     instruments = performers_split(subkey)
     for instrument in instruments:
@@ -92,6 +100,7 @@ def rewrite_tag(key, values, metadata, word_dict, settings):
             display_group[group_number] = ""
     if DEV_TESTING:
         log.debug("%s: display_group: %s", PLUGIN_NAME, display_group,)
+        log.debug("%s: Removing key: '%s'", PLUGIN_NAME, key,)
     metadata.delete(key)
     for instrument in instruments:
         if DEV_TESTING:
@@ -124,7 +133,7 @@ def rewrite_tag(key, values, metadata, word_dict, settings):
 
 def format_performer_tags(album, metadata, *args):
     word_dict = get_word_dict(config.setting)
-    for key, values in list(filter(lambda filter_tuple: filter_tuple[0].startswith('performer:') or filter_tuple[0].startswith('~performersort:'), metadata.rawitems())):
+    for key, values in list(filter(lambda filter_tuple: filter_tuple[0].startswith('performer') or filter_tuple[0].startswith('~performersort'), metadata.rawitems())):
         rewrite_tag(key, values, metadata, word_dict, config.setting)
 
 
@@ -262,7 +271,6 @@ class FormatPerformerTagsOptionsPage(OptionsPage):
         #
         #       temp = (self.ui.format_description.text).format(user_guide_url=PLUGIN_USER_GUIDE_URL,)
         #       self.ui.format_description.setText(temp)
-
 
     def save(self):
         self._set_settings(config.setting)

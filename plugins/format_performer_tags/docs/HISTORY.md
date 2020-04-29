@@ -16,6 +16,7 @@ The following identifies the development history of the plugin, in reverse chron
 ### Version 0.7
 
 * Test that instrument is in the list before trying to remove it.  (Issue #256: ValueError Exception in Format Performer Tags) \[rdswift\]
+* Properly handle unspecified performer types (i.e.: with no instrument, vocal, etc. specified). \[rdswift\]
 
 ### Version 0.6
 
