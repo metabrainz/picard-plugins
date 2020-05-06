@@ -13,6 +13,11 @@ The following people have contributed to the development of this plugin.
 
 The following identifies the development history of the plugin, in reverse chronological order.  Each version lists the changes made for that version, along with the author of each change.
 
+### Version 0.7
+
+* Test that instrument is in the list before trying to remove it.  (Issue #256: ValueError Exception in Format Performer Tags) \[rdswift\]
+* Properly handle unspecified performer types (i.e.: with no instrument, vocal, etc. specified). \[rdswift\]
+
 ### Version 0.6
 
 * Update the user interface.  Add live examples when settings are changed. \[phw\]

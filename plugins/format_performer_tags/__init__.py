@@ -18,7 +18,7 @@
 # 02110-1301, USA.
 
 PLUGIN_NAME = 'Format Performer Tags'
-PLUGIN_AUTHOR = 'Bob Swift (rdswift), Philipp Wolfer'
+PLUGIN_AUTHOR = 'Bob Swift, Philipp Wolfer'
 PLUGIN_DESCRIPTION = '''
 This plugin provides options with respect to the formatting of performer
 tags.  It has been developed using the 'Standardise Performers' plugin by
@@ -27,14 +27,12 @@ each of the tracks.  The format of the resulting tags can be customized
 in the option settings page.
 '''
 
-PLUGIN_VERSION = "0.6"
+PLUGIN_VERSION = "0.7"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 PLUGIN_USER_GUIDE_URL = "https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/format_performer_tags/docs/README.md"
-
-DEV_TESTING = False
 
 import re
 from picard import config, log
@@ -56,72 +54,74 @@ def get_word_dict(settings):
 
 
 def rewrite_tag(key, values, metadata, word_dict, settings):
-    mainkey, subkey = key.split(':', 1)
-    if not subkey:
-        return
-    log.debug("%s: Formatting Performer [%s: %s]", PLUGIN_NAME, subkey, values,)
-    instruments = performers_split(subkey)
-    for instrument in instruments:
-        if DEV_TESTING:
-            log.debug("%s: instrument (first pass): '%s'", PLUGIN_NAME, instrument,)
-        if instrument in WORD_LIST:
-            instruments[0] = "{0} {1}".format(instruments[0], instrument,)
-            instruments.remove(instrument)
-    groups = { 1: [], 2: [], 3: [], 4: [], }
-    words = instruments[0].split()
-    for word in words[:]:
-        if word in WORD_LIST:
-            groups[word_dict[word]].append(word)
-            words.remove(word)
-    instruments[0] = " ".join(words)
-    display_group = {}
-    for group_number in range(1, 5):
-        if groups[group_number]:
-            if DEV_TESTING:
-                log.debug("%s: groups[%s]: %s", PLUGIN_NAME, group_number, groups[group_number],)
-            group_separator = settings["format_group_{0}_sep_char".format(group_number)]
-            if not group_separator:
-                group_separator = " "
-            display_group[group_number] = settings["format_group_{0}_start_char".format(group_number)] \
-                + group_separator.join(groups[group_number]) \
-                + settings["format_group_{0}_end_char".format(group_number)]
-        else:
-            display_group[group_number] = ""
-    if DEV_TESTING:
-        log.debug("%s: display_group: %s", PLUGIN_NAME, display_group,)
+    if ':' not in key:
+        mainkey = key
+        subkey = ''
+    else:
+        mainkey, subkey = key.split(':', 1)
+    log.debug("%s: Removing key: '%s'", PLUGIN_NAME, key,)
     metadata.delete(key)
-    for instrument in instruments:
-        if DEV_TESTING:
-            log.debug("%s: instrument (second pass): '%s'", PLUGIN_NAME, instrument,)
-        words = instrument.split()
-        if (len(words) > 1) and (words[-1] in ["vocal", "vocals",]):
-            vocals = " ".join(words[:-1])
-            instrument = words[-1]
-        else:
-            vocals = ""
-        if vocals:
-            group_number = settings["format_group_vocals"]
-            temp_group = groups[group_number][:]
-            if group_number < 2:
-                temp_group.append(vocals)
-            else:
-                temp_group.insert(0, vocals)
-            group_separator = settings["format_group_{0}_sep_char".format(group_number)]
-            if not group_separator:
-                group_separator = " "
-            display_group[group_number] = settings["format_group_{0}_start_char".format(group_number)] \
-                + group_separator.join(temp_group) \
-                + settings["format_group_{0}_end_char".format(group_number)]
-
-        newkey = ('%s:%s%s%s%s' % (mainkey, display_group[1], instrument, display_group[2], display_group[3],))
+    log.debug("%s: Formatting Performer [%s: %s]", PLUGIN_NAME, subkey, values,)
+    if not subkey:
+        instruments = []
+    else:
+        instruments = performers_split(subkey)
+    if instruments:
+        for instrument in instruments:
+            groups = { 1: [], 2: [], 3: [], 4: [], }
+            vocals = ''
+            if instrument:
+                instrument_key = ''
+                words = instrument.split()
+                for word in words[:]:
+                    if word in WORD_LIST:
+                        groups[word_dict[word]].append(word)
+                        words.remove(word)
+                display_group = {}
+                for group_number in range(1, 5):
+                    if groups[group_number]:
+                        group_separator = settings["format_group_{0}_sep_char".format(group_number)]
+                        if not group_separator:
+                            group_separator = " "
+                        display_group[group_number] = settings["format_group_{0}_start_char".format(group_number)] \
+                            + group_separator.join(groups[group_number]) \
+                            + settings["format_group_{0}_end_char".format(group_number)]
+                    else:
+                        display_group[group_number] = ""
+                if words:
+                    instrument_key = ' '.join(words)
+                    if (len(words) > 1) and (words[-1] in ["vocal", "vocals",]):
+                        vocals = " ".join(words[:-1])
+                        instrument_key = words[-1]
+                else:
+                    instrument_key = ''
+                if vocals:
+                    group_number = settings["format_group_vocals"]
+                    temp_group = groups[group_number][:]
+                    if group_number < 2:
+                        temp_group.append(vocals)
+                    else:
+                        temp_group.insert(0, vocals)
+                    group_separator = settings["format_group_{0}_sep_char".format(group_number)]
+                    if not group_separator:
+                        group_separator = " "
+                    display_group[group_number] = settings["format_group_{0}_start_char".format(group_number)] \
+                        + group_separator.join(temp_group) \
+                        + settings["format_group_{0}_end_char".format(group_number)]
+            newkey = ('%s:%s%s%s%s' % (mainkey, display_group[1], instrument_key, display_group[2], display_group[3],))
+            log.debug("%s: newkey: %s", PLUGIN_NAME, newkey,)
+            for value in values:
+                metadata.add_unique(newkey, (value + display_group[4]))
+    else:
+        newkey = '%s:' % (mainkey,)
         log.debug("%s: newkey: %s", PLUGIN_NAME, newkey,)
         for value in values:
-            metadata.add_unique(newkey, (value + display_group[4]))
+            metadata.add_unique(newkey, value)
 
 
 def format_performer_tags(album, metadata, *args):
     word_dict = get_word_dict(config.setting)
-    for key, values in list(filter(lambda filter_tuple: filter_tuple[0].startswith('performer:') or filter_tuple[0].startswith('~performersort:'), metadata.rawitems())):
+    for key, values in list(filter(lambda filter_tuple: filter_tuple[0].startswith('performer') or filter_tuple[0].startswith('~performersort'), metadata.rawitems())):
         rewrite_tag(key, values, metadata, word_dict, config.setting)
 
 
@@ -259,7 +259,6 @@ class FormatPerformerTagsOptionsPage(OptionsPage):
         #
         #       temp = (self.ui.format_description.text).format(user_guide_url=PLUGIN_USER_GUIDE_URL,)
         #       self.ui.format_description.setText(temp)
-
 
     def save(self):
         self._set_settings(config.setting)
