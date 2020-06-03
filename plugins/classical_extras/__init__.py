@@ -81,7 +81,7 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.10'
+PLUGIN_VERSION = '2.0.11'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -6559,7 +6559,7 @@ class PartLevels():
         tm = track.metadata
         movt = title
         work = ""
-        colons = title.count(":")
+        colons = title.count(": ")
         inter_work = None
         if '~cwp_part_levels' in tm:
             part_levels = int(tm['~cwp_part_levels'])
@@ -6581,8 +6581,8 @@ class PartLevels():
                 work = title_split[0]
                 if colons > 1:
                     colon_ind = work.rfind(':')
+                    inter_work = work[colon_ind + 1:].strip()
                     work = work[:colon_ind]
-                    inter_work = work[colon_ind+1:]
                 movt = title_split[1]
         write_log(release_id, 'info', "Work %s, Movt %s", work, movt)
         return work, movt, inter_work
