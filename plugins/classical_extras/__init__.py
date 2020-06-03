@@ -6574,7 +6574,7 @@ class PartLevels():
                     colon_ind = work.rfind(':')
                     work = work[:colon_ind]
                     inter_work = work[colon_ind+1:]
-                movt = title_split[1]
+                    movt = title_split[1]
         write_log(release_id, 'info', "Work %s, Movt %s", work, movt)
         return work, movt, inter_work
 
