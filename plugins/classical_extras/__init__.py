@@ -81,8 +81,8 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.7'
-PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
+PLUGIN_VERSION = '2.0.11'
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -5256,9 +5256,13 @@ class PartLevels():
                 self.parts[wid]['tags'] = tags
                 for ind, w in enumerate(wid):
                     if w == workId:
-                        # alias should be a one item list but...
-                        self.parts[wid]['alias'][ind] = '; '.join(
-                            alias)
+                        # alias should be a one item list but just in case it isn't...
+                        if len(self.parts[wid]['alias']) > ind:
+                            # The condition here is just to trap errors caused by database inconsistencies
+                            # (e.g. a part is shown as a recording of two works, one of which is an arrangement
+                            # of the other - this can create a two-item wid with a one-item self.parts[wid]['name']
+                            self.parts[wid]['alias'][ind] = '; '.join(
+                                alias)
         relation_list = parse_data(release_id, response, [], 'relations')
         return self.work_process_relations(
             release_id, track, workId, wid, relation_list)
@@ -6446,6 +6450,11 @@ class PartLevels():
             candidate_genres += self.parts[workId]['folks_genres']
         if options['cwp_genres_use_worktype'] and 'worktype_genres' in self.parts[workId]:
             candidate_genres += self.parts[workId]['worktype_genres']
+            self.append_tag(
+                release_id,
+                tm,
+                '~cwp_worktype_genres',
+                self.parts[workId]['worktype_genres'])
         self.append_tag(
             release_id,
             tm,
@@ -6550,7 +6559,7 @@ class PartLevels():
         tm = track.metadata
         movt = title
         work = ""
-        colons = title.count(":")
+        colons = title.count(": ")
         inter_work = None
         if '~cwp_part_levels' in tm:
             part_levels = int(tm['~cwp_part_levels'])
@@ -6572,8 +6581,8 @@ class PartLevels():
                 work = title_split[0]
                 if colons > 1:
                     colon_ind = work.rfind(':')
+                    inter_work = work[colon_ind + 1:].strip()
                     work = work[:colon_ind]
-                    inter_work = work[colon_ind+1:]
                 movt = title_split[1]
         write_log(release_id, 'info', "Work %s, Movt %s", work, movt)
         return work, movt, inter_work
@@ -8038,13 +8047,12 @@ class PartLevels():
                             write_log(release_id, 'info', "...removed dup %s", dup)
 
                 ti_bit_prev = ti_bit
-
-            write_log(release_id,
+            if ti_list_new and mb_list2:
+                write_log(release_id,
                           'info',
                           "1st word of ti = %s. Last word of mb = %s",
                           ti_list_new[0],
                           mb_list2[-1])
-            if ti_list_new and mb_list2:
                 if self.boil(release_id, ti_list_new[0]) == mb_list2[-1]:
                     write_log(release_id, 'info', "Removing 1st word from ti...")
                     first = ti_list_new.pop(0)
