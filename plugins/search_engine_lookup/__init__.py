@@ -35,7 +35,7 @@ from picard.plugins.search_engine_lookup.ui_options_search_engine_lookup import 
 from picard.ui.itemviews import BaseAction, register_cluster_action
 from picard.ui.mainwindow import MainWindow
 from picard.ui.options import OptionsPage, register_options_page
-from picard.util.webbrowser2 import open
+from picard.util.webbrowser2 import open as _open
 
 ENGINES = {
     'Google': r'https://www.google.com/search?q=',
@@ -60,7 +60,7 @@ class SearchEngineLookup(BaseAction):
                         parts.extend(str(config.setting["search_engine_lookup_extra_words"]).split())
                     url = ENGINES[config.setting["search_engine_lookup_provider"]] + quote_plus(' '.join(parts))
                     log.debug("{0}: Looking up {1}".format(PLUGIN_NAME, url,))
-                    open(url)
+                    _open(url)
                 else:
                     log.error("{0}: No existing metadata to lookup.".format(PLUGIN_NAME,))
                     self._show_popup('There is no existing data to use for a search.')
