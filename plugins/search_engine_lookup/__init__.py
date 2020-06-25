@@ -27,13 +27,11 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 
 from urllib.parse import quote_plus
 
-from PyQt5.QtWidgets import QMessageBox
-
 from picard import config, log
 from picard.cluster import Cluster
 from picard.plugins.search_engine_lookup.ui_options_search_engine_lookup import Ui_SearchEngineLookupOptionsPage
 from picard.ui.itemviews import BaseAction, register_cluster_action
-from picard.ui.mainwindow import MainWindow
+from picard.ui.mainwindow import MainWindow, QtWidgets
 from picard.ui.options import OptionsPage, register_options_page
 from picard.util.webbrowser2 import open as _open
 
@@ -63,20 +61,21 @@ class SearchEngineLookup(BaseAction):
                     _open(url)
                 else:
                     log.error("{0}: No existing metadata to lookup.".format(PLUGIN_NAME,))
-                    self._show_popup('There is no existing data to use for a search.')
+                    show_popup('Lookup Error', 'There is no existing data to use for a search.')
             else:
                 log.error("{0}: Argument is not a cluster. {1}".format(PLUGIN_NAME, cluster,))
-                self._show_popup('There was a problem with the information provided for the cluster.')
+                show_popup('Lookup Error', 'There was a problem with the information provided for the cluster.')
 
-    def _show_popup(self, content):
-        window = MainWindow()
-        QMessageBox.information(
-            window,
-            "Lookup Error",
-            content,
-            QMessageBox.Ok,
-            QMessageBox.Ok
-        )
+
+def show_popup(title, content):
+    window = MainWindow()
+    QtWidgets.QMessageBox.information(
+        window,
+        title,
+        content,
+        QtWidgets.QMessageBox.Ok,
+        QtWidgets.QMessageBox.Ok
+    )
 
 
 class SearchEngineLookupOptionsPage(OptionsPage):
