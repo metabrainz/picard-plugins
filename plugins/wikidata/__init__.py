@@ -7,8 +7,8 @@
 
 PLUGIN_NAME = 'Wikidata Genre'
 PLUGIN_AUTHOR = 'Daniel Sobey, Sambhav Kothari'
-PLUGIN_DESCRIPTION = 'query wikidata to get genre tags'
-PLUGIN_VERSION = '1.4.2'
+PLUGIN_DESCRIPTION = 'Query wikidata to get genre tags'
+PLUGIN_VERSION = '1.4.3'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
@@ -19,6 +19,13 @@ from picard import config, log
 from picard.metadata import register_track_metadata_processor
 from picard.plugins.wikidata.ui_options_wikidata import Ui_WikidataOptionsPage
 from picard.ui.options import register_options_page, OptionsPage
+from picard.webservice import ratecontrol
+
+
+WIKIDATA_HOST = 'www.wikidata.org'
+WIKIDATA_PORT = 443
+
+ratecontrol.set_minimum_delay((WIKIDATA_HOST, WIKIDATA_PORT), 0)
 
 
 def parse_ignored_tags(ignore_tags_setting):
@@ -190,7 +197,7 @@ class Wikidata:
         item = wikidata_url.split('/')[4]
         path = "/wiki/Special:EntityData/" + item + ".rdf"
         log.debug('WIKIDATA: Fetching from wikidata.org%s' % path)
-        self.ws.get('www.wikidata.org', 443, path,
+        self.ws.get(WIKIDATA_HOST, WIKIDATA_PORT, path,
                     partial(self.parse_wikidata_response, item, item_id, genre_source_type),
                     parse_response_type="xml", priority=False, important=False)
 
