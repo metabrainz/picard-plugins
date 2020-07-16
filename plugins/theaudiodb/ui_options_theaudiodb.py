@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'options_theaudiodb.ui'
+# Form implementation generated from reading ui file 'plugins/theaudiodb/options_theaudiodb.ui'
 #
 # Created by: PyQt5 UI code generator 5.14.1
 #
@@ -55,10 +55,8 @@ class Ui_TheAudioDbOptionsPage(object):
         _translate = QtCore.QCoreApplication.translate
         self.groupBox.setTitle(_translate("TheAudioDbOptionsPage", "TheAudioDB cover art"))
         self.label.setText(_translate("TheAudioDbOptionsPage", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Cantarell\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">This plugin loads cover art from <a href=\"https://www.theaudiodb.com\"><span style=\" text-decoration: underline; color:#1b6acb;\">TheAudioDB</span></a>. TheAudioDB is a community Database of audio artwork and data. Their content is only possible thanks to the hard work of volunteer editors. If you like this plugin, please consider <a href=\"https://www.theaudiodb.com/forum-new/ucp.php?mode=register\"><span style=\" text-decoration: underline; color:#1b6acb;\">registering</span></a> as an editor or supporting the TheAudioDB <a href=\"https://www.patreon.com/thedatadb\"><span style=\" text-decoration: underline; color:#1b6acb;\">patreon campaign</span></a>.</p></body></html>"))
+"<html><head><meta name=\"qrichtext\" content=\"1\" /></head><body>\n"
+"<p>This plugin loads cover art from <a href=\"https://www.theaudiodb.com\">TheAudioDB</a>. TheAudioDB is a community Database of audio artwork and data. Their content is only possible thanks to the hard work of volunteer editors. If you like this plugin, please consider <a href=\"https://www.theaudiodb.com/forum-new/ucp.php?mode=register\">registering</a> as an editor or supporting the TheAudioDB <a href=\"https://www.patreon.com/thedatadb\">patreon campaign</a>.</p></body></html>"))
         self.verticalGroupBox.setTitle(_translate("TheAudioDbOptionsPage", "Medium images"))
         self.theaudiodb_cdart_use_always.setText(_translate("TheAudioDbOptionsPage", "Always load medium images"))
         self.theaudiodb_cdart_use_if_no_albumcover.setText(_translate("TheAudioDbOptionsPage", "Load only if no front cover is available"))

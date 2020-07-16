@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
-# Automatically generated - don't edit.
-# Use `python setup.py build_ui` to update it.
+# Form implementation generated from reading ui file 'plugins/fanarttv/options_fanarttv.ui'
+#
+# Created by: PyQt5 UI code generator 5.14.1
+#
+# WARNING! All changes made in this file will be lost!
 
-from PyQt5 import QtCore, QtWidgets
+
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_FanartTvOptionsPage(object):
@@ -59,17 +63,13 @@ class Ui_FanartTvOptionsPage(object):
 
     def retranslateUi(self, FanartTvOptionsPage):
         _translate = QtCore.QCoreApplication.translate
-        self.groupBox.setTitle(_("fanart.tv cover art"))
+        self.groupBox.setTitle(_translate("FanartTvOptionsPage", "fanart.tv cover art"))
         self.label.setText(_translate("FanartTvOptionsPage", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Cantarell\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">This plugin loads cover art from <a href=\"http://fanart.tv/\"><span style=\" text-decoration: underline; color:#0000ff;\">fanart.tv</span></a>. If you want to improve the results of this plugin please contribute.</p>\n"
-"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">In order to use this plugin you have to register a personal API key on<br /><a href=\"https://fanart.tv/get-an-api-key/\"><span style=\" text-decoration: underline; color:#0000ff;\">https://fanart.tv/get-an-api-key/</span></a></p></body></html>"))
-        self.label_2.setText(_("Enter your personal API key here:"))
-        self.verticalGroupBox.setTitle(_("Medium images"))
-        self.fanarttv_cdart_use_always.setText(_("Always load medium images"))
-        self.fanarttv_cdart_use_if_no_albumcover.setText(_("Load only if no front cover is available"))
-        self.fanarttv_cdart_use_never.setText(_("Never load medium images"))
-
+"<html><head><meta name=\"qrichtext\" content=\"1\" /></head><body>\n"
+"<p>This plugin loads cover art from <a href=\"http://fanart.tv/\">fanart.tv</a>. If you want to improve the results of this plugin please contribute.</p>\n"
+"<p>In order to use this plugin you have to register a personal API key on<br /><a href=\"https://fanart.tv/get-an-api-key/\">https://fanart.tv/get-an-api-key/</a></p></body></html>"))
+        self.label_2.setText(_translate("FanartTvOptionsPage", "Enter your personal API key here:"))
+        self.verticalGroupBox.setTitle(_translate("FanartTvOptionsPage", "Medium images"))
+        self.fanarttv_cdart_use_always.setText(_translate("FanartTvOptionsPage", "Always load medium images"))
+        self.fanarttv_cdart_use_if_no_albumcover.setText(_translate("FanartTvOptionsPage", "Load only if no front cover is available"))
+        self.fanarttv_cdart_use_never.setText(_translate("FanartTvOptionsPage", "Never load medium images"))
