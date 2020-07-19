@@ -8,4 +8,4 @@ When you right-click on a cluster, the option is found under the "Plugins" secti
 ## Settings
 
 A settings screen is available in Picard's options settings, under the Plugins section.  This allows the user to select their preferred
-search engine provider, and any additional words to provide with the search.
+search engine provider, and any additional words to provide with the search.  You can also add, edit or remove search engine providers.

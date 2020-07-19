@@ -53,7 +53,7 @@
              </sizepolicy>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Search Engine Lookup plugin allows you to initiate a search engine lookup in your browser for a cluster from the menue displayed when right-clicking the cluster.&lt;/p&gt;&lt;p&gt;These settings allow you select which search engine to use for the lookup.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The Search Engine Lookup plugin allows you to initiate a search engine lookup in your browser for a cluster from the menu displayed when right-clicking the cluster.  These settings allow you select which search engine to use for the lookup, as well as any additional search terms.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="wordWrap">
              <bool>true</bool>
@@ -72,32 +72,70 @@
           </size>
          </property>
          <property name="title">
-          <string>Search Engine Provider</string>
+          <string>Search Engine Providers</string>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <widget class="QRadioButton" name="rb_google">
-            <property name="text">
-             <string>Google</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
+           <widget class="QListWidget" name="list_providers">
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="rb_bing">
-            <property name="text">
-             <string>Bing</string>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <property name="bottomMargin">
+             <number>0</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="rb_duckduckgo">
-            <property name="text">
-             <string>DuckDuckGo</string>
-            </property>
-           </widget>
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pb_add">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pb_edit">
+              <property name="text">
+               <string>Edit</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pb_delete">
+              <property name="text">
+               <string>Delete</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pb_test">
+              <property name="text">
+               <string>Test</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="pb_reset">
+              <property name="text">
+               <string>Reset</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </widget>

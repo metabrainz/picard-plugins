@@ -12,6 +12,10 @@ The following people have contributed to the development of this plugin.
 
 The following identifies the development history of the plugin, in reverse chronological order.  Each version lists the changes made for that version, along with the author of each change.
 
+### Version 2.0.0
+
+* Redesigned the configuration user interface to allow adding, editing and removing search engine providers. \[rdswift\]
+
 ### Version 1.0.0
 
 * Initial release submitted to the Picard Plugins listing.
