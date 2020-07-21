@@ -17,7 +17,7 @@ class Ui_SearchEngineEditorDialog(object):
     def setupUi(self, SearchEngineEditorDialog):
         SearchEngineEditorDialog.setObjectName("SearchEngineEditorDialog")
         SearchEngineEditorDialog.setWindowModality(QtCore.Qt.ApplicationModal)
-        SearchEngineEditorDialog.resize(560, 220)
+        SearchEngineEditorDialog.resize(560, 261)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -31,7 +31,7 @@ class Ui_SearchEngineEditorDialog(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 542, 202))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 542, 243))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -94,7 +94,7 @@ class Ui_SearchEngineEditorDialog(object):
 
     def retranslateUi(self, SearchEngineEditorDialog):
         _translate = QtCore.QCoreApplication.translate
-        SearchEngineEditorDialog.setWindowTitle(_translate("SearchEngineEditorDialog", "Add / Edit Search Engine Provider"))
+        SearchEngineEditorDialog.setWindowTitle(_translate("SearchEngineEditorDialog", "Edit Search Engine Provider"))
         self.label_4.setText(_translate("SearchEngineEditorDialog", "<html><head/><body><p>Enter the title and URL for the search engine provider. Titles must be at least two non-space characters long, and must not be the same as the title of an existing provider.</p><p>When entering the URL the macro <span style=\"font-weight:600;\">%search%</span> must be included. This will be replaced by the list of search words separated by plus signs when the url is sent to your browser for display.</p></body></html>"))
         self.label_2.setText(_translate("SearchEngineEditorDialog", "Title:"))
         self.label_3.setText(_translate("SearchEngineEditorDialog", "URL:"))
