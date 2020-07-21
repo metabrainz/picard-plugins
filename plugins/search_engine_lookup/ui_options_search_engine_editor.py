@@ -95,7 +95,7 @@ class Ui_SearchEngineEditorDialog(object):
     def retranslateUi(self, SearchEngineEditorDialog):
         _translate = QtCore.QCoreApplication.translate
         SearchEngineEditorDialog.setWindowTitle(_translate("SearchEngineEditorDialog", "Add / Edit Search Engine Provider"))
-        self.label_4.setText(_translate("SearchEngineEditorDialog", "<html><head/><body><p>Enter the title and URL for the search engine provider. If you are editing an existing provider, you will not be allowed to change the title. If it is a new provider, you will not be allowed to use the same title as an existing provider.</p><p>When entering the URLthe macro <span style=\" font-weight:600;\">%search%</span> must be included. This will be replaced by the list of search words separated by plus signs when the url is sent to your browser for display.</p></body></html>"))
+        self.label_4.setText(_translate("SearchEngineEditorDialog", "<html><head/><body><p>Enter the title and URL for the search engine provider. Titles must be at least two non-space characters long, and must not be the same as the title of an existing provider.</p><p>When entering the URL the macro <span style=\"font-weight:600;\">%search%</span> must be included. This will be replaced by the list of search words separated by plus signs when the url is sent to your browser for display.</p></body></html>"))
         self.label_2.setText(_translate("SearchEngineEditorDialog", "Title:"))
         self.label_3.setText(_translate("SearchEngineEditorDialog", "URL:"))
         self.le_title.setToolTip(_translate("SearchEngineEditorDialog", "The title to show in the list for the search engine provider"))

@@ -50,7 +50,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the title and URL for the search engine provider. If you are editing an existing provider, you will not be allowed to change the title. If it is a new provider, you will not be allowed to use the same title as an existing provider.&lt;/p&gt;&lt;p&gt;When entering the URLthe macro &lt;span style=&quot; font-weight:600;&quot;&gt;%search%&lt;/span&gt; must be included. This will be replaced by the list of search words separated by plus signs when the url is sent to your browser for display.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enter the title and URL for the search engine provider. Titles must be at least two non-space characters long, and must not be the same as the title of an existing provider.&lt;/p&gt;&lt;p&gt;When entering the URL the macro &lt;span style=&quot;font-weight:600;&quot;&gt;%search%&lt;/span&gt; must be included. This will be replaced by the list of search words separated by plus signs when the url is sent to your browser for display.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="wordWrap">
           <bool>true</bool>

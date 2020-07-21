@@ -27,6 +27,7 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 
 import re
 from urllib.parse import quote_plus
+from uuid import uuid4
 
 from PyQt5 import QtCore, QtWidgets
 
@@ -38,12 +39,13 @@ from picard.ui.itemviews import BaseAction, register_cluster_action
 from picard.ui.options import OptionsPage, register_options_page
 from picard.util.webbrowser2 import open as _open
 
-DEFAULT_PROVIDERS = [
-    r'Google|https://www.google.com/search?q=%search%',
-    r'Bing|https://www.bing.com/search?q=%search%',
-    r'DuckDuckGo|https://duckduckgo.com/?q=%search%',
-]
-DEFAULT_PROVIDER = 'Google'
+DEFAULT_PROVIDERS = {
+    'ea520f49-36bc-4821-a16a-38bf0340d1f3': {'name': _('Google'), 'url': r'https://www.google.com/search?q=%search%'},
+    '7b93d4b5-34d9-49a7-901c-ed0914f07aee': {'name': _('Bing'), 'url': r'https://www.bing.com/search?q=%search%'},
+    '37be75d9-5fc5-4858-87fc-b5db0896a163': {'name': _('DuckDuckGo'), 'url': r'https://duckduckgo.com/?q=%search%'},
+}
+
+DEFAULT_PROVIDER = 'ea520f49-36bc-4821-a16a-38bf0340d1f3'
 DEFAULT_EXTRA_WORDS = 'album'
 
 RE_VALIDATE_TITLE = re.compile(r'^[^\s"|][^"|]*[^\s"|]$')
@@ -59,7 +61,10 @@ class SearchEngineLookupTest(BaseAction):
 
     def callback(self, cluster_list):
         extra = config.setting[KEY_EXTRA].split()
-        base_url = get_selected_url()
+        if config.setting[KEY_PROVIDER] in config.setting[KEY_PROVIDERS]:
+            base_url = config.setting[KEY_PROVIDERS][config.setting[KEY_PROVIDER]]['url']
+        else:
+            base_url = DEFAULT_PROVIDERS[DEFAULT_PROVIDER]['url']
         for cluster in cluster_list:
             if isinstance(cluster, Cluster):
                 parts = []
@@ -75,10 +80,10 @@ class SearchEngineLookupTest(BaseAction):
                     _open(url)
                 else:
                     log.error("{0}: No existing metadata to lookup.".format(PLUGIN_NAME,))
-                    show_popup('Lookup Error', 'There is no existing data to use for a search.')
+                    show_popup(_('Lookup Error'), _('There is no existing data to use for a search.'))
             else:
                 log.error("{0}: Argument is not a cluster. {1}".format(PLUGIN_NAME, cluster,))
-                show_popup('Lookup Error', 'There was a problem with the information provided for the cluster.')
+                show_popup(_('Lookup Error'), _('There was a problem with the information provided for the cluster.'))
 
 
 def show_popup(title='', content='', window=None):
@@ -91,32 +96,15 @@ def show_popup(title='', content='', window=None):
     )
 
 
-def get_selected_url():
-    provider = config.setting[KEY_PROVIDER]
-    providers = config.setting[KEY_PROVIDERS]
-    provider_test = provider + '|'
-    for provider_record in providers:
-        if provider_record.startswith(provider_test):
-            return provider_record[len(provider_test):]
-    return None
-
-
 class SearchEngineEditDialog(QtWidgets.QDialog):
 
-    def __init__(self, parent=None, edit_provider='', edit_url=''):
+    def __init__(self, parent=None, edit_provider='', edit_url='', titles=[]):
         super().__init__(parent)
         self.parent = parent
         self.output = None
         self.edit_provider = edit_provider
         self.edit_url = edit_url
-        self.add_flag = not edit_provider
-
-        provider_data = config.setting[KEY_PROVIDERS]
-        if not provider_data:
-            provider_data = DEFAULT_PROVIDERS
-        self.providers = []
-        for item in provider_data:
-            self.providers.append(item.split('|')[0])
+        self.providers = titles
 
         self.valid_no = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_DialogCancelButton).pixmap(16, 16)
         self.valid_yes = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton).pixmap(16, 16)
@@ -125,10 +113,8 @@ class SearchEngineEditDialog(QtWidgets.QDialog):
         self.ui.setupUi(self)
         self.ui.le_title.setText(self.edit_provider)
         self.ui.le_url.setText(self.edit_url)
-        if not self.add_flag:
-            self.ui.le_title.setReadOnly(True)
 
-        self.setWindowTitle('{0} Search Engine Provider'.format('Add' if self.add_flag else 'Edit',))
+        self.setWindowTitle((_('Add') if not edit_provider else _('Edit')) + _(' Search Engine Provider'))
         self.setup_actions()
         self.check_validation()
 
@@ -139,10 +125,7 @@ class SearchEngineEditDialog(QtWidgets.QDialog):
         self.ui.pb_cancel.clicked.connect(self.reject)
 
     def check_validation(self):
-        if self.add_flag:
-            valid_title = bool(re.match(RE_VALIDATE_TITLE, self.edit_provider)) and bool(self.edit_provider not in self.providers)
-        else:
-            valid_title = True
+        valid_title = bool(re.match(RE_VALIDATE_TITLE, self.edit_provider)) and bool(self.edit_provider not in self.providers)
         self.ui.img_valid_title.setPixmap(self.valid_yes if valid_title else self.valid_no)
 
         valid_url = bool(re.match(RE_VALIDATE_URL, self.edit_url))
@@ -173,7 +156,7 @@ class SearchEngineLookupOptionsPage(OptionsPage):
     PARENT = "plugins"
 
     options = [
-        config.ListOption("setting", KEY_PROVIDERS, DEFAULT_PROVIDERS),
+        config.Option("setting", KEY_PROVIDERS, DEFAULT_PROVIDERS.copy()),
         config.TextOption("setting", KEY_PROVIDER, DEFAULT_PROVIDER),
         config.TextOption("setting", KEY_EXTRA, DEFAULT_EXTRA_WORDS),
     ]
@@ -196,13 +179,13 @@ class SearchEngineLookupOptionsPage(OptionsPage):
 
     def load(self):
         # Settings for search engine providers
-        self.providers = {}
-        self.fill_providers_dict_from_list(config.setting[KEY_PROVIDERS])
+        self.providers = config.setting[KEY_PROVIDERS] or DEFAULT_PROVIDERS.copy()
 
         # Settings for search engine provider
         self.provider = config.setting[KEY_PROVIDER]
-        if self.provider not in self.providers.keys():
-            self.provider = list(self.providers.keys())[0]
+        if self.provider not in self.providers:
+            # Assign an arbitrary valid value to self.provider
+            self.provider = list(self.providers)[0]
 
         # Settings for search extra words
         self.additional_words = config.setting[KEY_EXTRA]
@@ -214,87 +197,92 @@ class SearchEngineLookupOptionsPage(OptionsPage):
     def select_provider(self, list_item):
         if list_item.checkState() == QtCore.Qt.Checked:
             # New provider selected
-            self.provider = list_item.text()
+            self.provider = list_item.data(QtCore.Qt.UserRole)
             self.update_list(current_item=self.provider)
         else:
             # Attempt to deselect the current provider leaving none selected
             list_item.setCheckState(QtCore.Qt.Checked)
 
     def reset_settings(self):
-        self.fill_providers_dict_from_list(DEFAULT_PROVIDERS)
-        self.provider = DEFAULT_PROVIDER
-        self.additional_words = DEFAULT_EXTRA_WORDS
-        self.update_list()
+        if QtWidgets.QMessageBox.warning(
+            self,
+            _('Confirm Reset'),
+            _('You are about to reset all settings to their original defaults and lose all changes you have entered since installing the plugin.  Continue?'),
+            QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+            QtWidgets.QMessageBox.Cancel
+        ) == QtWidgets.QMessageBox.Ok:
+            self.providers = DEFAULT_PROVIDERS.copy()
+            self.provider = DEFAULT_PROVIDER
+            self.additional_words = DEFAULT_EXTRA_WORDS
+            self.update_list()
 
     def add_provider(self):
-        self.edit_provider_dialog()
+        provider_id = uuid4()
+        self.edit_provider_dialog(provider_id)
 
     def edit_provider(self):
         current_item = self.ui.list_providers.currentItem()
         provider = current_item.text()
-        url = self.providers[provider]
-        self.edit_provider_dialog(provider, url)
+        provider_id = current_item.data(QtCore.Qt.UserRole)
+        url = self.providers[provider_id]['url']
+        self.edit_provider_dialog(provider_id, provider, url)
 
-    def edit_provider_dialog(self, provider='', url=''):
-        dialog = SearchEngineEditDialog(self, provider, url)
+    def edit_provider_dialog(self, provider_id='', provider='', url=''):
+        titles = [x['name'] for x in self.providers.values()]
+        titles.remove(provider)
+        dialog = SearchEngineEditDialog(self, provider, url, titles)
         temp = dialog.exec_()
         if temp == QtWidgets.QDialog.Accepted:
             data = dialog.get_output()
             if data:
                 new_provider, new_url = data
-                self.providers[new_provider] = new_url
-                self.update_list(new_provider)
+                self.providers[provider_id] = {'name': new_provider, 'url': new_url}
+                self.update_list(provider_id)
 
     def delete_provider(self):
         current_item = self.ui.list_providers.currentItem()
         provider = current_item.text()
-        if current_item.checkState() or provider == self.provider:
+        provider_id = current_item.data(QtCore.Qt.UserRole)
+        if current_item.checkState() or provider_id == self.provider:
             QtWidgets.QMessageBox.critical(
                 self,
-                'Deletion Error',
-                'You cannot delete the currently selected search provider.',
+                _('Deletion Error'),
+                _('You cannot delete the currently selected search provider.'),
                 QtWidgets.QMessageBox.Ok,
                 QtWidgets.QMessageBox.Ok
             )
         else:
             if QtWidgets.QMessageBox.warning(
                 self,
-                'Confirm Deletion',
-                'You are about to permanently delete the search provider "{0}".  Continue?'.format(provider,),
+                _('Confirm Deletion'),
+                _('You are about to permanently delete the search provider "') + provider + _('".  Continue?'),
                 QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
                 QtWidgets.QMessageBox.Cancel
             ) == QtWidgets.QMessageBox.Ok:
-                self.providers.pop(provider, None)
+                self.providers.pop(provider_id, None)
                 self.update_list()
 
     def test_provider(self):
         current_item = self.ui.list_providers.currentItem()
         parts = ('The Beatles Abby Road ' + self.additional_words).strip().split()
-        url = self.providers[current_item.text()].replace(r'%search%', quote_plus(' '.join(parts)))
+        url = self.providers[current_item.data(QtCore.Qt.UserRole)].replace(r'%search%', quote_plus(' '.join(parts)))
         _open(url)
-
-    def fill_providers_dict_from_list(self, provider_list):
-        self.providers = {}
-        if not provider_list:
-            provider_list = DEFAULT_PROVIDERS
-        for provider_record in provider_list:
-            provider_name, provider_url = provider_record.split('|', 2)
-            self.providers[provider_name] = provider_url
 
     def update_list(self, current_item=None):
         current_row = -1
         self.ui.list_providers.clear()
-        provider_list = sorted(self.providers.keys())
-        for counter, provider_key in enumerate(provider_list):
+        for counter, provider_id in enumerate(self.providers):
             item = QtWidgets.QListWidgetItem()
             item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
-            item.setText(provider_key)
-            item.setCheckState(QtCore.Qt.Checked if provider_key == self.provider else QtCore.Qt.Unchecked)
+            item.setText(self.providers[provider_id]['name'])
+            item.setCheckState(QtCore.Qt.Checked if provider_id == self.provider else QtCore.Qt.Unchecked)
+            item.setData(QtCore.Qt.UserRole, provider_id)
             self.ui.list_providers.addItem(item)
-            if current_item and provider_key == current_item:
+            if current_item and provider_id == current_item:
                 current_row = counter
         current_row = max(current_row, 0)
         self.ui.list_providers.setCurrentRow(current_row)
+        self.ui.list_providers.sortItems()
 
     def save(self):
         self._set_settings(config.setting)
@@ -302,14 +290,7 @@ class SearchEngineLookupOptionsPage(OptionsPage):
     def _set_settings(self, settings):
         settings[KEY_PROVIDER] = self.provider.strip()
         settings[KEY_EXTRA] = self.additional_words.strip()
-
-        if self.providers:
-            temp = []
-            for key in self.providers.keys():
-                temp.append('{0}|{1}'.format(key, self.providers[key],))
-        else:
-            temp = DEFAULT_PROVIDERS
-        settings[KEY_PROVIDERS] = temp
+        settings[KEY_PROVIDERS] = self.providers or DEFAULT_PROVIDERS.copy()
 
 
 register_cluster_action(SearchEngineLookupTest())
