@@ -98,13 +98,13 @@ def show_popup(title='', content='', window=None):
 
 class SearchEngineEditDialog(QtWidgets.QDialog):
 
-    def __init__(self, parent=None, edit_provider='', edit_url='', titles=[]):
+    def __init__(self, parent=None, edit_provider='', edit_url='', titles=None):
         super().__init__(parent)
         self.parent = parent
         self.output = None
         self.edit_provider = edit_provider
         self.edit_url = edit_url
-        self.providers = titles
+        self.providers = titles if titles else []
 
         self.valid_no = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_DialogCancelButton).pixmap(16, 16)
         self.valid_yes = QtWidgets.QApplication.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton).pixmap(16, 16)
