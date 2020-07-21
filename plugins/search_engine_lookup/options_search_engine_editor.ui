@@ -10,19 +10,25 @@
     <x>0</x>
     <y>0</y>
     <width>560</width>
-    <height>261</height>
+    <height>205</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
-    <width>360</width>
-    <height>0</height>
+    <width>560</width>
+    <height>205</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>560</width>
+    <height>300</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -43,7 +49,7 @@
         <x>0</x>
         <y>0</y>
         <width>542</width>
-        <height>243</height>
+        <height>187</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -146,6 +152,9 @@
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="topMargin">
+          <number>5</number>
+         </property>
          <property name="bottomMargin">
           <number>0</number>
          </property>
