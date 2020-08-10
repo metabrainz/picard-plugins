@@ -81,8 +81,8 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.11'
-PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3"]
+PLUGIN_VERSION = '2.0.12'
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -118,7 +118,6 @@ import picard.plugins.classical_extras.const
 ##########################
 # CONSTANTS
 # N.B. Constants with long definitions are set in const.py
-PRESERVE = [x.strip() for x in config.setting["preserved_tags"].split(',')]
 DATE_SEP = '-'
 
 # COMMONLY USED REGEX
@@ -598,6 +597,13 @@ def get_references_from_file(release_id, path, filename):
 # OPTIONS
 
 
+def get_preserved_tags():
+    preserved = config.setting["preserved_tags"]
+    if isinstance(preserved, str):
+        preserved = [x.strip() for x in preserved.split(',')]
+    return preserved
+
+
 def get_options(release_id, album, track):
     """
     Get the saved options from a release and use them according to flags set on the "advanced" tab
@@ -918,7 +924,7 @@ def get_options(release_id, album, track):
                         orig_metadata['genre'])
                 if options['cwp_genre_tag'] and options['cwp_genre_tag'] in orig_metadata:
                     keep_list.append(options['cwp_genre_tag'])
-            really_keep_list = PRESERVE[:]
+            really_keep_list = get_preserved_tags()[:]
             really_keep_list.append(
                 options['cwp_options_tag'] +
                 ':workparts_options')
