@@ -17,7 +17,7 @@ class CollectArtists(BaseAction):
         for album in objs:
             if isinstance(album, Album):
                 trackartists = []
-                for i, track in enumerate(album.tracks):
+                for track in enumerate(album.tracks):
                     if "artists" in track.metadata:
                         artists = track.metadata.getall("artists")
                     elif "artist" in track.metadata:
@@ -25,7 +25,7 @@ class CollectArtists(BaseAction):
                     else:
                         continue
 
-                    for x, artist in enumerate(artists):
+                    for artist in enumerate(artists):
                         if artist not in trackartists:
                             trackartists.append(artist)
 
