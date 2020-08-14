@@ -8,7 +8,6 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl.txt"
 
 from picard.album import Album
 from picard.ui.itemviews import BaseAction, register_album_action
-#from picard.util import thread
 
 class CollectArtists(BaseAction):
     NAME = 'Replace release artist with &track artists...'
@@ -17,7 +16,7 @@ class CollectArtists(BaseAction):
         for album in objs:
             if isinstance(album, Album):
                 trackartists = []
-                for track in enumerate(album.tracks):
+                for track in album.tracks:
                     if "artists" in track.metadata:
                         artists = track.metadata.getall("artists")
                     elif "artist" in track.metadata:
@@ -25,22 +24,26 @@ class CollectArtists(BaseAction):
                     else:
                         continue
 
-                    for artist in enumerate(artists):
+                    for artist in artists:
                         if artist not in trackartists:
                             trackartists.append(artist)
 
                 if len(trackartists) >= 2:
-                    album.metadata["albumartist"] = (", ").join(trackartists[:-1]) + ' & ' + trackartists[-1]
+                    albumartist = (", ").join(trackartists[:-1]) + ' & ' + trackartists[-1]
                 elif len(trackartists) == 1:
-                    album.metadata["albumartist"] = trackartists[0]
+                    albumartist = trackartists[0]
                 else:
-                    print("status bar error")
+                    self.tagger.window.set_statusbar_message("Could not find any artists for the album ALBUMTITLE")
                     continue
+                album.metadata.set("albumartist",albumartist)
 
-        # print(self.tagger.get_files_from_objects(objs, save=False))
+                for track in album.tracks:
+                    track.metadata.set("albumartist",albumartist)
 
-        #         thread.run_task(self.tagger.save(self, album), f._saving_finished,
-        #                         priority=2, thread_pool=f.tagger.save_thread_pool)
+                    for files in track.linked_files:
+                        track.update_file_metadata(files)
+
+                album.update()
 
 # class ReformatAlbumArtist(BaseAction):
 #     NAME = 'Re&format release artist...'
