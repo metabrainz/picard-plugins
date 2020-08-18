@@ -45,11 +45,4 @@ class CollectArtists(BaseAction):
 
                 album.update()
 
-# class ReformatAlbumArtist(BaseAction):
-#     NAME = 'Re&format release artist...'
-
-#     def callback(self, objs):
-#         print("yup")
-
 register_album_action(CollectArtists())
-# register_album_action(ReformatAlbumArtist())
