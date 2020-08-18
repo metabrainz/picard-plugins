@@ -35,10 +35,10 @@ class CollectArtists(BaseAction):
                 else:
                     self.tagger.window.set_statusbar_message("Could not find any artists for the album: \"" + album.metadata['album'] + "\"")
                     continue
-                album.metadata.set("albumartist",albumartist)
+                album.metadata.set("albumartist", albumartist)
 
                 for track in album.tracks:
-                    track.metadata.set("albumartist",albumartist)
+                    track.metadata.set("albumartist", albumartist)
 
                     for files in track.linked_files:
                         track.update_file_metadata(files)
