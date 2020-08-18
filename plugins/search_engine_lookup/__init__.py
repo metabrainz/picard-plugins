@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'Search Engine Lookup'
 PLUGIN_AUTHOR = 'Bob Swift'
 PLUGIN_DESCRIPTION = '''Adds a right click option on a cluster to look up album information using a search engine in a browser window.'''
-PLUGIN_VERSION = '2.0.0'
+PLUGIN_VERSION = '2.0.1'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
@@ -153,6 +153,7 @@ class SearchEngineLookupOptionsPage(OptionsPage):
     NAME = "search_engine_lookup_options"
     TITLE = "Search Engine Lookup"
     PARENT = "plugins"
+    HELP_URL = "https://github.com/metabrainz/picard-plugins/blob/2.0/plugins/search_engine_lookup/README.md"
 
     options = [
         config.Option("setting", KEY_PROVIDERS, DEFAULT_PROVIDERS.copy()),

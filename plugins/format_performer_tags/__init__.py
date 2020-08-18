@@ -27,7 +27,7 @@ each of the tracks.  The format of the resulting tags can be customized
 in the option settings page.
 '''
 
-PLUGIN_VERSION = "0.7"
+PLUGIN_VERSION = "0.8"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -130,6 +130,7 @@ class FormatPerformerTagsOptionsPage(OptionsPage):
     NAME = "format_performer_tags"
     TITLE = "Format Performer Tags"
     PARENT = "plugins"
+    HELP_URL = "https://github.com/metabrainz/picard-plugins/blob/2.0/plugins/format_performer_tags/docs/README.md"
 
     options = [
         config.IntOption("setting", "format_group_additional", 3),
