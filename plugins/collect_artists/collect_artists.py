@@ -33,7 +33,7 @@ class CollectArtists(BaseAction):
                 elif len(trackartists) == 1:
                     albumartist = trackartists[0]
                 else:
-                    self.tagger.window.set_statusbar_message("Could not find any artists for the album ALBUMTITLE")
+                    self.tagger.window.set_statusbar_message("Could not find any artists for the album: \"" + album.metadata['album'] + "\"")
                     continue
                 album.metadata.set("albumartist",albumartist)
 
