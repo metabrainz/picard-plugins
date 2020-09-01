@@ -59,7 +59,7 @@ class Ui_TheAudioDbOptionsPage(object):
         self.groupBox.setTitle(_translate("TheAudioDbOptionsPage", "TheAudioDB cover art"))
         self.label.setText(_translate("TheAudioDbOptionsPage", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /></head><body>\n"
-"<p>This plugin loads cover art from <a href=\"https://www.theaudiodb.com\">TheAudioDB</a>. TheAudioDB is a community Database of audio artwork and data. Their content is only possible thanks to the hard work of volunteer editors. If you like this plugin, please consider <a href=\"https://www.theaudiodb.com/forum-new/ucp.php?mode=register\">registering</a> as an editor or supporting the TheAudioDB <a href=\"https://www.patreon.com/thedatadb\">patreon campaign</a>.</p></body></html>"))
+"<p>This plugin loads cover art from <a href=\"https://www.theaudiodb.com\">TheAudioDB</a>. TheAudioDB is a community Database of audio artwork and data. Their content is only possible thanks to the hard work of volunteer editors. If you like this plugin, please consider <a href=\"https://www.theaudiodb.com/user_register_now.php\">registering</a> as an editor or supporting the TheAudioDB <a href=\"https://www.patreon.com/thedatadb\">patreon campaign</a>.</p></body></html>"))
         self.verticalGroupBox.setTitle(_translate("TheAudioDbOptionsPage", "Medium images"))
         self.theaudiodb_cdart_use_always.setText(_translate("TheAudioDbOptionsPage", "Always load medium images"))
         self.theaudiodb_cdart_use_if_no_albumcover.setText(_translate("TheAudioDbOptionsPage", "Load only if no front cover is available"))
