@@ -52,7 +52,7 @@
         <property name="text">
          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;/head&gt;&lt;body&gt;
-&lt;p&gt;This plugin loads cover art from &lt;a href=&quot;https://www.theaudiodb.com&quot;&gt;TheAudioDB&lt;/a&gt;. TheAudioDB is a community Database of audio artwork and data. Their content is only possible thanks to the hard work of volunteer editors. If you like this plugin, please consider &lt;a href=&quot;https://www.theaudiodb.com/forum-new/ucp.php?mode=register&quot;&gt;registering&lt;/a&gt; as an editor or supporting the TheAudioDB &lt;a href=&quot;https://www.patreon.com/thedatadb&quot;&gt;patreon campaign&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p&gt;This plugin loads cover art from &lt;a href=&quot;https://www.theaudiodb.com&quot;&gt;TheAudioDB&lt;/a&gt;. TheAudioDB is a community Database of audio artwork and data. Their content is only possible thanks to the hard work of volunteer editors. If you like this plugin, please consider &lt;a href=&quot;https://www.theaudiodb.com/user_register_now.php&quot;&gt;registering&lt;/a&gt; as an editor or supporting the TheAudioDB &lt;a href=&quot;https://www.patreon.com/thedatadb&quot;&gt;patreon campaign&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="textFormat">
          <enum>Qt::RichText</enum>
