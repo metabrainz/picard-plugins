@@ -99,6 +99,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="theaudiodb_use_high_quality">
+     <property name="text">
+      <string>Use high resolution images, if available</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
