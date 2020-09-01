@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'TheAudioDB cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use cover art from TheAudioDB.'
-PLUGIN_VERSION = "1.1.1"
+PLUGIN_VERSION = "1.2"
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -38,7 +38,10 @@ from picard.ui.options import (
     register_options_page,
     OptionsPage,
 )
-from picard.config import TextOption
+from picard.config import (
+    BoolOption,
+    TextOption,
+)
 from picard.webservice import ratecontrol
 from .ui_options_theaudiodb import Ui_TheAudioDbOptionsPage
 
@@ -118,7 +121,11 @@ class CoverArtProviderTheAudioDb(CoverArtProvider):
                               reply.url().url())
                     return
                 release = releases[0]
-                albumart_url = release.get("strAlbumThumb")
+                albumart_url = None
+                if config.setting['theaudiodb_use_high_quality']:
+                    albumart_url = release.get("strAlbumThumbHQ")
+                if not albumart_url:
+                    albumart_url = release.get("strAlbumThumb")
                 cdart_url = release.get("strAlbumCDart")
                 use_cdart = config.setting["theaudiodb_use_cdart"]
 
@@ -150,6 +157,7 @@ class TheAudioDbOptionsPage(OptionsPage):
 
     options = [
         TextOption("setting", "theaudiodb_use_cdart", OPTION_CDART_NOALBUMART),
+        BoolOption("setting", "theaudiodb_use_high_quality", False),
     ]
 
     def __init__(self, parent=None):
@@ -164,6 +172,7 @@ class TheAudioDbOptionsPage(OptionsPage):
             self.ui.theaudiodb_cdart_use_never.setChecked(True)
         elif config.setting["theaudiodb_use_cdart"] == OPTION_CDART_NOALBUMART:
             self.ui.theaudiodb_cdart_use_if_no_albumcover.setChecked(True)
+        self.ui.theaudiodb_use_high_quality.setChecked(config.setting['theaudiodb_use_high_quality'])
 
     def save(self):
         if self.ui.theaudiodb_cdart_use_always.isChecked():
@@ -172,6 +181,7 @@ class TheAudioDbOptionsPage(OptionsPage):
             config.setting["theaudiodb_use_cdart"] = OPTION_CDART_NEVER
         elif self.ui.theaudiodb_cdart_use_if_no_albumcover.isChecked():
             config.setting["theaudiodb_use_cdart"] = OPTION_CDART_NOALBUMART
+        config.setting['theaudiodb_use_high_quality'] = self.ui.theaudiodb_use_high_quality.isChecked()
 
 
 register_cover_art_provider(CoverArtProviderTheAudioDb)

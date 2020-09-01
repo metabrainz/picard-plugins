@@ -45,6 +45,9 @@ class Ui_TheAudioDbOptionsPage(object):
         self.theaudiodb_cdart_use_never.setObjectName("theaudiodb_cdart_use_never")
         self.verticalLayout.addWidget(self.theaudiodb_cdart_use_never)
         self.vboxlayout.addWidget(self.verticalGroupBox)
+        self.theaudiodb_use_high_quality = QtWidgets.QCheckBox(TheAudioDbOptionsPage)
+        self.theaudiodb_use_high_quality.setObjectName("theaudiodb_use_high_quality")
+        self.vboxlayout.addWidget(self.theaudiodb_use_high_quality)
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.vboxlayout.addItem(spacerItem)
 
@@ -61,3 +64,4 @@ class Ui_TheAudioDbOptionsPage(object):
         self.theaudiodb_cdart_use_always.setText(_translate("TheAudioDbOptionsPage", "Always load medium images"))
         self.theaudiodb_cdart_use_if_no_albumcover.setText(_translate("TheAudioDbOptionsPage", "Load only if no front cover is available"))
         self.theaudiodb_cdart_use_never.setText(_translate("TheAudioDbOptionsPage", "Never load medium images"))
+        self.theaudiodb_use_high_quality.setText(_translate("TheAudioDbOptionsPage", "Use high resolution images, if available"))
