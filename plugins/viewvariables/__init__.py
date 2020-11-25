@@ -2,8 +2,11 @@
 
 PLUGIN_NAME = 'View script variables'
 PLUGIN_AUTHOR = 'Sophist'
-PLUGIN_DESCRIPTION = '''Display a dialog box listing the metadata variables for the track / file.'''
-PLUGIN_VERSION = '0.7'
+PLUGIN_DESCRIPTION = '''Display a dialog box listing the metadata variables for the track / file.<br /><br />
+This allows you to see metadata variables beginning with "~" which are not normally visible in the metadata
+pane of the main Picard window, which can be useful when you are writing tagging or file naming scripts.
+'''
+PLUGIN_VERSION = '0.7.1'
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
