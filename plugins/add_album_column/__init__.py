@@ -37,12 +37,14 @@
 PLUGIN_NAME = u"Add Album Column"
 PLUGIN_AUTHOR = u"Evandro Coan"
 PLUGIN_DESCRIPTION = """Add the Album column to the main window panel.
-
+<br /><br />
 WARNING: This plugin cannot be disabled. See:
-https://github.com/metabrainz/picard-plugins/pull/195
+<a href="https://github.com/metabrainz/picard-plugins/pull/195">
+github.com/metabrainz/picard-plugins/pull/195
+</a>.
 """
 
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.01"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "http://www.gnu.org/licenses/"
