@@ -7,10 +7,18 @@
 
 PLUGIN_NAME = "Moodbars"
 PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
-PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums."""
+PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums.<br /><br />
+According to <a href="">WikiPedia</a>
+a "Moodbar is a computer visualization used for navigating within a piece of music or any other recording on a digital audio track. 
+This is done with a commonly horizontal bar that is divided into vertical stripes. 
+Each stripe has a colour combination showing the "mood" within a short part of the audio track."<br /><br />
+To use this plugin you will need to download special executables to create the moodbars - 
+at the time of writing, executables are only available for various Linux distributions
+(see the <a href="http://userbase.kde.org/Amarok/Manual/Various/Moodbar">Amarok Moodbar page<a> for details).
+"""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "2.3"
+PLUGIN_VERSION = "2.3.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 # PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
