@@ -20,7 +20,7 @@ PLUGIN_DESCRIPTION = """\
   Adds a multi-valued tag (~instruments) containing all the instruments (including vocals), 
   for use in scripts.
   """
-PLUGIN_VERSION = '1.0'
+PLUGIN_VERSION = '1.0.1'
 PLUGIN_API_VERSIONS = ['2.0']
 PLUGIN_LICENSE = 'GPL-3.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-3.0.html'
