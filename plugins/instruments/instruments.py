@@ -17,8 +17,8 @@
 PLUGIN_NAME = 'Instruments'
 PLUGIN_AUTHOR = 'David Mandelberg'
 PLUGIN_DESCRIPTION = """\
-  Adds a multi-valued tag of all the instruments (including vocals), for use in
-  scripts.
+  Adds a multi-valued tag (~instruments) containing all the instruments (including vocals), 
+  for use in scripts.
   """
 PLUGIN_VERSION = '1.0'
 PLUGIN_API_VERSIONS = ['2.0']
