@@ -21,9 +21,10 @@ Performer [slide guitar]: Eric Stewart
 Performer [synthesizer]: Lol Creme
 Performer [tambourine]: Graham Gouldman
 </pre>
+Update: This version now sorts the performer tags in order to maintain a consistent value and avoid tags appearing to change even though the base data is equivalent.
 '''
-PLUGIN_VERSION = '0.4'
-PLUGIN_API_VERSIONS = ["0.15.0", "0.15.1", "0.16.0", "1.0.0", "1.1.0", "1.2.0", "1.3.0", "2.0"]
+PLUGIN_VERSION = '1.0'
+PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -64,16 +65,12 @@ def standardise_performers(album, metadata, *args):
                 metadata.add_unique(newkey, value)
         del metadata[key]
 
+    # Sort performer metdata to avoid changes in processing sequence creating false changes in metadata
+    for key, values in list(metadata.rawitems()):
+        if key.startswith('performer:') or key.startswith('~performersort:'):
+            metadata[key] = sorted(values)
 
-try:
-    from picard.plugin import PluginPriority
 
-    register_track_metadata_processor(standardise_performers,
-                                      priority=PluginPriority.HIGH)
-except ImportError:
-    log.warning(
-        "Running %r plugin on this Picard version may not work as you expect. "
-        "Any other plugins that run before it will get the old performers "
-        "rather than the standardized performers.", PLUGIN_NAME
-    )
-    register_track_metadata_processor(standardise_performers)
+from picard.plugin import PluginPriority
+register_track_metadata_processor(standardise_performers,
+                                  priority=PluginPriority.HIGH)
