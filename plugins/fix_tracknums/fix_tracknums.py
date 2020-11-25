@@ -29,10 +29,12 @@ Fix the track numbers in a cluster by either using the track titles (1) or seque
     This is especially useful for Language Audio Lessons, like this:
     <pre>- Title: "Unit 1 - Lesson 10"</pre>
     For example, take the following titles and track numbers:
-    <pre>- Title: "Unit 1 - Lesson 1"  - Track #1</pre>
-    <pre>- Title: "Unit 1 - Lesson 2"  - Track #1</pre>
-    <pre>- Title: "Unit 2 - Lesson 10" - Track #2</pre>
-    <pre>- Title: "Unit 2 - Lesson 1"  - Track #2</pre>
+    <pre>
+- Title: "Unit 1 - Lesson 1"  - Track #1
+- Title: "Unit 1 - Lesson 2"  - Track #1
+- Title: "Unit 2 - Lesson 10" - Track #2
+- Title: "Unit 2 - Lesson 1"  - Track #2
+</pre>
     The track numbers will be changed to:  1, 2, 4, 3<br />
     The 3rd one will be changed to Track #4 because Lesson 1 &lt; Lesson 10.<br />
     The titles will remain unchanged.
@@ -54,7 +56,7 @@ How to use:
   </li>
 </ol>
 '''
-PLUGIN_VERSION = '0.2'
+PLUGIN_VERSION = '0.2.1'
 PLUGIN_API_VERSIONS = ['0.15', '1.0', '2.0']
 PLUGIN_LICENSE = 'GPL-3.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl.txt'
