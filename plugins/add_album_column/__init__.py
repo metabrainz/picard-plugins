@@ -44,7 +44,7 @@ github.com/metabrainz/picard-plugins/pull/195
 </a>.
 """
 
-PLUGIN_VERSION = "1.01"
+PLUGIN_VERSION = "1.0.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "http://www.gnu.org/licenses/"
