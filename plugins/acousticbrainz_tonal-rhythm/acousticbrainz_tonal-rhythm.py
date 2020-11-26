@@ -27,7 +27,7 @@ from the AcousticBrainz database.<br/><br/>
 '''
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = '1.1.3'
+PLUGIN_VERSION = '1.1.4'
 PLUGIN_API_VERSIONS = ["2.0"]  # Requires support for TKEY which is in 1.4
 
 from json import JSONDecodeError
@@ -41,7 +41,7 @@ from picard.util import load_json
 ACOUSTICBRAINZ_HOST = "acousticbrainz.org"
 ACOUSTICBRAINZ_PORT = 80
 
-ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 50)
+ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 100)
 
 
 class AcousticBrainz_Key:
