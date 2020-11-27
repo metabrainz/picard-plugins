@@ -8,7 +8,7 @@
 PLUGIN_NAME = "Moodbars"
 PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Calculate Moodbars for selected files and albums.<br /><br />
-According to <a href="">WikiPedia</a>
+According to <a href="http://en.wikipedia.org/wiki/Moodbar">WikiPedia</a>
 a "Moodbar is a computer visualization used for navigating within a piece of music or any other recording on a digital audio track. 
 This is done with a commonly horizontal bar that is divided into vertical stripes. 
 Each stripe has a colour combination showing the "mood" within a short part of the audio track."<br /><br />
