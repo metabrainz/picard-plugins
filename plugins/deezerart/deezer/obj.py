@@ -7,7 +7,7 @@ from typing import Any, List, Mapping, Optional, Union
 # use dataclasses for compatibility reasons.
 
 
-class Object:
+class APIObject:
     """
     Base class from Deezer API objects.
     """
@@ -26,7 +26,7 @@ class Object:
         return True
 
 
-class Artist(Object):
+class Artist(APIObject):
     """
     The Artist API object.
     """
@@ -44,7 +44,7 @@ class CoverSize(enum.Enum):
     LARGE = 'xl'
 
 
-class Album(Object):
+class Album(APIObject):
     """
     The Album API object.
     """
@@ -57,17 +57,17 @@ class Album(Object):
         return '{}?size={}'.format(self.cover, cover_size.value)
 
 
-class Track(Object):
+class Track(APIObject):
     """
     The Track API object.
     """
     fields = ['album', 'artist']
 
 
-available_objects = {c.__name__.lower(): c for c in Object.__subclasses__()}
+available_objects = {c.__name__.lower(): c for c in APIObject.__subclasses__()}
 
 
-def parse_json(data: Union[str, Mapping[str, Any]]) -> Object:
+def parse_json(data: Union[str, Mapping[str, Any]]) -> APIObject:
     if isinstance(data, str):
         return json.loads(data, object_hook=_dict_to_object)
 
@@ -85,7 +85,7 @@ def parse_json(data: Union[str, Mapping[str, Any]]) -> Object:
     return _dict_to_object(data)
 
 
-def _dict_to_object(data: Mapping[str, Any]) -> Optional[Object]:
+def _dict_to_object(data: Mapping[str, Any]) -> Optional[APIObject]:
     try:
         obj_type = data['type']
         obj_class = available_objects[obj_type]

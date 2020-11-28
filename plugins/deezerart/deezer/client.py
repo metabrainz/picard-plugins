@@ -13,7 +13,7 @@ DEEZER_HOST = 'api.deezer.com'
 DEEZER_PORT = 443
 
 
-T = TypeVar('T', bound=obj.Object)
+T = TypeVar('T', bound=obj.APIObject)
 SearchCallback = Callable[[List[T], Optional[QNetworkReply.NetworkError]], None]
 APIURLCallback = Callable[[Optional[T], Optional[QNetworkReply.NetworkError]], None]
 
@@ -37,7 +37,7 @@ class Client:
         self.webservice = webservice
         self._get = partial(self.webservice.get, DEEZER_HOST, DEEZER_PORT)
 
-    def advanced_search(self, options: SearchOptions, callback: SearchCallback[obj.Object]):
+    def advanced_search(self, options: SearchOptions, callback: SearchCallback[obj.APIObject]):
         path = '/search'
 
         def handler(document: QByteArray, _: QNetworkReply, error: Optional[QNetworkReply.NetworkError]):
@@ -53,7 +53,7 @@ class Client:
                   parse_response_type=None,
                   handler=handler)
 
-    def obj_from_url(self, url: str, callback: APIURLCallback[obj.Object]):
+    def obj_from_url(self, url: str, callback: APIURLCallback[obj.APIObject]):
         def handler(document: QByteArray, _: QNetworkReply, error: Optional[QNetworkReply.NetworkError]):
             try:
                 deezer_obj = obj.parse_json(str(document, 'utf-8'))
