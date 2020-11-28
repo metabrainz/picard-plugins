@@ -2,17 +2,16 @@ PLUGIN_NAME = "Deezer cover art"
 PLUGIN_AUTHOR = "Fabio Forni <livingsilver94>"
 PLUGIN_DESCRIPTION = "Fetch cover arts from Deezer"
 PLUGIN_VERSION = '1.1.0'
-PLUGIN_API_VERSIONS = ['2.2', '2.3', '2.4', '2.5']
+PLUGIN_API_VERSIONS = ['2.5']
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 
-import http.client as http
 from difflib import SequenceMatcher
 from typing import Any, List, Optional
 from urllib.parse import urlsplit
 
 import picard
-from picard import config, webservice
+from picard import config
 from picard.coverart import providers
 from picard.coverart.image import CoverArtImage
 from PyQt5 import QtNetwork as QtNet
@@ -21,17 +20,6 @@ from .deezer import Client, SearchOptions, obj
 from .options import Ui_Form
 
 __version__ = PLUGIN_VERSION
-
-
-def redirected_url(url: str) -> str:
-    """
-    Find where a URL is redirecting to.
-    """
-    parsed = urlsplit(url)
-    conn = http.HTTPSConnection(parsed.netloc, 443) if parsed.scheme == 'https' else http.HTTPConnection(parsed.netloc, 80)
-    conn.request('HEAD', parsed.path + '?' + parsed.query, headers={'Connection': 'close', 'User-Agent': webservice.USER_AGENT_STRING})
-    resp = conn.getresponse()
-    return resp.getheader('Location', default=url)
 
 
 def is_similar(str1: str, str2: str) -> bool:
@@ -137,11 +125,6 @@ class Provider(providers.CoverArtProvider):
                 if not is_similar(artist, result.artist.name) or not is_similar(album, result.album.title):
                     continue
                 cover_url = result.album.cover_url(obj.CoverSize(config.setting['deezerart_size']))
-                if picard.PICARD_VERSION < (2, 5):
-                    # Older Picard versions are affected by: https://tickets.metabrainz.org/browse/PICARD-1976
-                    # Let's work around it by requesting the redirected URL in the main thread.
-                    # Note that this will make Picard crash on Windows.
-                    cover_url = redirected_url(cover_url)
                 self.queue_put(CoverArtImage(cover_url))
                 self.log_debug('queued cover using a Deezer search')
                 return
