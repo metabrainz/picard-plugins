@@ -32,7 +32,6 @@ from picard.metadata import register_track_metadata_processor
 from picard.plugin import PluginPriority
 from picard import log
 
-
 # Define tags where sort order is important
 _sort_multivalue_tags_exclude = (
     'artists', '~artists_sort', 'musicbrainz_artistid',
@@ -48,7 +47,6 @@ _sort_multivalue_tags_exclude = (
 
 
 def sort_multivalue_tags(tagger, metadata, track, release):
-
     for tag in list(metadata.keys()):
         if tag in _sort_multivalue_tags_exclude:
             continue
@@ -59,4 +57,5 @@ def sort_multivalue_tags(tagger, metadata, track, release):
                 metadata.set(tag, sorted_data)
                 log.debug("%s: Tag sorted: %s = %s", PLUGIN_NAME, tag, sorted_data)
 
+                
 register_track_metadata_processor(sort_multivalue_tags, priority=PluginPriority.LOW)
