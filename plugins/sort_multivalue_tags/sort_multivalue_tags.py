@@ -23,17 +23,19 @@ Note: Some multi-value tags are excluded for the following reasons:
 <li>The sequence of one tag is linked to the sequence of another e.g. Label and Catalogue number.</li>
 </ol>
 '''
-PLUGIN_VERSION = "0.4"
+PLUGIN_VERSION = "1.0"
 PLUGIN_API_VERSIONS = ["0.15", "2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from picard.metadata import register_track_metadata_processor
+from picard.plugin import PluginPriority
+from picard import log
 
 # Define tags where sort order is important
 _sort_multivalue_tags_exclude = (
     'artists', '~artists_sort', 'musicbrainz_artistid',
-    'albumartists', '~albumartists_sort', 'musicbrainz_albumartistid',
+    '~albumartists', '~albumartists_sort', 'musicbrainz_albumartistid',
     'work', 'musicbrainz_workid',
     'label', 'catalognumber',
     'country', 'date',
@@ -45,7 +47,6 @@ _sort_multivalue_tags_exclude = (
 
 
 def sort_multivalue_tags(tagger, metadata, track, release):
-
     for tag in list(metadata.keys()):
         if tag in _sort_multivalue_tags_exclude:
             continue
@@ -54,5 +55,7 @@ def sort_multivalue_tags(tagger, metadata, track, release):
             sorted_data = sorted(data)
             if data != sorted_data:
                 metadata.set(tag, sorted_data)
+                log.debug("%s: Tag sorted: %s = %s", PLUGIN_NAME, tag, sorted_data)
 
-register_track_metadata_processor(sort_multivalue_tags)
+                
+register_track_metadata_processor(sort_multivalue_tags, priority=PluginPriority.LOW)
