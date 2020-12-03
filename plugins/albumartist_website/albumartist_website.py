@@ -4,7 +4,7 @@ PLUGIN_NAME = 'Album Artist Website'
 PLUGIN_AUTHOR = 'Sophist, Sambhav Kothari'
 PLUGIN_DESCRIPTION = '''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
-PLUGIN_VERSION = '1.0.3'
+PLUGIN_VERSION = '1.0.4'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -13,7 +13,6 @@ from picard import config, log
 from picard.util import LockableObject
 from picard.metadata import register_track_metadata_processor
 from functools import partial
-
 
 class AlbumArtistWebsite:
 
@@ -93,11 +92,9 @@ class AlbumArtistWebsite:
             for track, album in tuples:
                 self.album_remove_request(album)
             return
-        urls = sorted(self.artist_process_metadata(artistId, response))
+        urls = self.artist_process_metadata(artistId, response)
         self.website_cache[artistId] = urls
         tuples = self.website_queue.remove(artistId)
-        log.debug("%s: %r: Artist Official Homepages = %r", PLUGIN_NAME,
-                  artistId, urls)
         for track, album in tuples:
             if urls:
                 tm = track.metadata
@@ -115,23 +112,45 @@ class AlbumArtistWebsite:
         album._finalize_loading(None)
 
     def artist_process_metadata(self, artistId, response):
-        if 'metadata' in response.children:
-            if 'artist' in response.metadata[0].children:
-                if 'relation_list' in response.metadata[0].artist[0].children:
-                    if 'relation' in response.metadata[0].artist[0].relation_list[0].children:
-                        return self.artist_process_relations(response.metadata[0].artist[0].relation_list[0].relation)
-            else:
-                log.error("%s: %r: MusicBrainz artist xml result not in correct format - %s",
-                          PLUGIN_NAME, artistId, response)
-        return None
+        log.debug("%s: %r: Processing Artist record for official website urls: %r", PLUGIN_NAME, artistId, response)
+        relations = self.artist_get_relations(response)
+        if not relations:
+            log.info("%s: %r: Artist does have any associated urls.", PLUGIN_NAME, artistId)
+            return []
 
-    def artist_process_relations(self, relations):
         urls = []
         for relation in relations:
-            if relation.type == 'official homepage' \
-                    and 'target' in relation.children:
-                urls.append(relation.target[0].text)
+            log.debug("%s: %r: Examining: %r", PLUGIN_NAME, artistId, relation)
+            if 'type' in relation.attribs and relation.type == 'official homepage':
+                if 'target' in relation.children and len(relation.target) > 0:
+                    log.debug("%s: Adding artist url: %s", PLUGIN_NAME, relation.target[0].text)
+                    urls.append(relation.target[0].text)
+                else:
+                    log.debug("%s: No url in relation: %r", PLUGIN_NAME, relation)
+
+        if urls:
+            log.info("%s: %r: Artist Official Homepages: %r", PLUGIN_NAME, artistId, urls)
+        else:
+            log.info("%s: %r: Artist does not have any official website urls.", PLUGIN_NAME, artistId)
         return sorted(urls)
+
+    def artist_get_relations(self, response):
+        log.debug("%s: artist_get_relations called", PLUGIN_NAME)
+        if 'metadata' in response.children and len(response.metadata) > 0:
+            if 'artist' in response.metadata[0].children and len(response.metadata[0].artist) > 0:
+                if 'relation_list' in response.metadata[0].artist[0].children and len(response.metadata[0].artist[0].relation_list) > 0:
+                    if 'relation' in response.metadata[0].artist[0].relation_list[0].children:
+                        log.debug("%s: artist_get_relations returning: %r", PLUGIN_NAME, response.metadata[0].artist[0].relation_list[0].relation)
+                        return response.metadata[0].artist[0].relation_list[0].relation
+                    else:
+                        log.debug("%s: artist_get_relations - no relation in relation_list", PLUGIN_NAME)
+                else:
+                    log.debug("%s: artist_get_relations - no relation_list in artist", PLUGIN_NAME)
+            else:
+                log.debug("%s: artist_get_relations - no artist in metadata", PLUGIN_NAME)
+        else:
+            log.debug("%s: artist_get_relations - no metadata in response", PLUGIN_NAME)
+        return None
 
 
 register_track_metadata_processor(AlbumArtistWebsite().add_artist_website)
