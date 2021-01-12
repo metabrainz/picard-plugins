@@ -1,8 +1,55 @@
 # -*- coding: utf-8 -*-
 PLUGIN_NAME = "ReplayGain"
-PLUGIN_AUTHOR = "Philipp Wolfer"
-PLUGIN_DESCRIPTION = """Calculate ReplayGain for selected files and albums."""
-PLUGIN_VERSION = "0.1"
+PLUGIN_AUTHOR = "Philipp Wolfer, Sophist"
+PLUGIN_DESCRIPTION = """<h2>Calculate ReplayGain for selected files and albums.</h2>
+<p>
+This plugin calculates the ReplayGain values for Albums and / or Tracks.
+These values are stored in tags and music players use this information
+to adjust the played volume so that all tracks have a similar volume
+and you don't get tracks that you can barely hear and need to turn up the volume for
+followed by tracks with a mucg louder volume so that you are then deafened.
+</p><p>
+This plugin needs separate external executables to be run to calculate the replay gains.
+You need to download these executables and then configure the ReplayGain plugin in
+Options / Plugins / ReplayGain with the path and filename of the executable.
+</p><p>
+As executables, they are probably best stored in a directory which is normally read-only for normal users
+and requires administrative write access to store the executable (e.g. the Picard executable directory),
+but you can store them in the plugins directory if you wish.
+</p><hr/>
+<p>Whilst this version works, it has some issues:</p>
+<ul>
+<li>It doesn't work with file paths / names containing unicode characters</li>
+<li>On Windows it opens an empty window whilst processing</li>
+<li>Tags are stored directly in the files, are not displayed in Picard until the files are reloaded and will be overwritten if Picard saves the files</li>
+<li>You need to add the replay gain tags to Options / Tags / Preserve these tags from being overwritten with MusicBrainz data (because Musicbrainz does not provide this data)</li>
+<li>The tags written to the file may be non-standard (depending on the ReplayGain executable you use)</li>
+</ul>
+<h3>Windows</h3>
+<ul>
+<li>vorbisgain - Executable 0.37 inside zip file from https://www.rarewares.org/ogg-tools.php</li>
+<li>mp3gain - Use AACGain from https://www.rarewares.org/aac-encoders.php#aacgain</li>
+<li>metaflac - Download the latest flac-*-win.zip file from https://ftp.osuosl.org/pub/xiph/releases/flac/ and extract metaflac.exe</li>
+<li>wvgain - http://www.wavpack.com/downloads.html</li>
+</ul>
+<p>You may also have some success using the Chocolatey package manager for aacgain, flac and wavpack.</p>
+<h3>Linux</h3>
+<ul>
+<li>vorbisgain - Build from source from https://www.rarewares.org/ogg-tools.php</li>
+<li>mp3gain - Install aacgain using your package manager e.g. apt.</li>
+<li>metaflac - Use package manager to get FLAC</li>
+<li>wvgain - http://www.wavpack.com/downloads.html</li>
+</ul>
+<h3>Mac</h3>
+<ul>
+<li>vorbisgain - Build from source from https://www.rarewares.org/ogg-tools.php</li>
+<li>mp3gain - https://ports.macports.org/port/aacgain/summary</li>
+<li>metaflac - Install using "brew install flac"</li>
+<li>wvgain - http://www.wavpack.com/downloads.html</li>
+</ul>
+<p>You might also liketo try MP3Gain Express for MacOS from https://projects.sappharad.com/mp3gain/ as an alternative to mp3gain/aacgain.</p>
+"""
+PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -10,7 +57,8 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from collections import defaultdict
 from functools import partial
-from subprocess import check_call
+import subprocess
+
 from picard.album import Album, NatAlbum
 from picard.track import Track
 from picard.file import File
@@ -39,9 +87,17 @@ def calculate_replay_gain_for_files(files, format_, tagger):
         and tagger.config.setting[REPLAYGAIN_COMMANDS[format_][0]]:
         command = tagger.config.setting[REPLAYGAIN_COMMANDS[format_][0]]
         options = tagger.config.setting[REPLAYGAIN_COMMANDS[format_][1]].split(' ')
-        tagger.log.debug('%s %s %s', command, ' '.join(options),
-                         decode_filename(b' '.join(file_list)))
-        check_call([command] + options + file_list)
+        call = [command] + options + file_list
+        tagger.log.debug(call)
+        with subprocess.Popen(call, stdout=subprocess.PIPE, stderr=subprocess.STDOUT) as process:
+            (output, null) = process.communicate()
+            output = output.splitlines()
+            for line in output:
+                if line:
+                    tagger.log.debug(line)
+            rc = process.poll()
+        if rc:
+            raise Exception('ReplayGain: Non-zero return code from command %d' % rc)
     else:
         raise Exception('ReplayGain: Unsupported format %s' % (format_))
 
