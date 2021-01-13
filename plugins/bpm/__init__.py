@@ -3,6 +3,7 @@
 # Changelog:
 # [2015-09-15] Initial version
 # [2017-11-24] Qt5, Python3 for Picard-plugins branch 2
+# [2020-12-25] Move access to config.settings outside of thread
 # Dependancies:
 # aubio, numpy
 #
@@ -12,25 +13,22 @@ PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari, Philipp Wolfer"
 PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums. Linux only version with dependancy on Aubio and Numpy"""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "1.4"
+PLUGIN_VERSION = "1.5"
 PLUGIN_API_VERSIONS = ["2.0"]
 # PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
 
 from aubio import source, tempo
-from numpy import median, diff
-from collections import defaultdict
 from functools import partial
-from subprocess import check_call
-from picard.album import Album, NatAlbum
-from picard.track import Track
+from numpy import median, diff
+
+from picard.config import config, IntOption
 from picard.file import File
-from picard.util import encode_filename, decode_filename, thread
-from picard.ui.options import register_options_page, OptionsPage
-from picard.config import TextOption, IntOption
-from picard.ui.itemviews import (BaseAction, register_file_action,
-                                 register_album_action)
 from picard.plugins.bpm.ui_options_bpm import Ui_BPMOptionsPage
+from picard.track import Track
+from picard.ui.itemviews import BaseAction, register_file_action
+from picard.ui.options import register_options_page, OptionsPage
+from picard.util import thread
 
 
 bpm_slider_settings = {
@@ -52,8 +50,9 @@ class FileBPM(BaseAction):
         self._close = True
 
     def _add_file_to_queue(self, file):
+        settings = bpm_slider_settings[config.setting["bpm_slider_parameter"]]
         thread.run_task(
-            partial(self._calculate_bpm, file),
+            partial(self._calculate_bpm, file, settings),
             partial(self._calculate_bpm_callback, file))
 
     def callback(self, objs):
@@ -64,12 +63,12 @@ class FileBPM(BaseAction):
             elif isinstance(obj, File):
                 self._add_file_to_queue(obj)
 
-    def _calculate_bpm(self, file):
+    def _calculate_bpm(self, file, settings):
         self.tagger.window.set_statusbar_message(
             N_('Calculating BPM for "%(filename)s"...'),
             {'filename': file.filename}
         )
-        calculated_bpm = self._get_file_bpm(file.filename)
+        calculated_bpm = self._get_file_bpm(file.filename, settings)
         # self.tagger.log.debug('%s' % (calculated_bpm))
         if self._close:
             return
@@ -88,7 +87,7 @@ class FileBPM(BaseAction):
                 {'filename': file.filename}
             )
 
-    def _get_file_bpm(self, path):
+    def _get_file_bpm(self, path, settings):
         """ Calculate the beats per minute (bpm) of a given file.
             path: path to the file
             buf_size    length of FFT
@@ -96,8 +95,7 @@ class FileBPM(BaseAction):
             samplerate  sampling rate of the signal to analyze
         """
 
-        samplerate, buf_size, hop_size = bpm_slider_settings[
-            BPMOptionsPage.config.setting["bpm_slider_parameter"]]
+        samplerate, buf_size, hop_size = settings
         mediasource = source(path, samplerate, hop_size)
         samplerate = mediasource.samplerate
         beattracking = tempo("specdiff", buf_size, hop_size, samplerate)
