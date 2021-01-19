@@ -103,7 +103,7 @@ def calculate_replay_gain_for_files(files, format_, tagger):
 
 
 class ReplayGain(BaseAction):
-    NAME = N_("Calculate Track Replay&Gain...")
+    NAME = N_("Calculate track Replay&Gain...")
 
     def _add_file_to_queue(self, file):
         thread.run_task(
