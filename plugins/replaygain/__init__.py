@@ -103,7 +103,7 @@ def calculate_replay_gain_for_files(files, format_, tagger):
 
 
 class ReplayGain(BaseAction):
-    NAME = N_("Calculate replay &gain...")
+    NAME = N_("Calculate Track Replay&Gain...")
 
     def _add_file_to_queue(self, file):
         thread.run_task(
@@ -139,7 +139,7 @@ class ReplayGain(BaseAction):
 
 
 class AlbumGain(BaseAction):
-    NAME = N_("Calculate album &gain...")
+    NAME = N_("Calculate album Replay&Gain...")
 
     def callback(self, objs):
         albums = filter(lambda o: isinstance(o, Album) and not isinstance(o,
