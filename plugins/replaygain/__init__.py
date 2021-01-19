@@ -49,7 +49,7 @@ but you can store them in the plugins directory if you wish.
 </ul>
 <p>You might also liketo try MP3Gain Express for MacOS from https://projects.sappharad.com/mp3gain/ as an alternative to mp3gain/aacgain.</p>
 """
-PLUGIN_VERSION = "0.2"
+PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
