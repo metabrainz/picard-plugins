@@ -30,12 +30,14 @@ this plugin.
 <br /><br />
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md">user guide</a> on GitHub for more information.
 '''
-PLUGIN_VERSION = '0.5'
+PLUGIN_VERSION = '0.6'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
 PLUGIN_USER_GUIDE_URL = 'https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md'
+
+from operator import itemgetter
 
 from picard import log
 from picard.metadata import (register_album_metadata_processor,
@@ -91,6 +93,12 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                     temp_sort_name = artist_credit['artist']['sort-name']
                 else:
                     metadata_error(album_id, 'artist-credit.artist.sort-name', source_type)
+                tag_list = []
+                if 'tags' in artist_credit['artist']:
+                    for item in sorted(sorted(artist_credit['artist']['tags'], key=itemgetter('name')), key=itemgetter('count'), reverse=True):
+                        if item['count'] > 0:
+                            tag_list.append(item['name'])
+                tag_list = tag_list[:5]
             else:
                 # No 'artist' specified.  Log as an error.
                 metadata_error(album_id, 'artist-credit.artist', source_type)
@@ -112,6 +120,8 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                 destination_metadata['~artists_{0}_primary_cred'.format(source_type,)] = temp_cred_name
                 destination_metadata['~artists_{0}_primary_sort'.format(source_type,)] = temp_sort_name
                 sort_pri_artist += temp_sort_name + temp_phrase
+                if tag_list and source_type == 'album':
+                    destination_metadata['~artists_{0}_primary_tags'.format(source_type,)] = tag_list
             else:
                 sort_pri_artist += temp_std_name + temp_phrase
                 additional_std_artist += temp_std_name + temp_phrase
