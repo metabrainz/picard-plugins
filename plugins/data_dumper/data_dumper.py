@@ -46,9 +46,10 @@ from picard.plugin import PluginPriority
 file_to_write = config.setting["move_files_to"] + os.path.sep + OFILE
 
 
-def write_line(line_type, object_to_write, dump_json=False):
+def write_line(line_type, object_to_write, dump_json=False, append=True):
+    file_mode = 'a' if append else 'w'
     try:
-        with open(file_to_write, "a", encoding="UTF-8") as f:
+        with open(file_to_write, file_mode, encoding="UTF-8") as f:
             if dump_json:
                 f.write('{0} JSON dump follows:\n'.format(line_type,))
                 f.write('{0}\n\n'.format(json.dumps(object_to_write, indent=4)))
@@ -59,7 +60,7 @@ def write_line(line_type, object_to_write, dump_json=False):
 
 
 def dump_release_info(album, metadata, release):
-    write_line('Release Argument 1 (album)', album)
+    write_line('Release Argument 1 (album)', album, append=False)
     write_line('Release Argument 3 (release)', release, dump_json=True)
 
 
