@@ -39,7 +39,7 @@ PLUGIN_USER_GUIDE_URL = 'https://github.com/rdswift/picard-plugins/blob/2.0_RDS_
 
 from operator import itemgetter
 
-from picard import log
+from picard import config, log
 from picard.metadata import (register_album_metadata_processor,
                              register_track_metadata_processor)
 from picard.plugin import PluginPriority
@@ -94,11 +94,13 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                 else:
                     metadata_error(album_id, 'artist-credit.artist.sort-name', source_type)
                 tag_list = []
-                if 'tags' in artist_credit['artist']:
-                    for item in sorted(sorted(artist_credit['artist']['tags'], key=itemgetter('name')), key=itemgetter('count'), reverse=True):
-                        if item['count'] > 0:
-                            tag_list.append(item['name'])
-                tag_list = tag_list[:5]
+                if config.setting['max_genres']:
+                    for tag_type in ['user-genres', 'genres', 'user-tags', 'tags']:
+                        if tag_type in artist_credit['artist']:
+                            for item in sorted(sorted(artist_credit['artist'][tag_type], key=itemgetter('name')), key=itemgetter('count'), reverse=True):
+                                if item['count'] > 0:
+                                    tag_list.append(item['name'])
+                    tag_list = tag_list[:config.setting['max_genres']]
             else:
                 # No 'artist' specified.  Log as an error.
                 metadata_error(album_id, 'artist-credit.artist', source_type)
