@@ -45,15 +45,10 @@ class HappidevLyricsMetadataProcessor:
     def process_metadata(self, album, metadata, track, release):
 
         artist = metadata['artist']
-        if not artist:
-            log.debug(
-                '{}: artist is missing, please provide a valid value'.format(PLUGIN_NAME))
-            return
-
         title = metadata['title']
-        if not title:
+        if not (artist and title):
             log.debug(
-                '{}: title is missing, please provide a valid value'.format(PLUGIN_NAME))
+                '{}: both artist and title are required to obtain lyrics'.format(PLUGIN_NAME))
             return
 
         path = '/v1/music'
@@ -85,16 +80,16 @@ class HappidevLyricsMetadataProcessor:
 
     def process_search_response(self, album, metadata, response, reply, error):
         if error or (response and (not response.get('success', False) or not response.get('length', 0))):
-            log.debug('{}: lyrics NOT found for track {}'.format(
-                PLUGIN_NAME, metadata['title']))
+            log.debug('{}: lyrics NOT found for track "{}" by {}'.format(
+                PLUGIN_NAME, metadata['title'], metadata['artist']))
             album._requests -= 1
             album._finalize_loading(None)
             return
 
         try:
             lyrics_url = response['result'][0]['api_lyrics']
-            log.debug('{}: lyrics found for track {} at {}'.format(
-                PLUGIN_NAME, metadata['title'], lyrics_url))
+            log.debug('{}: lyrics found for track "{}" by {} at {}'.format(
+                PLUGIN_NAME, metadata['title'], metadata['artist'], lyrics_url))
             path = urlparse(lyrics_url).path
             album._requests += 1
             self._request(album.tagger.webservice, path,
@@ -102,8 +97,8 @@ class HappidevLyricsMetadataProcessor:
                 important=True)
 
         except (TypeError, KeyError, ValueError):
-            log.warn('{}: failed parsing search response for {}'.format(
-                PLUGIN_NAME, metadata['title']), exc_info=True)
+            log.warn('{}: failed parsing search response for "{}" by {}'.format(
+                PLUGIN_NAME, metadata['title'], metadata['artist']), exc_info=True)
 
         finally:
             album._requests -= 1
@@ -121,12 +116,12 @@ class HappidevLyricsMetadataProcessor:
         try:
             lyrics = response['result']['lyrics']
             metadata['lyrics'] = lyrics
-            log.debug('{}: lyrics loaded for track {}'.format(
-                PLUGIN_NAME, metadata['title']))
+            log.debug('{}: lyrics loaded for track "{}" by {}'.format(
+                PLUGIN_NAME, metadata['title'], metadata['artist']))
 
         except (TypeError, KeyError):
-            log.warn('{}: failed parsing search response for {}'.format(
-                PLUGIN_NAME, metadata['title']), exc_info=True)
+            log.warn('{}: failed parsing search response for "{}" by {}'.format(
+                PLUGIN_NAME, metadata['title'], metadata['artist']), exc_info=True)
 
         finally:
             album._requests -= 1
