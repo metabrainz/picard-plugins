@@ -6,6 +6,8 @@ from urllib.parse import (
 )
 
 from PyQt5 import QtWidgets
+from PyQt5.QtNetwork import QNetworkRequest
+
 from picard import (
     config,
     log,
@@ -65,7 +67,7 @@ class HappidevLyricsMetadataProcessor:
         self._request(album.tagger.webservice, path,
             partial(self.process_search_response, album, metadata), queryargs)
 
-    def _request(self, ws, path, callback, queryargs=None):
+    def _request(self, ws, path, callback, queryargs=None, important=False):
         if not queryargs:
             queryargs = {}
 
@@ -78,7 +80,8 @@ class HappidevLyricsMetadataProcessor:
 
         queryargs['apikey'] = apikey
         ws.get(self.happidev_host, self.happidev_port, path, callback,
-            parse_response_type='json', priority=True, queryargs=queryargs)
+            parse_response_type='json', priority=True, important=important,
+            queryargs=queryargs, cacheloadcontrol=QNetworkRequest.PreferCache)
 
     def process_search_response(self, album, metadata, response, reply, error):
         if error or (response and (not response.get('success', False) or not response.get('length', 0))):
@@ -95,7 +98,8 @@ class HappidevLyricsMetadataProcessor:
             path = urlparse(lyrics_url).path
             album._requests += 1
             self._request(album.tagger.webservice, path,
-                partial(self.process_lyrics_response, album, metadata))
+                partial(self.process_lyrics_response, album, metadata),
+                important=True)
 
         except (TypeError, KeyError, ValueError):
             log.warn('{}: failed parsing search response for {}'.format(
