@@ -8550,6 +8550,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
     NAME = "classical_extras"
     TITLE = "Classical Extras"
     PARENT = "plugins"
+    HELP_URL = "http://music.highmossergate.co.uk/symphony/tagging/classical-extras/"
     opts = plugin_options('artists') + plugin_options('tag') + plugin_options('tag_detail') +\
         plugin_options('workparts') + plugin_options('genres') + plugin_options('other')
 
