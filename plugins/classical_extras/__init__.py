@@ -81,7 +81,7 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.12'
+PLUGIN_VERSION = '2.0.13'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
