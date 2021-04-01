@@ -226,14 +226,17 @@ class Wikidata:
                             for tmp in genre_entries:
                                 if tmp == node1.attribs.get('about'):
                                     list1 = node1.children.get('name')
-                                    for node2 in list1:
-                                        if node2.attribs.get('lang') == 'en':
-                                            genre = node2.text.title()
-                                            if not matches_ignored(self.ignore_these_genres_list, genre):
-                                                genre_list.append(genre)
-                                                log.debug('New genre has been found and ALLOWED: %s' % genre)
-                                            else:
-                                                log.debug('New genre has been found, but IGNORED: %s' % genre)
+                                    if not list1:
+                                    	log.warning('WIKIDATA: Response does not contain a name field')
+                                    else: 
+                                        for node2 in list1:
+                                            if node2.attribs.get('lang') == 'en':
+                                                genre = node2.text.title()
+                                                if not matches_ignored(self.ignore_these_genres_list, genre):
+                                                    genre_list.append(genre)
+                                                    log.debug('New genre has been found and ALLOWED: %s' % genre)
+                                                else:
+                                                    log.debug('New genre has been found, but IGNORED: %s' % genre)
 
         if len(genre_list) > 0:
             log.debug('WIKIDATA: item_id: %s' % item_id)
