@@ -96,6 +96,10 @@ def aggregate_release_tags(parser, name, aggregate_func, multi=False):
 
 
 def format_number(value, precision=2):
+    try:
+        precision = int(precision)
+    except (TypeError, ValueError):
+        precision = 0
     if isinstance(value, int):
         return str(value)
     elif isinstance(value, float):
