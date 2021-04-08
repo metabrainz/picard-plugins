@@ -26,15 +26,17 @@ PLUGIN_DESCRIPTION = ('Add functions to aggregate tags on a release:'
                       '<li>‎$releasetag_max(name, precision=2)</li>'
                       '<li>‎$releasetag_min(name, precision=2)</li>'
                       '<li>‎$releasetag_mode(name)</li>'
+                      '<li>‎$releasetag_distinct(name, separator=; )</li>'
                       '<li>‎$releasetag_multi_avg(name, precision=2)</li>'
                       '<li>‎$releasetag_multi_max(name, precision=2)</li>'
                       '<li>‎$releasetag_multi_min(name, precision=2)</li>'
                       '<li>‎$releasetag_multi_mode(name)</li>'
+                      '<li>‎$releasetag_multi_distinct(name, separator=; )</li>'
                       '</ul>'
                       '<b>The functions work only in file naming scripts and '
-                      'the files should be either be part of a release or cluster!</b>')
-PLUGIN_VERSION = "0.2"
-PLUGIN_API_VERSIONS = ["2.4", "2.5", "2.6"]
+                      'the files should either be part of a release or cluster!</b>')
+PLUGIN_VERSION = "0.3"
+PLUGIN_API_VERSIONS = ["2.5", "2.6"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -113,8 +115,7 @@ def format_number(value, precision=2):
 
 
 def mode(values):
-    """Returns the mode (the value with the most occurrences) from values.
-    """
+    """Returns the mode (the value with the most occurrences) from values."""
     l = list(values)
     if not l:
         return ''
@@ -123,6 +124,7 @@ def mode(values):
 
 def average(values, precision=2):
     """Returns the arithmetic average of all numeric elements in values.
+
     Non-numeric elements are ignored.
     """
     numbers = list(try_iter_numeric(values, skip_non_numeric=True))
@@ -132,14 +134,12 @@ def average(values, precision=2):
 
 
 def natsort_min(values, precision=2):
-    """Returns the smallest value from values, treats numeric strings as numbers.
-    """
+    """Returns the smallest value from values, treats numeric strings as numbers."""
     return format_number(max(try_iter_numeric(values)), precision=precision)
 
 
 def natsort_max(values, precision=2):
-    """Returns the largest value from values, treats numeric strings as numbers.
-    """
+    """Returns the largest value from values, treats numeric strings as numbers."""
     return format_number(max(try_iter_numeric(values)), precision=precision)
 
 
@@ -160,8 +160,7 @@ def func_releasetag_all(parser, name):
                 common_value = value
             if common_value != value:
                 return ''
-        else:
-            return common_value
+        return common_value
 
     return aggregate_release_tags(parser, name, aggregate_func)
 
