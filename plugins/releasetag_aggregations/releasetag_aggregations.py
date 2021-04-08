@@ -33,14 +33,15 @@ PLUGIN_DESCRIPTION = ('Add functions to aggregate tags on a release:'
                       '</ul>'
                       '<b>The functions work only in file naming scripts and '
                       'the files should be either be part of a release or cluster!</b>')
-PLUGIN_VERSION = "0.1"
-PLUGIN_API_VERSIONS = ["2.4"]
+PLUGIN_VERSION = "0.2"
+PLUGIN_API_VERSIONS = ["2.4", "2.5", "2.6"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from functools import partial
 
 from picard.cluster import Cluster
+from picard.metadata import MULTI_VALUED_JOINER
 from picard.script import script_function
 from picard.script.parser import normalize_tagname
 
@@ -142,6 +143,10 @@ def natsort_max(values, precision=2):
     return format_number(max(try_iter_numeric(values)), precision=precision)
 
 
+def distinct(values, separator=MULTI_VALUED_JOINER):
+    return separator.join(set(values))
+
+
 @script_function(documentation="""`$releasetag_all(name)`
 
 Returns the value of the tag name if all files on the album have the same
@@ -234,4 +239,23 @@ Similar to $releasetag_avg(), but considers each value of multi-value tags separ
 **Only works in File Naming scripts.**""")
 def func_releasetag_multi_avg(parser, name, precision="2"):
     aggregate_func = partial(average, precision=precision)
+    return aggregate_release_tags(parser, name, aggregate_func, multi=True)
+
+
+@script_function(documentation="""`$releasetag_distinct(name, separator=; )`
+
+Returns a multi-value tag with all distinct values of tag across all the files on the release.
+**Only works in File Naming scripts.**""")
+def func_releasetag_distinct(parser, name, separator=MULTI_VALUED_JOINER):
+    aggregate_func = partial(distinct, separator=separator)
+    return aggregate_release_tags(parser, name, aggregate_func)
+
+
+@script_function(documentation="""`$releasetag_multi_distinct(name, separator=; )`
+
+Returns a multi-value tag with all distinct values of tag across all the files on the release.
+Similar to $releasetag_distinct(), but considers each value of multi-value tags separately.
+**Only works in File Naming scripts.**""")
+def func_releasetag_multi_distinct(parser, name, separator=MULTI_VALUED_JOINER):
+    aggregate_func = partial(distinct, separator=separator)
     return aggregate_release_tags(parser, name, aggregate_func, multi=True)
