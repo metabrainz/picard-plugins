@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2017, 2019 Philipp Wolfer
+# Copyright (C) 2017, 2019, 2021 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@ PLUGIN_AUTHOR = "Philipp Wolfer"
 PLUGIN_DESCRIPTION = ("Allows loading selected tracks as non-album tracks. "
                       "Useful for tagging single tracks where you do not care "
                       "about the album.")
-PLUGIN_VERSION = "0.3"
+PLUGIN_VERSION = "0.4"
 PLUGIN_API_VERSIONS = ["1.4.0", "2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -39,12 +39,7 @@ class LoadAsNat(BaseAction):
     NAME = "Load as non-album track..."
 
     def callback(self, objs):
-        tracks = [t for t in objs if isinstance(t, Track)]
-
-        if len(tracks) == 0:
-            return
-
-        for track in tracks:
+        for track in (t for t in objs if isinstance(t, Track)):
             nat = self.tagger.load_nat(
                 track.metadata['musicbrainz_recordingid'])
             for file in list(track.linked_files):
