@@ -21,21 +21,21 @@ PLUGIN_NAME = 'Release tag aggregation functions'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = ('Add functions to aggregate tags on a release:'
                       '<ul>'
-                      '<li>$releasetag_all(name)</li>'
-                      '<li>‎$releasetag_avg(name, precision=2)</li>'
-                      '<li>‎$releasetag_max(name, precision=2)</li>'
-                      '<li>‎$releasetag_min(name, precision=2)</li>'
-                      '<li>‎$releasetag_mode(name)</li>'
-                      '<li>‎$releasetag_distinct(name, separator=; )</li>'
-                      '<li>‎$releasetag_multi_avg(name, precision=2)</li>'
-                      '<li>‎$releasetag_multi_max(name, precision=2)</li>'
-                      '<li>‎$releasetag_multi_min(name, precision=2)</li>'
-                      '<li>‎$releasetag_multi_mode(name)</li>'
-                      '<li>‎$releasetag_multi_distinct(name, separator=; )</li>'
+                      '<li>$album_all(name)</li>'
+                      '<li>‎$album_avg(name, precision=2)</li>'
+                      '<li>‎$album_max(name, precision=2)</li>'
+                      '<li>‎$album_min(name, precision=2)</li>'
+                      '<li>‎$album_mode(name)</li>'
+                      '<li>‎$album_distinct(name, separator=; )</li>'
+                      '<li>‎$album_multi_avg(name, precision=2)</li>'
+                      '<li>‎$album_multi_max(name, precision=2)</li>'
+                      '<li>‎$album_multi_min(name, precision=2)</li>'
+                      '<li>‎$album_multi_mode(name)</li>'
+                      '<li>‎$album_multi_distinct(name, separator=; )</li>'
                       '</ul>'
                       '<b>The functions work only in file naming scripts and '
                       'the files should either be part of a release or cluster!</b>')
-PLUGIN_VERSION = "0.3"
+PLUGIN_VERSION = "0.4"
 PLUGIN_API_VERSIONS = ["2.5", "2.6"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -115,7 +115,7 @@ def format_number(value, precision=2):
 
 
 def mode(values):
-    """Returns the mode (the value with the most occurrences) from values."""
+    """Returns the mode, the value with the most occurrences, from values."""
     l = list(values)
     if not l:
         return ''
@@ -147,12 +147,12 @@ def distinct(values, separator=MULTI_VALUED_JOINER):
     return separator.join(set(values))
 
 
-@script_function(documentation="""`$releasetag_all(name)`
+@script_function(documentation="""`$album_all(name)`
 
 Returns the value of the tag name if all files on the album have the same
 value for this tag. Otherwise returns empty.
 **Only works in File Naming scripts.**""")
-def func_releasetag_all(parser, name):
+def func_album_all(parser, name):
     def aggregate_func(values):
         common_value = ''
         for value in values:
@@ -165,96 +165,96 @@ def func_releasetag_all(parser, name):
     return aggregate_release_tags(parser, name, aggregate_func)
 
 
-@script_function(documentation="""`$releasetag_mode(name)`
+@script_function(documentation="""`$album_mode(name)`
 
 Returns the value with the most occurrences over all the files on the release for the given tag.
 **Only works in File Naming scripts.**""")
-def func_releasetag_mode(parser, name):
+def func_album_mode(parser, name):
     return aggregate_release_tags(parser, name, mode)
 
 
-@script_function(documentation="""`$releasetag_multi_mode(name)`
+@script_function(documentation="""`$album_multi_mode(name)`
 
 Returns the value with the most occurrences over all the files on the release for the given tag.
-Similar to $releasetag_mode(), but considers each value of multi-value tags separately.
+Similar to $album_mode(), but considers each value of multi-value tags separately.
 **Only works in File Naming scripts.**""")
-def func_releasetag_multi_mode(parser, name):
+def func_album_multi_mode(parser, name):
     return aggregate_release_tags(parser, name, mode, multi=True)
 
 
-@script_function(documentation="""`$releasetag_min(name, precision=2)`
+@script_function(documentation="""`$album_min(name, precision=2)`
 
 Returns the minimum value of all the files on the release for the given tag.
 **Only works in File Naming scripts.**""")
-def func_releasetag_min(parser, name, precision="2"):
+def func_album_min(parser, name, precision="2"):
     aggregate_func = partial(natsort_min, precision=precision)
     return aggregate_release_tags(parser, name, aggregate_func)
 
 
-@script_function(documentation="""`$releasetag_multi_min(name, precision=2)`
+@script_function(documentation="""`$album_multi_min(name, precision=2)`
 
 Returns the minimum value of all the files on the release for the given tag.
-Similar to $releasetag_min(), but considers each value of multi-value tags separately.
+Similar to $album_min(), but considers each value of multi-value tags separately.
 **Only works in File Naming scripts.**""")
 def releasetag_multi_min(parser, name, precision="2"):
     aggregate_func = partial(natsort_min, precision=precision)
     return aggregate_release_tags(parser, name, aggregate_func, multi=True)
 
 
-@script_function(documentation="""`$releasetag_max(name, precision=2)`
+@script_function(documentation="""`$album_max(name, precision=2)`
 
 Returns the maximum value of all the files on the release for the given tag.
 **Only works in File Naming scripts.**""")
-def func_releasetag_max(parser, name, precision="2"):
+def func_album_max(parser, name, precision="2"):
     aggregate_func = partial(natsort_max, precision=precision)
     return aggregate_release_tags(parser, name, aggregate_func)
 
 
-@script_function(documentation="""`$releasetag_multi_max(name, precision=2)`
+@script_function(documentation="""`$album_multi_max(name, precision=2)`
 
 Returns the maximum value of all the files on the release for the given tag.
-Similar to $releasetag_max(), but considers each value of multi-value tags separately.
+Similar to $album_max(), but considers each value of multi-value tags separately.
 **Only works in File Naming scripts.**""")
 def releasetag_multi_max(parser, name, precision="2"):
     aggregate_func = partial(natsort_max, precision=precision)
     return aggregate_release_tags(parser, name, aggregate_func, multi=True)
 
 
-@script_function(documentation="""`$releasetag_avg(name, precision=2)`
+@script_function(documentation="""`$album_avg(name, precision=2)`
 
 Returns the arithmetical average value of all the files on the release for the given tag.
 Non-numeric values are ignored. Returns empty if no numeric value is present.
 **Only works in File Naming scripts.**""")
-def func_releasetag_avg(parser, name, precision="2"):
+def func_album_avg(parser, name, precision="2"):
     aggregate_func = partial(average, precision=precision)
     return aggregate_release_tags(parser, name, aggregate_func)
 
 
-@script_function(documentation="""`$releasetag_multi_avg(name, precision=2)`
+@script_function(documentation="""`$album_multi_avg(name, precision=2)`
 
 Returns the arithmetical average value of all the files on the release for the given tag.
 Non-numeric values are ignored. Returns empty if no numeric value is present.
-Similar to $releasetag_avg(), but considers each value of multi-value tags separately.
+Similar to $album_avg(), but considers each value of multi-value tags separately.
 **Only works in File Naming scripts.**""")
-def func_releasetag_multi_avg(parser, name, precision="2"):
+def func_album_multi_avg(parser, name, precision="2"):
     aggregate_func = partial(average, precision=precision)
     return aggregate_release_tags(parser, name, aggregate_func, multi=True)
 
 
-@script_function(documentation="""`$releasetag_distinct(name, separator=; )`
+@script_function(documentation="""`$album_distinct(name, separator=; )`
 
 Returns a multi-value tag with all distinct values of tag across all the files on the release.
 **Only works in File Naming scripts.**""")
-def func_releasetag_distinct(parser, name, separator=MULTI_VALUED_JOINER):
+def func_album_distinct(parser, name, separator=MULTI_VALUED_JOINER):
     aggregate_func = partial(distinct, separator=separator)
     return aggregate_release_tags(parser, name, aggregate_func)
 
 
-@script_function(documentation="""`$releasetag_multi_distinct(name, separator=; )`
+@script_function(documentation="""`$album_multi_distinct(name, separator=; )`
 
 Returns a multi-value tag with all distinct values of tag across all the files on the release.
-Similar to $releasetag_distinct(), but considers each value of multi-value tags separately.
+Similar to $album_distinct(), but considers each value of multi-value tags separately.
 **Only works in File Naming scripts.**""")
-def func_releasetag_multi_distinct(parser, name, separator=MULTI_VALUED_JOINER):
+def func_album_multi_distinct(parser, name, separator=MULTI_VALUED_JOINER):
     aggregate_func = partial(distinct, separator=separator)
     return aggregate_release_tags(parser, name, aggregate_func, multi=True)
