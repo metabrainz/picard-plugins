@@ -25,7 +25,7 @@ PLUGIN_AUTHOR = 'Andrea Avallone, Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Fetch lyrics from Happi.dev Lyrics, which provides millions of lyrics from artist all around the world. ' \
                      'Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed.<br /><br />' \
                      'In order to use Happi.dev you need to get a free API key at <a href="https://happi.dev">happi.dev</a>'
-PLUGIN_VERSION = '2.0'
+PLUGIN_VERSION = '2.1'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6']
 PLUGIN_LICENSE = 'MIT'
 PLUGIN_LICENSE_URL = 'https://opensource.org/licenses/MIT'
@@ -43,6 +43,10 @@ class HappidevLyricsMetadataProcessor:
             (self.happidev_host, self.happidev_port), self.happidev_delay)
 
     def process_metadata(self, album, metadata, track, release):
+        if not config.setting['happidev_apikey']:
+            error = 'API key is missing, please provide a valid value'
+            log.warning('{}: {}'.format(PLUGIN_NAME, error))
+            return
 
         artist = metadata['artist']
         title = metadata['title']
@@ -66,24 +70,15 @@ class HappidevLyricsMetadataProcessor:
         if not queryargs:
             queryargs = {}
 
-        apikey = config.setting['happidev_apikey']
-        if not apikey:
-            error = 'API key is missing, please provide a valid value'
-            log.debug('{}: {}'.format(PLUGIN_NAME, error))
-            callback(None, None, error)
-            return
-
-        queryargs['apikey'] = apikey
+        queryargs['apikey'] = config.setting['happidev_apikey']
         ws.get(self.happidev_host, self.happidev_port, path, callback,
             parse_response_type='json', priority=True, important=important,
             queryargs=queryargs, cacheloadcontrol=QNetworkRequest.PreferCache)
 
     def process_search_response(self, album, metadata, response, reply, error):
-        if error or (response and (not response.get('success', False) or not response.get('length', 0))):
-            log.debug('{}: lyrics NOT found for track "{}" by {}'.format(
+        if self._handle_error(album, error, response):
+            log.warning('{}: lyrics NOT found for track "{}" by {}'.format(
                 PLUGIN_NAME, metadata['title'], metadata['artist']))
-            album._requests -= 1
-            album._finalize_loading(None)
             return
 
         try:
@@ -91,26 +86,22 @@ class HappidevLyricsMetadataProcessor:
             log.debug('{}: lyrics found for track "{}" by {} at {}'.format(
                 PLUGIN_NAME, metadata['title'], metadata['artist'], lyrics_url))
             path = urlparse(lyrics_url).path
-            album._requests += 1
-            self._request(album.tagger.webservice, path,
-                partial(self.process_lyrics_response, album, metadata),
-                important=True)
 
         except (TypeError, KeyError, ValueError):
             log.warn('{}: failed parsing search response for "{}" by {}'.format(
                 PLUGIN_NAME, metadata['title'], metadata['artist']), exc_info=True)
-
-        finally:
             album._requests -= 1
             album._finalize_loading(None)
+            return
 
-    @staticmethod
-    def process_lyrics_response(album, metadata, response, reply, error):
-        if error or (response and not response.get('success', False)):
-            log.debug('{}: lyrics NOT loaded for track {}'.format(
-                PLUGIN_NAME, metadata['title']))
-            album._requests -= 1
-            album._finalize_loading(None)
+        self._request(album.tagger.webservice, path,
+            partial(self.process_lyrics_response, album, metadata),
+            important=True)
+
+    def process_lyrics_response(self, album, metadata, response, reply, error):
+        if self._handle_error(album, error, response):
+            log.warning('{}: lyrics NOT loaded for track "{}" by {}'.format(
+                PLUGIN_NAME, metadata['title'], metadata['artist']))
             return
 
         try:
@@ -126,6 +117,15 @@ class HappidevLyricsMetadataProcessor:
         finally:
             album._requests -= 1
             album._finalize_loading(None)
+
+    @staticmethod
+    def _handle_error(album, error, response):
+        if error or (response and (not response.get('success', False) or not response.get('length', 0))):
+            album._requests -= 1
+            album._finalize_loading(None)
+            return True
+
+        return False
 
 
 class HappidevLyricsOptionsPage(OptionsPage):
