@@ -2,13 +2,13 @@
 PLUGIN_NAME = "Tango.info Adapter"
 PLUGIN_AUTHOR = "Felix Elsner, Sambhav Kothari, Philipp Wolfer"
 PLUGIN_DESCRIPTION = """
-<p>Load genre, date and vocalist tags for latin dance music 
+<p>Load genre, date and vocalist tags for latin dance music
 from <a href="http://tango.info">tango.info</a>.</p>
 <p>This plugin uses web scraping, but only once per album. In so doing
 it does not cause unnecessary server load for either MusicBrainz.org
 or tango.info</p>
 """
-PLUGIN_VERSION = "1.1.2"
+PLUGIN_VERSION = "1.1.3"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -29,8 +29,8 @@ except NameError:
 table_regex = re.compile(
        """<h2><a href="\/tracks">Tracks<\/a><\/h2>(?!<\/table>)(.+?)<\/table>"""
 ) # Match the 'tracks' <table>
-trs = re.compile("<tr>((?!<\/tr>).+?)</tr>") # Match <tr> elements
-tds = re.compile("<td[^>]*>((?!<\td>).+?)</td>") # Match <td> elements
+trs = re.compile(r"<tr>((?!</tr>).+?)</tr>") # Match <tr> elements
+tds = re.compile(r"<td[^>]*>((?!</td>).+?)</td>") # Match <td> elements
 
 
 class TangoInfoTagger:

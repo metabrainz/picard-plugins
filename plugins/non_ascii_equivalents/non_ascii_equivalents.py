@@ -19,7 +19,7 @@ from picard import metadata
 
 PLUGIN_NAME = "Non-ASCII Equivalents"
 PLUGIN_AUTHOR = "Anderson Mesquita <andersonvom@trysometinghere>"
-PLUGIN_VERSION = "0.3"
+PLUGIN_VERSION = "0.4"
 PLUGIN_API_VERSIONS = ["0.9", "0.10", "0.11", "0.15", "2.0"]
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://gnu.org/licenses/gpl.html"
@@ -106,7 +106,7 @@ CHAR_TABLE = {
     "×": "x",
     "·": ".",
     "÷": "/",
-    "√": "\/",
+    "√": "\\/",
     "∑": "E",
     "≪": "<<", # these are different
     "≫": ">>", # from the quotation marks

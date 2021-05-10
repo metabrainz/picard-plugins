@@ -3,7 +3,7 @@
 PLUGIN_NAME = "Generate Cuesheet"
 PLUGIN_AUTHOR = "Lukáš Lalinský, Sambhav Kothari"
 PLUGIN_DESCRIPTION = "Generate cuesheet (.cue file) from an album."
-PLUGIN_VERSION = "1.2"
+PLUGIN_VERSION = "1.2.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 
@@ -14,8 +14,8 @@ from picard.util import find_existing_path, encode_filename
 from picard.ui.itemviews import BaseAction, register_album_action
 
 
-_whitespace_re = re.compile('\s', re.UNICODE)
-_split_re = re.compile('\s*("[^"]*"|[^ ]+)\s*', re.UNICODE)
+_whitespace_re = re.compile(r'\s', re.UNICODE)
+_split_re = re.compile(r'\s*("[^"]*"|[^ ]+)\s*', re.UNICODE)
 
 
 def msfToMs(msf):
