@@ -27,7 +27,7 @@ except NameError:
     unicode = str
 
 table_regex = re.compile(
-       """<h2><a href="\/tracks">Tracks<\/a><\/h2>(?!<\/table>)(.+?)<\/table>"""
+       r'<h2><a href="\/tracks">Tracks<\/a><\/h2>(?!<\/table>)(.+?)<\/table>'
 ) # Match the 'tracks' <table>
 trs = re.compile(r"<tr>((?!</tr>).+?)</tr>") # Match <tr> elements
 tds = re.compile(r"<td[^>]*>((?!</td>).+?)</td>") # Match <td> elements
