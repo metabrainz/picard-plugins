@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2015-2020 Philipp Wolfer
+# Copyright (C) 2015-2021 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@ PLUGIN_AUTHOR = 'Philipp Wolfer, Sambhav Kothari'
 PLUGIN_DESCRIPTION = ('Use cover art from fanart.tv.<br /><br />'
                       'To use this plugin you have to register a personal API key on '
                       '<a href="https://fanart.tv/get-an-api-key/">fanart.tv</a>.')
-PLUGIN_VERSION = "1.6.1"
+PLUGIN_VERSION = "1.6.2"
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -41,7 +41,7 @@ from picard.config import TextOption
 from .ui_options_fanarttv import Ui_FanartTvOptionsPage
 
 FANART_HOST = "webservice.fanart.tv"
-FANART_PORT = 80
+FANART_PORT = 443
 FANART_APIKEY = "21305dd1589766f4d544535ad4df12f4"
 
 OPTION_CDART_ALWAYS = "always"
