@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'Haiku BFS Attributes'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Save and load metadata to/from Haiku BFS attributes.'
-PLUGIN_VERSION = "1.1.3"
+PLUGIN_VERSION = "1.2"
 PLUGIN_API_VERSIONS = ["2.2", "2.3", "2.4", "2.5", "2.6"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -30,8 +30,8 @@ import os
 import struct
 import sys
 from collections import namedtuple
-from ctypes import (CDLL, POINTER, Structure, byref, c_char_p, c_int, c_size_t,
-                    c_ssize_t, c_uint32, c_void_p, cast)
+from ctypes import (CDLL, POINTER, Structure, byref, c_char_p, c_int, c_long,
+                    c_longlong, c_size_t, c_ssize_t, c_uint32, c_void_p, cast)
 from ctypes.util import find_library
 from functools import partial
 
@@ -84,6 +84,8 @@ if be:
         'genre'      : Attr(b'CSTR', b'Media:Genre'),
         'composer'   : Attr(b'CSTR', b'Audio:Composer'),
         '~rating'    : Attr(b'LONG', b'Media:Rating'),
+        '~length'    : Attr(b'LLNG', b'Media:Length'),
+        '~bitrate'   : Attr(b'CSTR', b'Audio:Bitrate'),
     }
 
     def get_numeric_type(attr):
@@ -103,6 +105,8 @@ if be:
             buffer = buffer[:bytes_read]
             if attr.type == b'LONG':
                 result = str(struct.unpack('=l', buffer)[0])
+            elif attr.type == b'LLNG':
+                result = str(struct.unpack('=q', buffer)[0])
             elif attr.type == b'CSTR':
                 result = buffer.decode('utf-8', errors='replace')
             else:
@@ -116,13 +120,14 @@ if be:
         return be.fs_remove_attr(fd, attr.name) == 0
 
     def write_attr(fd, attr, attr_value):
-        if attr.type == b'LONG':
+        if attr.type in (b'LONG', b'LLNG'):
             try:
                 attr_value = int(attr_value)
             except ValueError:
                 return False
             length = 4
-            buffer = byref(c_int(attr_value))
+            c_type = c_long if attr.type == b'LONG' else c_longlong
+            buffer = byref(c_type(attr_value))
         elif attr.type == b'CSTR':
             attr_value = attr_value.encode('utf-8')
             length = len(attr_value)
@@ -145,6 +150,8 @@ if be:
                 if value:
                     if tag == 'date':
                         value = value[:4]
+                    elif tag == '~length':
+                        value = file.orig_metadata.length
                     elif tag == '~rating':
                         try:
                             value = int(value) * 2
@@ -173,6 +180,9 @@ if be:
         filename, _ = os.path.splitext(file.base_filename)
         try:
             for tag, attr in attr_map.items():
+                # Technical variables that are loaded directly from the file
+                if tag in ('~bitrate', '~length'):
+                    continue
                 # Ignore tags for which metadata is included in the file.
                 # But ignore the special case where the title has been set to
                 # the filename.
