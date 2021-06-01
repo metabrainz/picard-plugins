@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (c) 2019 Philipp Wolfer
+# Copyright (c) 2019, 2021 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,8 +20,8 @@
 PLUGIN_NAME = 'Haiku BFS Attributes'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Save and load metadata to/from Haiku BFS attributes.'
-PLUGIN_VERSION = "1.1.2"
-PLUGIN_API_VERSIONS = ["2.2", "2.3"]
+PLUGIN_VERSION = "1.1.3"
+PLUGIN_API_VERSIONS = ["2.2", "2.3", "2.4", "2.5", "2.6"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -102,7 +102,7 @@ if be:
         if bytes_read > -1:
             buffer = buffer[:bytes_read]
             if attr.type == b'LONG':
-                result = str(struct.unpack('=I', buffer)[0])
+                result = str(struct.unpack('=l', buffer)[0])
             elif attr.type == b'CSTR':
                 result = buffer.decode('utf-8', errors='replace')
             else:
