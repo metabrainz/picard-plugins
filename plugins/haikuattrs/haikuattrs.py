@@ -151,7 +151,8 @@ if be:
                     if tag == 'date':
                         value = value[:4]
                     elif tag == '~length':
-                        value = file.orig_metadata.length
+                        # Haiku expects the Media:Length attribute in nanoseconds
+                        value = file.orig_metadata.length * 1000
                     elif tag == '~rating':
                         try:
                             value = int(value) * 2
