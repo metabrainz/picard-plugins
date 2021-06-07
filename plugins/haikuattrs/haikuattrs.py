@@ -141,26 +141,35 @@ if be:
             fd, attr.name, int_type, 0, buffer, length, ret_val))
         return ret_val >= 0
 
+    def get_attribute_value(tag, file):
+        metadata = file.orig_metadata
+        value = metadata[tag]
+        if value:
+            if tag == 'date':
+                value = value[:4]
+            elif tag == '~length':
+                # Haiku expects the Media:Length attribute in nanoseconds
+                value = metadata.length * 1000
+            elif tag == '~bitrate':
+                value = '%s kbps' % value
+            elif tag == '~rating':
+                # Haiku's ratings are internally repesented by integers between 1 and 10
+                value = int(value * 2)
+        return value
+
     def set_attrs_from_metadata(file):
         log.debug('haikuattrs: setting attributes for %s' % file.filename)
         fd = os.open(file.filename, os.O_RDWR)
         try:
             for tag, attr in attr_map.items():
-                value = file.orig_metadata[tag]
+                try:
+                    value = get_attribute_value(tag, file)
+                except (TypeError, ValueError) as err:
+                    log.warning(
+                        'haikuattrs: failed converting tag %s with value %r for %s: %r',
+                        tag, value, file.filename, err)
+                    continue
                 if value:
-                    if tag == 'date':
-                        value = value[:4]
-                    elif tag == '~length':
-                        # Haiku expects the Media:Length attribute in nanoseconds
-                        value = file.orig_metadata.length * 1000
-                    elif tag == '~rating':
-                        try:
-                            value = int(value) * 2
-                        except ValueError:
-                            log.warning(
-                                'haikuattrs: rating %r for %s is not an integer value',
-                                value, file.filename)
-                            continue
                     if not write_attr(fd, attr, value):
                         log.error('haikuattrs: setting %s=%s for %s failed' % (
                             attr.name, value, file.filename))
