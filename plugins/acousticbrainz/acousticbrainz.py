@@ -19,11 +19,12 @@
 PLUGIN_NAME = 'AcousticBrainz Mood-Genre'
 PLUGIN_AUTHOR = 'Andrew Cook, Sambhav Kothari'
 PLUGIN_DESCRIPTION = '''Uses AcousticBrainz for mood and genre.
+Any existing genres saved in %_mbgenre%.
 
 WARNING: Experimental plugin. All guarantees voided by use.'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "1.2.1"
+PLUGIN_VERSION = "1.2.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
@@ -56,6 +57,7 @@ def result(album, metadata, data, reply, error):
                 if k.startswith("mood_") and not v["value"].startswith("not_"):
                     moods.append(v["value"])
 
+            metadata["~mbgenre"] = metadata.getall("genre")
             metadata["genre"] = genres
             metadata["mood"] = moods
             log.debug("%s: Track %s (%s) Parsed response (genres: %s, moods: %s)", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(genres), str(moods))
