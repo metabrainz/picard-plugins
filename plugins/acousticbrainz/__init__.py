@@ -36,7 +36,7 @@ Based on code from Andrew Cook, Sambhav Kothari
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 PLUGIN_VERSION = "2.0"
-PLUGIN_API_VERSIONS = ["2.0"]
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5" ,"2.6"]
 
 # Plugin configuration
 # =============================================================================
@@ -91,6 +91,7 @@ class Track:
         self.data_highlevel = None
 
         self.do_simplemood = config.setting["acousticbrainz_add_simplemood"]
+        self.do_simplegenre = config.setting["acousticbrainz_add_simplegenre"]
         self.do_keybpm = config.setting["acousticbrainz_add_keybpm"]
         self.do_fullhighlevel = config.setting["acousticbrainz_add_fullhighlevel"]
         self.do_sublowlevel = config.setting["acousticbrainz_add_sublowlevel"]
@@ -189,6 +190,8 @@ class Track:
             if PENDING not in (self.data_highlevel, self.data_lowlevel):
                 if self.do_simplemood:
                     self.process_simplemood()
+                if self.do_simplegenre:
+                    self.process_simplegenre()
                 if self.do_fullhighlevel:
                     self.process_fullhighlevel()
                 if self.do_keybpm:
@@ -232,7 +235,21 @@ class Track:
     def process_simplemood(self):
         self.debug("processing simplemood data")
         
-        moods, genres = [], []
+        moods = []
+
+        for classifier, data in self.data_highlevel.items():
+            if "value" in data:
+                value = data["value"]
+                inverted = value.startswith("not_")
+                if classifier.startswith("mood_") and not inverted:
+                    moods.append(value)
+
+        self.metadata["mood"] = moods
+    
+    def process_simplegenre(self):
+        self.debug("processing simplegenre data")
+        
+        genres = []
 
         for classifier, data in self.data_highlevel.items():
             if "value" in data:
@@ -240,11 +257,8 @@ class Track:
                 inverted = value.startswith("not_")
                 if classifier.startswith("genre_") and not inverted:
                     genres.append(value)
-                if classifier.startswith("mood_") and not inverted:
-                    moods.append(value)
 
         self.metadata["genre"] = genres
-        self.metadata["mood"] = moods
         
     def process_fullhighlevel(self):
         self.debug("processing fullhighlevel data")
@@ -326,6 +340,7 @@ class AcousticbrainzOptionsPage(OptionsPage):
     
     options = [
         config.BoolOption("setting", "acousticbrainz_add_simplemood", True),
+        config.BoolOption("setting", "acousticbrainz_add_simplegenre", False),
         config.BoolOption("setting", "acousticbrainz_add_keybpm", False),
         config.BoolOption("setting", "acousticbrainz_add_fullhighlevel", False),
         config.BoolOption("setting", "acousticbrainz_add_sublowlevel", False)
@@ -339,6 +354,7 @@ class AcousticbrainzOptionsPage(OptionsPage):
     def load(self):
         setting = config.setting
         self.ui.add_simplemood.setChecked(setting["acousticbrainz_add_simplemood"])
+        self.ui.add_simplegenre.setChecked(setting["acousticbrainz_add_simplegenre"])
         self.ui.add_fullhighlevel.setChecked(setting["acousticbrainz_add_fullhighlevel"])
         self.ui.add_keybpm.setChecked(setting["acousticbrainz_add_keybpm"])
         self.ui.add_sublowlevel.setChecked(setting["acousticbrainz_add_sublowlevel"])
@@ -346,6 +362,7 @@ class AcousticbrainzOptionsPage(OptionsPage):
     def save(self):
         setting = config.setting
         setting["acousticbrainz_add_simplemood"] = self.ui.add_simplemood.isChecked()
+        setting["acousticbrainz_add_simplegenre"] = self.ui.add_simplegenre.isChecked()
         setting["acousticbrainz_add_keybpm"] = self.ui.add_keybpm.isChecked()
         setting["acousticbrainz_add_fullhighlevel"] = self.ui.add_fullhighlevel.isChecked()
         setting["acousticbrainz_add_sublowlevel"] = self.ui.add_sublowlevel.isChecked()
