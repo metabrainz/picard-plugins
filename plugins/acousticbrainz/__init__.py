@@ -137,7 +137,7 @@ class Track:
     # -------------------------------------------------------------------------
         
     def process(self):
-        if self.do_simplemood or self.do_fullhighlevel:
+        if self.do_simplemood or self.do_fullhighlevel or self.do_simplegenre:
             self.request_highlevel()
         if self.do_keybpm or self.do_sublowlevel:
             self.request_lowlevel()
