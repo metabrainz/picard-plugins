@@ -341,7 +341,7 @@ class AcousticbrainzOptionsPage(OptionsPage):
 
     options = [
         config.BoolOption("setting", "acousticbrainz_add_simplemood", True),
-        config.BoolOption("setting", "acousticbrainz_add_simplegenre", False),
+        config.BoolOption("setting", "acousticbrainz_add_simplegenre", True),
         config.BoolOption("setting", "acousticbrainz_add_keybpm", False),
         config.BoolOption("setting", "acousticbrainz_add_fullhighlevel", False),
         config.BoolOption("setting", "acousticbrainz_add_sublowlevel", False)
