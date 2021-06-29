@@ -67,7 +67,7 @@ from picard.ui.options import register_options_page, OptionsPage
 from picard.metadata import register_track_metadata_processor
 from picard.plugins.acousticbrainz.ui_options_acousticbrainz_tags import Ui_AcousticbrainzOptionsPage
 
-ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 50)
+ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 250)
 
 # Constants
 # =============================================================================
