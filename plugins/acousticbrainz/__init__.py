@@ -23,8 +23,8 @@ PLUGIN_NAME = 'AcousticBrainz Tags'
 PLUGIN_AUTHOR = ('Wargreen <wargreen@lebib.org>, '
                  'Hugo Geoffroy "pistache" <pistache@lebib.org>')
 PLUGIN_DESCRIPTION = '''
-Tag files with tags from the AcousticBrainz database, all highlevel classifiers 
-and tonal/rhythm data. 
+Tag files with tags from the AcousticBrainz database, all highlevel classifiers
+and tonal/rhythm data.
 <br/><br/>
 By default, only simple mood and genre information is saved, but the plugin can
 be configured to include all highlevel data.
@@ -58,8 +58,9 @@ SUBLOWLEVEL_SUBSET = {"rhythm": {"bpm": None},
 # Imports
 # =============================================================================
 
-from json import dumps as dump_json, JSONDecodeError
 from functools import partial
+from json import dumps as dump_json, JSONDecodeError
+
 from picard import config, log
 from picard.webservice import ratecontrol
 from picard.util import load_json
@@ -95,19 +96,19 @@ class Track:
         self.do_keybpm = config.setting["acousticbrainz_add_keybpm"]
         self.do_fullhighlevel = config.setting["acousticbrainz_add_fullhighlevel"]
         self.do_sublowlevel = config.setting["acousticbrainz_add_sublowlevel"]
-        
+
     # Logging utilities
     # -------------------------------------------------------------------------
-        
+
     def log(self, logger, text, *args):
         logger("%s: [%s: %s] " + text, PLUGIN_NAME, self.shortid, self.title, *args)
 
     def debug(self, *args):
         self.log(log.debug, *args)
-        
+
     def warning(self, *args):
         self.log(log.warning, *args)
-        
+
     def error(self, *args):
         self.log(log.error, *args)
 
@@ -118,24 +119,24 @@ class Track:
     def trackid(self):
         return self.metadata["musicbrainz_recordingid"]
 
-    @property 
+    @property
     def shortid(self):
         return self.trackid[:8]
-        
+
     @property
     def title(self):
         return self.metadata["title"]
-    
+
     @property
     def queryargs(self):
         return {
             "recording_ids": self.trackid,
             "map_classes": "true"
         }
-        
+
     # Entry point
     # -------------------------------------------------------------------------
-        
+
     def process(self):
         if self.do_simplemood or self.do_fullhighlevel or self.do_simplegenre:
             self.request_highlevel()
@@ -155,7 +156,7 @@ class Track:
             queryargs=self.queryargs
         )
         self.album._requests += 1
-    
+
     def request_highlevel(self):
         self.debug("requesting highlevel data")
         self.data_highlevel = PENDING
@@ -169,23 +170,23 @@ class Track:
             queryargs=self.queryargs
         )
         self.album._requests += 1
-              
+
     # Callback
     # -------------------------------------------------------------------------
- 
+
     def receive(self, level, rawdata, _, error):
         try:
             if error:
                 self.error("failed to fetch %s data", level)
                 return
-            
+
             try:
                 data = load_json(rawdata)
                 self.store(level, data)
             except (JSONDecodeError, TypeError, KeyError) as ex:
                 self.error("failed to parse JSON data (%r)", ex)
                 return
-            
+
             self.debug("fetched %s data (pending requests: %i)", level, self.album._requests-1)
             if PENDING not in (self.data_highlevel, self.data_lowlevel):
                 if self.do_simplemood:
@@ -202,7 +203,7 @@ class Track:
             self.album._requests -= 1
             if self.album._requests == 0:
                 self.album._finalize_loading(None)
-                
+
     def store(self, level, data):
         if level == LOWLEVEL:
             self.data_lowlevel = data[self.trackid]["0"]
@@ -231,10 +232,10 @@ class Track:
     # Processing methods
     # -------------------------------------------------------------------------
     # (fill metadata with fetched data)
-    
+
     def process_simplemood(self):
         self.debug("processing simplemood data")
-        
+
         moods = []
 
         for classifier, data in self.data_highlevel.items():
@@ -245,10 +246,10 @@ class Track:
                     moods.append(value)
 
         self.metadata["mood"] = moods
-    
+
     def process_simplegenre(self):
         self.debug("processing simplegenre data")
-        
+
         genres = []
 
         for classifier, data in self.data_highlevel.items():
@@ -259,10 +260,10 @@ class Track:
                     genres.append(value)
 
         self.metadata["genre"] = genres
-        
+
     def process_fullhighlevel(self):
         self.debug("processing fullhighlevel data")
-        
+
         f_count, c_count = 0, 0
         for classifier, data in self.data_highlevel.items():
             classifier = classifier.lower()
@@ -276,7 +277,7 @@ class Track:
                 self.warning("fullhighlevel : ignored invalid classifier data (%s)", classifier)
 
         self.debug("fullhighlevel : parsed %d features from %d classifiers", f_count, c_count)
-    
+
     def process_keybpm(self):
         self.debug("processing keybpm data")
         if "tonal" in self.data_lowlevel:
@@ -288,7 +289,7 @@ class Track:
                         key += "m"
                 self.metadata["key"] = key
                 self.debug("track '%s' is in key %s", self.title, key)
-        
+
         if "rhythm" in self.data_lowlevel:
             rhythm_data = self.data_lowlevel["rhythm"]
             if "bpm" in rhythm_data:
@@ -298,7 +299,7 @@ class Track:
     def process_sublowlevel(self):
         self.debug("processing sublowlevel data")
         subset = SUBLOWLEVEL_SUBSET
-                             
+
         filtered_data = self.filter_data(self.data_lowlevel, subset)
 
         f_count, c_count = 0, 0
@@ -311,7 +312,6 @@ class Track:
                 self.metadata["ab:lo:{}:{}".format(classifier, feature)] = proba
 
         self.debug("sublowlevel : parsed %d features from %d classifiers", f_count, c_count)
-        
 
 
 # Plugin class
@@ -319,11 +319,12 @@ class Track:
 # (provides track processing callback)
 
 class AcousticbrainzPlugin:
-    
+
     def __init__(self):
         self.tracks = {}
-    
-    def process_track(self, album, metadata, _, release):
+
+    @staticmethod
+    def process_track(album, metadata, _, release):
         track = Track(album, metadata)
         #tracks[track.trackid] = track
         track.process()
@@ -337,7 +338,7 @@ class AcousticbrainzOptionsPage(OptionsPage):
     NAME = "AcousticBrainz"
     TITLE = "AcousticBrainz tags"
     PARENT = "plugins"
-    
+
     options = [
         config.BoolOption("setting", "acousticbrainz_add_simplemood", True),
         config.BoolOption("setting", "acousticbrainz_add_simplegenre", False),
@@ -350,7 +351,7 @@ class AcousticbrainzOptionsPage(OptionsPage):
         super(AcousticbrainzOptionsPage, self).__init__(parent)
         self.ui = Ui_AcousticbrainzOptionsPage()
         self.ui.setupUi(self)
-        
+
     def load(self):
         setting = config.setting
         self.ui.add_simplemood.setChecked(setting["acousticbrainz_add_simplemood"])
@@ -358,7 +359,7 @@ class AcousticbrainzOptionsPage(OptionsPage):
         self.ui.add_fullhighlevel.setChecked(setting["acousticbrainz_add_fullhighlevel"])
         self.ui.add_keybpm.setChecked(setting["acousticbrainz_add_keybpm"])
         self.ui.add_sublowlevel.setChecked(setting["acousticbrainz_add_sublowlevel"])
-        
+
     def save(self):
         setting = config.setting
         setting["acousticbrainz_add_simplemood"] = self.ui.add_simplemood.isChecked()
