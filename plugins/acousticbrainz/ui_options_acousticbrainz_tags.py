@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\phw\devel\musicbrainz\picard-plugins\plugins\acousticbrainz\ui_options_acousticbrainz_tags.ui'
+# Form implementation generated from reading ui file 'plugins/acousticbrainz/ui_options_acousticbrainz_tags.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -53,10 +53,10 @@ class Ui_AcousticbrainzOptionsPage(object):
 
     def retranslateUi(self, AcousticbrainzOptionsPage):
         _translate = QtCore.QCoreApplication.translate
-        self.acousticbrainzTags_groupBox.setTitle(_translate("AcousticbrainzOptionsPage", "Acousticbrainz Tags"))
+        self.acousticbrainzTags_groupBox.setTitle(_translate("AcousticbrainzOptionsPage", "AcousticBrainz Tags"))
         self.add_simplemood.setText(_translate("AcousticbrainzOptionsPage", "Add simple Mood tags"))
         self.add_simplegenre.setText(_translate("AcousticbrainzOptionsPage", "Add simple Genre tags"))
         self.add_keybpm.setText(_translate("AcousticbrainzOptionsPage", "Add simple BPM and Key tags"))
-        self.add_fullhighlevel.setText(_translate("AcousticbrainzOptionsPage", "Add all highlevel Acousticbrainz tags"))
-        self.add_sublowlevel.setText(_translate("AcousticbrainzOptionsPage", "Add a subset of the lowlevel Acousticbrainz tags"))
+        self.add_fullhighlevel.setText(_translate("AcousticbrainzOptionsPage", "Add all highlevel AcousticBrainz tags"))
+        self.add_sublowlevel.setText(_translate("AcousticbrainzOptionsPage", "Add a subset of the lowlevel AcousticBrainz tags"))
         self.sublowlevel_descr.setText(_translate("AcousticbrainzOptionsPage", "<html><head/><body><p>The low level subset include:</p><ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">rhythm:bpm</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:chords_change_rate</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:chords_key</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:chords_scale</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:key_key</li><li style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:key_scale</li></ul></body></html>"))

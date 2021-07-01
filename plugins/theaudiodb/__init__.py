@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'TheAudioDB cover art'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use cover art from TheAudioDB.'
-PLUGIN_VERSION = "1.3"
+PLUGIN_VERSION = "1.3.1"
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"

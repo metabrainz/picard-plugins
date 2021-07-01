@@ -6,7 +6,8 @@ import os
 from PyQt5 import uic
 
 
-plugin_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'plugins')
+os.chdir(os.path.dirname(__file__))
+plugin_dir = os.path.relpath('plugins')
 
 
 def compile_ui(uifile, pyfile):

@@ -3,7 +3,7 @@
 PLUGIN_NAME = 'Last.fm'
 PLUGIN_AUTHOR = 'Lukáš Lalinský, Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Use tags from Last.fm as genre.'
-PLUGIN_VERSION = "0.10"
+PLUGIN_VERSION = "0.10.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 import re

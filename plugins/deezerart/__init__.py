@@ -1,7 +1,7 @@
 PLUGIN_NAME = "Deezer cover art"
 PLUGIN_AUTHOR = "Fabio Forni <livingsilver94>"
 PLUGIN_DESCRIPTION = "Fetch cover arts from Deezer"
-PLUGIN_VERSION = '1.1.0'
+PLUGIN_VERSION = '1.1.1'
 PLUGIN_API_VERSIONS = ['2.5']
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"

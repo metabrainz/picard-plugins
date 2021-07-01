@@ -13,7 +13,7 @@ PLUGIN_AUTHOR = "Len Joubert, Sambhav Kothari, Philipp Wolfer"
 PLUGIN_DESCRIPTION = """Calculate BPM for selected files and albums. Linux only version with dependancy on Aubio and Numpy"""
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "1.5"
+PLUGIN_VERSION = "1.5.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 # PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
