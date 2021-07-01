@@ -20,7 +20,7 @@
    <item>
     <widget class="QGroupBox" name="acousticbrainzTags_groupBox">
      <property name="title">
-      <string>Acousticbrainz Tags</string>
+      <string>AcousticBrainz Tags</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
@@ -47,14 +47,14 @@
       <item>
        <widget class="QCheckBox" name="add_fullhighlevel">
         <property name="text">
-         <string>Add all highlevel Acousticbrainz tags</string>
+         <string>Add all highlevel AcousticBrainz tags</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="add_sublowlevel">
         <property name="text">
-         <string>Add a subset of the lowlevel Acousticbrainz tags</string>
+         <string>Add a subset of the lowlevel AcousticBrainz tags</string>
         </property>
        </widget>
       </item>

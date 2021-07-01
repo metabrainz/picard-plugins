@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'Search Engine Lookup'
 PLUGIN_AUTHOR = 'Bob Swift'
 PLUGIN_DESCRIPTION = '''Adds a right click option on a cluster to look up album information using a search engine in a browser window.'''
-PLUGIN_VERSION = '2.0.1'
+PLUGIN_VERSION = '2.0.2'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"

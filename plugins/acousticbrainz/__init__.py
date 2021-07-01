@@ -35,7 +35,7 @@ Based on code from Andrew Cook, Sambhav Kothari
 
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "2.0"
+PLUGIN_VERSION = "2.0.1"
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5" ,"2.6"]
 
 # Plugin configuration

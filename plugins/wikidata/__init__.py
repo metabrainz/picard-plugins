@@ -8,7 +8,7 @@
 PLUGIN_NAME = 'Wikidata Genre'
 PLUGIN_AUTHOR = 'Daniel Sobey, Sambhav Kothari'
 PLUGIN_DESCRIPTION = 'Query wikidata to get genre tags'
-PLUGIN_VERSION = '1.4.4'
+PLUGIN_VERSION = '1.4.5'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
