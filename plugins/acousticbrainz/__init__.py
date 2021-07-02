@@ -310,10 +310,6 @@ class AcousticBrainzRequest:
             callback=partial(self._batch, action, recording_ids, callback, result))
 
     def _do_request(self, action, recording_ids, callback):
-        queryargs = {
-            'recording_ids': ';'.join(recording_ids),
-            'map_classes': 'true'
-        }
         self.album.tagger.webservice.get(
             ACOUSTICBRAINZ_HOST,
             ACOUSTICBRAINZ_PORT,
@@ -321,8 +317,16 @@ class AcousticBrainzRequest:
             callback,
             priority=True,
             parse_response_type='json',
-            queryargs=queryargs
+            queryargs=self._get_query_args(action, recording_ids)
         )
+
+    def _get_query_args(self, action, recording_ids):
+        queryargs = {
+            'recording_ids': ';'.join(recording_ids),
+        }
+        if action == 'high-level':
+            queryargs['map_classes'] = 'true'
+        return queryargs
 
     def _merge_results(self, full, new):
         mapping = new.get('mbid_mapping', {})
