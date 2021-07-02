@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # AcousticBrainz plugin for Picard
-# Copyright (C) 2021 Wargreen
+#
+# Copyright (C) 2021 Wargreen <wargreen@lebib.org>
+# Copyright (C) 2021 Philipp Wolfer <ph.wolfer@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 2 as
@@ -21,7 +23,8 @@
 
 PLUGIN_NAME = 'AcousticBrainz Tags'
 PLUGIN_AUTHOR = ('Wargreen <wargreen@lebib.org>, '
-                 'Hugo Geoffroy "pistache" <pistache@lebib.org>')
+                 'Hugo Geoffroy "pistache" <pistache@lebib.org>, '
+                 'Philipp Wolfer <ph.wolfer@gmail.com>')
 PLUGIN_DESCRIPTION = '''
 Tag files with tags from the AcousticBrainz database, all highlevel classifiers
 and tonal/rhythm data.
@@ -35,8 +38,8 @@ Based on code from Andrew Cook, Sambhav Kothari
 
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "2.0.1"
-PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5" ,"2.6"]
+PLUGIN_VERSION = "2.1"
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
 
 # Plugin configuration
 # =============================================================================
@@ -59,13 +62,18 @@ SUBLOWLEVEL_SUBSET = {"rhythm": {"bpm": None},
 # =============================================================================
 
 from functools import partial
-from json import dumps as dump_json, JSONDecodeError
+from json import dumps as dump_json
 
-from picard import config, log
+from picard import (
+    config,
+    log,
+)
+from picard.metadata import register_album_metadata_processor
+from picard.ui.options import (
+    OptionsPage,
+    register_options_page,
+)
 from picard.webservice import ratecontrol
-from picard.util import load_json
-from picard.ui.options import register_options_page, OptionsPage
-from picard.metadata import register_track_metadata_processor
 from picard.plugins.acousticbrainz.ui_options_acousticbrainz_tags import Ui_AcousticBrainzOptionsPage
 
 ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 250)
@@ -73,24 +81,36 @@ ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 250)
 # Constants
 # =============================================================================
 
-PENDING = object()
-
 LOWLEVEL = "lowlevel"
 HIGHLEVEL = "highlevel"
 
 
-# Track class
+# Logging utilities
+# -------------------------------------------------------------------------
+
+def log_msg(logger, text, *args):
+    logger("%s: " + text, PLUGIN_NAME, *args)
+
+def debug(*args):
+    log_msg(log.debug, *args)
+
+def warning(*args):
+    log_msg(log.warning, *args)
+
+def error(*args):
+    log_msg(log.error, *args)
+
+
+# TrackDataProcessor class
 # =============================================================================
-# (used to fetch and store per-track AcousticBrainz data)
+# (used to apply AcousticBrainz data to Track metadata)
 
-class Track:
-    def __init__(self, album, metadata):
-        self.album = album
-        self.metadata = metadata
-
-        self.data_lowlevel = None
-        self.data_highlevel = None
-
+class TrackDataProcessor:
+    def __init__(self, track, level, data):
+        self.track = track
+        self.metadata = track.metadata
+        self.level = level
+        self.data = self._extract_data(data)
         self.do_simplemood = config.setting["acousticbrainz_add_simplemood"]
         self.do_simplegenre = config.setting["acousticbrainz_add_simplegenre"]
         self.do_keybpm = config.setting["acousticbrainz_add_keybpm"]
@@ -101,7 +121,7 @@ class Track:
     # -------------------------------------------------------------------------
 
     def log(self, logger, text, *args):
-        logger("%s: [%s: %s] " + text, PLUGIN_NAME, self.shortid, self.title, *args)
+        log_msg(logger, "[%s: %s] " + text, self.shortid, self.title, *args)
 
     def debug(self, *args):
         self.log(log.debug, *args)
@@ -116,102 +136,44 @@ class Track:
     # -------------------------------------------------------------------------
 
     @property
-    def trackid(self):
-        return self.metadata["musicbrainz_recordingid"]
-
-    @property
     def shortid(self):
-        return self.trackid[:8]
+        return self.track.id[:8]
 
     @property
     def title(self):
         return self.metadata["title"]
 
-    @property
-    def queryargs(self):
-        return {
-            "recording_ids": self.trackid,
-            "map_classes": "true"
-        }
-
-    # Entry point
-    # -------------------------------------------------------------------------
-
-    def process(self):
-        if self.do_simplemood or self.do_fullhighlevel or self.do_simplegenre:
-            self.request_highlevel()
-        if self.do_keybpm or self.do_sublowlevel:
-            self.request_lowlevel()
-
-    def request_lowlevel(self):
-        self.debug("requesting lowlevel data")
-        self.data_lowlevel = PENDING
-        self.album.tagger.webservice.get(
-            ACOUSTICBRAINZ_HOST,
-            ACOUSTICBRAINZ_PORT,
-            "/api/v1/low-level",
-            partial(self.receive, "lowlevel"),
-            priority=True,
-            parse_response_type=None,
-            queryargs=self.queryargs
-        )
-        self.album._requests += 1
-
-    def request_highlevel(self):
-        self.debug("requesting highlevel data")
-        self.data_highlevel = PENDING
-        self.album.tagger.webservice.get(
-            ACOUSTICBRAINZ_HOST,
-            ACOUSTICBRAINZ_PORT,
-            "/api/v1/high-level",
-            partial(self.receive, "highlevel"),
-            priority=True,
-            parse_response_type=None,
-            queryargs=self.queryargs
-        )
-        self.album._requests += 1
-
     # Callback
     # -------------------------------------------------------------------------
 
-    def receive(self, level, rawdata, _, error):
-        try:
-            if error:
-                self.error("failed to fetch %s data", level)
-                return
+    def process(self):
+        if not self.data:
+            self.warning('No %s data for track %s', self.level, self.track.id)
 
-            try:
-                data = load_json(rawdata)
-                self.store(level, data)
-            except (JSONDecodeError, TypeError, KeyError) as ex:
-                self.error("failed to parse JSON data (%r)", ex)
-                return
+        if self.level == HIGHLEVEL:
+            if self.do_simplemood:
+                self.process_simplemood()
+            if self.do_simplegenre:
+                self.process_simplegenre()
+            if self.do_fullhighlevel:
+                self.process_fullhighlevel()
 
-            self.debug("fetched %s data (pending requests: %i)", level, self.album._requests-1)
-            if PENDING not in (self.data_highlevel, self.data_lowlevel):
-                if self.do_simplemood:
-                    self.process_simplemood()
-                if self.do_simplegenre:
-                    self.process_simplegenre()
-                if self.do_fullhighlevel:
-                    self.process_fullhighlevel()
-                if self.do_keybpm:
-                    self.process_keybpm()
-                if self.do_sublowlevel:
-                    self.process_sublowlevel()
-        finally:
-            self.album._requests -= 1
-            if self.album._requests == 0:
-                self.album._finalize_loading(None)
-
-    def store(self, level, data):
-        if level == LOWLEVEL:
-            self.data_lowlevel = data[self.trackid]["0"]
-        elif level == HIGHLEVEL:
-            self.data_highlevel = data[self.trackid]["0"]["highlevel"]
+        if self.level == LOWLEVEL:
+            if self.do_keybpm:
+                self.process_keybpm()
+            if self.do_sublowlevel:
+                self.process_sublowlevel()
 
     # Processing helper methods
     # -------------------------------------------------------------------------
+
+    def _extract_data(self, data):
+        if not self.track.id in data:
+            return {}
+        if self.level == LOWLEVEL:
+            return data[self.track.id]["0"]
+        elif self.level == HIGHLEVEL:
+            return data[self.track.id]["0"]["highlevel"]
 
     def filter_data(self, data, subset):
         result = {}
@@ -229,6 +191,11 @@ class Track:
         self.debug("filter_data : result : %s", result)
         return result
 
+    def update_metadata(self, name, values):
+        self.track.metadata[name] = values
+        for file in self.track.iterfiles():
+            file.metadata[name] = values
+
     # Processing methods
     # -------------------------------------------------------------------------
     # (fill metadata with fetched data)
@@ -238,41 +205,41 @@ class Track:
 
         moods = []
 
-        for classifier, data in self.data_highlevel.items():
+        for classifier, data in self.data.items():
             if "value" in data:
                 value = data["value"]
                 inverted = value.startswith("not_")
                 if classifier.startswith("mood_") and not inverted:
                     moods.append(value)
 
-        self.metadata["mood"] = moods
+        self.update_metadata('mood', moods)
 
     def process_simplegenre(self):
         self.debug("processing simplegenre data")
 
         genres = []
 
-        for classifier, data in self.data_highlevel.items():
+        for classifier, data in self.data.items():
             if "value" in data:
                 value = data["value"]
                 inverted = value.startswith("not_")
                 if classifier.startswith("genre_") and not inverted:
                     genres.append(value)
 
-        self.metadata["genre"] = genres
+        self.update_metadata('genre', genres)
 
     def process_fullhighlevel(self):
         self.debug("processing fullhighlevel data")
 
         f_count, c_count = 0, 0
-        for classifier, data in self.data_highlevel.items():
+        for classifier, data in self.data.items():
             classifier = classifier.lower()
             if "all" in data:
                 c_count += 1
                 for feature, proba in data["all"].items():
                     feature = feature.lower()
                     f_count += 1
-                    self.metadata["ab:hi:{}:{}".format(classifier, feature)] = dump_json(proba)
+                    self.update_metadata("ab:hi:{}:{}".format(classifier, feature), dump_json(proba))
             else:
                 self.warning("fullhighlevel : ignored invalid classifier data (%s)", classifier)
 
@@ -280,27 +247,28 @@ class Track:
 
     def process_keybpm(self):
         self.debug("processing keybpm data")
-        if "tonal" in self.data_lowlevel:
-            tonal_data = self.data_lowlevel["tonal"]
+        if "tonal" in self.data:
+            tonal_data = self.data["tonal"]
             if "key_key" in tonal_data:
                 key = tonal_data["key_key"]
                 if "key_scale" in tonal_data:
                     if tonal_data["key_scale"] == "minor":
                         key += "m"
-                self.metadata["key"] = key
+                self.update_metadata('key', key)
                 self.debug("track '%s' is in key %s", self.title, key)
 
-        if "rhythm" in self.data_lowlevel:
-            rhythm_data = self.data_lowlevel["rhythm"]
+        if "rhythm" in self.data:
+            rhythm_data = self.data["rhythm"]
             if "bpm" in rhythm_data:
-                self.metadata["bpm"] = bpm = int(rhythm_data["bpm"] + 0.5)
+                bpm = int(rhythm_data["bpm"] + 0.5)
+                self.update_metadata('bpm', bpm)
                 self.debug("keybpm : Track '%s' has %s bpm", self.title, bpm)
 
     def process_sublowlevel(self):
         self.debug("processing sublowlevel data")
         subset = SUBLOWLEVEL_SUBSET
 
-        filtered_data = self.filter_data(self.data_lowlevel, subset)
+        filtered_data = self.filter_data(self.data, subset)
 
         f_count, c_count = 0, 0
         for classifier, data in filtered_data.items():
@@ -309,9 +277,57 @@ class Track:
             for feature, proba in data.items():
                 feature = feature.lower()
                 f_count += 1
-                self.metadata["ab:lo:{}:{}".format(classifier, feature)] = proba
+                self.update_metadata("ab:lo:{}:{}".format(classifier, feature), proba)
 
         self.debug("sublowlevel : parsed %d features from %d classifiers", f_count, c_count)
+
+
+class AcousticBrainzRequest:
+
+    MAX_BATCH_SIZE = 25
+
+    def __init__(self, album, recording_ids):
+        self.album = album
+        self.recording_ids = recording_ids
+
+    def request_highlevel(self, callback):
+        self._batch('high-level', self.recording_ids, callback, {})
+
+    def request_lowlevel(self, callback):
+        self._batch('low-level', self.recording_ids, callback, {})
+
+    def _batch(self, action, recording_ids, callback, result, response=None, reply=None, error=None):
+        if response and not error:
+            self._merge_results(result, response)
+
+        if not recording_ids or error:
+            callback(result, error)
+            return
+
+        batch = recording_ids[:self.MAX_BATCH_SIZE]
+        recording_ids = recording_ids[self.MAX_BATCH_SIZE:]
+        self._do_request(action, batch,
+            callback=partial(self._batch, action, recording_ids, callback, result))
+
+    def _do_request(self, action, recording_ids, callback):
+        queryargs = {
+            'recording_ids': ';'.join(recording_ids),
+            'map_classes': 'true'
+        }
+        self.album.tagger.webservice.get(
+            ACOUSTICBRAINZ_HOST,
+            ACOUSTICBRAINZ_PORT,
+            '/api/v1/%s' % action,
+            callback,
+            priority=True,
+            parse_response_type='json',
+            queryargs=queryargs
+        )
+
+    def _merge_results(self, full, new):
+        mapping = new.get('mbid_mapping', {})
+        new = {mapping.get(k, k): v for (k, v) in new.items() if k != 'mbid_mapping'}
+        full.update(new)
 
 
 # Plugin class
@@ -320,14 +336,52 @@ class Track:
 
 class AcousticBrainzPlugin:
 
-    def __init__(self):
-        self.tracks = {}
+    def process_album(self, album, metadata, release):
+        recording_ids = self.get_recording_ids(release)
+        request = AcousticBrainzRequest(album, recording_ids)
+        if self.do_highlevel:
+            album._requests += 1
+            request.request_highlevel(partial(self.callback, HIGHLEVEL, album))
+        if self.do_lowlevel:
+            album._requests += 1
+            request.request_lowlevel(partial(self.callback, LOWLEVEL, album))
+
+    @property
+    def do_highlevel(self):
+        return (config.setting["acousticbrainz_add_simplemood"]
+            or config.setting["acousticbrainz_add_simplegenre"]
+            or config.setting["acousticbrainz_add_fullhighlevel"])
+
+    @property
+    def do_lowlevel(self):
+        return (config.setting["acousticbrainz_add_keybpm"]
+            or config.setting["acousticbrainz_add_sublowlevel"])
+
+    def get_recording_ids(self, release):
+        return [track['recording']['id'] for track in self.iter_tracks(release)]
 
     @staticmethod
-    def process_track(album, metadata, _, release):
-        track = Track(album, metadata)
-        #tracks[track.trackid] = track
-        track.process()
+    def iter_tracks(release):
+        for media in release['media']:
+            if 'pregap' in media:
+                yield media['pregap']
+
+            if 'tracks' in media:
+                yield from media['tracks']
+
+            if 'data-tracks' in media:
+                yield from media['data-tracks']
+
+    def callback(self, level, album, result=None, error=None):
+        if not error:
+            album.run_when_loaded(partial(self.update_metadata, level, album, result))
+        album._requests -= 1
+        album._finalize_loading(error)
+
+    def update_metadata(self, level, album, result):
+        for track in album.tracks:
+            processor = TrackDataProcessor(track, level, result)
+            processor.process()
 
 
 # Plugin options page
@@ -370,5 +424,5 @@ class AcousticBrainzOptionsPage(OptionsPage):
 
 
 plugin = AcousticBrainzPlugin()
-register_track_metadata_processor(plugin.process_track)
+register_album_metadata_processor(plugin.process_album)
 register_options_page(AcousticBrainzOptionsPage)
