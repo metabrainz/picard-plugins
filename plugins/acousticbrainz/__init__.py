@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Acousticbrainz plugin for Picard
+# AcousticBrainz plugin for Picard
 # Copyright (C) 2021 Wargreen
 #
 # This program is free software; you can redistribute it and/or modify
@@ -66,7 +66,7 @@ from picard.webservice import ratecontrol
 from picard.util import load_json
 from picard.ui.options import register_options_page, OptionsPage
 from picard.metadata import register_track_metadata_processor
-from picard.plugins.acousticbrainz.ui_options_acousticbrainz_tags import Ui_AcousticbrainzOptionsPage
+from picard.plugins.acousticbrainz.ui_options_acousticbrainz_tags import Ui_AcousticBrainzOptionsPage
 
 ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 250)
 
@@ -318,7 +318,7 @@ class Track:
 # =============================================================================
 # (provides track processing callback)
 
-class AcousticbrainzPlugin:
+class AcousticBrainzPlugin:
 
     def __init__(self):
         self.tracks = {}
@@ -334,7 +334,7 @@ class AcousticbrainzPlugin:
 # =============================================================================
 # (define plugin options and link with user interface)
 
-class AcousticbrainzOptionsPage(OptionsPage):
+class AcousticBrainzOptionsPage(OptionsPage):
     NAME = "AcousticBrainz"
     TITLE = "AcousticBrainz tags"
     PARENT = "plugins"
@@ -348,8 +348,8 @@ class AcousticbrainzOptionsPage(OptionsPage):
     ]
 
     def __init__(self, parent=None):
-        super(AcousticbrainzOptionsPage, self).__init__(parent)
-        self.ui = Ui_AcousticbrainzOptionsPage()
+        super(AcousticBrainzOptionsPage, self).__init__(parent)
+        self.ui = Ui_AcousticBrainzOptionsPage()
         self.ui.setupUi(self)
 
     def load(self):
@@ -369,6 +369,6 @@ class AcousticbrainzOptionsPage(OptionsPage):
         setting["acousticbrainz_add_sublowlevel"] = self.ui.add_sublowlevel.isChecked()
 
 
-plugin = AcousticbrainzPlugin()
+plugin = AcousticBrainzPlugin()
 register_track_metadata_processor(plugin.process_track)
-register_options_page(AcousticbrainzOptionsPage)
+register_options_page(AcousticBrainzOptionsPage)
