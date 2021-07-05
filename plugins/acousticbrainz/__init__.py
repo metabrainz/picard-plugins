@@ -68,7 +68,10 @@ from picard import (
     config,
     log,
 )
-from picard.metadata import register_album_metadata_processor
+from picard.metadata import (
+    register_album_metadata_processor,
+    register_track_metadata_processor,
+)
 from picard.ui.options import (
     OptionsPage,
     register_options_page,
@@ -286,8 +289,8 @@ class AcousticBrainzRequest:
 
     MAX_BATCH_SIZE = 25
 
-    def __init__(self, album, recording_ids):
-        self.album = album
+    def __init__(self, webservice, recording_ids):
+        self.webservice = webservice
         self.recording_ids = recording_ids
 
     def request_highlevel(self, callback):
@@ -310,7 +313,7 @@ class AcousticBrainzRequest:
             callback=partial(self._batch, action, recording_ids, callback, result))
 
     def _do_request(self, action, recording_ids, callback):
-        self.album.tagger.webservice.get(
+        self.webservice.get(
             ACOUSTICBRAINZ_HOST,
             ACOUSTICBRAINZ_PORT,
             '/api/v1/%s' % action,
@@ -341,8 +344,19 @@ class AcousticBrainzRequest:
 class AcousticBrainzPlugin:
 
     def process_album(self, album, metadata, release):
+        debug('Processing album %s', album.id)
         recording_ids = self.get_recording_ids(release)
-        request = AcousticBrainzRequest(album, recording_ids)
+        self.run_requests(album, recording_ids)
+
+    def process_track(self, album, metadata, track, release):
+        # Only run for standaline recordings
+        if not release and 'id' in track:
+            recording_ids = [track['id']]
+            debug('Processing recording %s', recording_ids[0])
+            self.run_requests(album, recording_ids)
+
+    def run_requests(self, album, recording_ids):
+        request = AcousticBrainzRequest(album.tagger.webservice, recording_ids)
         if self.do_highlevel:
             album._requests += 1
             request.request_highlevel(partial(self.callback, HIGHLEVEL, album))
@@ -383,6 +397,7 @@ class AcousticBrainzPlugin:
         album._finalize_loading(error)
 
     def update_metadata(self, level, album, result):
+        debug('Updating %r with %s results for %i tracks', album, level, len(result.keys()))
         for track in album.tracks:
             processor = TrackDataProcessor(track, level, result)
             processor.process()
@@ -429,4 +444,5 @@ class AcousticBrainzOptionsPage(OptionsPage):
 
 plugin = AcousticBrainzPlugin()
 register_album_metadata_processor(plugin.process_album)
+register_track_metadata_processor(plugin.process_track)
 register_options_page(AcousticBrainzOptionsPage)
