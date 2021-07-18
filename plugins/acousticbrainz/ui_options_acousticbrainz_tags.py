@@ -11,15 +11,15 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_AcousticbrainzOptionsPage(object):
-    def setupUi(self, AcousticbrainzOptionsPage):
-        AcousticbrainzOptionsPage.setObjectName("AcousticbrainzOptionsPage")
-        AcousticbrainzOptionsPage.setEnabled(True)
-        AcousticbrainzOptionsPage.resize(527, 443)
-        AcousticbrainzOptionsPage.setWindowTitle("")
-        self.verticalLayout = QtWidgets.QVBoxLayout(AcousticbrainzOptionsPage)
+class Ui_AcousticBrainzOptionsPage(object):
+    def setupUi(self, AcousticBrainzOptionsPage):
+        AcousticBrainzOptionsPage.setObjectName("AcousticBrainzOptionsPage")
+        AcousticBrainzOptionsPage.setEnabled(True)
+        AcousticBrainzOptionsPage.resize(527, 443)
+        AcousticBrainzOptionsPage.setWindowTitle("")
+        self.verticalLayout = QtWidgets.QVBoxLayout(AcousticBrainzOptionsPage)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.acousticbrainzTags_groupBox = QtWidgets.QGroupBox(AcousticbrainzOptionsPage)
+        self.acousticbrainzTags_groupBox = QtWidgets.QGroupBox(AcousticBrainzOptionsPage)
         self.acousticbrainzTags_groupBox.setObjectName("acousticbrainzTags_groupBox")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.acousticbrainzTags_groupBox)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -48,15 +48,15 @@ class Ui_AcousticbrainzOptionsPage(object):
         self.verticalLayout_2.addItem(spacerItem1)
         self.verticalLayout.addWidget(self.acousticbrainzTags_groupBox)
 
-        self.retranslateUi(AcousticbrainzOptionsPage)
-        QtCore.QMetaObject.connectSlotsByName(AcousticbrainzOptionsPage)
+        self.retranslateUi(AcousticBrainzOptionsPage)
+        QtCore.QMetaObject.connectSlotsByName(AcousticBrainzOptionsPage)
 
-    def retranslateUi(self, AcousticbrainzOptionsPage):
+    def retranslateUi(self, AcousticBrainzOptionsPage):
         _translate = QtCore.QCoreApplication.translate
-        self.acousticbrainzTags_groupBox.setTitle(_translate("AcousticbrainzOptionsPage", "AcousticBrainz Tags"))
-        self.add_simplemood.setText(_translate("AcousticbrainzOptionsPage", "Add simple Mood tags"))
-        self.add_simplegenre.setText(_translate("AcousticbrainzOptionsPage", "Add simple Genre tags"))
-        self.add_keybpm.setText(_translate("AcousticbrainzOptionsPage", "Add simple BPM and Key tags"))
-        self.add_fullhighlevel.setText(_translate("AcousticbrainzOptionsPage", "Add all highlevel AcousticBrainz tags"))
-        self.add_sublowlevel.setText(_translate("AcousticbrainzOptionsPage", "Add a subset of the lowlevel AcousticBrainz tags"))
-        self.sublowlevel_descr.setText(_translate("AcousticbrainzOptionsPage", "<html><head/><body><p>The low level subset include:</p><ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">rhythm:bpm</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:chords_change_rate</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:chords_key</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:chords_scale</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:key_key</li><li style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:key_scale</li></ul></body></html>"))
+        self.acousticbrainzTags_groupBox.setTitle(_translate("AcousticBrainzOptionsPage", "AcousticBrainz Tags"))
+        self.add_simplemood.setText(_translate("AcousticBrainzOptionsPage", "Add simple Mood tags"))
+        self.add_simplegenre.setText(_translate("AcousticBrainzOptionsPage", "Add simple Genre tags"))
+        self.add_keybpm.setText(_translate("AcousticBrainzOptionsPage", "Add simple BPM and Key tags"))
+        self.add_fullhighlevel.setText(_translate("AcousticBrainzOptionsPage", "Add all highlevel AcousticBrainz tags"))
+        self.add_sublowlevel.setText(_translate("AcousticBrainzOptionsPage", "Add a subset of the lowlevel AcousticBrainz tags"))
+        self.sublowlevel_descr.setText(_translate("AcousticBrainzOptionsPage", "<html><head/><body><p>The low level subset include:</p><ul style=\"margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;\"><li style=\" margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">rhythm:bpm</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:chords_change_rate</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:chords_key</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:chords_scale</li><li style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:key_key</li><li style=\" margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">tonal:key_scale</li></ul></body></html>"))
