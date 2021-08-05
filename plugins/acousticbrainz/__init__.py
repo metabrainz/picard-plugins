@@ -38,7 +38,7 @@ Based on code from Andrew Cook, Sambhav Kothari
 
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "2.1"
+PLUGIN_VERSION = "2.2"
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
 
 # Plugin configuration
@@ -109,11 +109,12 @@ def error(*args):
 # (used to apply AcousticBrainz data to Track metadata)
 
 class TrackDataProcessor:
-    def __init__(self, track, level, data):
-        self.track = track
-        self.metadata = track.metadata
+    def __init__(self, recording_id, metadata, level, data, files=None):
+        self.recording_id = recording_id
+        self.metadata = metadata
         self.level = level
         self.data = self._extract_data(data)
+        self.files = files
         self.do_simplemood = config.setting["acousticbrainz_add_simplemood"]
         self.do_simplegenre = config.setting["acousticbrainz_add_simplegenre"]
         self.do_keybpm = config.setting["acousticbrainz_add_keybpm"]
@@ -140,7 +141,7 @@ class TrackDataProcessor:
 
     @property
     def shortid(self):
-        return self.track.id[:8]
+        return self.recording_id[:8]
 
     @property
     def title(self):
@@ -151,7 +152,7 @@ class TrackDataProcessor:
 
     def process(self):
         if not self.data:
-            self.warning('No %s data for track %s', self.level, self.track.id)
+            self.warning('No %s data for track %s', self.level, self.recording_id)
 
         if self.level == HIGHLEVEL:
             if self.do_simplemood:
@@ -171,12 +172,12 @@ class TrackDataProcessor:
     # -------------------------------------------------------------------------
 
     def _extract_data(self, data):
-        if not self.track.id in data:
+        if not self.recording_id in data:
             return {}
         if self.level == LOWLEVEL:
-            return data[self.track.id]["0"]
+            return data[self.recording_id]["0"]
         elif self.level == HIGHLEVEL:
-            return data[self.track.id]["0"]["highlevel"]
+            return data[self.recording_id]["0"]["highlevel"]
 
     def filter_data(self, data, subset):
         result = {}
@@ -195,9 +196,10 @@ class TrackDataProcessor:
         return result
 
     def update_metadata(self, name, values):
-        self.track.metadata[name] = values
-        for file in self.track.iterfiles():
-            file.metadata[name] = values
+        self.metadata[name] = values
+        if self.files:
+            for file in self.files:
+                file.metadata[name] = values
 
     # Processing methods
     # -------------------------------------------------------------------------
@@ -343,26 +345,38 @@ class AcousticBrainzRequest:
 
 class AcousticBrainzPlugin:
 
+    result_cache = {
+        LOWLEVEL: {},
+        HIGHLEVEL: {},
+    }
+
     def process_album(self, album, metadata, release):
         debug('Processing album %s', album.id)
         recording_ids = self.get_recording_ids(release)
-        self.run_requests(album, recording_ids)
+        self.run_requests(album, recording_ids, self.album_callback)
 
-    def process_track(self, album, metadata, track, release):
-        # Only run for standaline recordings
-        if not release and 'id' in track:
-            recording_ids = [track['id']]
-            debug('Processing recording %s', recording_ids[0])
-            self.run_requests(album, recording_ids)
+    def process_track(self, album, metadata, track_node, release_node):
+        # Run requests for standalone recordings
+        if not release_node and 'id' in track_node:
+            recording_id = track_node['id']
+            debug('Processing recording %s', recording_id)
+            self.run_requests(album, [recording_id], partial(self.nat_callback, recording_id))
+        # Apply metadata changes for already loaded results for album tracks
+        elif 'recording' in track_node:
+            recording_id = track_node['recording']['id']
+            for level in (LOWLEVEL, HIGHLEVEL):
+                result = self.result_cache[level].get(album.id)
+                if result:
+                    self.apply_result(recording_id, metadata, level, result)
 
-    def run_requests(self, album, recording_ids):
+    def run_requests(self, album, recording_ids, callback):
         request = AcousticBrainzRequest(album.tagger.webservice, recording_ids)
         if self.do_highlevel:
             album._requests += 1
-            request.request_highlevel(partial(self.callback, HIGHLEVEL, album))
+            request.request_highlevel(partial(callback, HIGHLEVEL, album))
         if self.do_lowlevel:
             album._requests += 1
-            request.request_lowlevel(partial(self.callback, LOWLEVEL, album))
+            request.request_lowlevel(partial(callback, LOWLEVEL, album))
 
     @property
     def do_highlevel(self):
@@ -390,17 +404,30 @@ class AcousticBrainzPlugin:
             if 'data-tracks' in media:
                 yield from media['data-tracks']
 
-    def callback(self, level, album, result=None, error=None):
+    def album_callback(self, level, album, result=None, error=None):
         if not error:
-            album.run_when_loaded(partial(self.update_metadata, level, album, result))
+            # Store the result, the actual processing will be done by the
+            # track metadata processor.
+            self.result_cache[level][album.id] = result
+            album.run_when_loaded(partial(self.clear_cache, level, album))
         album._requests -= 1
         album._finalize_loading(error)
 
-    def update_metadata(self, level, album, result):
-        debug('Updating %r with %s results for %i tracks', album, level, len(result.keys()))
+    def nat_callback(self, recording_id, level, album, result=None, error=None):
         for track in album.tracks:
-            processor = TrackDataProcessor(track, level, result)
-            processor.process()
+            if track.id == recording_id:
+                self.apply_result(track.id, track.metadata, level, result, files=track.files)
+
+    def apply_result(self, recording_id, metadata, level, result, files=None):
+        debug('Updating recording %s with %s results', recording_id, level)
+        processor = TrackDataProcessor(recording_id, metadata, level, result, files=files)
+        processor.process()
+
+    def clear_cache(self, level, album):
+        try:
+            del self.result_cache[level][album.id]
+        except KeyError:
+            pass
 
 
 # Plugin options page
