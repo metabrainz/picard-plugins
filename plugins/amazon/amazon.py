@@ -2,7 +2,7 @@
 #
 # Picard, the next-generation MusicBrainz tagger
 # Copyright (C) 2007 Oliver Charles
-# Copyright (C) 2007-2011, 2019 Philipp Wolfer
+# Copyright (C) 2007-2011, 2019, 2021 Philipp Wolfer
 # Copyright (C) 2007, 2010, 2011 Lukáš Lalinský
 # Copyright (C) 2011 Michael Wiencek
 # Copyright (C) 2011-2012 Wieland Hoffmann
@@ -25,8 +25,8 @@
 PLUGIN_NAME = 'Amazon cover art'
 PLUGIN_AUTHOR = 'MusicBrainz Picard developers'
 PLUGIN_DESCRIPTION = 'Use cover art from Amazon.'
-PLUGIN_VERSION = "1.0"
-PLUGIN_API_VERSIONS = ["2.2"]
+PLUGIN_VERSION = "1.1"
+PLUGIN_API_VERSIONS = ["2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -44,6 +44,10 @@ from picard.util import parse_amazon_url
 # Releases not sold on amazon.com, don't have a "01"-version of the image,
 # so we need to make sure we grab an existing image.
 AMAZON_SERVER = {
+    "amazon.com": {
+        "server": "ec1.images-amazon.com",
+        "id": "01",
+    },
     "amazon.jp": {
         "server": "ec1.images-amazon.com",
         "id": "09",
@@ -59,10 +63,6 @@ AMAZON_SERVER = {
     "amazon.de": {
         "server": "ec2.images-amazon.com",
         "id": "03",
-    },
-    "amazon.com": {
-        "server": "ec1.images-amazon.com",
-        "id": "01",
     },
     "amazon.ca": {
         "server": "ec1.images-amazon.com",
@@ -99,6 +99,10 @@ class CoverArtProviderAmazon(CoverArtProvider):
     NAME = "Amazon"
     TITLE = N_('Amazon')
 
+    def __init__(self, coverart):
+        super().__init__(coverart)
+        self._has_url_relation = False
+
     def enabled(self):
         return (super().enabled()
                 and not self.coverart.front_image_found)
@@ -106,6 +110,9 @@ class CoverArtProviderAmazon(CoverArtProvider):
     def queue_images(self):
         self.match_url_relations(('amazon asin', 'has_Amazon_ASIN'),
                                  self._queue_from_asin_relation)
+        # No URL relationships loaded, try by ASIN
+        if not self._has_url_relation:
+            self._queue_from_asin()
         return CoverArtProvider.FINISHED
 
     def _queue_from_asin_relation(self, url):
@@ -114,15 +121,26 @@ class CoverArtProviderAmazon(CoverArtProvider):
         if amz is None:
             return
         log.debug("Found ASIN relation : %s %s", amz['host'], amz['asin'])
+        self._has_url_relation = True
         if amz['host'] in AMAZON_SERVER:
-            serverInfo = AMAZON_SERVER[amz['host']]
+            server_info = AMAZON_SERVER[amz['host']]
         else:
-            serverInfo = AMAZON_SERVER['amazon.com']
-        host = serverInfo['server']
+            server_info = AMAZON_SERVER['amazon.com']
+        self._queue_asin(server_info, amz['asin'])
+
+    def _queue_from_asin(self):
+        asin = self.release.get('asin')
+        if asin:
+            log.debug("Found ASIN : %s", asin)
+            for server_info in AMAZON_SERVER.values():
+               self._queue_asin(server_info, asin)
+
+    def _queue_asin(self, server_info, asin):
+        host = server_info['server']
         for size in AMAZON_SIZES:
             path = AMAZON_IMAGE_PATH % {
-                'asin': amz['asin'],
-                'serverid': serverInfo['id'],
+                'asin': asin,
+                'serverid': server_info['id'],
                 'size': size
             }
             self.queue_put(CoverArtImage("http://%s%s" % (host, path)))
