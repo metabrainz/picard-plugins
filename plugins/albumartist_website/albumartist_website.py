@@ -4,7 +4,7 @@ PLUGIN_NAME = 'Album Artist Website'
 PLUGIN_AUTHOR = 'Sophist, Sambhav Kothari'
 PLUGIN_DESCRIPTION = '''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
-PLUGIN_VERSION = '1.0.4'
+PLUGIN_VERSION = '1.0.5'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -93,6 +93,7 @@ class AlbumArtistWebsite:
                 self.album_remove_request(album)
             return
         urls = self.artist_process_metadata(artistId, response)
+        urls.sort()
         self.website_cache[artistId] = urls
         tuples = self.website_queue.remove(artistId)
         for track, album in tuples:
