@@ -38,7 +38,7 @@ Based on code from Andrew Cook, Sambhav Kothari
 
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "2.2"
+PLUGIN_VERSION = "2.2.1"
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
 
 # Plugin configuration
@@ -435,7 +435,7 @@ class AcousticBrainzPlugin:
 # (define plugin options and link with user interface)
 
 class AcousticBrainzOptionsPage(OptionsPage):
-    NAME = "AcousticBrainz"
+    NAME = "acousticbrainz_tags"
     TITLE = "AcousticBrainz tags"
     PARENT = "plugins"
 
