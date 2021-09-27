@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 PLUGIN_NAME = 'Album Artist Website'
-PLUGIN_AUTHOR = 'Sophist, Sambhav Kothari'
+PLUGIN_AUTHOR = 'Sophist, Sambhav Kothari, Philipp Wolfer'
 PLUGIN_DESCRIPTION = '''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
-PLUGIN_VERSION = '1.0.5'
+PLUGIN_VERSION = '1.1'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -66,12 +66,13 @@ class AlbumArtistWebsite:
     def add_artist_website(self, album, track_metadata, track_node, release_node):
         albumArtistIds = track_metadata.getall('musicbrainz_albumartistid')
         for artistId in albumArtistIds:
+            # Jump through hoops to get track object!!
+            track = album._new_tracks[-1]
             if artistId in self.website_cache:
                 if self.website_cache[artistId]:
-                    track_metadata['website'] = self.website_cache[artistId]
+                    self.add_websites_to_track(track, self.website_cache[artistId])
             else:
-                # Jump through hoops to get track object!!
-                self.website_add_track(album, album._new_tracks[-1], artistId)
+                self.website_add_track(album, track, artistId)
 
     def website_add_track(self, album, track, artistId):
         self.album_add_request(album)
@@ -93,17 +94,20 @@ class AlbumArtistWebsite:
                 self.album_remove_request(album)
             return
         urls = self.artist_process_metadata(artistId, response)
-        urls.sort()
         self.website_cache[artistId] = urls
         tuples = self.website_queue.remove(artistId)
         for track, album in tuples:
-            if urls:
-                tm = track.metadata
-                tm['website'] = urls
-                for file in track.iterfiles(True):
-                    fm = file.metadata
-                    fm['website'] = urls
+            self.add_websites_to_track(track, urls)
             self.album_remove_request(album)
+
+    def add_websites_to_track(self, track, urls):
+        tm = track.metadata
+        websites = tm.getall('website')
+        websites += urls
+        websites.sort()
+        tm['website'] = websites
+        for file in track.iterfiles(True):
+            file.metadata['website'] = websites
 
     def album_add_request(self, album):
         album._requests += 1
