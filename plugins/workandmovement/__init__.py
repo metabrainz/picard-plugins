@@ -37,8 +37,9 @@ from picard import log
 from picard.metadata import register_track_metadata_processor
 
 
-_re_work_title = re.compile(r'(?P<work>.*):\s+(?P<movementnumber>[IVXLCDM]+)\.\s+(?P<movement>.*)')
-_re_part_number = re.compile(r'(?P<number>[0-9IVXLCDM]+)\.?\s+')
+_re_work_title = re.compile(r'(?P<work>.*):\s+(?P<movementnumber>[IVXLCDM]+)\.\s[\s,:;./]*(?P<movement>.*)')
+_re_part_number = re.compile(r'(?P<number>[0-9IVXLCDM]+)\.?\s[\s,:;./]*')
+_re_separators = re.compile(r'^[\s,:;./-]+')
 
 
 class Work:
@@ -147,14 +148,15 @@ def normalize_movement_title(work):
     if work.parent:
         work_title = work.parent.title
         if movement_title.startswith(work_title):
-            movement_title = movement_title[len(work_title):].lstrip(':').strip()
+            movement_title = movement_title[len(work_title):]
+            movement_title = _re_separators.sub('', movement_title)
     match = _re_part_number.match(movement_title)
     if match:
         # Only remove the number if it matches the part_number
         try:
             number = number_to_int(match.group('number'))
             if number == work.part_number:
-                movement_title = _re_part_number.sub("", movement_title)
+                movement_title = _re_part_number.sub('', movement_title)
         except ValueError as e:
             log.warning(e)
     return movement_title
