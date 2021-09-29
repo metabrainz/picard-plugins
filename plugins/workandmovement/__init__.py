@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018-2019 Philipp Wolfer
+# Copyright (C) 2018-2019, 2021 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,8 +20,8 @@
 PLUGIN_NAME = 'Work & Movement'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Set work and movement based on work relationships'
-PLUGIN_VERSION = '1.0.1'
-PLUGIN_API_VERSIONS = ['2.1', '2.2']
+PLUGIN_VERSION = '1.0.2'
+PLUGIN_API_VERSIONS = ['2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
@@ -37,8 +37,9 @@ from picard import log
 from picard.metadata import register_track_metadata_processor
 
 
-_re_work_title = re.compile(r'(?P<work>.*):\s+(?P<movementnumber>[IVXLCDM]+)\.\s+(?P<movement>.*)')
-_re_part_number = re.compile(r'(?P<number>[0-9IVXLCDM]+)\.?\s+')
+_re_work_title = re.compile(r'(?P<work>.*):\s+(?P<movementnumber>[IVXLCDM]+)\.\s[\s,:;./]*(?P<movement>.*)')
+_re_part_number = re.compile(r'(?P<number>[0-9IVXLCDM]+)\.?\s[\s,:;./]*')
+_re_separators = re.compile(r'^[\s,:;./-]+')
 
 
 class Work:
@@ -147,14 +148,15 @@ def normalize_movement_title(work):
     if work.parent:
         work_title = work.parent.title
         if movement_title.startswith(work_title):
-            movement_title = movement_title[len(work_title):].lstrip(':').strip()
+            movement_title = movement_title[len(work_title):]
+            movement_title = _re_separators.sub('', movement_title)
     match = _re_part_number.match(movement_title)
     if match:
         # Only remove the number if it matches the part_number
         try:
             number = number_to_int(match.group('number'))
             if number == work.part_number:
-                movement_title = _re_part_number.sub("", movement_title)
+                movement_title = _re_part_number.sub('', movement_title)
         except ValueError as e:
             log.warning(e)
     return movement_title
@@ -170,7 +172,7 @@ def parse_work(work_rel):
             if is_parent_work(rel):
                 if is_movement_like(rel):
                     work.is_movement = True
-                    work.part_number = rel['ordering-key']
+                    work.part_number = rel.get('ordering-key')
                     if 'work' in rel:
                         work.parent = parse_work(rel['work'])
                         work.parent.is_work = True
