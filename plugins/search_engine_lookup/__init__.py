@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2020 Bob Swift (rdswift)
+# Copyright (C) 2020-2021 Bob Swift (rdswift)
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,8 +19,12 @@
 
 PLUGIN_NAME = 'Search Engine Lookup'
 PLUGIN_AUTHOR = 'Bob Swift'
-PLUGIN_DESCRIPTION = '''Adds a right click option on a cluster to look up album information using a search engine in a browser window.'''
-PLUGIN_VERSION = '2.0.2'
+PLUGIN_DESCRIPTION = '''
+Adds a right click option on a cluster to look up album information using a search engine in a browser window.
+
+Adds a right click option on an album or track to look up cover art for the selected album or title.
+'''
+PLUGIN_VERSION = '2.1.0'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
@@ -35,7 +39,7 @@ from picard import config, log
 from picard.cluster import Cluster
 from picard.plugins.search_engine_lookup.ui_options_search_engine_editor import Ui_SearchEngineEditorDialog
 from picard.plugins.search_engine_lookup.ui_options_search_engine_lookup import Ui_SearchEngineLookupOptionsPage
-from picard.ui.itemviews import BaseAction, register_cluster_action
+from picard.ui.itemviews import BaseAction, register_cluster_action, register_album_action, register_track_action
 from picard.ui.options import OptionsPage, register_options_page
 from picard.util.webbrowser2 import open as _open
 
@@ -56,14 +60,40 @@ KEY_PROVIDERS = 'search_engine_lookup_providers'
 KEY_EXTRA = 'search_engine_lookup_extra_words'
 
 
+def show_popup(title='', content='', window=None):
+    QtWidgets.QMessageBox.information(
+        window,
+        title,
+        content,
+        QtWidgets.QMessageBox.Ok,
+        QtWidgets.QMessageBox.Ok
+    )
+
+
+def lookup_error():
+    log.error("{0}: No existing metadata to lookup.".format(PLUGIN_NAME,))
+    show_popup(_('Lookup Error'), _('There is no existing data to use for a search.'))
+
+
+def do_lookup(text):
+    provider = config.setting[KEY_PROVIDER]
+    providers = config.setting[KEY_PROVIDERS]
+    base_url = providers[provider]['url'] if provider in providers else DEFAULT_PROVIDERS[DEFAULT_PROVIDER]['url']
+    url = base_url.replace(r'%search%', quote_plus(text))
+    log.debug("{0}: Looking up {1}".format(PLUGIN_NAME, url,))
+    _open(url)
+
+
+def lookup_cover_art(title, artist):
+    text = "{0} by {1} album cover".format(title, artist)
+    do_lookup(text)
+
+
 class SearchEngineLookupTest(BaseAction):
     NAME = 'Search engine lookup'
 
     def callback(self, cluster_list):
         extra = config.setting[KEY_EXTRA].split()
-        provider = config.setting[KEY_PROVIDER]
-        providers = config.setting[KEY_PROVIDERS]
-        base_url = providers[provider]['url'] if provider in providers else DEFAULT_PROVIDERS[DEFAULT_PROVIDER]['url']
         for cluster in cluster_list:
             if isinstance(cluster, Cluster):
                 parts = []
@@ -74,25 +104,35 @@ class SearchEngineLookupTest(BaseAction):
                 if parts:
                     if extra:
                         parts.extend(extra)
-                    url = base_url.replace(r'%search%', quote_plus(' '.join(parts)))
-                    log.debug("{0}: Looking up {1}".format(PLUGIN_NAME, url,))
-                    _open(url)
+                    text = ' '.join(parts)
+                    do_lookup(text)
                 else:
-                    log.error("{0}: No existing metadata to lookup.".format(PLUGIN_NAME,))
-                    show_popup(_('Lookup Error'), _('There is no existing data to use for a search.'))
+                    lookup_error()
             else:
                 log.error("{0}: Argument is not a cluster. {1}".format(PLUGIN_NAME, cluster,))
                 show_popup(_('Lookup Error'), _('There was a problem with the information provided for the cluster.'))
 
 
-def show_popup(title='', content='', window=None):
-    QtWidgets.QMessageBox.information(
-        window,
-        title,
-        content,
-        QtWidgets.QMessageBox.Ok,
-        QtWidgets.QMessageBox.Ok
-    )
+class AlbumCoverArtLookup(BaseAction):
+    NAME = 'Album cover art lookup'
+
+    def callback(self, album):
+        metadata = album[0].metadata
+        if 'album' in metadata and 'albumartist' in metadata:
+            lookup_cover_art(metadata['album'], metadata['albumartist'])
+        else:
+            lookup_error()
+
+
+class TrackCoverArtLookup(BaseAction):
+    NAME = 'Track cover art lookup'
+
+    def callback(self, track):
+        metadata = track[0].metadata
+        if 'title' in metadata and 'artist' in metadata:
+            lookup_cover_art(metadata['title'], metadata['artist'])
+        else:
+            lookup_error()
 
 
 class SearchEngineEditDialog(QtWidgets.QDialog):
@@ -282,3 +322,5 @@ class SearchEngineLookupOptionsPage(OptionsPage):
 
 register_cluster_action(SearchEngineLookupTest())
 register_options_page(SearchEngineLookupOptionsPage)
+register_album_action(AlbumCoverArtLookup())
+register_track_action(TrackCoverArtLookup())
