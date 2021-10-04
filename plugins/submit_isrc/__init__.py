@@ -49,9 +49,8 @@ PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 
 import re
-from xml.etree import ElementTree
 
-from picard import config, log
+from picard import log
 from picard.ui.itemviews import BaseAction, register_album_action
 from picard.webservice.api_helpers import MBAPIHelper, _wrap_xml_metadata
 from PyQt5 import QtCore, QtWidgets
@@ -247,11 +246,10 @@ class SubmitAlbumISRCs(BaseAction):
 
         # Build error text message from returned xml payload
         err_text = ''
-        try:
-            xml_obj = ElementTree.fromstring(xml_text)
-            for item in xml_obj.iter('text'):
-                err_text += item.text + '\n'
-        except Exception:
+        matches = re.findall(r'<text>(.*?)</text>', xml_text)
+        if matches:
+            err_text = '\n'.join(matches)
+        else:
             err_text = ''
 
         # Use standard QNetworkReply error messages if no message was provided in the xml payload
