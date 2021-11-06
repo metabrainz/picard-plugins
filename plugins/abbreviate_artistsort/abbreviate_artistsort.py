@@ -29,6 +29,7 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 from picard import log
 from picard.metadata import register_track_metadata_processor
 
+# NOTE: This plugin will not work consistently if you have not enabled the 'Standardize Artist Names' option!
 # The algorithm for this is complicated because the tags can contain multiple names separated by various characters
 # As an example from http://musicbrainz.org/release/6c0cfb20-2606-46c1-9306-ee5e7cb5bfdf
 #   Sorted:   Vivaldi, Antonio, Caldara, Antonio; Queyras, Jean-Guihen, Kallweit, Georg, Akademie für Alte Musik Berlin
