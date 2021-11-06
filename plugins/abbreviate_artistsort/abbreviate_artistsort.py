@@ -20,7 +20,7 @@ e.g. "Vivaldi, Antonio" becomes "Vivaldi, A."
 This is particularly useful for classical albums that can have a long list of artists.
 %artistsort% is abbreviated into %_artistsort_abbrev% and
 %albumartistsort% is abbreviated into %_albumartistsort_abbrev%.'''
-PLUGIN_VERSION = "0.4"
+PLUGIN_VERSION = "0.4.1"
 PLUGIN_API_VERSIONS = ["1.0", "2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
