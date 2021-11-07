@@ -6,10 +6,10 @@ Tags beginning with `musicbrainz_` are kept automatically, as are tags
 beginning with `_`.
 
 To keep all tags that can have a description (like `comment`, lyrics` and
-`performer`), add `<tagname without description>` (not including `:`) to the
+`performer`), add `&lt;tagname without description&gt;` (not including `:`) to the
 list of tags to keep."""
 
-PLUGIN_VERSION = "1.2"
+PLUGIN_VERSION = "1.2.1"
 PLUGIN_API_VERSIONS = ["0.15.0", "0.15.1", "0.16.0", "1.0.0", "1.1.0", "1.2.0",
                        "1.3.0", "2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
