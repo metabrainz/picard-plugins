@@ -24,10 +24,12 @@ PLUGIN_DESCRIPTION = '''Add's the following tags:
 <li>Beats Per Minute (BPM)</li>
 </ul>
 from the AcousticBrainz database.<br/><br/>
+<em>This plugin is deprecated, please consider using the AcousticBrainz Tags
+plugin instead.</em>
 '''
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = '1.1.4'
+PLUGIN_VERSION = '1.1.5'
 PLUGIN_API_VERSIONS = ["2.0"]  # Requires support for TKEY which is in 1.4
 
 from json import JSONDecodeError
