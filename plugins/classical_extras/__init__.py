@@ -81,7 +81,7 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.12'
+PLUGIN_VERSION = '2.0.13'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -8550,6 +8550,7 @@ class ClassicalExtrasOptionsPage(OptionsPage):
     NAME = "classical_extras"
     TITLE = "Classical Extras"
     PARENT = "plugins"
+    HELP_URL = "http://music.highmossergate.co.uk/symphony/tagging/classical-extras/"
     opts = plugin_options('artists') + plugin_options('tag') + plugin_options('tag_detail') +\
         plugin_options('workparts') + plugin_options('genres') + plugin_options('other')
 
