@@ -30,7 +30,7 @@ this plugin.
 <br /><br />
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md">user guide</a> on GitHub for more information.
 '''
-PLUGIN_VERSION = '0.8'
+PLUGIN_VERSION = '0.8.1'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.7']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
@@ -128,8 +128,8 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
             std_artist += temp_std_name + temp_phrase
             cred_artist += temp_cred_name + temp_phrase
             sort_artist += temp_sort_name + temp_phrase
-            artist_types.append(temp_type)
-            artist_join_phrases.append(temp_phrase)
+            artist_types.append(temp_type if temp_type else 'unknown',)
+            artist_join_phrases.append(temp_phrase if temp_phrase else '[blank]',)
             if temp_legal_name:
                 legal_artist += temp_legal_name + temp_phrase
                 legal_artist_list.append(temp_legal_name,)
