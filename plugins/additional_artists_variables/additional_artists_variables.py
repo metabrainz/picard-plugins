@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018 Bob Swift (rdswift)
+# Copyright (C) 2018, 2021 Bob Swift (rdswift)
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -30,8 +30,8 @@ this plugin.
 <br /><br />
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md">user guide</a> on GitHub for more information.
 '''
-PLUGIN_VERSION = '0.7.1'
-PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2']
+PLUGIN_VERSION = '0.8'
+PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.7']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
@@ -66,6 +66,8 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
         legal_artist_list = []
         artist_count = 0
         artist_ids = []
+        artist_types = []
+        artist_join_phrases = []
         for artist_credit in source_metadata['artist-credit']:
             # Initialize temporary variables for each loop.
             temp_std_name = ''
@@ -75,6 +77,7 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
             temp_legal_sort_name = ''
             temp_phrase = ''
             temp_id = ''
+            temp_type = ''
             # Check if there is a 'joinphrase' specified.
             if 'joinphrase' in artist_credit:
                 temp_phrase = artist_credit['joinphrase']
@@ -99,6 +102,10 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                     temp_sort_name = artist_credit['artist']['sort-name']
                 else:
                     metadata_error(album_id, 'artist-credit.artist.sort-name', source_type)
+                if 'type' in artist_credit['artist']:
+                    temp_type = artist_credit['artist']['type']
+                else:
+                    metadata_error(album_id, 'artist-credit.artist.type', source_type)
                 if 'aliases' in artist_credit['artist']:
                     for item in artist_credit['artist']['aliases']:
                         if 'type-id' in item and item['type-id'] =='d4dcd0c0-b341-3612-a332-c0ce797b25cf':
@@ -121,6 +128,8 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
             std_artist += temp_std_name + temp_phrase
             cred_artist += temp_cred_name + temp_phrase
             sort_artist += temp_sort_name + temp_phrase
+            artist_types.append(temp_type)
+            artist_join_phrases.append(temp_phrase)
             if temp_legal_name:
                 legal_artist += temp_legal_name + temp_phrase
                 legal_artist_list.append(temp_legal_name,)
@@ -200,6 +209,10 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
         destination_metadata['~artists_{0}_all_legal_multi'.format(source_type,)] = legal_artist_list
     if sort_pri_artist:
         destination_metadata['~artists_{0}_all_sort_primary'.format(source_type,)] = sort_pri_artist
+    if artist_types:
+        destination_metadata['~artists_{0}_all_types'.format(source_type,)] = artist_types
+    if artist_join_phrases:
+        destination_metadata['~artists_{0}_all_join_phrases'.format(source_type,)] = artist_join_phrases
     if artist_count:
         destination_metadata['~artists_{0}_all_count'.format(source_type,)] = artist_count
 
