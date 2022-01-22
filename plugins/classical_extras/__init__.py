@@ -81,8 +81,8 @@ on GitHub here</a> for full details.
 #
 # The main control routine is at the end of the module
 
-PLUGIN_VERSION = '2.0.13'
-PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4"]
+PLUGIN_VERSION = '2.0.14'
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -376,6 +376,18 @@ def _read_xml(stream):
         elif stream.isCharacters():
             current_node.text += str(stream.text())
     return document
+
+
+def get_preferred_artist_language(config):
+    locales = config.setting["artist_locales"]
+    if locales:
+        artist_locale = locales[0]
+    else:
+        artist_locale = config.setting["artist_locale"]
+    if artist_locale:
+        return artist_locale.split('_')[0]
+    else:
+        return ''
 
 
 def parse_data(release_id, obj, response_list, *match):
@@ -1037,10 +1049,8 @@ def get_aliases(self, release_id, album, options, releaseXmlNode):
     N.B. if more than one release is loaded in Picard, any available alias names loaded so far will be available
     and used. However, as-credited names will only be used from the current release."""
 
-    if 'artist_locale' in config.setting and options['cea_aliases'] or options['cea_aliases_composer']:
-        locale = config.setting["artist_locale"]
-        lang = locale.split("_")[0]  # NB this is the Picard code in /util
-
+    lang = get_preferred_artist_language(config)
+    if lang and options['cea_aliases'] or options['cea_aliases_composer']:
         # Track and recording aliases/credits are gathered by parsing the
         # media, track and recording nodes
         # Do the recording relationship first as it may apply to multiple releases, so release and track data
@@ -3179,9 +3189,7 @@ class ExtraArtists():
                 track_artistsort = []
                 track_artists = []
                 track_artists_sort = []
-                locale = config.setting["artist_locale"]
-                # NB this is the Picard code in /util
-                lang = locale.split("_")[0]
+                lang = get_preferred_artist_language(config)
 
                 # Set naming option
                 # Put naming style into preferential list
@@ -3243,9 +3251,7 @@ class ExtraArtists():
                         recording_artistsort = []
                         recording_artists = []
                         recording_artists_sort = []
-                        locale = config.setting["artist_locale"]
-                        # NB this is the Picard code in /util
-                        lang = locale.split("_")[0]
+                        lang = get_preferred_artist_language(config)
 
                         # Set naming option
                         # Put naming style into preferential list
@@ -5245,10 +5251,8 @@ class PartLevels():
             premiered_dates = [x + DATE_SEP + y for x, y in premiered_dates]
         self.parts[wid]['premiered_dates'] = premiered_dates
 
-        if 'artist_locale' in config.setting:
-            locale = config.setting["artist_locale"]
-            # NB this is the Picard code in /util
-            lang = locale.split("_")[0]
+        lang = get_preferred_artist_language(config)
+        if lang:
             alias = parse_data(release_id, response, [], 'aliases',
                                'locale:' + lang, 'primary:True', 'name')
             user_tags = parse_data(
