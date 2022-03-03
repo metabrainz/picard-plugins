@@ -16,7 +16,7 @@ PLUGIN_AUTHOR = "Francis Chin, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Generate an Extended M3U playlist (.m3u8 file, UTF8
 encoded text). Relative pathnames are used where audio files are in the same
 directory as the playlist, otherwise absolute (full) pathnames are used."""
-PLUGIN_VERSION = "1.1.1"
+PLUGIN_VERSION = "1.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -133,8 +133,8 @@ class GeneratePlaylist(BaseAction):
                         if _debug_level > 1:
                             log.debug("{}: audio_filename: {}, selected dir: {}".format(
                                     PLUGIN_NAME, audio_filename, os.path.dirname(filename)))
-                        if os.path.dirname(filename) == os.path.dirname(audio_filename):
-                            audio_filename = os.path.basename(audio_filename)
+
+                        audio_filename = os.path.relpath(audio_filename, os.path.dirname(filename))
                         entry.add(str(audio_filename))
 
             playlist.write()
