@@ -12,7 +12,7 @@
 # GNU General Public License for more details.
 
 PLUGIN_NAME = "Generate M3U playlist"
-PLUGIN_AUTHOR = "Francis Chin, Sambhav Kothari"
+PLUGIN_AUTHOR = "Francis Chin, Sambhav Kothari, Chris Hylen"
 PLUGIN_DESCRIPTION = """Generate an Extended M3U playlist (.m3u8 file, UTF8
 encoded text). Relative pathnames are used where audio files are in the same
 directory as the playlist, otherwise absolute (full) pathnames are used."""
@@ -76,9 +76,15 @@ class GeneratePlaylist(BaseAction):
     NAME = "Generate &Playlist..."
 
     def callback(self, objs):
-        current_directory = (self.config.persist["current_directory"]
-                             or QtCore.QDir.homePath())
-        current_directory = find_existing_path(current_directory)
+        # Find common path of all files to default where to save playlist
+        files = []
+        for album in objs:
+            for track in album.tracks:
+                if track.linked_files:
+                    files.append(track.linked_files[0].filename)
+
+        current_directory = os.path.commonpath(files)
+
         # Default playlist filename set as "%albumartist% - %album%.m3u8",
         # except where "Various Artists" is suppressed
         if _debug_level > 1:
