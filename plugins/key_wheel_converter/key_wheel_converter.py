@@ -22,11 +22,7 @@
 
 PLUGIN_NAME = 'Key Wheel Converter'
 PLUGIN_AUTHOR = 'Bob Swift'
-PLUGIN_DESCRIPTION = '''
-<p>
-Adds functions to convert between 'standard', 'camelot' and 'open key' key formats.
-</p>
-'''
+PLUGIN_DESCRIPTION = '''Adds functions to convert between 'standard', 'camelot' and 'open key' key formats.'''
 PLUGIN_VERSION = '1.0'
 PLUGIN_API_VERSIONS = ['2.3', '2.4', '2.6', '2.7']
 PLUGIN_LICENSE = "GPL-2.0"
@@ -41,7 +37,7 @@ from picard.script import register_script_function
 
 # pylint: disable=R0903     (too-few-public-methods)
 class KeyMap():
-    """\
+    """
         Class to hold the mapping dictionary.  The dictionary is
         stored as a class variable so that it is only generated once.
     """
@@ -88,10 +84,6 @@ class KeyMap():
                 'standard_t': item[3],
             }
 
-    def __init__(self):
-        """Class to hold the mapping dictionary.
-        """
-
 
 def _matcher(text, out_type):
     """Helper function that performs the actual key lookup.
@@ -131,7 +123,6 @@ def _parse_input(text):
     if re.match("[0-9]{1,2}[dmDM]$", text):
         # Matches open key format.  Convert to camelot key for lookup.
         temp = int(text[0:-1])
-        # if temp > 0 and temp < 13:
         if 0 < temp < 13:
             _num = ((temp + 6) % 12) + 1
             _char = text[-1:].lower().replace('m', 'A').replace('d', 'B')
@@ -147,9 +138,9 @@ def _parse_input(text):
     _return = ' '.join(parts).replace('-s', '-S').replace('-f', '-F')
     # Handle cases where there are multiple circle of fifths entries for the item
     if _return == 'G-Flat Major':
-        _return = 'F-Sharp Major'
-    elif _return == 'D-Sharp Minor':
-        _return = 'E-Flat Minor'
+        return 'F-Sharp Major'
+    if _return == 'D-Sharp Minor':
+        return 'E-Flat Minor'
     return _return
 
 
