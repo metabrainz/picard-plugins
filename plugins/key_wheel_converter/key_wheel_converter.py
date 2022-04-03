@@ -44,6 +44,9 @@ class KeyMap():
         stored as a class variable so that it is only generated once.
     """
 
+    # Circle of Fifths reference:
+    # https://www.circleoffifths.com
+
     # Key Wheel references:
     # https://i.imgur.com/p9Kdevi.jpg
     # http://www.quanta.com.br/wp-content/uploads/2013/07/traktor-key-wheel_alta.jpg
@@ -55,18 +58,18 @@ class KeyMap():
     #   'standard key /w text'
     #   'traktor key'
     _keys = [
-        ('1A', '6m', 'A♭ Minor', 'A-Flat Minor', 'G#m'),
+        ('1A', '6m', 'A♭ Minor', 'A-Flat Minor', 'Abm'),
         ('1B', '6d', 'B Major', 'B Major', 'B'),
-        ('2A', '7m', 'E♭ Minor', 'E-Flat Minor', 'D#m'),
+        ('2A', '7m', 'E♭ Minor', 'E-Flat Minor', 'Ebm'),
         ('2B', '7d', 'F# Major', 'F-Sharp Major', 'F#'),
-        ('3A', '8m', 'B♭ Minor', 'B-Flat Minor', 'A#m'),
-        ('3B', '8d', 'D♭ Major', 'D-Flat Major', 'C#'),
+        ('3A', '8m', 'B♭ Minor', 'B-Flat Minor', 'Bbm'),
+        ('3B', '8d', 'D♭ Major', 'D-Flat Major', 'Db'),
         ('4A', '9m', 'F Minor', 'F Minor', 'Fm'),
-        ('4B', '9d', 'A♭ Major', 'A-Flat Major', 'G#'),
+        ('4B', '9d', 'A♭ Major', 'A-Flat Major', 'Ab'),
         ('5A', '10m', 'C Minor', 'C Minor', 'Cm'),
-        ('5B', '10d', 'E♭ Major', 'E-Flat Major', 'D#'),
+        ('5B', '10d', 'E♭ Major', 'E-Flat Major', 'Eb'),
         ('6A', '11m', 'G Minor', 'G Minor', 'Gm'),
-        ('6B', '11d', 'B♭ Major', 'B-Flat Major', 'A#'),
+        ('6B', '11d', 'B♭ Major', 'B-Flat Major', 'Bb'),
         ('7A', '12m', 'D Minor', 'D Minor', 'Dm'),
         ('7B', '12d', 'F Major', 'F Major', 'F'),
         ('8A', '1m', 'A Minor', 'A Minor', 'Am'),
@@ -75,9 +78,9 @@ class KeyMap():
         ('9B', '2d', 'G Major', 'G Major', 'G'),
         ('10A', '3m', 'B Minor', 'B Minor', 'Bm'),
         ('10B', '3d', 'D Major', 'D Major', 'D'),
-        ('11A', '4m', 'G♭ Minor', 'G-Flat Minor', 'F#m'),
+        ('11A', '4m', 'G♭ Minor', 'G-Flat Minor', 'Gbm'),
         ('11B', '4d', 'A Major', 'A Major', 'A'),
-        ('12A', '5m', 'D♭ Minor', 'D-Flat Minor', 'C#m'),
+        ('12A', '5m', 'D♭ Minor', 'D-Flat Minor', 'Dbm'),
         ('12B', '5d', 'E Major', 'E Major', 'E'),
     ]
 
@@ -102,15 +105,15 @@ class KeyMap():
 
     # Alternate mapping for traktor keys
     t_alt = {
-        'Ab': 'G#',
-        'Bb': 'A#',
-        'Db': 'C#',
-        'Eb': 'D#',
-        'Abm': 'G#m',
-        'Bbm': 'A#m',
-        'Dbm': 'C#m',
-        'Ebm': 'D#m',
-        'Gbm': 'F#m',
+        'G#': 'Ab',
+        'A#': 'Bb',
+        'C#': 'Db',
+        'D#': 'Eb',
+        'G#m': 'Abm',
+        'A#m': 'Bbm',
+        'C#m': 'Dbm',
+        'D#m': 'Ebm',
+        'F#m': 'Gbm',
     }
 
 
@@ -431,19 +434,19 @@ def key2traktor(parser, text):
     Tests:
 
     >>> key2traktor(None, '1A')
-    'G#m'
+    'Abm'
     >>> key2traktor(None, '6m')
-    'G#m'
+    'Abm'
     >>> key2traktor(None, 'A♭ Minor')
-    'G#m'
+    'Abm'
     >>> key2traktor(None, 'A-Flat Minor')
-    'G#m'
+    'Abm'
     >>> key2traktor(None, 'c#')
-    'C#'
+    'Db'
     >>> key2traktor(None, 'gBM')
-    'F#m'
+    'Gbm'
     >>> key2traktor(None, 'g♭M')
-    'F#m'
+    'Gbm'
     >>> key2traktor(None, '')
     ''
     """
