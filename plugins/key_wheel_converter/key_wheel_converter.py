@@ -22,8 +22,10 @@
 
 PLUGIN_NAME = 'Key Wheel Converter'
 PLUGIN_AUTHOR = 'Bob Swift'
-PLUGIN_DESCRIPTION = '''Adds functions to convert between 'standard', 'camelot' and 'open key' key formats.'''
-PLUGIN_VERSION = '1.0'
+PLUGIN_DESCRIPTION = '''
+Adds functions to convert between 'standard', 'camelot', 'open key' and 'traktor' key formats.
+'''
+PLUGIN_VERSION = '1.1'
 PLUGIN_API_VERSIONS = ['2.3', '2.4', '2.6', '2.7']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
@@ -41,48 +43,78 @@ class KeyMap():
         Class to hold the mapping dictionary.  The dictionary is
         stored as a class variable so that it is only generated once.
     """
+
+    # Circle of Fifths reference:
+    # https://www.circleoffifths.com
+
+    # Key Wheel references:
+    # https://i.imgur.com/p9Kdevi.jpg
+    # http://www.quanta.com.br/wp-content/uploads/2013/07/traktor-key-wheel_alta.jpg
+
     # List of tuples of:
     #   'camelot key',
     #   'open key',
     #   'standard key /w symbols',
     #   'standard key /w text'
+    #   'traktor key'
     _keys = [
-        ('1A', '6m', 'A♭ Minor', 'A-Flat Minor'),
-        ('1B', '6d', 'B Major', 'B Major'),
-        ('2A', '7m', 'E♭ Minor', 'E-Flat Minor'),
-        ('2B', '7d', 'F# Major', 'F-Sharp Major'),
-        ('3A', '8m', 'B♭ Minor', 'B-Flat Minor'),
-        ('3B', '8d', 'D♭ Major', 'D-Flat Major'),
-        ('4A', '9m', 'F Minor', 'F Minor'),
-        ('4B', '9d', 'A♭ Major', 'A-Flat Major'),
-        ('5A', '10m', 'C Minor', 'C Minor'),
-        ('5B', '10d', 'E♭ Major', 'E-Flat Major'),
-        ('6A', '11m', 'G Minor', 'G Minor'),
-        ('6B', '11d', 'B♭ Major', 'B-Flat Major'),
-        ('7A', '12m', 'D Minor', 'D Minor'),
-        ('7B', '12d', 'F Major', 'F Major'),
-        ('8A', '1m', 'A Minor', 'A Minor'),
-        ('8B', '1d', 'C Major', 'C Major'),
-        ('9A', '2m', 'E Minor', 'E Minor'),
-        ('9B', '2d', 'G Major', 'G Major'),
-        ('10A', '3m', 'B Minor', 'B Minor'),
-        ('10B', '3d', 'D Major', 'D Major'),
-        ('11A', '4m', 'G♭ Minor', 'G-Flat Minor'),
-        ('11B', '4d', 'A Major', 'A Major'),
-        ('12A', '5m', 'D♭ Minor', 'D-Flat Minor'),
-        ('12B', '5d', 'E Major', 'E Major'),
+        ('1A', '6m', 'A♭ Minor', 'A-Flat Minor', 'Abm'),
+        ('1B', '6d', 'B Major', 'B Major', 'B'),
+        ('2A', '7m', 'E♭ Minor', 'E-Flat Minor', 'Ebm'),
+        ('2B', '7d', 'F# Major', 'F-Sharp Major', 'F#'),
+        ('3A', '8m', 'B♭ Minor', 'B-Flat Minor', 'Bbm'),
+        ('3B', '8d', 'D♭ Major', 'D-Flat Major', 'Db'),
+        ('4A', '9m', 'F Minor', 'F Minor', 'Fm'),
+        ('4B', '9d', 'A♭ Major', 'A-Flat Major', 'Ab'),
+        ('5A', '10m', 'C Minor', 'C Minor', 'Cm'),
+        ('5B', '10d', 'E♭ Major', 'E-Flat Major', 'Eb'),
+        ('6A', '11m', 'G Minor', 'G Minor', 'Gm'),
+        ('6B', '11d', 'B♭ Major', 'B-Flat Major', 'Bb'),
+        ('7A', '12m', 'D Minor', 'D Minor', 'Dm'),
+        ('7B', '12d', 'F Major', 'F Major', 'F'),
+        ('8A', '1m', 'A Minor', 'A Minor', 'Am'),
+        ('8B', '1d', 'C Major', 'C Major', 'C'),
+        ('9A', '2m', 'E Minor', 'E Minor', 'Em'),
+        ('9B', '2d', 'G Major', 'G Major', 'G'),
+        ('10A', '3m', 'B Minor', 'B Minor', 'Bm'),
+        ('10B', '3d', 'D Major', 'D Major', 'D'),
+        ('11A', '4m', 'G♭ Minor', 'G-Flat Minor', 'Gbm'),
+        ('11B', '4d', 'A Major', 'A Major', 'A'),
+        ('12A', '5m', 'D♭ Minor', 'D-Flat Minor', 'Dbm'),
+        ('12B', '5d', 'E Major', 'E Major', 'E'),
     ]
 
-    # Build mapping dictionary with 'camelot' and 'standard with text' keys.
+    # Build mapping dictionary with 'camelot', 'standard with text'
+    # and 'traktor' keys.
     keys = {}
     for item in _keys:
-        for i in [0, 3]:
+        for i in [0, 3, 4]:
             keys[item[i]] = {
                 'camelot': item[0],
                 'open': item[1],
                 'standard_s': item[2],
                 'standard_t': item[3],
+                'traktor': item[4],
             }
+
+    # Alternate mapping for standard keys
+    s_alt = {
+        'G-Flat Major': 'F-Sharp Major',
+        'D-Sharp Minor': 'E-Flat Minor',
+    }
+
+    # Alternate mapping for traktor keys
+    t_alt = {
+        'G#': 'Ab',
+        'A#': 'Bb',
+        'C#': 'Db',
+        'D#': 'Eb',
+        'G#m': 'Abm',
+        'A#m': 'Bbm',
+        'C#m': 'Dbm',
+        'D#m': 'Ebm',
+        'F#m': 'Gbm',
+    }
 
 
 def _matcher(text, out_type):
@@ -112,6 +144,7 @@ def _parse_input(text):
     Returns:
         str: Argument converted to supported key format (if possible)
     """
+
     text = text.strip()
     if not text:
         return ''
@@ -128,6 +161,14 @@ def _parse_input(text):
             _char = text[-1:].lower().replace('m', 'A').replace('d', 'B')
             return "{0}{1}".format(_num, _char,)
 
+    if re.match("[a-g][#bB♭]?[mM]?$", text):
+        # Matches Traktor key format.  Fix capitalization for lookup.
+        temp = text[0:1].upper() + text[1:].replace('♭', 'b').lower()
+        # Handle cases where there are multiple entries for the item
+        if temp in KeyMap.t_alt:
+            return KeyMap.t_alt[temp]
+        return temp
+
     # Parse as standard key
     # Add missing hyphens before 'Flat' and 'Sharp'
     text = text.lower().replace(' s', '-s').replace(' f', '-f')
@@ -135,13 +176,11 @@ def _parse_input(text):
     parts = text.replace('♭', '-Flat').replace('#', '-Sharp').split()
     for (i, part) in enumerate(parts):
         parts[i] = part[0:1].upper() + part[1:]
-    _return = ' '.join(parts).replace('-s', '-S').replace('-f', '-F')
-    # Handle cases where there are multiple circle of fifths entries for the item
-    if _return == 'G-Flat Major':
-        return 'F-Sharp Major'
-    if _return == 'D-Sharp Minor':
-        return 'E-Flat Minor'
-    return _return
+    temp = ' '.join(parts).replace('-s', '-S').replace('-f', '-F')
+    # Handle cases where there are multiple entries for the item
+    if temp in KeyMap.s_alt:
+        return KeyMap.s_alt[temp]
+    return temp
 
 
 def key2camelot(parser, text):
@@ -198,6 +237,13 @@ def key2camelot(parser, text):
     ''
     >>> key2camelot(None, '1x')
     ''
+
+    >>> key2camelot(None, 'c')
+    '8B'
+    >>> key2camelot(None, 'dB')
+    '3B'
+    >>> key2camelot(None, 'd#M')
+    '2A'
     """
     return _matcher(text, 'camelot')
 
@@ -375,16 +421,48 @@ def key2standard(parser, text, use_symbol=''):
     return _matcher(text, 'standard_t')
 
 
+def key2traktor(parser, text):
+    """Any key to traktor key format converter.
+
+    Args:
+        parser (object): Picard parser object
+        text (str): Key to convert
+
+    Returns:
+        str: Converted key value
+
+    Tests:
+
+    >>> key2traktor(None, '1A')
+    'Abm'
+    >>> key2traktor(None, '6m')
+    'Abm'
+    >>> key2traktor(None, 'A♭ Minor')
+    'Abm'
+    >>> key2traktor(None, 'A-Flat Minor')
+    'Abm'
+    >>> key2traktor(None, 'c#')
+    'Db'
+    >>> key2traktor(None, 'gBM')
+    'Gbm'
+    >>> key2traktor(None, 'g♭M')
+    'Gbm'
+    >>> key2traktor(None, '')
+    ''
+    """
+    return _matcher(text, 'traktor')
+
+
 register_script_function(key2camelot, name='key2camelot',
     documentation="""`$key2camelot(key)`
 
 Returns the key string `key` in camelot key format.
 
 The `key` argument can be entered in any of the supported formats, such as
-'2B' (camelot), '6d' (open key), 'A♭ Minor' (standard with symbols) or
-'A-Flat Minor' (standard with text).  If the `key` argument is not recognized
-as one of the standard keys in the circle of fifths, then an empty string will
-be returned.""")
+'2B' (camelot), '6d' (open key), 'A♭ Minor' (standard with symbols),
+'A-Flat Minor' (standard with text) or 'C#' (traktor).  If the `key` argument
+is not recognized as one of the standard keys in the supported formats, then
+an empty string will be returned.""")
 
 register_script_function(key2openkey, name='key2openkey',
     documentation="""`$key2openkey(key)`
@@ -392,10 +470,10 @@ register_script_function(key2openkey, name='key2openkey',
 Returns the key string `key` in open key format.
 
 The `key` argument can be entered in any of the supported formats, such as
-'2B' (camelot), '6d' (open key), 'A♭ Minor' (standard with symbols) or
-'A-Flat Minor' (standard with text).  If the `key` argument is not recognized
-as one of the standard keys in the circle of fifths, then an empty string will
-be returned.""")
+'2B' (camelot), '6d' (open key), 'A♭ Minor' (standard with symbols),
+'A-Flat Minor' (standard with text) or 'C#' (traktor).  If the `key` argument
+is not recognized as one of the standard keys in the supported formats, then
+an empty string will be returned.""")
 
 register_script_function(key2standard, name='key2standard',
     documentation="""`$key2standard(key[,symbols])`
@@ -405,10 +483,21 @@ Returns the key string `key` in standard key format.  If the optional argument
 spelling out '-Flat' and '-Sharp'.
 
 The `key` argument can be entered in any of the supported formats, such as
-'2B' (camelot), '6d' (open key), 'A♭ Minor' (standard with symbols) or
-'A-Flat Minor' (standard with text).  If the `key` argument is not recognized
-as one of the standard keys in the circle of fifths, then an empty string will
-be returned.""")
+'2B' (camelot), '6d' (open key), 'A♭ Minor' (standard with symbols),
+'A-Flat Minor' (standard with text) or 'C#' (traktor).  If the `key` argument
+is not recognized as one of the standard keys in the supported formats, then
+an empty string will be returned.""")
+
+register_script_function(key2traktor, name='key2traktor',
+    documentation="""`$key2traktor(key)`
+
+Returns the key string `key` in traktor key format.
+
+The `key` argument can be entered in any of the supported formats, such as
+'2B' (camelot), '6d' (open key), 'A♭ Minor' (standard with symbols),
+'A-Flat Minor' (standard with text) or 'C#' (traktor).  If the `key` argument
+is not recognized as one of the standard keys in the supported formats, then
+an empty string will be returned.""")
 
 if __name__ == "__main__":
     import doctest
