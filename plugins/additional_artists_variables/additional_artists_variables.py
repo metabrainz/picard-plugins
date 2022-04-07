@@ -129,7 +129,7 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
             cred_artist += temp_cred_name + temp_phrase
             sort_artist += temp_sort_name + temp_phrase
             artist_types.append(temp_type if temp_type else 'unknown',)
-            artist_join_phrases.append(temp_phrase if temp_phrase else '[blank]',)
+            artist_join_phrases.append(temp_phrase if temp_phrase else '\u200B',)
             if temp_legal_name:
                 legal_artist += temp_legal_name + temp_phrase
                 legal_artist_list.append(temp_legal_name,)
