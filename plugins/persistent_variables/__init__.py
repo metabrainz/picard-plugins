@@ -17,6 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+# "Persistent variables display" context is based on the code from
+# the "View Script Variables" plugin.
+
 PLUGIN_NAME = 'Persistent Variables'
 PLUGIN_AUTHOR = 'Bob Swift (rdswift)'
 PLUGIN_DESCRIPTION = '''
@@ -51,12 +54,29 @@ PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
 PLUGIN_USER_GUIDE_URL = 'https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/persistent_variables/docs/README.md'
 
+from PyQt5 import QtWidgets
+
 from picard import log
-from picard.album import register_album_post_removal_processor
+from picard.album import (
+    Album,
+    register_album_post_removal_processor,
+)
+from picard.file import File
 from picard.metadata import register_album_metadata_processor
 from picard.plugin import PluginPriority
+from picard.plugins.persistent_variables.ui_variables_dialog import (
+    Ui_VariablesDialog,
+)
 from picard.script import register_script_function
 from picard.script.parser import normalize_tagname
+from picard.track import Track
+
+from picard.ui.itemviews import (
+    BaseAction,
+    register_album_action,
+    register_file_action,
+    register_track_action,
+)
 
 
 class PersistentVariables:
@@ -108,6 +128,16 @@ class PersistentVariables:
     @classmethod
     def get_session_var(cls, key):
         return cls.session_variables[key] if key in cls.session_variables else ""
+
+    @classmethod
+    def get_album_dict(cls, album):
+        if album and album in cls.album_variables:
+            return cls.album_variables[album]
+        return {}
+
+    @classmethod
+    def get_session_dict(cls):
+        return cls.session_variables
 
 
 def _get_album_id(parser):
@@ -187,6 +217,85 @@ def destroy_album_dict(album):
     PersistentVariables.unset_album_dict(album_id)
 
 
+class ViewVariables(BaseAction):
+    NAME = 'View persistent variables'
+
+    def callback(self, objs):
+        obj = objs[0]
+        files = self.tagger.get_files_from_objects(objs)
+        if files:
+            obj = files[0]
+        dialog = ViewVariablesDialog(obj)
+        dialog.exec_()
+
+
+class ViewVariablesDialog(QtWidgets.QDialog):
+
+    def __init__(self, obj, parent=None):
+        QtWidgets.QDialog.__init__(self, parent)
+        self.ui = Ui_VariablesDialog()
+        self.ui.setupUi(self)
+        self.ui.buttonBox.accepted.connect(self.accept)
+        self.album_id = ""
+        self.setWindowTitle("Persistent Variables")
+        if isinstance(obj, Album):
+            self.album_id = str(obj.id)
+        if isinstance(obj, File):
+            if obj.parent and hasattr(obj.parent, 'album') and obj.parent.album:
+                self.album_id = str(obj.parent.album.id)
+        elif isinstance(obj, Track):
+            if obj.album:
+                self.album_id = str(obj.album.id)
+        album_dict = PersistentVariables.get_album_dict(self.album_id)
+        album_count = len(album_dict)
+        session_dict = PersistentVariables.get_session_dict()
+        session_count = len(session_dict)
+
+        table = self.ui.metadata_table
+        key_example, value_example = self.get_table_items(table, 0)
+        self.key_flags = key_example.flags()
+        self.value_flags = value_example.flags()
+        table.setRowCount(album_count + session_count + 2)
+        i = 0
+        self.add_separator_row(table, i, "Album Variables", album_count)
+        i += 1
+        for key in sorted(album_dict.keys()):
+            key_item, value_item = self.get_table_items(table, i)
+            key_item.setText(key)
+            value_item.setText(album_dict[key])
+            i += 1
+        self.add_separator_row(table, i, "Session Variables", session_count)
+        i += 1
+        for key in sorted(session_dict.keys()):
+            key_item, value_item = self.get_table_items(table, i)
+            key_item.setText(key)
+            value_item.setText(session_dict[key])
+            i += 1
+
+    def add_separator_row(self, table, i, title, count):
+        key_item, value_item = self.get_table_items(table, i)
+        font = key_item.font()
+        font.setBold(True)
+        key_item.setFont(font)
+        key_item.setText(title)
+        value_item.setText("{0} item{1}".format(count, "" if count == 1 else "s",))
+
+    def get_table_items(self, table, i):
+        key_item = table.item(i, 0)
+        value_item = table.item(i, 1)
+        if not key_item:
+            key_item = QtWidgets.QTableWidgetItem()
+            key_item.setFlags(self.key_flags)
+            table.setItem(i, 0, key_item)
+        if not value_item:
+            value_item = QtWidgets.QTableWidgetItem()
+            value_item.setFlags(self.value_flags)
+            table.setItem(i, 1, value_item)
+        return key_item, value_item
+
+viewer = ViewVariables()
+
+
 # Register the new functions
 register_script_function(func_set_a, name='set_a',
     documentation="""`$set_a(name,value)`
@@ -232,3 +341,9 @@ Clears all session persistent variables.""")
 # Register the processers
 register_album_metadata_processor(initialize_album_dict, priority=PluginPriority.HIGH)
 register_album_post_removal_processor(destroy_album_dict)
+
+
+# Register context actions
+register_file_action(viewer)
+register_track_action(viewer)
+register_album_action(viewer)
