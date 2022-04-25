@@ -109,6 +109,13 @@ class PersistentVariables:
         return cls.session_variables[key] if key in cls.session_variables else ""
 
 
+def _get_album_id(parser):
+    file = parser.file
+    if file and file.parent and hasattr(file.parent, 'album') and file.parent.album:
+        return str(file.parent.album.id)
+    return ""
+
+
 def func_set_s(parser, name, value):
     if value:
         PersistentVariables.set_session_var(normalize_tagname(name), value)
@@ -132,25 +139,30 @@ def func_clear_s(parser):
 
 
 def func_unset_a(parser, name):
-    album_id = parser.context['musicbrainz_albumid']
-    PersistentVariables.unset_album_var(album_id, normalize_tagname(name))
+    album_id = _get_album_id(parser)
+    if album_id:
+        PersistentVariables.unset_album_var(album_id, normalize_tagname(name))
     return ""
 
 
 def func_set_a(parser, name, value):
-    album_id = parser.context['musicbrainz_albumid']
-    PersistentVariables.set_album_var(album_id, normalize_tagname(name), value)
+    album_id = _get_album_id(parser)
+    if album_id:
+        PersistentVariables.set_album_var(album_id, normalize_tagname(name), value)
     return ""
 
 
 def func_get_a(parser, name):
-    album_id = parser.context['musicbrainz_albumid']
-    return PersistentVariables.get_album_var(album_id, normalize_tagname(name))
+    album_id = _get_album_id(parser)
+    if album_id:
+        return PersistentVariables.get_album_var(album_id, normalize_tagname(name))
+    return ""
 
 
 def func_clear_a(parser):
-    album_id = parser.context['musicbrainz_albumid']
-    PersistentVariables.clear_album_vars(album_id)
+    album_id = _get_album_id(parser)
+    if album_id:
+        PersistentVariables.clear_album_vars(album_id)
     return ""
 
 
