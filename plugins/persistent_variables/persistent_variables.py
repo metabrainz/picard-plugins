@@ -51,6 +51,7 @@ PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
 PLUGIN_USER_GUIDE_URL = 'https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/persistent_variables/docs/README.md'
 
+from picard import log
 from picard.album import register_album_post_removal_processor
 from picard.metadata import register_album_metadata_processor
 from picard.plugin import PluginPriority
@@ -144,6 +145,7 @@ def func_clear_s(parser):
 
 def func_unset_a(parser, name):
     album_id = _get_album_id(parser)
+    log.debug("{0}: Unsetting album '{1}' variable '{2}'".format(PLUGIN_NAME, album_id, normalize_tagname(name),))
     if album_id:
         PersistentVariables.unset_album_var(album_id, normalize_tagname(name))
     return ""
@@ -151,6 +153,7 @@ def func_unset_a(parser, name):
 
 def func_set_a(parser, name, value):
     album_id = _get_album_id(parser)
+    log.debug("{0}: Setting album '{1}' persistent variable '{2}' to '{3}'".format(PLUGIN_NAME, album_id, normalize_tagname(name), value,))
     if album_id:
         PersistentVariables.set_album_var(album_id, normalize_tagname(name), value)
     return ""
@@ -158,6 +161,7 @@ def func_set_a(parser, name, value):
 
 def func_get_a(parser, name):
     album_id = _get_album_id(parser)
+    log.debug("{0}: Getting album '{1}' persistent variable '{2}'".format(PLUGIN_NAME, album_id, normalize_tagname(name),))
     if album_id:
         return PersistentVariables.get_album_var(album_id, normalize_tagname(name))
     return ""
@@ -165,6 +169,7 @@ def func_get_a(parser, name):
 
 def func_clear_a(parser):
     album_id = _get_album_id(parser)
+    log.debug("{0}: Clearing album '{1}' persistent variables dictionary".format(PLUGIN_NAME, album_id,))
     if album_id:
         PersistentVariables.clear_album_vars(album_id)
     return ""
@@ -172,11 +177,13 @@ def func_clear_a(parser):
 
 def initialize_album_dict(album, album_metadata, release_metadata):
     album_id = str(album.id)
+    log.debug("{0}: Initializing album '{1}' persistent variables dictionary".format(PLUGIN_NAME, album_id,))
     PersistentVariables.clear_album_vars(album_id)
 
 
 def destroy_album_dict(album):
     album_id = str(album.id)
+    log.debug("{0}: Destroying album '{1}' persistent variables dictionary".format(PLUGIN_NAME, album_id,))
     PersistentVariables.unset_album_dict(album_id)
 
 
