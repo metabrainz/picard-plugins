@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-PLUGIN_NAME = 'Persistent Variabless'
+PLUGIN_NAME = 'Persistent Variables'
 PLUGIN_AUTHOR = 'Bob Swift (rdswift)'
 PLUGIN_DESCRIPTION = '''
 <p>
@@ -111,9 +111,13 @@ class PersistentVariables:
 
 def _get_album_id(parser):
     file = parser.file
-    if file and file.parent and hasattr(file.parent, 'album') and file.parent.album:
-        return str(file.parent.album.id)
-    return ""
+    if file:
+        if file.parent and hasattr(file.parent, 'album') and file.parent.album:
+            return str(file.parent.album.id)
+        else:
+            return ""
+    # Fall back to parser context to allow processing on albums newly retrieved from MusicBrainz
+    return parser.context['musicbrainz_albumid']
 
 
 def func_set_s(parser, name, value):
