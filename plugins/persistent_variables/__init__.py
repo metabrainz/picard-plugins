@@ -44,10 +44,10 @@ This plugin adds eight new scripting functions to allow management of persistent
 <li>$clear_s() : Clears all session persistent variables.</li>
 </ul>
 </p><p>
-Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/album_level_tags/docs/README.md">user guide</a> on GitHub for more information.
+Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/persistent_variables/docs/README.md">user guide</a> on GitHub for more information.
 </p>
 '''
-PLUGIN_VERSION = '1.0'
+PLUGIN_VERSION = '1.1'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3', '2.4', '2.6', '2.7']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
