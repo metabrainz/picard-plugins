@@ -31,6 +31,16 @@
        </widget>
       </item>
       <item>
+       <widget class="QLabel" name="simplemood_tagname_label">
+        <property name="text">
+         <string>Mood tag name:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="simplemood_tagname"/>
+      </item>
+      <item>
        <widget class="QCheckBox" name="add_simplegenre">
         <property name="text">
          <string>Add simple Genre tags</string>
@@ -38,6 +48,16 @@
        </widget>
       </item>
       <item>
+      <item>
+       <widget class="QLabel" name="simplegenre_tagname_label">
+        <property name="text">
+         <string>Genre tag name:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="simplegenre_tagname"/>
+      </item>
        <widget class="QCheckBox" name="add_keybpm">
         <property name="text">
          <string>Add simple BPM and Key tags</string>
