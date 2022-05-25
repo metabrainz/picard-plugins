@@ -472,9 +472,9 @@ class AcousticBrainzOptionsPage(OptionsPage):
     def save(self):
         setting = config.setting
         setting["acousticbrainz_add_simplemood"] = self.ui.add_simplemood.isChecked()
-        setting["acousticbrainz_simplemood_tagname"] = string_(self.ui.simplemood_tagname.text())
+        setting["acousticbrainz_simplemood_tagname"] = str(self.ui.simplemood_tagname.text())
         setting["acousticbrainz_add_simplegenre"] = self.ui.add_simplegenre.isChecked()
-        setting["acousticbrainz_simplegenre_tagname"] = string_(self.ui.simplegenre_tagname.text())
+        setting["acousticbrainz_simplegenre_tagname"] = str(self.ui.simplegenre_tagname.text())
         setting["acousticbrainz_add_keybpm"] = self.ui.add_keybpm.isChecked()
         setting["acousticbrainz_add_fullhighlevel"] = self.ui.add_fullhighlevel.isChecked()
         setting["acousticbrainz_add_sublowlevel"] = self.ui.add_sublowlevel.isChecked()
