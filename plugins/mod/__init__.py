@@ -17,11 +17,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-PLUGIN_NAME = 'MOD formats'
+PLUGIN_NAME = 'MOD files'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = (
     'Support for loading and renaming various tracker files formats '
-    '(.mod, .xm, .it).'
+    '(.mod, .xm, .it, .ahx, .mtm, .med, .s3m). '
+    'There is limited support for writing the title tag as track name for some '
+    'formats.'
 )
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["2.8"]
@@ -30,6 +32,7 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 from dataclasses import dataclass
 from enum import Enum
+from io import RawIOBase
 import struct
 
 from picard import log
@@ -157,7 +160,94 @@ class ImpulseTrackerFile(ModuleFile):
     )
 
 
+class OpenMPTFile(ImpulseTrackerFile):
+    # https://wiki.openmpt.org/Manual:_Module_formats#The_OpenMPT_format_.28.mptm.29
+    EXTENSIONS = ['.mptm']
+    NAME = 'OpenMPT'
+
+
+class AHXFile(ModuleFile):
+    EXTENSIONS = ['.ahx']
+    NAME = 'AHX'
+
+    # http://lclevy.free.fr/exotica/ahx/ahxformat.txt
+    _magic = b'THX'
+    # TODO: Support writing title to names section (first null terminated string
+    # after the samples)
+
+    def _parse_file(self, f: RawIOBase, metadata: Metadata):
+        f.seek(6)
+        len = struct.unpack('>H', f.read(2))[0] & 0xfff
+        f.seek(10)
+        trl = struct.unpack('B', f.read(1))[0]
+        trk = struct.unpack('B', f.read(1))[0]
+        smp = struct.unpack('B', f.read(1))[0]
+        ss = struct.unpack('B', f.read(1))[0]
+        samples_offset = 14 + ss*2 + len*8 + (trk+1)*trl*3
+        f.seek(samples_offset)
+        self._skip_samples(f, count=smp)
+        metadata['title'] = self._read_string(f)
+
+    def _skip_samples(self, f: RawIOBase, count: int):
+        while count:
+            f.seek(f.tell() + 21)
+            plen = struct.unpack('B', f.read(1))[0]
+            f.seek(f.tell() + plen*4)
+            count -= 1
+
+    def _read_string(self, f: RawIOBase) -> str:
+        """Reads a null terminated string with _encoding from the current position."""
+        bytes = b''
+        char = f.read(1)
+        while char and char != b'\0':
+            bytes += char
+            char = f.read(1)
+        return self._decode_text(bytes)
+
+
+class MEDFile(ModuleFile):
+    EXTENSIONS = ['.med']
+    NAME = 'MED'
+
+    # https://github.com/dv1/ion_player/blob/master/extern/uade-2.13/amigasrc/players/med/MMD_FileFormat.doc
+    _magic = b'MMD1'
+    # TODO: Extract songname
+
+
+class MTMFile(ModuleFile):
+    EXTENSIONS = ['.mtm']
+    NAME = 'MTM'
+
+    # https://www.fileformat.info/format/mtm/corion.htm
+    _magic = b'MTM'
+    _static_text_fields = (
+        StaticField('title', 4, 20, FieldAccess.READ_WRITE, '\0'),
+    )
+
+
+class S3MFile(ModuleFile):
+    EXTENSIONS = ['.s3m']
+    NAME = 'S3M'
+
+    # https://www.fileformat.info/format/screamtracker/corion.htm
+    _static_text_fields = (
+        StaticField('title', 0, 20, FieldAccess.READ_WRITE, '\0'),
+        StaticField('encodedby', 20, 8, FieldAccess.READ_WRITE, '\0'),
+    )
+
+    def _ensure_format(self, f: RawIOBase):
+        magic = b'\x1a'
+        f.seek(28)
+        id = f.read(1)
+        if id != magic:
+            raise ValueError('Not a %s file' % self.NAME)
+
+
 register_format(MODFile)
 register_format(ExtendedModuleFile)
 register_format(ImpulseTrackerFile)
-
+register_format(OpenMPTFile)
+register_format(AHXFile)
+register_format(MEDFile)
+register_format(MTMFile)
+register_format(S3MFile)
