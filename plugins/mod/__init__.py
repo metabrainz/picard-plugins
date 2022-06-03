@@ -66,10 +66,10 @@ class ModuleFile(File):
     _static_text_fields = ()
 
     @classmethod
-    def supports_tag(cls, name):
+    def supports_tag(cls, name: str) -> bool:
         return name in {field.name for field in cls._static_text_fields}
 
-    def _load(self, filename):
+    def _load(self, filename: str) -> Metadata:
         log.debug('Loading file %r', filename)
         metadata = Metadata()
         metadata['~format'] = self.NAME
@@ -79,13 +79,13 @@ class ModuleFile(File):
             self._parse_file(f, metadata)
         return metadata
 
-    def _save(self, filename, metadata):
+    def _save(self, filename: str, metadata: Metadata):
         log.debug('Saving file %r', filename)
         with open(filename, 'rb+') as f:
             self._ensure_format(f)
             self._write_file(f, metadata)
 
-    def _ensure_format(self, f):
+    def _ensure_format(self, f: RawIOBase):
         magic = self._magic
         if not magic:
             raise NotImplementedError('_magic not set or method not implemented')
@@ -93,21 +93,21 @@ class ModuleFile(File):
         if id != magic:
             raise ValueError('Not a %s file' % self.NAME)
 
-    def _parse_file(self, f, metadata):
+    def _parse_file(self, f: RawIOBase, metadata: Metadata):
         for field in self._static_text_fields:
             f.seek(field.offset)
             metadata[field.name] = self._decode_text(f.read(field.length))
 
-    def _write_file(self, f, metadata):
+    def _write_file(self, f: RawIOBase, metadata: Metadata):
         for field in self._static_text_fields:
             if field.access == FieldAccess.READ_WRITE and not field.name.startswith('~'):
                 f.seek(field.offset)
                 f.write(self._encode_text(metadata[field.name], field.length, field.fillchar))
 
-    def _decode_text(self, data):
+    def _decode_text(self, data: bytes) -> str:
         return data.decode(self._encoding, errors='replace').strip().strip('\0')
 
-    def _encode_text(self, text, length, fillchar=' '):
+    def _encode_text(self, text: str, length: int, fillchar: str=' ') -> bytes:
         text = text[:length].ljust(length, fillchar)
         return asciipunct(text).encode(self._encoding, errors='replace')
 
@@ -121,7 +121,7 @@ class MODFile(ModuleFile):
         StaticField('title', 0, 20, FieldAccess.READ_WRITE),
     )
 
-    def _ensure_format(self, f):
+    def _ensure_format(self, f: RawIOBase):
         magic = b'M\x2eK\x2e'
         f.seek(1080)
         id = f.read(4)
@@ -140,7 +140,7 @@ class ExtendedModuleFile(ModuleFile):
         StaticField('encodedby', 38, 20, FieldAccess.READ_WRITE),
     )
 
-    def _parse_file(self, f, metadata):
+    def _parse_file(self, f: RawIOBase, metadata: Metadata):
         super()._parse_file(f, metadata)
         f.seek(68)
         metadata['~channels'] = struct.unpack('<h', f.read(2))[0]
