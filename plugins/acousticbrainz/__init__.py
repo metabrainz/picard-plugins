@@ -22,10 +22,10 @@
 # =============================================================================
 
 PLUGIN_NAME = 'AcousticBrainz Tags'
-PLUGIN_AUTHOR = ('<a href="mailto:wargreen@lebib.org">Wargreen</a>, '
-                 '<a href="mailto:pistache@lebib.org">Hugo Geoffroy "pistache"</a>, '
-                 '<a href="mailto:ph.wolfer@gmail.com">Philipp Wolfer</a>, '
-                 '<a href="mailto:regorxxx@protonmail.com">Regorxxx</a>')
+PLUGIN_AUTHOR = ('Wargreen <wargreen@lebib.org>, '
+                 'Hugo Geoffroy "pistache" <pistache@lebib.org>, '
+                 'Philipp Wolfer <ph.wolfer@gmail.com>, '
+                 'Regorxxx <regorxxx@protonmail.com>')
 PLUGIN_DESCRIPTION = '''
 Tag files with tags from the AcousticBrainz database, all highlevel classifiers
 and tonal/rhythm data.
