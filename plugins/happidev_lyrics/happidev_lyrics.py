@@ -25,7 +25,7 @@ PLUGIN_AUTHOR = 'Andrea Avallone, Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Fetch lyrics from Happi.dev Lyrics, which provides millions of lyrics from artist all around the world. ' \
                      'Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed.<br /><br />' \
                      'In order to use Happi.dev you need to get a free API key at <a href="https://happi.dev">happi.dev</a>'
-PLUGIN_VERSION = '2.1'
+PLUGIN_VERSION = '2.1.1'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3', '2.4', '2.5', '2.6']
 PLUGIN_LICENSE = 'MIT'
 PLUGIN_LICENSE_URL = 'https://opensource.org/licenses/MIT'
@@ -35,7 +35,7 @@ class HappidevLyricsMetadataProcessor:
 
     happidev_host = 'api.happi.dev'
     happidev_port = 443
-    happidev_delay = 60 * 1000 / 100  # 100 requests per minute
+    happidev_delay = int(60 * 1000 / 100)  # 100 requests per minute
 
     def __init__(self):
         super().__init__()
