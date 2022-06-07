@@ -24,7 +24,8 @@
 PLUGIN_NAME = 'AcousticBrainz Tags'
 PLUGIN_AUTHOR = ('Wargreen <wargreen@lebib.org>, '
                  'Hugo Geoffroy "pistache" <pistache@lebib.org>, '
-                 'Philipp Wolfer <ph.wolfer@gmail.com>')
+                 'Philipp Wolfer <ph.wolfer@gmail.com>, '
+                 'Regorxxx <regorxxx@protonmail.com>')
 PLUGIN_DESCRIPTION = '''
 Tag files with tags from the AcousticBrainz database, all highlevel classifiers
 and tonal/rhythm data.
@@ -38,7 +39,7 @@ Based on code from Andrew Cook, Sambhav Kothari
 
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "2.2.1"
+PLUGIN_VERSION = "2.2.2"
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
 
 # Plugin configuration
@@ -116,7 +117,9 @@ class TrackDataProcessor:
         self.data = self._extract_data(data)
         self.files = files
         self.do_simplemood = config.setting["acousticbrainz_add_simplemood"]
+        self.simplemood_tagname = config.setting["acousticbrainz_simplemood_tagname"]
         self.do_simplegenre = config.setting["acousticbrainz_add_simplegenre"]
+        self.simplegenre_tagname = config.setting["acousticbrainz_simplegenre_tagname"]
         self.do_keybpm = config.setting["acousticbrainz_add_keybpm"]
         self.do_fullhighlevel = config.setting["acousticbrainz_add_fullhighlevel"]
         self.do_sublowlevel = config.setting["acousticbrainz_add_sublowlevel"]
@@ -208,6 +211,7 @@ class TrackDataProcessor:
     def process_simplemood(self):
         self.debug("processing simplemood data")
 
+        mood_tagname = self.simplemood_tagname;
         moods = []
 
         for classifier, data in self.data.items():
@@ -217,11 +221,12 @@ class TrackDataProcessor:
                 if classifier.startswith("mood_") and not inverted:
                     moods.append(value)
 
-        self.update_metadata('mood', moods)
+        self.update_metadata(mood_tagname, moods)
 
     def process_simplegenre(self):
         self.debug("processing simplegenre data")
 
+        genre_tagname = self.simplegenre_tagname;
         genres = []
 
         for classifier, data in self.data.items():
@@ -231,7 +236,7 @@ class TrackDataProcessor:
                 if classifier.startswith("genre_") and not inverted:
                     genres.append(value)
 
-        self.update_metadata('genre', genres)
+        self.update_metadata(genre_tagname, genres)
 
     def process_fullhighlevel(self):
         self.debug("processing fullhighlevel data")
@@ -441,7 +446,9 @@ class AcousticBrainzOptionsPage(OptionsPage):
 
     options = [
         config.BoolOption("setting", "acousticbrainz_add_simplemood", True),
+        config.TextOption("setting", "acousticbrainz_simplemood_tagname", "ab:mood"),
         config.BoolOption("setting", "acousticbrainz_add_simplegenre", True),
+        config.TextOption("setting", "acousticbrainz_simplegenre_tagname", "ab:genre"),
         config.BoolOption("setting", "acousticbrainz_add_keybpm", False),
         config.BoolOption("setting", "acousticbrainz_add_fullhighlevel", False),
         config.BoolOption("setting", "acousticbrainz_add_sublowlevel", False)
@@ -455,7 +462,9 @@ class AcousticBrainzOptionsPage(OptionsPage):
     def load(self):
         setting = config.setting
         self.ui.add_simplemood.setChecked(setting["acousticbrainz_add_simplemood"])
+        self.ui.simplemood_tagname.setText(setting["acousticbrainz_simplemood_tagname"])
         self.ui.add_simplegenre.setChecked(setting["acousticbrainz_add_simplegenre"])
+        self.ui.simplegenre_tagname.setText(setting["acousticbrainz_simplegenre_tagname"])
         self.ui.add_fullhighlevel.setChecked(setting["acousticbrainz_add_fullhighlevel"])
         self.ui.add_keybpm.setChecked(setting["acousticbrainz_add_keybpm"])
         self.ui.add_sublowlevel.setChecked(setting["acousticbrainz_add_sublowlevel"])
@@ -463,7 +472,9 @@ class AcousticBrainzOptionsPage(OptionsPage):
     def save(self):
         setting = config.setting
         setting["acousticbrainz_add_simplemood"] = self.ui.add_simplemood.isChecked()
+        setting["acousticbrainz_simplemood_tagname"] = str(self.ui.simplemood_tagname.text())
         setting["acousticbrainz_add_simplegenre"] = self.ui.add_simplegenre.isChecked()
+        setting["acousticbrainz_simplegenre_tagname"] = str(self.ui.simplegenre_tagname.text())
         setting["acousticbrainz_add_keybpm"] = self.ui.add_keybpm.isChecked()
         setting["acousticbrainz_add_fullhighlevel"] = self.ui.add_fullhighlevel.isChecked()
         setting["acousticbrainz_add_sublowlevel"] = self.ui.add_sublowlevel.isChecked()

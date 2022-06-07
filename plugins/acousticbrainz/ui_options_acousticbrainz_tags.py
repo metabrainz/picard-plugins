@@ -26,9 +26,25 @@ class Ui_AcousticBrainzOptionsPage(object):
         self.add_simplemood = QtWidgets.QCheckBox(self.acousticbrainzTags_groupBox)
         self.add_simplemood.setObjectName("add_simplemood")
         self.verticalLayout_2.addWidget(self.add_simplemood)
+
+        self.simplemood_tagname_label = QtWidgets.QLabel(self.acousticbrainzTags_groupBox)
+        self.simplemood_tagname_label.setObjectName("simplemood_tagname_label")
+        self.verticalLayout_2.addWidget(self.simplemood_tagname_label)
+        self.simplemood_tagname = QtWidgets.QLineEdit(self.acousticbrainzTags_groupBox)
+        self.simplemood_tagname.setObjectName("simplemood_tagname")
+        self.verticalLayout_2.addWidget(self.simplemood_tagname)
+        
         self.add_simplegenre = QtWidgets.QCheckBox(self.acousticbrainzTags_groupBox)
         self.add_simplegenre.setObjectName("add_simplegenre")
         self.verticalLayout_2.addWidget(self.add_simplegenre)
+        
+        self.simplegenre_tagname_label = QtWidgets.QLabel(self.acousticbrainzTags_groupBox)
+        self.simplegenre_tagname_label.setObjectName("simplegenre_tagname_label")
+        self.verticalLayout_2.addWidget(self.simplegenre_tagname_label)
+        self.simplegenre_tagname = QtWidgets.QLineEdit(self.acousticbrainzTags_groupBox)
+        self.simplegenre_tagname.setObjectName("simplegenre_tagname")
+        self.verticalLayout_2.addWidget(self.simplegenre_tagname)
+        
         self.add_keybpm = QtWidgets.QCheckBox(self.acousticbrainzTags_groupBox)
         self.add_keybpm.setObjectName("add_keybpm")
         self.verticalLayout_2.addWidget(self.add_keybpm)
@@ -55,7 +71,9 @@ class Ui_AcousticBrainzOptionsPage(object):
         _translate = QtCore.QCoreApplication.translate
         self.acousticbrainzTags_groupBox.setTitle(_translate("AcousticBrainzOptionsPage", "AcousticBrainz Tags"))
         self.add_simplemood.setText(_translate("AcousticBrainzOptionsPage", "Add simple Mood tags"))
+        self.simplemood_tagname_label.setText(_translate("AcousticBrainzOptionsPage", "Mood tag name:"))
         self.add_simplegenre.setText(_translate("AcousticBrainzOptionsPage", "Add simple Genre tags"))
+        self.simplegenre_tagname_label.setText(_translate("AcousticBrainzOptionsPage", "Genre tag name:"))
         self.add_keybpm.setText(_translate("AcousticBrainzOptionsPage", "Add simple BPM and Key tags"))
         self.add_fullhighlevel.setText(_translate("AcousticBrainzOptionsPage", "Add all highlevel AcousticBrainz tags"))
         self.add_sublowlevel.setText(_translate("AcousticBrainzOptionsPage", "Add a subset of the lowlevel AcousticBrainz tags"))
