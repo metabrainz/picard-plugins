@@ -73,7 +73,7 @@ class MagicBytes:
 class ModuleFile(File):
     # Allows to specify a magic number to identify the file format.
     # Re-implement _ensure_format for more complex cases.
-    _magic: MagicBytes = None
+    _magic_bytes: tuple[MagicBytes] = None
 
     # Specify the encoding for the format.
     # There is not much info about encoding, most files seem to be limited
@@ -83,7 +83,7 @@ class ModuleFile(File):
 
     # List of StaticField. Most fields in mod files
     # have static position and fixed size.
-    _static_text_fields = ()
+    _static_text_fields: tuple[StaticField] = ()
 
     @classmethod
     def supports_tag(cls, name: str) -> bool:
@@ -92,11 +92,11 @@ class ModuleFile(File):
     def _load(self, filename: str) -> Metadata:
         log.debug('Loading file %r', filename)
         metadata = Metadata()
-        metadata['~format'] = self.NAME
         self._add_path_to_metadata(metadata)
+        metadata['~format'] = self.NAME
         with open(filename, 'rb') as f:
-            self._ensure_format(f)
-            self._parse_file(f, metadata)
+            magic = self._ensure_format(f)
+            self._parse_file(f, metadata, magic)
         return metadata
 
     def _save(self, filename: str, metadata: Metadata):
@@ -105,16 +105,18 @@ class ModuleFile(File):
             self._ensure_format(f)
             self._write_file(f, metadata)
 
-    def _ensure_format(self, f: RawIOBase):
-        magic = self._magic
-        if not magic:
+    def _ensure_format(self, f: RawIOBase) -> MagicBytes:
+        if not self._magic_bytes:
             raise NotImplementedError('_magic not set or method not implemented')
-        f.seek(magic.offset)
-        id = f.read(len(magic))
-        if id != magic:
+        for magic in self._magic_bytes:
+            f.seek(magic.offset)
+            id = f.read(len(magic))
+            if id == magic:
+                return magic
+        else:
             raise ValueError('Not a %s file' % self.NAME)
 
-    def _parse_file(self, f: RawIOBase, metadata: Metadata):
+    def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
         for field in self._static_text_fields:
             f.seek(field.offset)
             metadata[field.name] = self._decode_text(f.read(field.length))
@@ -139,7 +141,7 @@ class MODFile(ModuleFile):
     NAME = 'MOD'
 
     # https://www.ocf.berkeley.edu/~eek/index.html/tiny_examples/ptmod/ap12.html
-    _magic = MagicBytes(b'M\x2eK\x2e', offset=1080)
+    _magic_bytes = (MagicBytes(b'M\x2eK\x2e', offset=1080),)
     _static_text_fields = (
         StaticField('title', 0, 20, FieldAccess.READ_WRITE),
     )
@@ -150,18 +152,18 @@ class ExtendedModuleFile(ModuleFile):
     NAME = 'Extended Module'
 
     # https://github.com/milkytracker/MilkyTracker/blob/master/resources/reference/xm-form.txt
-    _magic = MagicBytes(b'Extended Module: ')
+    _magic_bytes = (MagicBytes(b'Extended Module: '),)
     _static_text_fields = (
         StaticField('title', 17, 20, FieldAccess.READ_WRITE),
         StaticField('encodedby', 38, 20, FieldAccess.READ_WRITE),
     )
 
-    def _parse_file(self, f: RawIOBase, metadata: Metadata):
-        super()._parse_file(f, metadata)
+    def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
+        super()._parse_file(f, metadata, magic)
         # OpenMPT seems to use iso-8859-1 encoding.
         if metadata['encodedby'].startswith('OpenMPT'):
             self._encoding = 'iso-8859-1'
-            super()._parse_file(f, metadata)
+            super()._parse_file(f, metadata, magic)
         f.seek(68)
         metadata['~channels'] = struct.unpack('<h', f.read(2))[0]
 
@@ -171,7 +173,7 @@ class ImpulseTrackerFile(ModuleFile):
     NAME = 'Impulse Tracker'
 
     # https://fileformats.fandom.com/wiki/Impulse_tracker
-    _magic = MagicBytes(b'IMPM')
+    _magic_bytes = (MagicBytes(b'IMPM'),)
     _static_text_fields = (
         StaticField('title', 4, 26, FieldAccess.READ_WRITE, '\0'),
     )
@@ -188,13 +190,13 @@ class AHXFile(ModuleFile):
     NAME = 'AHX'
 
     # http://lclevy.free.fr/exotica/ahx/ahxformat.txt
-    _magic = MagicBytes(b'THX')
+    _magic_bytes = (MagicBytes(b'THX'),)
 
     @classmethod
     def supports_tag(cls, name: str) -> bool:
         return name in {'title'}
 
-    def _parse_file(self, f: RawIOBase, metadata: Metadata):
+    def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
         self._seek_names_offset(f)
         metadata['title'] = self._decode_text(self._read_string(f))
 
@@ -239,8 +241,18 @@ class MEDFile(ModuleFile):
     NAME = 'MED'
 
     # https://github.com/dv1/ion_player/blob/master/extern/uade-2.13/amigasrc/players/med/MMD_FileFormat.doc
-    _magic = MagicBytes(b'MMD1')
-    # TODO: Extract songname
+    _magic_bytes = (
+        MagicBytes(b'MMD0'),
+        MagicBytes(b'MMD1'),
+        MagicBytes(b'MMD2'),
+        MagicBytes(b'MMD3'),
+    )
+
+    def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
+        # TODO: Extract songname
+        super()._parse_file(f, metadata, magic)
+        format = self._decode_text(magic.id)
+        metadata['~format'] = self.NAME + ' (' + format + ')'
 
 
 class MTMFile(ModuleFile):
@@ -248,7 +260,7 @@ class MTMFile(ModuleFile):
     NAME = 'MTM'
 
     # https://www.fileformat.info/format/mtm/corion.htm
-    _magic = MagicBytes(b'MTM')
+    _magic_bytes = (MagicBytes(b'MTM'),)
     _static_text_fields = (
         StaticField('title', 4, 20, FieldAccess.READ_WRITE, '\0'),
     )
@@ -259,7 +271,7 @@ class S3MFile(ModuleFile):
     NAME = 'S3M'
 
     # https://www.fileformat.info/format/screamtracker/corion.htm
-    _magic = MagicBytes(b'\x1a', 28)
+    _magic_bytes = (MagicBytes(b'\x1a', offset=28),)
     _static_text_fields = (
         StaticField('title', 0, 20, FieldAccess.READ_WRITE, '\0'),
         StaticField('encodedby', 20, 8, FieldAccess.READ_WRITE, '\0'),
@@ -272,10 +284,20 @@ class ULTFile(ModuleFile):
 
     # http://www.textfiles.com/programming/FORMATS/ultform.pro
     # http://www.textfiles.com/programming/FORMATS/ultform14.pro
-    _magic = MagicBytes(b'MAS_UTrack_V00')
+    _magic_bytes = (
+        MagicBytes(b'MAS_UTrack_V001'),
+        MagicBytes(b'MAS_UTrack_V002'),
+        MagicBytes(b'MAS_UTrack_V003'),
+        MagicBytes(b'MAS_UTrack_V004'),
+    )
     _static_text_fields = (
         StaticField('title', 15, 32, FieldAccess.READ_WRITE),
     )
+
+    def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
+        super()._parse_file(f, metadata, magic)
+        format = self._decode_text(magic.id)
+        metadata['~format'] = self.NAME + ' (' + format + ')'
 
 
 class Composer669File(ModuleFile):
@@ -283,10 +305,18 @@ class Composer669File(ModuleFile):
     NAME = 'Composer 669'
 
     # http://www.textfiles.com/programming/FORMATS/669-form.pro
-    _magic = MagicBytes(b'if')
+    _magic_bytes = (
+        MagicBytes(b'if'),
+        MagicBytes(b'JN'),  # Extended 669
+    )
     _static_text_fields = (
         StaticField('comment', 2, 108, FieldAccess.READ_WRITE),
     )
+
+    def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
+        super()._parse_file(f, metadata, magic)
+        if magic == b'JN':
+            metadata['~format'] = 'Extended Composer 669'
 
 
 class OktalyzerFile(ModuleFile):
@@ -294,7 +324,7 @@ class OktalyzerFile(ModuleFile):
     NAME = 'Oktalyzer'
 
     # http://www.vgmpf.com/Wiki/index.php?title=OKT
-    _magic = MagicBytes(b'OKTASONGCMOD')
+    _magic_bytes = (MagicBytes(b'OKTASONGCMOD'),)
 
 
 register_format(MODFile)
