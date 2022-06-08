@@ -21,7 +21,7 @@ PLUGIN_NAME = 'MOD files'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = (
     'Support for loading and renaming various tracker files formats '
-    '(.mod, .xm, .it, .ahx, .mtm, .med, .s3m). '
+    '(.mod, .xm, .it, .mptm, .ahx, .mtm, .med, .s3m, .okt). '
     'There is limited support for writing the title tag as track name for some '
     'formats.'
 )
@@ -268,6 +268,14 @@ class S3MFile(ModuleFile):
             raise ValueError('Not a %s file' % self.NAME)
 
 
+class OktalyzerFile(ModuleFile):
+    EXTENSIONS = ['.okt']
+    NAME = 'Oktalyzer'
+
+    # http://www.vgmpf.com/Wiki/index.php?title=OKT
+    _magic = b'OKTASONGCMOD'
+
+
 register_format(MODFile)
 register_format(ExtendedModuleFile)
 register_format(ImpulseTrackerFile)
@@ -276,3 +284,4 @@ register_format(AHXFile)
 register_format(MEDFile)
 register_format(MTMFile)
 register_format(S3MFile)
+register_format(OktalyzerFile)
