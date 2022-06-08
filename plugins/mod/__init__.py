@@ -20,10 +20,10 @@
 PLUGIN_NAME = 'MOD files'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = (
-    'Support for loading and renaming various tracker files formats '
+    'Support for loading and renaming various tracker module formats '
     '(.mod, .xm, .it, .mptm, .ahx, .mtm, .med, .s3m, .ult, .699, .okt). '
-    'There is limited support for writing the title tag as track name for some '
-    'formats.'
+    'There is limited support for writing the title tag as track name for '
+    'some formats.'
 )
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["2.8"]
