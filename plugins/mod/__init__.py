@@ -58,10 +58,22 @@ class StaticField:
     fillchar: str = ' '
 
 
+@dataclass
+class MagicBytes:
+    id: bytes
+    offset: int = 0
+
+    def __len__(self):
+        return len(self.id)
+
+    def __eq__(self, other) -> bool:
+        return self.id == other
+
+
 class ModuleFile(File):
     # Allows to specify a magic number to identify the file format.
     # Re-implement _ensure_format for more complex cases.
-    _magic = None
+    _magic: MagicBytes = None
 
     # Specify the encoding for the format.
     # There is not much info about encoding, most files seem to be limited
@@ -97,6 +109,7 @@ class ModuleFile(File):
         magic = self._magic
         if not magic:
             raise NotImplementedError('_magic not set or method not implemented')
+        f.seek(magic.offset)
         id = f.read(len(magic))
         if id != magic:
             raise ValueError('Not a %s file' % self.NAME)
@@ -126,16 +139,10 @@ class MODFile(ModuleFile):
     NAME = 'MOD'
 
     # https://www.ocf.berkeley.edu/~eek/index.html/tiny_examples/ptmod/ap12.html
+    _magic = MagicBytes(b'M\x2eK\x2e', offset=1080)
     _static_text_fields = (
         StaticField('title', 0, 20, FieldAccess.READ_WRITE),
     )
-
-    def _ensure_format(self, f: RawIOBase):
-        magic = b'M\x2eK\x2e'
-        f.seek(1080)
-        id = f.read(4)
-        if id != magic:
-            raise ValueError('Not a %s file' % self.NAME)
 
 
 class ExtendedModuleFile(ModuleFile):
@@ -143,7 +150,7 @@ class ExtendedModuleFile(ModuleFile):
     NAME = 'Extended Module'
 
     # https://github.com/milkytracker/MilkyTracker/blob/master/resources/reference/xm-form.txt
-    _magic = b'Extended Module: '
+    _magic = MagicBytes(b'Extended Module: ')
     _static_text_fields = (
         StaticField('title', 17, 20, FieldAccess.READ_WRITE),
         StaticField('encodedby', 38, 20, FieldAccess.READ_WRITE),
@@ -164,7 +171,7 @@ class ImpulseTrackerFile(ModuleFile):
     NAME = 'Impulse Tracker'
 
     # https://fileformats.fandom.com/wiki/Impulse_tracker
-    _magic = b'IMPM'
+    _magic = MagicBytes(b'IMPM')
     _static_text_fields = (
         StaticField('title', 4, 26, FieldAccess.READ_WRITE, '\0'),
     )
@@ -181,7 +188,7 @@ class AHXFile(ModuleFile):
     NAME = 'AHX'
 
     # http://lclevy.free.fr/exotica/ahx/ahxformat.txt
-    _magic = b'THX'
+    _magic = MagicBytes(b'THX')
 
     @classmethod
     def supports_tag(cls, name: str) -> bool:
@@ -235,7 +242,7 @@ class MEDFile(ModuleFile):
     NAME = 'MED'
 
     # https://github.com/dv1/ion_player/blob/master/extern/uade-2.13/amigasrc/players/med/MMD_FileFormat.doc
-    _magic = b'MMD1'
+    _magic = MagicBytes(b'MMD1')
     # TODO: Extract songname
 
 
@@ -244,7 +251,7 @@ class MTMFile(ModuleFile):
     NAME = 'MTM'
 
     # https://www.fileformat.info/format/mtm/corion.htm
-    _magic = b'MTM'
+    _magic = MagicBytes(b'MTM')
     _static_text_fields = (
         StaticField('title', 4, 20, FieldAccess.READ_WRITE, '\0'),
     )
@@ -255,17 +262,12 @@ class S3MFile(ModuleFile):
     NAME = 'S3M'
 
     # https://www.fileformat.info/format/screamtracker/corion.htm
+    _magic = MagicBytes(b'\x1a', 28)
     _static_text_fields = (
         StaticField('title', 0, 20, FieldAccess.READ_WRITE, '\0'),
         StaticField('encodedby', 20, 8, FieldAccess.READ_WRITE, '\0'),
     )
 
-    def _ensure_format(self, f: RawIOBase):
-        magic = b'\x1a'
-        f.seek(28)
-        id = f.read(1)
-        if id != magic:
-            raise ValueError('Not a %s file' % self.NAME)
 
 
 class OktalyzerFile(ModuleFile):
@@ -273,7 +275,7 @@ class OktalyzerFile(ModuleFile):
     NAME = 'Oktalyzer'
 
     # http://www.vgmpf.com/Wiki/index.php?title=OKT
-    _magic = b'OKTASONGCMOD'
+    _magic = MagicBytes(b'OKTASONGCMOD')
 
 
 register_format(MODFile)
