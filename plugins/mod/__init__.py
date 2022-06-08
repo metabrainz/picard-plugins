@@ -21,7 +21,7 @@ PLUGIN_NAME = 'MOD files'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = (
     'Support for loading and renaming various tracker files formats '
-    '(.mod, .xm, .it, .mptm, .ahx, .mtm, .med, .s3m, .okt). '
+    '(.mod, .xm, .it, .mptm, .ahx, .mtm, .med, .s3m, .ult, .699, .okt). '
     'There is limited support for writing the title tag as track name for some '
     'formats.'
 )
@@ -269,6 +269,28 @@ class S3MFile(ModuleFile):
     )
 
 
+class ULTFile(ModuleFile):
+    EXTENSIONS = ['.ult']
+    NAME = 'ULT'
+
+    # http://www.textfiles.com/programming/FORMATS/ultform.pro
+    # http://www.textfiles.com/programming/FORMATS/ultform14.pro
+    _magic = MagicBytes(b'MAS_UTrack_V00')
+    _static_text_fields = (
+        StaticField('title', 15, 32, FieldAccess.READ_WRITE),
+    )
+
+
+class Composer669File(ModuleFile):
+    EXTENSIONS = ['.669']
+    NAME = 'Composer 669'
+
+    # http://www.textfiles.com/programming/FORMATS/669-form.pro
+    _magic = MagicBytes(b'if')
+    _static_text_fields = (
+        StaticField('comment', 2, 108, FieldAccess.READ_WRITE),
+    )
+
 
 class OktalyzerFile(ModuleFile):
     EXTENSIONS = ['.okt']
@@ -286,4 +308,6 @@ register_format(AHXFile)
 register_format(MEDFile)
 register_format(MTMFile)
 register_format(S3MFile)
+register_format(ULTFile)
+register_format(Composer669File)
 register_format(OktalyzerFile)
