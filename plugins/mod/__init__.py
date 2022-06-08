@@ -64,6 +64,9 @@ class ModuleFile(File):
     _magic = None
 
     # Specify the encoding for the format.
+    # There is not much info about encoding, most files seem to be limited
+    # to ASCII. But cp850 seems to be a solid default for the few files that
+    # use 8-bit characters.
     _encoding = 'cp850'  # or cp437?
 
     # List of StaticField. Most fields in mod files
@@ -148,6 +151,10 @@ class ExtendedModuleFile(ModuleFile):
 
     def _parse_file(self, f: RawIOBase, metadata: Metadata):
         super()._parse_file(f, metadata)
+        # OpenMPT seems to use iso-8859-1 encoding.
+        if metadata['encodedby'].startswith('OpenMPT'):
+            self._encoding = 'iso-8859-1'
+            super()._parse_file(f, metadata)
         f.seek(68)
         metadata['~channels'] = struct.unpack('<h', f.read(2))[0]
 
