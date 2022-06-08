@@ -35,6 +35,8 @@ from enum import Enum
 from io import RawIOBase
 import struct
 
+from mutagen._util import resize_bytes
+
 from picard import log
 from picard.file import File
 from picard.formats import register_format
@@ -110,8 +112,9 @@ class ModuleFile(File):
     def _decode_text(self, data: bytes) -> str:
         return data.decode(self._encoding, errors='replace').strip().strip('\0')
 
-    def _encode_text(self, text: str, length: int, fillchar: str=' ') -> bytes:
-        text = text[:length].ljust(length, fillchar)
+    def _encode_text(self, text: str, length: int=None, fillchar: str=' ') -> bytes:
+        if length:
+            text = text[:length].ljust(length, fillchar)
         return asciipunct(text).encode(self._encoding, errors='replace')
 
 
@@ -172,10 +175,25 @@ class AHXFile(ModuleFile):
 
     # http://lclevy.free.fr/exotica/ahx/ahxformat.txt
     _magic = b'THX'
-    # TODO: Support writing title to names section (first null terminated string
-    # after the samples)
+
+    @classmethod
+    def supports_tag(cls, name: str) -> bool:
+        return name in {'title'}
 
     def _parse_file(self, f: RawIOBase, metadata: Metadata):
+        self._seek_names_offset(f)
+        metadata['title'] = self._decode_text(self._read_string(f))
+
+    def _write_file(self, f: RawIOBase, metadata: Metadata):
+        # Write the title (first null terminated string after the samples)
+        names_offset = self._seek_names_offset(f)
+        old_title = self._read_string(f)
+        new_title = self._encode_text(metadata['title'])
+        resize_bytes(f, len(old_title), len(new_title), names_offset)
+        f.seek(names_offset)
+        f.write(new_title)
+
+    def _seek_names_offset(self, f: RawIOBase) -> int:
         f.seek(6)
         len = struct.unpack('>H', f.read(2))[0] & 0xfff
         f.seek(10)
@@ -186,7 +204,7 @@ class AHXFile(ModuleFile):
         samples_offset = 14 + ss*2 + len*8 + (trk+1)*trl*3
         f.seek(samples_offset)
         self._skip_samples(f, count=smp)
-        metadata['title'] = self._read_string(f)
+        return f.tell()
 
     def _skip_samples(self, f: RawIOBase, count: int):
         while count:
@@ -195,14 +213,14 @@ class AHXFile(ModuleFile):
             f.seek(f.tell() + plen*4)
             count -= 1
 
-    def _read_string(self, f: RawIOBase) -> str:
-        """Reads a null terminated string with _encoding from the current position."""
-        bytes = b''
+    def _read_string(self, f: RawIOBase) -> bytes:
+        """Reads a null terminated string from the current position."""
+        result = b''
         char = f.read(1)
         while char and char != b'\0':
-            bytes += char
+            result += char
             char = f.read(1)
-        return self._decode_text(bytes)
+        return result
 
 
 class MEDFile(ModuleFile):
