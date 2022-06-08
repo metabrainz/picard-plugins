@@ -209,13 +209,10 @@ class AHXFile(ModuleFile):
 
     def _seek_names_offset(self, f: RawIOBase) -> int:
         f.seek(6)
-        len = struct.unpack('>H', f.read(2))[0] & 0xfff
+        len_ = struct.unpack('>H', f.read(2))[0] & 0xfff
         f.seek(10)
-        trl = struct.unpack('B', f.read(1))[0]
-        trk = struct.unpack('B', f.read(1))[0]
-        smp = struct.unpack('B', f.read(1))[0]
-        ss = struct.unpack('B', f.read(1))[0]
-        samples_offset = 14 + ss*2 + len*8 + (trk+1)*trl*3
+        trl, trk, smp, ss = struct.unpack('BBBB', f.read(4))
+        samples_offset = 14 + ss*2 + len_*8 + (trk+1)*trl*3
         f.seek(samples_offset)
         self._skip_samples(f, count=smp)
         return f.tell()
