@@ -58,16 +58,13 @@ class StaticField:
     fillchar: str = ' '
 
 
-@dataclass
-class MagicBytes:
-    id: bytes
+class MagicBytes(bytes):
     offset: int = 0
 
-    def __len__(self):
-        return len(self.id)
-
-    def __eq__(self, other) -> bool:
-        return self.id == other
+    def __new__(cls, value, offset: int=0):
+        self = super().__new__(cls, value)
+        self.offset = offset
+        return self
 
 
 class ModuleFile(File):
@@ -251,7 +248,7 @@ class MEDFile(ModuleFile):
     def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
         # TODO: Extract songname
         super()._parse_file(f, metadata, magic)
-        format = self._decode_text(magic.id)
+        format = self._decode_text(magic)
         metadata['~format'] = self.NAME + ' (' + format + ')'
 
 
@@ -296,7 +293,7 @@ class ULTFile(ModuleFile):
 
     def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
         super()._parse_file(f, metadata, magic)
-        format = self._decode_text(magic.id)
+        format = self._decode_text(magic)
         metadata['~format'] = self.NAME + ' (' + format + ')'
 
 
