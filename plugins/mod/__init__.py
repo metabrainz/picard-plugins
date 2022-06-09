@@ -106,12 +106,15 @@ class ModuleFile(File):
         if not self._magic_bytes:
             raise NotImplementedError('_magic_bytes not set or method not implemented')
         for magic in self._magic_bytes:
-            f.seek(magic.offset)
-            file_id = f.read(len(magic))
-            if file_id == magic:
+            if self._magic_matches(f, magic):
                 return magic
         # None of the magic byte sequences matched, fail loading
         raise ValueError('Not a %s file' % self.NAME)
+
+    def _magic_matches(self, f: RawIOBase, magic: MagicBytes) -> bool:
+        f.seek(magic.offset)
+        file_id = f.read(len(magic))
+        return file_id == magic
 
     def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
         for field in self._static_text_fields:
@@ -166,21 +169,22 @@ class ExtendedModuleFile(ModuleFile):
 
 
 class ImpulseTrackerFile(ModuleFile):
-    EXTENSIONS = ['.it']
+    EXTENSIONS = ['.it', '.mptm']
     NAME = 'Impulse Tracker'
 
     # https://fileformats.fandom.com/wiki/Impulse_tracker
+    # https://wiki.openmpt.org/Manual:_Module_formats#The_OpenMPT_format_.28.mptm.29
     _magic_bytes = (MagicBytes(b'IMPM'),)
     _static_text_fields = (
         StaticField('title', 4, 26, FieldAccess.READ_WRITE, '\0'),
     )
 
-
-class OpenMPTFile(ImpulseTrackerFile):
-    # https://wiki.openmpt.org/Manual:_Module_formats#The_OpenMPT_format_.28.mptm.29
-    EXTENSIONS = ['.mptm']
-    NAME = 'OpenMPT'
-    _encoding = 'iso-8859-1'
+    def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
+        if self._magic_matches(f, MagicBytes(b'OMPT', offset=60)):
+            self._encoding = 'iso-8859-1'
+            metadata['~format'] = 'OpenMPT'
+            # TODO: For OpenMPT enhanced format parse also the author and comment
+        super()._parse_file(f, metadata, magic)
 
 
 class AHXFile(ModuleFile):
@@ -326,7 +330,6 @@ class OktalyzerFile(ModuleFile):
 register_format(MODFile)
 register_format(ExtendedModuleFile)
 register_format(ImpulseTrackerFile)
-register_format(OpenMPTFile)
 register_format(AHXFile)
 register_format(MEDFile)
 register_format(MTMFile)
