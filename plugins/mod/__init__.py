@@ -180,6 +180,7 @@ class OpenMPTFile(ImpulseTrackerFile):
     # https://wiki.openmpt.org/Manual:_Module_formats#The_OpenMPT_format_.28.mptm.29
     EXTENSIONS = ['.mptm']
     NAME = 'OpenMPT'
+    _encoding = 'iso-8859-1'
 
 
 class AHXFile(ModuleFile):
