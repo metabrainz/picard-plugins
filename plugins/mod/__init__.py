@@ -104,14 +104,14 @@ class ModuleFile(File):
 
     def _ensure_format(self, f: RawIOBase) -> MagicBytes:
         if not self._magic_bytes:
-            raise NotImplementedError('_magic not set or method not implemented')
+            raise NotImplementedError('_magic_bytes not set or method not implemented')
         for magic in self._magic_bytes:
             f.seek(magic.offset)
-            id = f.read(len(magic))
-            if id == magic:
+            file_id = f.read(len(magic))
+            if file_id == magic:
                 return magic
-        else:
-            raise ValueError('Not a %s file' % self.NAME)
+        # None of the magic byte sequences matched, fail loading
+        raise ValueError('Not a %s file' % self.NAME)
 
     def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
         for field in self._static_text_fields:
@@ -248,8 +248,7 @@ class MEDFile(ModuleFile):
     def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
         # TODO: Extract songname
         super()._parse_file(f, metadata, magic)
-        format = self._decode_text(magic)
-        metadata['~format'] = self.NAME + ' (' + format + ')'
+        metadata['~format'] = '%s (%s)' % (self.NAME, self._decode_text(magic))
 
 
 class MTMFile(ModuleFile):
@@ -293,8 +292,7 @@ class ULTFile(ModuleFile):
 
     def _parse_file(self, f: RawIOBase, metadata: Metadata, magic: MagicBytes):
         super()._parse_file(f, metadata, magic)
-        format = self._decode_text(magic)
-        metadata['~format'] = self.NAME + ' (' + format + ')'
+        metadata['~format'] = '%s (%s)' % (self.NAME, self._decode_text(magic))
 
 
 class Composer669File(ModuleFile):
