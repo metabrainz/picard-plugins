@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GenreMapperOptionsPage</class>
+ <widget class="QWidget" name="GenreMapperOptionsPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>398</width>
+    <height>568</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <layout class="QVBoxLayout">
+   <property name="spacing">
+    <number>16</number>
+   </property>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <widget class="QGroupBox" name="gm_description">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="title">
+        <string>Genre Mapper</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="leftMargin">
+         <number>9</number>
+        </property>
+        <property name="topMargin">
+         <number>9</number>
+        </property>
+        <property name="rightMargin">
+         <number>9</number>
+        </property>
+        <property name="bottomMargin">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="QLabel" name="format_description">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These are the original / replacement pairs used to map one genre entry to another. Each pair must be entered on a separate line in the form:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[genre match test string]=[replacement genre]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Supported wildcards in the test string part of the mapping include '*' and '?' to match any number of characters and a single character respectively.  Blank lines and lines beginning with an equals sign (=) will be ignored. Case-insensitive tests are used when matching. Replacements will be made in the order they are found in the list. An example for mapping all types of Rock genres (e.g. Country Rock, Hard Rock, Progressive Rock) to &amp;quot;Rock&amp;quot; would be done using the following line:&lt;/p&gt;&lt;pre style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New'; font-size:10pt; font-weight:600;&quot;&gt;*rock*=Rock&lt;/span&gt;&lt;/pre&gt;&lt;p&gt;For more information please see the &lt;a href=&quot;https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/genre_mapper/docs/README.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;User Guide&lt;/span&gt;&lt;/a&gt; on GitHub.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="cb_enable_genre_mapping">
+       <property name="text">
+        <string>Enable genre mapping</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="gm_replacement_pairs">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="title">
+        <string>Replacement Pairs</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QCheckBox" name="genre_mapper_first_match_only">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Apply only the first matching replacement</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPlainTextEdit" name="genre_mapper_replacement_pairs">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Courier New</family>
+            <pointsize>10</pointsize>
+           </font>
+          </property>
+          <property name="placeholderText">
+           <string>Enter replacement pairs (one per line)</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
