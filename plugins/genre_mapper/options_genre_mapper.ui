@@ -73,7 +73,7 @@
            </font>
           </property>
           <property name="text">
-           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These are the original / replacement pairs used to map one genre entry to another. Each pair must be entered on a separate line in the form:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[genre match test string]=[replacement genre]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Supported wildcards in the test string part of the mapping include '*' and '?' to match any number of characters and a single character respectively.  Blank lines and lines beginning with an equals sign (=) will be ignored. Case-insensitive tests are used when matching. Replacements will be made in the order they are found in the list. An example for mapping all types of Rock genres (e.g. Country Rock, Hard Rock, Progressive Rock) to &amp;quot;Rock&amp;quot; would be done using the following line:&lt;/p&gt;&lt;pre style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'Courier New'; font-size:10pt; font-weight:600;&quot;&gt;*rock*=Rock&lt;/span&gt;&lt;/pre&gt;&lt;p&gt;For more information please see the &lt;a href=&quot;https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/genre_mapper/docs/README.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;User Guide&lt;/span&gt;&lt;/a&gt; on GitHub.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;These are the original / replacement pairs used to map one genre entry to another. Each pair must be entered on a separate line in the form:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;[genre match test string]=[replacement genre]&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Unless the &amp;quot;regular expressions&amp;quot; option is enabled, supported wildcards in the test string part of the mapping include '*' and '?' to match any number of characters and a single character respectively. An example for mapping all types of Rock genres (e.g. Country Rock, Hard Rock, Progressive Rock) to &amp;quot;Rock&amp;quot; would be done using the following line:&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-family:'Courier New'; font-size:10pt; font-weight:600;&quot;&gt;*rock*=Rock&lt;/span&gt;&lt;/p&gt;&lt;p&gt;Blank lines and lines beginning with an equals sign (=) will be ignored. Case-insensitive tests are used when matching. Replacements will be made in the order they are found in the list.&lt;/p&gt;&lt;p&gt;For more information please see the &lt;a href=&quot;https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/genre_mapper/docs/README.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;User Guide&lt;/span&gt;&lt;/a&gt; on GitHub.&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -121,6 +121,19 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
+         <widget class="QCheckBox" name="cb_use_regex">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <bold>false</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Match tests are entered as regular expressions</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QCheckBox" name="genre_mapper_first_match_only">
           <property name="font">
            <font>
@@ -156,6 +169,12 @@
             <pointsize>10</pointsize>
            </font>
           </property>
+          <property name="tabChangesFocus">
+           <bool>true</bool>
+          </property>
+          <property name="lineWrapMode">
+           <enum>QPlainTextEdit::NoWrap</enum>
+          </property>
           <property name="placeholderText">
            <string>Enter replacement pairs (one per line)</string>
           </property>
@@ -168,6 +187,12 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>cb_enable_genre_mapping</tabstop>
+  <tabstop>cb_use_regex</tabstop>
+  <tabstop>genre_mapper_first_match_only</tabstop>
+  <tabstop>genre_mapper_replacement_pairs</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

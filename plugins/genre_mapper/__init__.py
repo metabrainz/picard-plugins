@@ -28,7 +28,7 @@ plugin is configured.
 <br /><br />
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/genre_mapper/docs/README.md">user guide</a> on GitHub for more information.
 '''
-PLUGIN_VERSION = '0.3'
+PLUGIN_VERSION = '0.4'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3', '2.6', '2.7', '2.8']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
@@ -59,6 +59,7 @@ pairs_split = re.compile(r"\r\n|\n\r|\n").split
 OPT_MATCH_ENABLED = 'genre_mapper_enabled'
 OPT_MATCH_PAIRS = 'genre_mapper_replacement_pairs'
 OPT_MATCH_FIRST = 'genre_mapper_apply_first_match_only'
+OPT_MATCH_REGEX = 'genre_mapper_use_regex'
 
 
 class GenreMappingPairs():
@@ -66,7 +67,8 @@ class GenreMappingPairs():
 
     @classmethod
     def refresh(cls):
-        log.debug("%s: Refreshing the genre replacement maps processing pairs.", PLUGIN_NAME,)
+        log.debug("%s: Refreshing the genre replacement maps processing pairs using '%s' translation.",
+            PLUGIN_NAME, 'RegEx' if config.Option.exists("setting", OPT_MATCH_REGEX) and config.setting[OPT_MATCH_REGEX] else 'Simple',)
         if not config.Option.exists("setting", OPT_MATCH_PAIRS):
             log.warning("%s: Unable to read the '%s' setting.", PLUGIN_NAME, OPT_MATCH_PAIRS,)
             return
@@ -74,17 +76,13 @@ class GenreMappingPairs():
         def _make_re(map_string):
             # Replace period with temporary placeholder character (newline)
             re_string = str(map_string).strip().replace('.', '\n')
-
             # Convert wildcard characters to regular expression equivalents
             re_string = re_string.replace('*', '.*').replace('?', '.')
-
-            # Escape carat and dollar sign in regular expression
+            # Escape carat and dollar sign for regular expression
             re_string = re_string.replace('^', '\\^').replace('$', '\\$')
-
             # Replace temporary placeholder characters with escaped periods
-            # and wrap expression with '^' and '$' to force full match
             re_string = '^' + re_string.replace('\n', '\\.') + '$'
-
+            # Return regular expression with carat and dollar sign to force match condition on full string
             return re_string
 
         cls.pairs = []
@@ -96,7 +94,7 @@ class GenreMappingPairs():
             if not original:
                 continue
             replacement = replacement.strip()
-            cls.pairs.append((_make_re(original), replacement))
+            cls.pairs.append((original if config.setting[OPT_MATCH_REGEX] else _make_re(original), replacement))
             log.debug('%s: Add genre mapping pair: "%s" = "%s"', PLUGIN_NAME, original, replacement,)
         if not cls.pairs:
             log.debug("%s: No genre replacement maps defined.", PLUGIN_NAME,)
@@ -112,6 +110,7 @@ class GenreMapperOptionsPage(OptionsPage):
         config.TextOption("setting", OPT_MATCH_PAIRS, ''),
         config.BoolOption("setting", OPT_MATCH_FIRST, False),
         config.BoolOption("setting", OPT_MATCH_ENABLED, False),
+        config.BoolOption("setting", OPT_MATCH_REGEX, False),
     ]
 
     def __init__(self, parent=None):
@@ -126,6 +125,7 @@ class GenreMapperOptionsPage(OptionsPage):
         self.ui.genre_mapper_replacement_pairs.setPlainText(config.setting[OPT_MATCH_PAIRS])
         self.ui.genre_mapper_first_match_only.setChecked(config.setting[OPT_MATCH_FIRST])
         self.ui.cb_enable_genre_mapping.setChecked(config.setting[OPT_MATCH_ENABLED])
+        self.ui.cb_use_regex.setChecked(config.setting[OPT_MATCH_REGEX])
 
         self.ui.cb_enable_genre_mapping.stateChanged.connect(self._set_enabled_state)
         self._set_enabled_state()
@@ -134,6 +134,7 @@ class GenreMapperOptionsPage(OptionsPage):
         config.setting[OPT_MATCH_PAIRS] = self.ui.genre_mapper_replacement_pairs.toPlainText()
         config.setting[OPT_MATCH_FIRST] = self.ui.genre_mapper_first_match_only.isChecked()
         config.setting[OPT_MATCH_ENABLED] = self.ui.cb_enable_genre_mapping.isChecked()
+        config.setting[OPT_MATCH_REGEX] = self.ui.cb_use_regex.isChecked()
 
         GenreMappingPairs.refresh()
 
@@ -151,7 +152,7 @@ def track_genre_mapper(album, metadata, *args):
     metadata_genres = str(metadata['genre']).split(MULTI_VALUED_JOINER)
     for genre in metadata_genres:
         for (original, replacement) in GenreMappingPairs.pairs:
-            if genre and re.fullmatch(original, genre, re.IGNORECASE):
+            if genre and re.search(original, genre, re.IGNORECASE):
                 genre = replacement
                 if config.setting[OPT_MATCH_FIRST]:
                     break
