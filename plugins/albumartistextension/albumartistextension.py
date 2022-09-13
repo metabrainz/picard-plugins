@@ -19,11 +19,24 @@ The information is provided in the following variables:
     album artist.
 <li>_aaeAlbumArtistCount = The number of artists comprising the album artist.
 </ul>
-PLEASE NOTE: Tagger scripts are required to make use of these hidden
-variables.
+PLEASE NOTE: Once the plugin is installed, it automatically makes these 
+variables available to File Naming Scripts and other scripts in Picard. 
+Like other variables, you must mention them in a script for them to affect 
+the file name or other data.
+<br /><br />
+This plugin is no longer being maintained. 
+Consider switching to the 
+[Additional Artists Variables plugin](https://github.com/rdswift/picard-plugins/tree/2.0/plugins/additional_artists_variables), 
+which fills this 
+role, and also includes additional variables. That other plugin uses different 
+names for the album artist names provided here, so you if you switch plugins, you
+will need to update your scripts with the different names.
+<br /><br />
+Version 0.6.1 of this plugin functions identically to Version 0.6. Only this 
+description (and the version number) has changed.
 '''
 
-PLUGIN_VERSION = "0.6"
+PLUGIN_VERSION = "0.6.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
