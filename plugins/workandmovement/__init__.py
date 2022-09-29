@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018-2019, 2021 Philipp Wolfer
+# Copyright (C) 2018-2019, 2021-2022 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,9 +19,22 @@
 
 PLUGIN_NAME = 'Work & Movement'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
-PLUGIN_DESCRIPTION = 'Set work and movement based on work relationships'
-PLUGIN_VERSION = '1.0.2'
-PLUGIN_API_VERSIONS = ['2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7']
+PLUGIN_DESCRIPTION = '''Set work and movement based on work relationships.
+
+This plugin attempts to set the `movement` and `movementnumber` tags, but only
+if the work linked to the recording is part of a larger work. The `work` tag
+then gets set to the work of which the movement is a part of.
+
+If the recording is only linked to a simple work without separate parts then it
+is not considered a proper work and the work and movement related tags will be
+cleared.
+
+The plugin will always set the original values, as loaded from MusicBrainz, of
+the `work` and `musicbrainz_workid` tags into the variables `%%recording_work%`
+and `%%recording_workid%` to be used in scripting.
+'''
+PLUGIN_VERSION = '1.1'
+PLUGIN_API_VERSIONS = ['2.1', '2.2', '2.3', '2.4', '2.5', '2.6', '2.7', '2.8']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
@@ -212,6 +225,13 @@ def process_track(album, metadata, track, release):
     if 'relations' not in recording:
         return
 
+    # Remember original work and work ID
+    metadata['~recording_work'] = metadata.getall('work')
+    metadata['~recording_workid'] = metadata.getall('musicbrainz_workid')
+
+    # Try to find a suitable work linked to the recording.
+    # As a fallback try to get work + movement information by parsing
+    # the recording title.
     work = Work(recording['title'])
     for rel in recording['relations']:
         if is_performance_work(rel):
