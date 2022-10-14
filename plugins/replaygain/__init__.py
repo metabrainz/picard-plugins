@@ -2,6 +2,7 @@
 PLUGIN_NAME = "ReplayGain"
 PLUGIN_AUTHOR = "Philipp Wolfer, Sophist"
 PLUGIN_DESCRIPTION = """<h2>Calculate ReplayGain for selected files and albums.</h2>
+<i>This plugin has been deprecated in favor of the ReplayGain 2.0 plugin</i>
 <p>
 This plugin calculates the ReplayGain values for Albums and / or Tracks.
 These values are stored in tags and music players use this information
@@ -49,7 +50,7 @@ but you can store them in the plugins directory if you wish.
 </ul>
 <p>You might also liketo try MP3Gain Express for MacOS from https://projects.sappharad.com/mp3gain/ as an alternative to mp3gain/aacgain.</p>
 """
-PLUGIN_VERSION = "0.3.1"
+PLUGIN_VERSION = "0.3.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
