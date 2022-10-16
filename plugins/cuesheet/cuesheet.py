@@ -3,7 +3,7 @@
 PLUGIN_NAME = "Generate Cuesheet"
 PLUGIN_AUTHOR = "Lukáš Lalinský, Sambhav Kothari"
 PLUGIN_DESCRIPTION = "Generate cuesheet (.cue file) from an album."
-PLUGIN_VERSION = "1.2.1"
+PLUGIN_VERSION = "1.2.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 
@@ -146,11 +146,10 @@ class GenerateCuesheet(BaseAction):
     def callback(self, objs):
         album = objs[0]
         current_directory = self.config.persist["current_directory"] or QtCore.QDir.homePath()
-        current_directory = find_existing_path(string_(current_directory))
+        current_directory = find_existing_path(str(current_directory))
         filename, selected_format = QtWidgets.QFileDialog.getSaveFileName(
             None, "", current_directory, "Cuesheet (*.cue)")
         if filename:
-            filename = string_(filename)
             cuesheet = Cuesheet(filename)
             #try: cuesheet.read()
             #except IOError: pass
