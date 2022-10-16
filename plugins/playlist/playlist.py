@@ -16,7 +16,7 @@ PLUGIN_AUTHOR = "Francis Chin, Sambhav Kothari"
 PLUGIN_DESCRIPTION = """Generate an Extended M3U playlist (.m3u8 file, UTF8
 encoded text). Relative pathnames are used where audio files are in the same
 directory as the playlist, otherwise absolute (full) pathnames are used."""
-PLUGIN_VERSION = "1.1"
+PLUGIN_VERSION = "1.1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -67,7 +67,7 @@ class Playlist(object):
             b_lines.append(header.encode("utf-8"))
         for entry in self.entries:
             for row in entry:
-                b_lines.append(string_(row).encode("utf-8"))
+                b_lines.append(row.encode("utf-8"))
         with open(encode_filename(self.filename), "wb") as f:
             f.writelines(b_lines)
 
@@ -78,7 +78,7 @@ class GeneratePlaylist(BaseAction):
     def callback(self, objs):
         current_directory = (self.config.persist["current_directory"]
                              or QtCore.QDir.homePath())
-        current_directory = find_existing_path(string_(current_directory))
+        current_directory = find_existing_path(current_directory)
         # Default playlist filename set as "%albumartist% - %album%.m3u8",
         # except where "Various Artists" is suppressed
         if _debug_level > 1:
@@ -97,13 +97,12 @@ class GeneratePlaylist(BaseAction):
         if _debug_level > 1:
             log.debug("{}: default playlist filename sanitized to {}".format(
                     PLUGIN_NAME, default_filename))
-        b_filename, b_selected_format = QtWidgets.QFileDialog.getSaveFileName(
+        filename, selected_format = QtWidgets.QFileDialog.getSaveFileName(
             None, "Save new playlist",
             os.path.join(current_directory, default_filename),
             "Playlist (*.m3u8 *.m3u)"
         )
-        if b_filename:
-            filename = string_(b_filename)
+        if filename:
             playlist = Playlist(filename)
             playlist.add_header("#EXTM3U")
 
@@ -136,7 +135,7 @@ class GeneratePlaylist(BaseAction):
                                     PLUGIN_NAME, audio_filename, os.path.dirname(filename)))
                         if os.path.dirname(filename) == os.path.dirname(audio_filename):
                             audio_filename = os.path.basename(audio_filename)
-                        entry.add(string_(audio_filename))
+                        entry.add(str(audio_filename))
 
             playlist.write()
 

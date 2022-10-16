@@ -18,7 +18,7 @@ at the time of writing, executables are only available for various Linux distrib
 """
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_VERSION = "2.3.2"
+PLUGIN_VERSION = "2.3.3"
 PLUGIN_API_VERSIONS = ["2.0"]
 # PLUGIN_INCOMPATIBLE_PLATFORMS = [
 #    'win32', 'cygwyn', 'darwin', 'os2', 'os2emx', 'riscos', 'atheos']
@@ -154,14 +154,10 @@ class MoodbarOptionsPage(OptionsPage):
             self.config.setting["moodbar_wav_command"])
 
     def save(self):
-        self.config.setting["moodbar_vorbis_command"] = string_(
-            self.ui.vorbis_command.text())
-        self.config.setting["moodbar_mp3_command"] = string_(
-            self.ui.mp3_command.text())
-        self.config.setting["moodbar_flac_command"] = string_(
-            self.ui.flac_command.text())
-        self.config.setting["moodbar_wav_command"] = string_(
-            self.ui.wav_command.text())
+        self.config.setting["moodbar_vorbis_command"] = self.ui.vorbis_command.text()
+        self.config.setting["moodbar_mp3_command"] = self.ui.mp3_command.text()
+        self.config.setting["moodbar_flac_command"] = self.ui.flac_command.text()
+        self.config.setting["moodbar_wav_command"] = self.ui.wav_command.text()
 
 register_file_action(MoodBar())
 register_options_page(MoodbarOptionsPage)
