@@ -33,6 +33,15 @@ from picard.metadata import register_track_metadata_processor
 from picard.webservice import ratecontrol
 from picard.util import load_json
 
+# Example: Taylor Swift
+# Release: Midnights
+# https://musicbrainz.org/release/e348fdd6-f73b-47fe-94c4-670bfee26a39
+# https://critiquebrainz.org/release-group/0dcc84fb-c592-46e9-ba92-a52bb44dd553
+#
+# Recording:
+# https://musicbrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30
+# https://critiquebrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30
+
 CRITIQUEBRAINZ_HOST = "critiquebrainz.org"
 CRITIQUEBRAINZ_PORT = 80
 
