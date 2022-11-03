@@ -27,7 +27,7 @@ PLUGIN_VERSION = "1.0.0"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
-from picard import log
+from picard import config, log
 from picard.metadata import register_album_metadata_processor
 from picard.metadata import register_track_metadata_processor
 from picard.webservice import ratecontrol
@@ -132,8 +132,8 @@ def process_relations(album, metadata, release):
         "inc": "url-rels"
     }
     album.tagger.webservice.get(
-        MUSICBRAINZ_HOST,
-        MUSICBRAINZ_PORT,
+        config.setting["server_host"],
+        config.setting["server_port"],
         "/ws/2/artist/" + metadata["musicbrainz_albumartistid"],
         partial(result_albumartist, album, metadata),
         priority=True,
@@ -142,8 +142,8 @@ def process_relations(album, metadata, release):
     )
     album._requests += 1
     album.tagger.webservice.get(
-        MUSICBRAINZ_HOST,
-        MUSICBRAINZ_PORT,
+        config.setting["server_host"],
+        config.setting["server_port"],
         "/ws/2/release/" + metadata["musicbrainz_albumid"],
         partial(result_release, album, metadata),
         priority=True,
@@ -152,8 +152,8 @@ def process_relations(album, metadata, release):
     )
     album._requests += 1
     album.tagger.webservice.get(
-        MUSICBRAINZ_HOST,
-        MUSICBRAINZ_PORT,
+        config.setting["server_host"],
+        config.setting["server_port"],
         "/ws/2/release-group/" + metadata["musicbrainz_releasegroupid"],
         partial(result_releasegroup, album, metadata),
         priority=True,
