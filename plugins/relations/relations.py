@@ -20,7 +20,9 @@ PLUGIN_NAME = 'Musicbrainz Relations Website'
 PLUGIN_AUTHOR = 'Tobias Sarner'
 PLUGIN_DESCRIPTION = '''Uses Musicbrainz relations to set website.
 
-WARNING: Experimental plugin. All guarantees voided by use.'''
+WARNING: Experimental plugin. All guarantees voided by use.
+Example: Taylor Swift
+ comment:Aartist_1_website https://www.taylorswift.com/'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 PLUGIN_VERSION = "1.0.0"
@@ -33,9 +35,6 @@ from picard.metadata import register_track_metadata_processor
 from picard.webservice import ratecontrol
 from picard.util import load_json
 
-# Example: Taylor Swift
-# comment:Artist-1-website https://www.taylorswift.com/
-
 MUSICBRAINZ_HOST = "musicbrainz.org"
 MUSICBRAINZ_PORT = 80
 
@@ -43,7 +42,7 @@ ratecontrol.set_minimum_delay((MUSICBRAINZ_HOST, MUSICBRAINZ_PORT), 50)
 
 
 def result_albumartist(album, metadata, data, reply, error):
-    prefix = "AlbumArtist"
+    prefix = "album-artist"
     musicbrainz_id = metadata["musicbrainz_albumartistid"]
     if error:
         album._requests -= 1
@@ -57,10 +56,11 @@ def result_albumartist(album, metadata, data, reply, error):
             for relations in data:
                 if "url" in relations and "resource" in relations["url"]:
                     idx += 1
-                    key = "website:" + prefix + "-" + str(idx) + "-" + relations["type"]
-                    if key in metadata:
-                        metadata.delete(key)
-                    metadata.add(key, relations["url"]["resource"])
+                    ident = "website:" + prefix + "_" + str(idx) + "_" + relations["type"]
+                    if ident in metadata:
+                        metadata[ident] = review_text
+                    else:
+                        metadata.add(ident, relations["url"]["resource"])
 
             log.debug("%s: %s %s (%s) Parsed response", PLUGIN_NAME, prefix, musicbrainz_id, metadata["albumtitle"])
     except Exception as e:
@@ -71,7 +71,7 @@ def result_albumartist(album, metadata, data, reply, error):
 
 
 def result_release(album, metadata, data, reply, error):
-    prefix = "Release"
+    prefix = "release"
     musicbrainz_id = metadata["musicbrainz_albumid"]
     if error:
         album._requests -= 1
@@ -85,7 +85,7 @@ def result_release(album, metadata, data, reply, error):
             for relations in data:
                 if "url" in relations and "resource" in relations["url"]:
                     idx += 1
-                    key = "website:" + prefix + "-" + str(idx) + "-" + relations["type"]
+                    key = "website:" + prefix + "_" + str(idx) + "_" + relations["type"]
                     if key in metadata:
                         metadata.delete(key)
                     metadata.add(key, relations["url"]["resource"])
@@ -99,7 +99,7 @@ def result_release(album, metadata, data, reply, error):
 
 
 def result_releasegroup(album, metadata, data, reply, error):
-    prefix = "ReleaseGroup"
+    prefix = "release-group"
     musicbrainz_id = metadata["musicbrainz_releasegroupid"]
     if error:
         album._requests -= 1
@@ -113,7 +113,7 @@ def result_releasegroup(album, metadata, data, reply, error):
             for relations in data:
                 if "url" in relations and "resource" in relations["url"]:
                     idx += 1
-                    key = "website:" + prefix + "-" + str(idx) + "-" + relations["type"]
+                    key = "website:" + prefix + "_" + str(idx) + "_" + relations["type"]
                     if key in metadata:
                         metadata.delete(key)
                     metadata.add(key, relations["url"]["resource"])
