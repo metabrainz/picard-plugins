@@ -109,5 +109,6 @@ def process_recording(album, metadata, track, release):
     )
     album._requests += 1
 
+
 register_album_metadata_processor(process_releasegroup)
 register_track_metadata_processor(process_recording)
