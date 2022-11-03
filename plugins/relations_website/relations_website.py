@@ -35,7 +35,6 @@ PLUGIN_API_VERSIONS = ["2.0"]
 from functools import partial
 from picard import config, log
 from picard.metadata import register_album_metadata_processor
-from picard.metadata import register_track_metadata_processor
 from picard.webservice import ratecontrol
 from picard.util import load_json
 
