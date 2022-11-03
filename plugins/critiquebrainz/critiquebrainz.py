@@ -20,10 +20,19 @@ PLUGIN_NAME = 'Critiquebrainz Review Comment'
 PLUGIN_AUTHOR = 'Tobias Sarner'
 PLUGIN_DESCRIPTION = '''Uses Critiquebrainz for comment as review or rating.
 
-WARNING: Experimental plugin. All guarantees voided by use.'''
+WARNING: Experimental plugin. All guarantees voided by use.
+
+Example: Taylor Swift
+Release: Midnights
+ https://musicbrainz.org/release/e348fdd6-f73b-47fe-94c4-670bfee26a39 ,
+ https://critiquebrainz.org/release-group/0dcc84fb-c592-46e9-ba92-a52bb44dd553
+
+Recording:
+ https://musicbrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30 ,
+ https://critiquebrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "1.0.0"
+PLUGIN_VERSION = "1.0.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
@@ -33,65 +42,37 @@ from picard.metadata import register_track_metadata_processor
 from picard.webservice import ratecontrol
 from picard.util import load_json
 
-# Example: Taylor Swift
-# Release: Midnights
-# https://musicbrainz.org/release/e348fdd6-f73b-47fe-94c4-670bfee26a39
-# https://critiquebrainz.org/release-group/0dcc84fb-c592-46e9-ba92-a52bb44dd553
-#
-# Recording:
-# https://musicbrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30
-# https://critiquebrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30
-
 CRITIQUEBRAINZ_HOST = "critiquebrainz.org"
 CRITIQUEBRAINZ_PORT = 80
 
 ratecontrol.set_minimum_delay((CRITIQUEBRAINZ_HOST, CRITIQUEBRAINZ_PORT), 50)
 
 
-def result_releasegroup(album, metadata, data, reply, error):
+def result_review(album, metadata, data, reply, error):
     if error:
         album._requests -= 1
         album._finalize_loading(None)
         return
 
     try:
-        data = load_json(data).get("reviews")
-        if data:
-            idx = 0
-            for review in data:
+        reviews = load_json(data).get("reviews")
+        if reviews:
+            for review in reviews:
                 if "last_revision" in review:
-                    idx += 1
-                    if "comment:ReleaseGroup-Review-" + str(idx) in metadata:
-                        metadata.delete("comment:ReleaseGroup-Review-" + str(idx))
-                    metadata.add("comment:ReleaseGroup-Review-" + str(idx), review["last_revision"]["text"])
-
-            log.debug("%s: ReleaseGroup %s (%s) Parsed response", PLUGIN_NAME, metadata["musicbrainz_releasegroupid"], metadata["albumtitle"])
+                    ident = review["entity_type"].replace("_", "-") + "_review_" + review["published_on"] + "_" + review["user"]["display_name"] + "_" + review["language"]
+                    review_text = review["last_revision"]["text"] + "\n\nEine Bewertung mit " + str(review["last_revision"]["rating"]) + " von 5 Sternen veröffentlich durch " + review["user"]["display_name"] + " am " + review["published_on"] + " lizensiert unter " + review["full_name"] + ".";
+                    if "comment:" + ident in metadata:
+                        metadata["comment:" + ident] = review_text
+                    else:
+                        metadata.add("comment:" + ident, review_text)
+                    review_url = "https://critiquebrainz.org/review/" + review["id"]
+                    if "website:" + ident in metadata:
+                        metadata["website:" + ident] = review_url
+                    else:
+                        metadata.add("website:" + ident, review_url)
+            log.debug("%s: success parsing %s reviews (%s) from response", PLUGIN_NAME, reviews["count"], metadata["albumtitle"])
     except Exception as e:
-        log.error("%s: ReleaseGroup %s (%s) Error parsing response: %s", PLUGIN_NAME, metadata["musicbrainz_releasegroupid"], metadata["albumtitle"], str(e))
-    finally:
-        album._requests -= 1
-        album._finalize_loading(None)
-
-def result_recording(album, metadata, data, reply, error):
-    if error:
-        album._requests -= 1
-        album._finalize_loading(None)
-        return
-
-    try:
-        data = load_json(data).get("reviews")
-        if data:
-            idx = 0
-            for review in data:
-                if "last_revision" in review:
-                    idx += 1
-                    if "comment:Recording-Review-" + str(idx) in metadata:
-                        metadata.delete("comment:Recording-Review-" + str(idx))
-                    metadata.add("comment:Recording-Review-" + str(idx), review["last_revision"]["text"])
-
-            log.debug("%s: Track %s (%s) Parsed response", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"])
-    except Exception as e:
-        log.error("%s: Track %s (%s) Error parsing response: %s", PLUGIN_NAME, metadata["musicbrainz_recordingid"], metadata["title"], str(e))
+        log.error("%s: error parsing review (%s) from response: %s", PLUGIN_NAME, metadata["albumtitle"], str(e))
     finally:
         album._requests -= 1
         album._finalize_loading(None)
@@ -105,7 +86,7 @@ def process_releasegroup(album, metadata, release):
         CRITIQUEBRAINZ_HOST,
         CRITIQUEBRAINZ_PORT,
         "/ws/1/review",
-        partial(result_releasegroup, album, metadata),
+        partial(result_review, album, metadata),
         priority=True,
         parse_response_type=None,
         queryargs=queryargs
@@ -121,12 +102,13 @@ def process_recording(album, metadata, track, release):
         CRITIQUEBRAINZ_HOST,
         CRITIQUEBRAINZ_PORT,
         "/ws/1/review",
-        partial(result_recording, album, metadata),
+        partial(result_review, album, metadata),
         priority=True,
         parse_response_type=None,
         queryargs=queryargs
     )
     album._requests += 1
+
 
 register_album_metadata_processor(process_releasegroup)
 register_track_metadata_processor(process_recording)
