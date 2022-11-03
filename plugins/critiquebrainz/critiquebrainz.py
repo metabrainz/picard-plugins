@@ -24,11 +24,11 @@ WARNING: Experimental plugin. All guarantees voided by use.
 
 Example: Taylor Swift
 Release: Midnights
-https://musicbrainz.org/release/e348fdd6-f73b-47fe-94c4-670bfee26a39
-https://critiquebrainz.org/release-group/0dcc84fb-c592-46e9-ba92-a52bb44dd553
+ https://musicbrainz.org/release/e348fdd6-f73b-47fe-94c4-670bfee26a39 ,
+ https://critiquebrainz.org/release-group/0dcc84fb-c592-46e9-ba92-a52bb44dd553
 
 Recording:
- https://musicbrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30
+ https://musicbrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30 ,
  https://critiquebrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
@@ -59,12 +59,17 @@ def result_review(album, metadata, data, reply, error):
         if reviews:
             for review in reviews:
                 if "last_revision" in review:
-                    ident = "comment:" + review["entity_type"] + "-review-" + review["published_on"] + "-" + review["user"]["display_name"] + "-" + review["language"]
+                    ident = review["entity_type"].replace("_", "-") + "_review_" + review["published_on"] + "_" + review["user"]["display_name"] + "_" + review["language"]
                     review_text = review["last_revision"]["text"] + "\n\nEine Bewertung mit " + str(review["last_revision"]["rating"]) + " von 5 Sternen veröffentlich durch " + review["user"]["display_name"] + " am " + review["published_on"] + " lizensiert unter " + review["full_name"] + ".";
-                    if ident in metadata:
-                        metadata[ident] = review_text
+                    if "comment:" + ident in metadata:
+                        metadata["comment:" + ident] = review_text
                     else:
-                        metadata.add(ident, review_text)
+                        metadata.add("comment:" + ident, review_text)
+                    review_url = "https://critiquebrainz.org/review/" + review["id"]
+                    if "website:" + ident in metadata:
+                        metadata["website:" + ident] = review_url
+                    else:
+                        metadata.add("website:" + ident, review_url)
             log.debug("%s: success parsing %s reviews (%s) from response", PLUGIN_NAME, reviews["count"], metadata["albumtitle"])
     except Exception as e:
         log.error("%s: error parsing review (%s) from response: %s", PLUGIN_NAME, metadata["albumtitle"], str(e))
