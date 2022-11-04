@@ -60,11 +60,12 @@ def result_review(album, metadata, data, reply, error):
             for review in reviews:
                 if "last_revision" in review:
                     ident = review["entity_type"].replace("_", "-") + "_review_" + review["published_on"] + "_" + review["user"]["display_name"] + "_" + review["language"]
-                    review_text = review["last_revision"]["text"] + "\n\nEine Bewertung mit " + str(review["last_revision"]["rating"]) + " von 5 Sternen veröffentlich durch " + review["user"]["display_name"] + " am " + review["published_on"] + " lizensiert unter " + review["full_name"] + ".";
-                    if "comment:" + ident in metadata:
-                        metadata["comment:" + ident] = review_text
-                    else:
-                        metadata.add("comment:" + ident, review_text)
+                    if review["last_revision"]["text"] is not None:
+                        review_text = review["last_revision"]["text"] + "\n\nEine Bewertung mit " + str(review["last_revision"]["rating"]) + " von 5 Sternen veröffentlich durch " + review["user"]["display_name"] + " am " + review["published_on"] + " lizensiert unter " + review["full_name"] + ".";
+                        if "comment:" + ident in metadata:
+                            metadata["comment:" + ident] = review_text
+                        else:
+                            metadata.add("comment:" + ident, review_text)
                     review_url = "https://critiquebrainz.org/review/" + review["id"]
                     if "website:" + ident in metadata:
                         metadata["website:" + ident] = review_url
@@ -112,3 +113,4 @@ def process_recording(album, metadata, track, release):
 
 register_album_metadata_processor(process_releasegroup)
 register_track_metadata_processor(process_recording)
+
