@@ -29,7 +29,7 @@ Example: Taylor Swift
  website:release-group_1_https://www.discogs.com/master/2831825'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "1.0.0"
+PLUGIN_VERSION = "1.0.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
@@ -38,8 +38,8 @@ from picard.metadata import register_album_metadata_processor
 from picard.webservice import ratecontrol
 from picard.util import load_json
 
-MUSICBRAINZ_HOST = "musicbrainz.org"
-MUSICBRAINZ_PORT = 80
+MUSICBRAINZ_HOST = config.setting["server_host"]
+MUSICBRAINZ_PORT = config.setting["server_port"]
 
 ratecontrol.set_minimum_delay((MUSICBRAINZ_HOST, MUSICBRAINZ_PORT), 50)
 
@@ -59,7 +59,7 @@ def result_albumartist(album, metadata, data, reply, error):
             for relations in data:
                 if "url" in relations and "resource" in relations["url"]:
                     idx += 1
-                    ident = "website:" + prefix + "_" + str(idx) + "_" + relations["type"]
+                    ident = "website:" + prefix + "_" + str(idx) + "_" + relations["type"].lower()
                     if ident in metadata:
                         metadata[ident] = review_text
                     else:
@@ -71,35 +71,6 @@ def result_albumartist(album, metadata, data, reply, error):
     finally:
         album._requests -= 1
         album._finalize_loading(None)
-
-
-def result_release(album, metadata, data, reply, error):
-    prefix = "release"
-    musicbrainz_id = metadata["musicbrainz_albumid"]
-    if error:
-        album._requests -= 1
-        album._finalize_loading(None)
-        return
-
-    try:
-        data = load_json(data).get("relations")
-        if data:
-            idx = 0
-            for relations in data:
-                if "url" in relations and "resource" in relations["url"]:
-                    idx += 1
-                    key = "website:" + prefix + "_" + str(idx) + "_" + relations["type"]
-                    if key in metadata:
-                        metadata.delete(key)
-                    metadata.add(key, relations["url"]["resource"])
-
-            log.debug("%s: %s %s (%s) Parsed response", PLUGIN_NAME, prefix, musicbrainz_id, metadata["albumtitle"])
-    except Exception as e:
-        log.error("%s: %s %s (%s) Error parsing response: %s", PLUGIN_NAME, prefix, musicbrainz_id, metadata["albumtitle"], str(e))
-    finally:
-        album._requests -= 1
-        album._finalize_loading(None)
-
 
 def result_releasegroup(album, metadata, data, reply, error):
     prefix = "release-group"
@@ -116,10 +87,11 @@ def result_releasegroup(album, metadata, data, reply, error):
             for relations in data:
                 if "url" in relations and "resource" in relations["url"]:
                     idx += 1
-                    key = "website:" + prefix + "_" + str(idx) + "_" + relations["type"]
-                    if key in metadata:
-                        metadata.delete(key)
-                    metadata.add(key, relations["url"]["resource"])
+                    ident = "website:" + prefix + "_" + str(idx) + "_" + relations["type"].lower()
+                    if ident in metadata:
+                        metadata[ident] = review_text
+                    else:
+                        metadata.add(ident, relations["url"]["resource"])
 
             log.debug("%s: %s %s (%s) Parsed response", PLUGIN_NAME, prefix, musicbrainz_id, metadata["albumtitle"])
     except Exception as e:
@@ -128,15 +100,14 @@ def result_releasegroup(album, metadata, data, reply, error):
         album._requests -= 1
         album._finalize_loading(None)
 
-
 def process_relations(album, metadata, release):
     queryargs = {
         "fmt": "json",
         "inc": "url-rels"
     }
     album.tagger.webservice.get(
-        config.setting["server_host"],
-        config.setting["server_port"],
+        MUSICBRAINZ_HOST,
+        MUSICBRAINZ_PORT,
         "/ws/2/artist/" + metadata["musicbrainz_albumartistid"],
         partial(result_albumartist, album, metadata),
         priority=True,
@@ -145,18 +116,8 @@ def process_relations(album, metadata, release):
     )
     album._requests += 1
     album.tagger.webservice.get(
-        config.setting["server_host"],
-        config.setting["server_port"],
-        "/ws/2/release/" + metadata["musicbrainz_albumid"],
-        partial(result_release, album, metadata),
-        priority=True,
-        parse_response_type=None,
-        queryargs=queryargs
-    )
-    album._requests += 1
-    album.tagger.webservice.get(
-        config.setting["server_host"],
-        config.setting["server_port"],
+        MUSICBRAINZ_HOST,
+        MUSICBRAINZ_PORT,
         "/ws/2/release-group/" + metadata["musicbrainz_releasegroupid"],
         partial(result_releasegroup, album, metadata),
         priority=True,
@@ -164,6 +125,16 @@ def process_relations(album, metadata, release):
         queryargs=queryargs
     )
     album._requests += 1
+    idx = 0
+    prefix = "release"
+    for relation in release["relations"]:
+        if "url" in relation and "resource" in relation["url"]:
+            idx += 1
+            ident = "website:" + prefix + "_" + str(idx) + "_" + relation["type"].lower()
+            if ident in metadata:
+                metadata[ident] = relation["url"]["resource"]
+            else:
+                metadata.add(ident, relation["url"]["resource"])
 
 
 register_album_metadata_processor(process_relations)
