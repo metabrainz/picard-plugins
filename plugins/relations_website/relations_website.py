@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Critiquebrainz plugin for Picard
+# Musicbrainz plugin for Picard
 # Copyright (C) 2022  Tobias Sarner
 #
 # This program is free software; you can redistribute it and/or modify
@@ -29,7 +29,7 @@ Example: Taylor Swift
  website:release-group_1_https://www.discogs.com/master/2831825'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "1.0.1"
+PLUGIN_VERSION = "0.0.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
@@ -138,3 +138,4 @@ def process_relations(album, metadata, release):
 
 
 register_album_metadata_processor(process_relations)
+
