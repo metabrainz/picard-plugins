@@ -29,7 +29,7 @@ The following file formats are supported:
 
 This plugin is based on the original ReplayGain plugin by Philipp Wolfer and Sophist.
 '''
-PLUGIN_VERSION = "1.0"
+PLUGIN_VERSION = "1.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -38,6 +38,8 @@ from functools import partial
 import subprocess  # nosec: B404
 import shutil
 import os
+
+from PyQt5.QtWidgets import QFileDialog
 
 from picard import log
 from picard.formats.vorbis import OggOpusFile
@@ -357,6 +359,7 @@ class ReplayGain2OptionsPage(OptionsPage):
             N_("Write standard ReplayGain tags"),
             N_("Write R128_*_GAIN tags")
         ])
+        self.ui.rsgain_command_browse.clicked.connect(self.rsgain_command_browse)
 
     def load(self):
         self.ui.rsgain_command.setText(self.config.setting["rsgain_command"])
@@ -379,6 +382,12 @@ class ReplayGain2OptionsPage(OptionsPage):
         self.config.setting["max_peak"] = self.ui.max_peak.value()
         self.config.setting["opus_mode"] = self.ui.opus_mode.currentIndex()
         self.config.setting["opus_m23"] = self.ui.opus_m23.isChecked()
+
+    def rsgain_command_browse(self):
+        path, _filter = QFileDialog.getOpenFileName(self, "", self.ui.rsgain_command.text())
+        if path:
+            path = os.path.normpath(path)
+            self.ui.rsgain_command.setText(path)
 
 
 register_track_action(ScanTracks())
