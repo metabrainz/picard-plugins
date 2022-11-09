@@ -67,11 +67,22 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="rsgain_command">
-        <property name="text">
-         <string>rsgain</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLineEdit" name="rsgain_command">
+          <property name="text">
+           <string>rsgain</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QToolButton" name="rsgain_command_browse">
+          <property name="text">
+           <string>Browse...</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QLabel" name="label_6">

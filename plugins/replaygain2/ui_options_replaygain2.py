@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui_options_replaygain2.ui'
+# Form implementation generated from reading ui file 'plugins/replaygain2/ui_options_replaygain2.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.7
 #
@@ -37,9 +37,15 @@ class Ui_ReplayGain2OptionsPage(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.vboxlayout1.addWidget(self.label)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
         self.rsgain_command = QtWidgets.QLineEdit(self.replay_gain)
         self.rsgain_command.setObjectName("rsgain_command")
-        self.vboxlayout1.addWidget(self.rsgain_command)
+        self.horizontalLayout.addWidget(self.rsgain_command)
+        self.rsgain_command_browse = QtWidgets.QToolButton(self.replay_gain)
+        self.rsgain_command_browse.setObjectName("rsgain_command_browse")
+        self.horizontalLayout.addWidget(self.rsgain_command_browse)
+        self.vboxlayout1.addLayout(self.horizontalLayout)
         self.label_6 = QtWidgets.QLabel(self.replay_gain)
         self.label_6.setOpenExternalLinks(True)
         self.label_6.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
@@ -143,6 +149,7 @@ class Ui_ReplayGain2OptionsPage(object):
         self.replay_gain.setTitle(_translate("ReplayGain2OptionsPage", "ReplayGain 2.0 Settings"))
         self.label.setText(_translate("ReplayGain2OptionsPage", "Path to rsgain:"))
         self.rsgain_command.setText(_translate("ReplayGain2OptionsPage", "rsgain"))
+        self.rsgain_command_browse.setText(_translate("ReplayGain2OptionsPage", "Browse..."))
         self.label_6.setText(_translate("ReplayGain2OptionsPage", "<a href=\"https://github.com/complexlogic/rsgain\">Download rsgain</a>"))
         self.album_tags.setText(_translate("ReplayGain2OptionsPage", "Calculate album gain/peak"))
         self.true_peak.setWhatsThis(_translate("ReplayGain2OptionsPage", "Use more accurate true peak calculations (trade for performance)"))
