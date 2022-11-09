@@ -48,7 +48,6 @@
        </widget>
       </item>
       <item>
-      <item>
        <widget class="QLabel" name="simplegenre_tagname_label">
         <property name="text">
          <string>Genre tag name:</string>
@@ -58,6 +57,7 @@
       <item>
        <widget class="QLineEdit" name="simplegenre_tagname"/>
       </item>
+      <item>
        <widget class="QCheckBox" name="add_keybpm">
         <property name="text">
          <string>Add simple BPM and Key tags</string>
