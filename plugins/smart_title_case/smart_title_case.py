@@ -27,12 +27,19 @@ Leaves words containing embedded uppercase as-is i.e. USA or DoA.<br />
 For Artist/AlbumArtist, title cases only artists not join phrases<br />
 e.g. The Beatles feat. The Who.
 """
-PLUGIN_VERSION = "0.4.1"
+PLUGIN_VERSION = "0.4.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 
 import re, unicodedata
+
+from picard import log
+from picard.metadata import (
+    register_track_metadata_processor,
+    register_album_metadata_processor,
+)
+
 
 title_tags = ['title', 'album']
 artist_tags = [
@@ -58,7 +65,34 @@ def string_cleanup(string):
     return unicodedata.normalize("NFKC", string)
 
 def string_title_case(string):
-    """Title-case a string using a less destructive method than str.title."""
+    """Title-case a string using a less destructive method than str.title.
+    >>> string_title_case('make title case')
+    'Make Title Case'
+    >>> string_title_case('Already Title Case')
+    'Already Title Case'
+    >>> string_title_case('mIxEd cAsE')
+    'mIxEd cAsE'
+    >>> string_title_case('a')
+    'A'
+    >>> string_title_case("apostrophe's apostrophe's")
+    "Apostrophe's Apostrophe's"
+    >>> string_title_case('(bracketed text)')
+    '(Bracketed Text)'
+    >>> string_title_case("'single quotes'")
+    "'Single Quotes'"
+    >>> string_title_case('"double quotes"')
+    '"Double Quotes"'
+    >>> string_title_case('a,b')
+    'A,B'
+    >>> string_title_case('a-b')
+    'A-B'
+    >>> string_title_case('a/b')
+    'A/B'
+    >>> string_title_case('flügel')
+    'Flügel'
+    >>> string_title_case('HARVEST STORY by 杉山清貴')
+    'HARVEST STORY By 杉山清貴'
+    """
     return string_title_match(match_word, string_cleanup(string))
 
 
@@ -67,43 +101,17 @@ def artist_title_case(text, artists, artists_upper):
     Use the array of artists and the joined string
     to identify artists to make title case
     and the join strings to leave as-is.
+
+    >>> artist_title_case('the beatles feat. the who', ['the beatles', 'the who'], ['The Beatles', 'The Who'])
+    'The Beatles feat. The Who'
+    >>> artist_title_case('kesha feat. 3OH!3', ['kesha', '3OH!3'], ['Kesha', '3OH!3'])
+    'Kesha feat. 3OH!3'
     """
     find = "^(" + r")(\s+\S+?\s+)(".join((map(re.escape, map(string_cleanup,artists)))) + ")(.*$)"
     replace = "".join([r"%s\g<%d>" % (a, x*2 + 2) for x, a in enumerate(artists_upper)])
     result = re.sub(find, replace, string_cleanup(text))
     return result
 
-
-################################################
-# Uncomment the following to enable unit tests #
-################################################
-#
-# assert "Make Title Case" == string_title_case("make title case")
-# assert "Already Title Case" == string_title_case("Already Title Case")
-# assert "mIxEd cAsE" == string_title_case("mIxEd cAsE")
-# assert "A" == string_title_case("a")
-# assert "Apostrophe's Apostrophe's" == string_title_case("apostrophe's apostrophe's")
-# assert "(Bracketed Text)" == string_title_case("(bracketed text)")
-# assert "'Single Quotes'" == string_title_case("'single quotes'")
-# assert '"Double Quotes"' == string_title_case('"double quotes"')
-# assert "A,B" == string_title_case("a,b")
-# assert "A-B" == string_title_case("a-b")
-# assert "A/B" == string_title_case("a/b")
-# assert "Flügel" == string_title_case("flügel")
-# assert "HARVEST STORY By 杉山清貴" == string_title_case("HARVEST STORY by 杉山清貴")
-# assert "The Beatles feat. The Who" == artist_title_case(
-#                                        "the beatles feat. the who",
-#                                        ["the beatles", "the who"],
-#                                        ["The Beatles", "The Who"]
-#                                        )
-
-
-# Put this here so that above unit tests can run standalone before getting an import error
-from picard import log
-from picard.metadata import (
-    register_track_metadata_processor,
-    register_album_metadata_processor,
-)
 
 def title_case(tagger, metadata, *args):
     for name in title_tags:
