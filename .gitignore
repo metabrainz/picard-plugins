@@ -6,7 +6,9 @@ plugins/*.zip
 __pycache__/
 *.py[cod]
 
-# Distribution / packaging
+# Distribution / packaging / development
+.venv/
+.vscode/
 .Python
 env/
 build/
