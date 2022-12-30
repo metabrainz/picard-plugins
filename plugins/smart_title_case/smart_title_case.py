@@ -27,7 +27,7 @@ Leaves words containing embedded uppercase as-is i.e. USA or DoA.<br />
 For Artist/AlbumArtist, title cases only artists not join phrases<br />
 e.g. The Beatles feat. The Who.
 """
-PLUGIN_VERSION = "0.4"
+PLUGIN_VERSION = "0.4.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
@@ -69,7 +69,7 @@ def artist_title_case(text, artists, artists_upper):
     and the join strings to leave as-is.
     """
     find = "^(" + r")(\s+\S+?\s+)(".join((map(re.escape, map(string_cleanup,artists)))) + ")(.*$)"
-    replace = "".join([r"%s\%d" % (a, x*2 + 2) for x, a in enumerate(artists_upper)])
+    replace = "".join([r"%s\g<%d>" % (a, x*2 + 2) for x, a in enumerate(artists_upper)])
     result = re.sub(find, replace, string_cleanup(text))
     return result
 
