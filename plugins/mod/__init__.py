@@ -61,7 +61,7 @@ class StaticField:
 class MagicBytes(bytes):
     offset: int = 0
 
-    def __new__(cls, value, offset: int=0):
+    def __new__(cls, value, offset: int = 0):
         self = super().__new__(cls, value)
         self.offset = offset
         return self
@@ -130,7 +130,7 @@ class ModuleFile(File):
     def _decode_text(self, data: bytes) -> str:
         return data.decode(self._encoding, errors='replace').strip().strip('\0')
 
-    def _encode_text(self, text: str, length: int=None, fillchar: str=' ') -> bytes:
+    def _encode_text(self, text: str, length: int = None, fillchar: str = ' ') -> bytes:
         if length:
             text = text[:length].ljust(length, fillchar)
         return asciipunct(text).encode(self._encoding, errors='replace')
