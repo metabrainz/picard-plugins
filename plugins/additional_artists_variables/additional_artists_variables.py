@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018, 2021 Bob Swift (rdswift)
+# Copyright (C) 2018-2022 Bob Swift (rdswift)
+# Copyright (C) 2023 Ruud van Asseldonk (ruuda)
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -30,7 +31,7 @@ this plugin.
 <br /><br />
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md">user guide</a> on GitHub for more information.
 '''
-PLUGIN_VERSION = '0.8.1'
+PLUGIN_VERSION = '0.8.2'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.7']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
@@ -205,6 +206,8 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
         destination_metadata['~artists_{0}_all_std_multi'.format(source_type,)] = std_artist_list
     if cred_artist_list:
         destination_metadata['~artists_{0}_all_cred_multi'.format(source_type,)] = cred_artist_list
+    if sort_artist_list:
+        destination_metadata['~artists_{0}_all_sort_multi'.format(source_type,)] = sort_artist_list
     if legal_artist_list:
         destination_metadata['~artists_{0}_all_legal_multi'.format(source_type,)] = legal_artist_list
     if sort_pri_artist:
