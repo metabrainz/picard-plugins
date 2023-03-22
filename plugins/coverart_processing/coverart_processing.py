@@ -22,8 +22,7 @@ MIN_DIMENSION = 400 # Set minimum allowable dimensions of image in pixels
 
 def ignore_image(img_data):
     """Ignore The image file if the dimensions are smaller than a predefined"""
-    (width, height, mimetype, extension,
-             datalength) = imageinfo.identify(img_data)
+    (width, height, _, _, _) = imageinfo.identify(img_data)
     if width < MIN_DIMENSION or height < MIN_DIMENSION:
         return True
     return False
@@ -51,7 +50,7 @@ def resize_image(image_data, max_size=MAX_DIMENSION):
 
 def Track_images(album, metadata, track, release):
    try:
-    for id,image in enumerate(metadata.images):
+    for ids,image in enumerate(metadata.images):
             image_data = image.data
             if image_data is not None:
                 if ignore_image(image_data):
@@ -60,10 +59,10 @@ def Track_images(album, metadata, track, release):
                         image,
                         image.imageinfo_as_string())
                     )
-                    metadata.images.pop(id)
+                    metadata.images.pop(ids)
                 else:
                     img_data_edited = resize_image(image_data)
-                    metadata.images[id].set_data(img_data_edited)
+                    metadata.images[ids].set_data(img_data_edited)
 
                     log.debug("Cover art image processed: %r [%s]" % (
                         image,
