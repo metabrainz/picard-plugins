@@ -20,58 +20,65 @@ from picard.plugin import PluginPriority
 MAX_DIMENSION = 600 # Set maximum allowable dimensions of image in pixels
 MIN_DIMENSION = 400 # Set minimum allowable dimensions of image in pixels
 
-def ignore_image(img_data):
-    """Ignore The image file if the dimensions are smaller than a predefined"""
-    (width, height, _, _, _) = imageinfo.identify(img_data)
-    if width < MIN_DIMENSION or height < MIN_DIMENSION:
-        return True
-    return False
+class CoverArtProcessor:
+    def __init__(self):
+        self.max_dimension = MAX_DIMENSION
+        self.min_dimension = MIN_DIMENSION
 
-def resize_image(image_data, max_size=MAX_DIMENSION):
-    """Resize the image to max_size and center crop if larger than max_size."""
-    with Image.open(BytesIO(image_data)) as img:
-        width, height = img.size
-        if width > max_size or height > max_size:
-            if width > height:
-                new_width = max_size
-                new_height = int(height * (max_size / width))
-            else:
-                new_height = max_size
-                new_width = int(width * (max_size / height))
-            img = img.resize((new_width, new_height), resample=Image.LANCZOS)
-            left = (new_width - max_size) / 2
-            top = (new_height - max_size) / 2
-            right = left + max_size
-            bottom = top + max_size
-            img = img.crop((left, top, right, bottom))
-        output_buffer = BytesIO()
-        img.save(output_buffer, format='JPEG')
-        return output_buffer.getvalue()
+        self.cache = {}
+        log.debug(f"{PLUGIN_NAME}: Initialized with max_dimension={self.max_dimension} and min_dimension={self.min_dimension}.")
 
-def Track_images(album, metadata, track, release):
-   try:
-    for ids,image in enumerate(metadata.images):
-            image_data = image.data
-            if image_data is not None:
-                if ignore_image(image_data):
-                    # Removing the image
-                    log.debug("Cover art image removed from metadata: %r [%s]" % (
-                        image,
-                        image.imageinfo_as_string())
-                    )
-                    metadata.images.pop(ids)
+    def ignore_image(self, img_data):
+        """Ignore The image file if the dimensions are smaller than predefined"""
+        (width, height) = imageinfo.identify(img_data)[:2]
+        return width < self.min_dimension or height < self.max_dimension
+
+    def resize_image(self, image_data):
+        """Resize the image to max_size if larger than max_size."""
+        with Image.open(BytesIO(image_data)) as img:
+            width, height = img.size
+
+            if width > self.max_dimension or height > self.max_dimension:
+                # Calculate the new size while maintaining aspect ratio
+                aspect_ratio = width / height
+                if width > height:
+                    new_width = self.max_dimension
+                    new_height = int(new_width / aspect_ratio)
                 else:
-                    img_data_edited = resize_image(image_data)
-                    metadata.images[ids].set_data(img_data_edited)
+                    new_height = self.max_dimension
+                    new_width = int(new_height * aspect_ratio)
 
-                    log.debug("Cover art image processed: %r [%s]" % (
-                        image,
-                        image.imageinfo_as_string())
-                    )
-   except Exception as ex:
-        log.error("{0}: Error: {1}".format(PLUGIN_NAME, ex,))
+                img = img.resize((new_width, new_height), Image.LANCZOS)
 
+                with BytesIO() as output:
+                    img.save(output, format="JPEG", quality=85)
+                    return output.getvalue()
 
-# Register the plugin to run at a HIGH priority so that other plugins will
-# not have an opportunity to modify the contents of the metadata provided.
-register_track_metadata_processor(Track_images, priority=PluginPriority.HIGH)
+        # If image dimensions are already within the max limit, original image is to be used.
+        return image_data
+
+    def process_images(self, album, metadata, track, release):
+        """Process the Cover Art Images"""
+        for image_index, image in enumerate(metadata.images):
+
+            image_hash = image.url.toString()
+            if image_hash in self.cache:
+                if self.cache[image_hash] is None:
+                    metadata.images.pop(image_index)
+                else:
+                    metadata.images[image_index].set_data(self.cache[image_hash])
+
+            else:
+                if self.ignore_image(image.data):
+                    metadata.images.pop(image_index)
+                    self.cache[image_hash] = None
+                    log.debug(f"{PLUGIN_NAME}: Ignoring Image {image_index+1} because it is smaller than the minimum allowed dimensions.")
+                else:
+                    new_image_data = self.resize_image(image.data)
+                    metadata.images[image_index].set_data(new_image_data)
+                    self.cache[image_hash] = new_image_data
+                    log.debug(f"{PLUGIN_NAME}: Resizing Image {image_index+1}.")
+                        
+            
+coverart_processing = CoverArtProcessor()
+register_track_metadata_processor(coverart_processing.process_images, priority=PluginPriority.HIGH)
