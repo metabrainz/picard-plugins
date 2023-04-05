@@ -225,14 +225,14 @@ def handle_submit_process(tagger, track_list, target_tag):
                             data[dict_key][mbid] = processed_tags
                     else:
                         log.info(f"Not submitting MBID {track.metadata[target_tag]} as it was found on 'do not submit' MBID set.")
-    
+
     # Send an alert when, at the end of it all, inconsistent tagging was detected.
     if inconsistent_detected or alert_multiple_mbids:
         warning = QMessageBox()
         warning.setStandardButtons(QMessageBox.Ok|QMessageBox.Cancel)
         warning.setDefaultButton(QMessageBox.Cancel)
+        warning.setIcon(QMessageBox.Warning)
         if inconsistent_detected and alert_multiple_mbids:
-            warning.setIcon(QMessageBox.Warning)
             warning.setText("""
             <p><b>WARNING: INCONSISTENT TAGGING AND SUBMISSION TO MULTIPLE MBIDS DETECTED.</b></p>
             <p>You are trying to apply different tags to multiple MusicBrainz entities.</p>
@@ -241,7 +241,6 @@ def handle_submit_process(tagger, track_list, target_tag):
             <p>If this was intentional, click OK. Otherwise, click Cancel.</p>
             """)
         elif inconsistent_detected:
-            warning.setIcon(QMessageBox.Warning)
             warning.setText("""
             <p><b>WARNING: INCONSISTENT TAGGING DETECTED.</b></p>
             <p>You are trying to apply multiple tags to one entity, which benefits more from
@@ -252,7 +251,6 @@ def handle_submit_process(tagger, track_list, target_tag):
             <p>If this was intentional, click OK. Otherwise, click Cancel.</p>
             """)
         elif alert_multiple_mbids:
-            warning.setIcon(QMessageBox.Warning)
             warning.setText("""
             <p><b>MULTIPLE MBIDS DETECTED.</b></p>
             <p>You are trying to apply a tag to multiple MusicBrainz entities.</p>
@@ -375,7 +373,7 @@ class TagSubmitPlugin_OptionsPage(OptionsPage):
     def save(self):
         config.setting['tag_submit_plugin_destructive'] = self.ui.overwrite_radio_button.isChecked()
         config.setting['tag_submit_plugin_aliases_enabled'] = self.ui.tag_alias_groupbox.isChecked()
-        
+
         tag_textbox_text = self.ui.tags_to_save_textbox.text()
         if tag_textbox_text:
             config.setting['tag_submit_plugin_tags_to_submit'] = [
