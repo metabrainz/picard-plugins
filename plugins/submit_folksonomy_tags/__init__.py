@@ -5,7 +5,7 @@ A plugin allowing submission of specific tags on tracks you own (defaults to <i>
 
 A MusicBrainz login is required to use this plugin. Log in first by going to the General options. Then, to use, right click on a track or release then go to <i>Plugins</i> and depending on what you want to submit, choose the option you want.
 
-Uses code from rswift's "Submit ISRC" plugin (specifically, the handling of the network response)
+Uses code from rdswift's "Submit ISRC" plugin (specifically, the handling of the network response)
 """
 PLUGIN_VERSION = '0.2.4'
 PLUGIN_API_VERSIONS = ['2.2']
@@ -28,7 +28,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox
 
 # List of Qt network error codes.
-# From "Submit ISRC" plugin - credit to rswift.
+# From "Submit ISRC" plugin - credit to rdswift.
 q_error_codes = {
     0: 'No error',
     1: "The remote server refused the connection (the server is not accepting requests).",
@@ -86,11 +86,11 @@ def tag_submit_handler(document, reply, error, tagger):
     The function handling the network response from MusicBrainz
     or QtNetwork, showing a message box if an error had occurred.
 
-    Uses the network response handler code from rswift's "Submit ISRC"
+    Uses the network response handler code from rdswift's "Submit ISRC"
     plugin.
     """
     if error:
-        # Error handling from rswift's Submit ISRC plugin
+        # Error handling from rdswift's Submit ISRC plugin
         xml_text = str(document, 'UTF-8') if isinstance(document, (bytes, bytearray, QtCore.QByteArray)) else str(document)
 
         # Build error text message from returned xml payload
