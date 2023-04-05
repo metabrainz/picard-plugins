@@ -164,7 +164,7 @@ def handle_submit_process(tagger, track_list, target_tag):
     # Variable to enable alert if multiple MBIDs are associated, must be toggled.
     alert_multiple_mbids = False
 
-    # TODO when Windows Picard updates with Python 3.10, use case/switch. 
+    # TODO when Windows Picard updates with Python 3.10, use case/switch.
     if target_tag == "musicbrainz_recordingid":
         dict_key = "recording"
         alert_inconsistent = False
@@ -176,7 +176,7 @@ def handle_submit_process(tagger, track_list, target_tag):
         dict_key = "artist"
 
     data = {dict_key: {}}
-    
+
     last_tags = {"mbid": ""}
     banned_mbids = {
         # Any artist entities that can be applied to multiple artists go here.
@@ -231,8 +231,6 @@ def handle_submit_process(tagger, track_list, target_tag):
         warning = QMessageBox()
         warning.setStandardButtons(QMessageBox.Ok|QMessageBox.Cancel)
         warning.setDefaultButton(QMessageBox.Cancel)
-        warning_title = ""
-        warning_message = ""
         if inconsistent_detected and alert_multiple_mbids:
             warning.setIcon(QMessageBox.Warning)
             warning.setText("""
