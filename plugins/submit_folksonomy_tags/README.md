@@ -4,17 +4,17 @@ A plugin that lets the user submit tags from their tracks' tags - defaults to `g
 
 **This plugin requires that you log into MusicBrainz via Picard.** The option to do so is in _Options > Options > General_.
 
-To use, right click on a track or release, then go to _Plugins > Submit [x] tags to MusicBrainz_ - there are multiple options depending on if you want to submit tags to the recording, release, release group or release artist associated with the track/s or album/s you've right-clicked. The tags will be applied from the track tags you have configured.
+To use, right click on a track or release, then go to _Plugins > Submit **x** tags to MusicBrainz_ - there are multiple options depending on if you want to submit tags to the recording, release, release group or release artist associated with the track/s or album/s you've right-clicked. The tags will be applied from the track tags you have configured.
 
 Uses code from rswift's "Submit ISRC" plugin (specifically, the handling of the network response)
 
 ## Features
 It does what it says on the tin: submits any tags you have in the genre tags of whichever files you drop into Picard to the respective pages. Right now the following entities are supported:
 
-  - recordings
-  - releases
-  - release groups
-  - artists (by release)
+    - recordings
+    - releases
+    - release groups
+    - artists (by release)
 
 The plugin can also replace certain tags if your tags don't match up with MusicBrainz's standard tags, notably with their allowed genre list (e.g. if you use "synthpop" and not "synth-pop", or you use the full name "electronic dance music" and not the abbreviated "edm").
 
