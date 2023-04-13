@@ -22,8 +22,8 @@ from picard.ui.options import OptionsPage, register_options_page
 from picard.webservice.api_helpers import MBAPIHelper, _wrap_xml_metadata
 from .ui_config import TagSubmitPluginOptionsUI
 import re
-import html
 import functools
+from xml.sax.saxutils import escape
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox
 
@@ -197,8 +197,7 @@ def handle_submit_process(tagger, track_list, target_tag):
     for track in track_list:
         if track.files:
             for file in track.files:
-                mbid_list = [html.escape(tag.strip().lower()) for tag
-                             in re.split(";|/|,", file.metadata[target_tag])]
+                mbid_list = file.metadata.getall(target_tag)
                 if len(mbid_list) > 1:
                     alert_multiple_mbids = True
                 for mbid in mbid_list:
@@ -213,7 +212,7 @@ def handle_submit_process(tagger, track_list, target_tag):
                                     if (last_tags[tag] != file.metadata[tag]) and (last_tags["mbid"] == file.metadata[target_tag]) and alert_inconsistent:
                                         inconsistent_detected = True
                                 # in any case, process the tags in case the user intends to go with it.
-                                processed_tags.extend([html.escape(tag.strip().lower()) for tag
+                                processed_tags.extend([tag.strip().lower() for tag
                                                     in re.split(";|/|,", file.metadata[tag])])
                                 last_tags[tag] = file.metadata[tag]
                                 last_tags["mbid"] = file.metadata[target_tag]
@@ -293,7 +292,7 @@ def upload_tags_to_mbz(data, tagger):
             xml_data.extend([f'<{key} id="{mbid}">', "<user-tag-list>"])
             # add the tags
             for tag in data[key][mbid]:
-                xml_data.append(f'<user-tag{upvote_tag_fill}><name>{process_tag_aliases(tag.lower())}</name></user-tag>')
+                xml_data.append(f'<user-tag{upvote_tag_fill}><name>{escape(process_tag_aliases(tag.lower()))}</name></user-tag>')
             # close the user tag list
             xml_data.extend(["</user-tag-list>", f"</{key}>"])
         # close the list
