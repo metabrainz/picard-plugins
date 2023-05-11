@@ -42,7 +42,21 @@ import os
 from PyQt5.QtWidgets import QFileDialog
 
 from picard import log
-from picard.formats.vorbis import OggOpusFile
+from picard.formats import (
+    AiffFile,
+    ASFFile,
+    FLACFile,
+    MonkeysAudioFile,
+    MP3File,
+    MP4File,
+    OggFLACFile,
+    OggOpusFile,
+    OggSpeexFile,
+    OggTheoraFile,
+    OggVorbisFile,
+    WAVFile,
+    WavPackFile,
+)
 from picard.album import Album
 from picard.track import Track, NonAlbumTrack
 from picard.util import thread
@@ -51,6 +65,7 @@ from picard.config import TextOption, BoolOption, IntOption, config
 from picard.ui.itemviews import (BaseAction, register_track_action,
                                  register_album_action)
 from picard.plugins.replaygain2.ui_options_replaygain2 import Ui_ReplayGain2OptionsPage
+
 
 CLIP_MODE_DISABLED = 0
 CLIP_MODE_POSITIVE = 1
@@ -65,20 +80,20 @@ CLIP_MODE_MAP = (
 OPUS_MODE_STANDARD = 0
 OPUS_MODE_R128 = 1
 
-SUPPORTED_EXTS = (
-    ".mp2",
-    ".mp3",
-    ".flac",
-    ".ogg",
-    ".oga",
-    ".spx",
-    ".opus",
-    ".m4a",
-    ".wv",
-    ".ape",
-    ".wma",
-    ".wav",
-    ".aiff"
+SUPPORTED_FORMATS = (
+    AiffFile,
+    ASFFile,
+    FLACFile,
+    MonkeysAudioFile,
+    MP3File,
+    MP4File,
+    OggFLACFile,
+    OggOpusFile,
+    OggSpeexFile,
+    OggTheoraFile,
+    OggVorbisFile,
+    WAVFile,
+    WavPackFile,
 )
 
 TABLE_HEADER = (
@@ -174,7 +189,7 @@ def calculate_replaygain(tracks, options):
         if not track.files:
             continue
         file = track.files[0]
-        if not file.EXTENSIONS or file.EXTENSIONS[0] not in SUPPORTED_EXTS:
+        if not type(file) in SUPPORTED_FORMATS:
             raise Exception(f"ReplayGain 2.0: File '{file.filename}' is of unsupported format")
         files.append(file.filename)
         valid_tracks.append(track)
