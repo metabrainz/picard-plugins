@@ -100,9 +100,11 @@ def log_helper(text, *args):
         args (list): List of text replacement arguments.
 
     Returns:
-        tuple: updated text and replacement arguments.
+        list: updated text and replacement arguments.
     """
-    return "%s: " + text, PLUGIN_NAME, *args
+    retval = ["%s: " + text, PLUGIN_NAME]
+    retval.extend(args)
+    return retval
 
 
 class CustomHelper(MBAPIHelper):
