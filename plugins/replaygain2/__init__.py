@@ -29,7 +29,7 @@ The following file formats are supported:
 
 This plugin is based on the original ReplayGain plugin by Philipp Wolfer and Sophist.
 '''
-PLUGIN_VERSION = "1.2"
+PLUGIN_VERSION = "1.3"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -121,7 +121,7 @@ TAGS = (
 # Make sure the rsgain executable exists
 def rsgain_found(rsgain_command, window):
     if not os.path.exists(rsgain_command) and shutil.which(rsgain_command) is None:
-        window.set_statusbar_message(N_("Failed to locate rsgain. Enter the path in the plugin settings."))
+        window.set_statusbar_message("Failed to locate rsgain. Enter the path in the plugin settings.")
         return False
     return True
 
@@ -259,7 +259,7 @@ def calculate_replaygain(tracks, options):
 
 
 class ScanTracks(BaseAction):
-    NAME = N_("Calculate Replay&Gain...")
+    NAME = "Calculate Replay&Gain..."
 
     def callback(self, objs):
         if not rsgain_found(self.config.setting["rsgain_command"], self.tagger.window):
@@ -269,11 +269,11 @@ class ScanTracks(BaseAction):
         num_tracks = len(tracks)
         if num_tracks == 1:
             self.tagger.window.set_statusbar_message(
-                N_(f"Calculating ReplayGain for {tracks[0].files[0].filename}...")
+                'Calculating ReplayGain for %s...', {tracks[0].files[0].filename}
             )
         else:
             self.tagger.window.set_statusbar_message(
-                N_(f"Calculating ReplayGain for {num_tracks} tracks...")
+                'Calculating ReplayGain for %i tracks...', num_tracks
             )
         thread.run_task(
             partial(calculate_replaygain, tracks, self.options),
@@ -286,17 +286,13 @@ class ScanTracks(BaseAction):
                 for file in track.files:
                     file.update()
                 track.update()
-            self.tagger.window.set_statusbar_message(
-                N_('ReplayGain successfully calculated.')
-            )
+            self.tagger.window.set_statusbar_message('ReplayGain successfully calculated.')
         else:
-            self.tagger.window.set_statusbar_message(
-                N_('Could not calculate ReplayGain.')
-            )
+            self.tagger.window.set_statusbar_message('Could not calculate ReplayGain.')
 
 
 class ScanAlbums(BaseAction):
-    NAME = N_("Calculate Replay&Gain...")
+    NAME = "Calculate Replay&Gain..."
 
     def callback(self, objs):
         if not rsgain_found(self.config.setting["rsgain_command"], self.tagger.window):
@@ -308,11 +304,11 @@ class ScanAlbums(BaseAction):
         self.current = 0
         if (self.num_albums == 1):
             self.tagger.window.set_statusbar_message(
-                N_(f"Calculating ReplayGain for '{albums[0].metadata['album']}'...")
+                'Calculating ReplayGain for "%s"...', albums[0].metadata['album']
             )
         else:
             self.tagger.window.set_statusbar_message(
-                N_(f"Calculating ReplayGain for {self.num_albums} albums...")
+                'Calculating ReplayGain for %i albums...', self.num_albums
             )
         for album in albums:
             thread.run_task(
@@ -336,11 +332,19 @@ class ScanAlbums(BaseAction):
                 track.update()
             album.update()
             self.tagger.window.set_statusbar_message(
-                N_(f"Successfully calculated ReplayGain for '{album.metadata['album']}'{progress}.")
+                'Successfully calculated ReplayGain for "%(album)s"%(progress)s.',
+                {
+                    'album': album.metadata['album'],
+                    'progress': progress,
+                }
             )
         else:
             self.tagger.window.set_statusbar_message(
-                N_(f"Failed to calculate ReplayGain for '{album.metadata['album']}{progress}.'")
+                'Failed to calculate ReplayGain for "%(album)s"%(progress)s.',
+                {
+                    'album': album.metadata['album'],
+                    'progress': progress,
+                }
             )
 
 class ReplayGain2OptionsPage(OptionsPage):
@@ -366,13 +370,13 @@ class ReplayGain2OptionsPage(OptionsPage):
         self.ui = Ui_ReplayGain2OptionsPage()
         self.ui.setupUi(self)
         self.ui.clip_mode.addItems([
-            N_("Disabled"),
-            N_("Enabled for positive gain values only"),
-            N_("Always enabled")
+            "Disabled",
+            "Enabled for positive gain values only",
+            "Always enabled"
         ])
         self.ui.opus_mode.addItems([
-            N_("Write standard ReplayGain tags"),
-            N_("Write R128_*_GAIN tags")
+            "Write standard ReplayGain tags",
+            "Write R128_*_GAIN tags"
         ])
         self.ui.rsgain_command_browse.clicked.connect(self.rsgain_command_browse)
 
