@@ -1,3 +1,23 @@
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2023 Flaky
+# Copyright (C) 2023 Bob Swift (rdswift)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+
 PLUGIN_NAME = "Submit Folksonomy Tags"
 PLUGIN_AUTHOR = "Flaky"
 PLUGIN_DESCRIPTION = """
@@ -7,18 +27,19 @@ A MusicBrainz login is required to use this plugin. Log in first by going to the
 
 Uses code from rdswift's "Submit ISRC" plugin (specifically, the handling of the network response)
 """
-PLUGIN_VERSION = '0.2.4'
-PLUGIN_API_VERSIONS = ['2.2']
+PLUGIN_VERSION = '0.3'
+PLUGIN_API_VERSIONS = ['2.2', '2.9']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 
-from picard import config, log
+from picard import config, log, PICARD_VERSION
 from picard.album import Album, Track
 from picard.ui.itemviews import (BaseAction,
                                  register_album_action,
                                  register_track_action
                                  )
 from picard.ui.options import OptionsPage, register_options_page
+from picard.version import Version
 from picard.webservice.api_helpers import MBAPIHelper, _wrap_xml_metadata
 from .ui_config import TagSubmitPluginOptionsUI
 import re
@@ -26,6 +47,8 @@ import functools
 from xml.sax.saxutils import escape
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox
+
+NEW_MBAPIHelper = (PICARD_VERSION >= Version(2, 9, 0, 'beta', 2))
 
 # List of Qt network error codes.
 # From "Submit ISRC" plugin - credit to rdswift.
@@ -307,8 +330,9 @@ def upload_tags_to_mbz(data, tagger):
                 "Submitting tags to MusicBrainz..."
                 )
         submitted_xml = _wrap_xml_metadata(''.join(xml_data))
+        path = '/tag' if NEW_MBAPIHelper else ['tag']
         helper.post(
-            ['tag'],
+            path,
             submitted_xml,
             functools.partial(tag_submit_handler, tagger=tagger),
             priority=True,
