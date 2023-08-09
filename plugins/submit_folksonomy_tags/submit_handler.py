@@ -83,7 +83,7 @@ def process_tracks_to_file_list(track_list, target_tag):
     the MBID is in the banned list and if alert_multiple_mbids
     needs to be checked.
     """
-    global inconsistent_detected, alert_multiple_mbids
+    global alert_inconsistent, alert_multiple_mbids
 
     file_list = []
     for track in track_list:
@@ -106,7 +106,7 @@ def process_file_list_to_tag_dict(file_list, target_tag, tags_to_search):
     Process tags from a file list to a dictionary of tag data for submission,
     triggering variables if there is inconsistent tagging.
     """
-    global alert_inconsistent, inconsistent_detected, alert_multiple_mbids
+    global inconsistent_detected
     dict_key = tag_bindings[target_tag]
     data = {dict_key: {}}
     last_tags = {"mbid": ""}
