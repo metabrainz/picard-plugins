@@ -4,18 +4,18 @@ from PyQt5.QtCore import (
     )
 
 from PyQt5.QtWidgets import (
+    QAbstractItemView,
     QGridLayout,
     QGroupBox,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QPushButton,
     QRadioButton,
     QSizePolicy,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
-    QAbstractItemView,
-    QLineEdit
     )
 
 class TagSubmitPluginOptionsUI():
