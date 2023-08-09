@@ -78,12 +78,13 @@ def handle_submit_process(tagger, track_list, target_tag, client_params):
 
 
 def process_tracks_to_file_list(track_list, target_tag):
-    global alert_inconsistent, inconsistent_detected, alert_multiple_mbids
     """
     Processes a track list to just a file list, checking if
     the MBID is in the banned list and if alert_multiple_mbids
     needs to be checked.
     """
+    global inconsistent_detected, alert_multiple_mbids
+
     file_list = []
     for track in track_list:
         for file in track.files if track.files else []:
