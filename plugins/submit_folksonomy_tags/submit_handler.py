@@ -83,14 +83,13 @@ def process_tracks_to_file_list(track_list, target_tag):
     the MBID is in the banned list and if alert_multiple_mbids
     needs to be checked.
     """
-    global alert_inconsistent, alert_multiple_mbids
+    global alert_multiple_mbids
 
     file_list = []
     for track in track_list:
         for file in track.files if track.files else []:
             mbid_list = file.metadata.getall(target_tag)
-            alert_multiple_mbids = True if (
-                len(mbid_list) > 1 and alert_inconsistent) else False
+            alert_multiple_mbids = True if len(mbid_list) > 1 else False
             for mbid in mbid_list:
                 if mbid not in banned_mbids:
                     file_list.append(file)
