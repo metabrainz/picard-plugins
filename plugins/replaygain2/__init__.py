@@ -7,29 +7,29 @@ Calculates ReplayGain information for tracks and albums according to the
 This plugin depends on the ReplayGain utility [rsgain](https://github.com/complexlogic/rsgain). Users
 are required to install rsgain and set its path in the plugin settings before use.
 
-<h4>Usage</h4>
+#### Usage
 Select one or more tracks or albums, then right click and select Plugin->Calculate ReplayGain. The plugin
 will calculate ReplayGain information for the selected items and display the results in the metadata
 window. Click the save button to write the tags to file.
 
 The following file formats are supported:
-<ul>
-<li>MP3 (.mp3)
-<li>FLAC (.flac)
-<li>Ogg (.ogg, .oga, spx)
-<li>Opus (.opus)
-<li>MPEG-4 Audio (.m4a)
-<li>Wavpack (.wv)
-<li>Monkey's Audio (.ape)
-<li>WMA (.wma)
-<li>MP2 (.mp2)
-<li>WAV (.wav)
-<li>AIFF (.aiff)
-</ul>
+
+- MP3 (.mp3)
+- FLAC (.flac)
+- Ogg (.ogg, .oga, spx)
+- Opus (.opus)
+- MPEG-4 Audio (.m4a, .mp4)
+- Wavpack (.wv)
+- Monkey's Audio (.ape)
+- WMA (.wma)
+- MP2 (.mp2)
+- WAV (.wav)
+- AIFF (.aiff)
+- TAK (.tak)
 
 This plugin is based on the original ReplayGain plugin by Philipp Wolfer and Sophist.
 '''
-PLUGIN_VERSION = "1.3"
+PLUGIN_VERSION = "1.4"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -54,6 +54,7 @@ from picard.formats import (
     OggSpeexFile,
     OggTheoraFile,
     OggVorbisFile,
+    TAKFile,
     WAVFile,
     WavPackFile,
 )
@@ -92,6 +93,7 @@ SUPPORTED_FORMATS = (
     OggSpeexFile,
     OggTheoraFile,
     OggVorbisFile,
+    TAKFile,
     WAVFile,
     WavPackFile,
 )
