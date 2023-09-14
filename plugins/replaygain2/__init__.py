@@ -26,10 +26,11 @@ The following file formats are supported:
 - WAV (.wav)
 - AIFF (.aiff)
 - TAK (.tak)
+- MusePack *(Stream Version 8 only)* (.mpc)
 
 This plugin is based on the original ReplayGain plugin by Philipp Wolfer and Sophist.
 '''
-PLUGIN_VERSION = "1.4"
+PLUGIN_VERSION = "1.6"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -49,6 +50,7 @@ from picard.formats import (
     MonkeysAudioFile,
     MP3File,
     MP4File,
+    MusepackFile,
     OggFLACFile,
     OggOpusFile,
     OggSpeexFile,
@@ -88,6 +90,7 @@ SUPPORTED_FORMATS = (
     MonkeysAudioFile,
     MP3File,
     MP4File,
+    MusepackFile,
     OggFLACFile,
     OggOpusFile,
     OggSpeexFile,
