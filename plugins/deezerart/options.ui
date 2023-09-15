@@ -13,22 +13,50 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QLabel" name="sizeLabel">
-       <property name="text">
-        <string>Cover size:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="size"/>
-     </item>
-    </layout>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="sizeLabel">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Cover size:</string>
+     </property>
+    </widget>
    </item>
-   <item>
+   <item row="0" column="2">
+    <widget class="QComboBox" name="size"/>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLabel" name="min_similarity_label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string>Minimal similarity for matches:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="2">
+    <widget class="QSpinBox" name="min_similarity">
+     <property name="suffix">
+      <string> %</string>
+     </property>
+     <property name="prefix">
+      <string> </string>
+     </property>
+     <property name="maximum">
+      <number>100</number>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>

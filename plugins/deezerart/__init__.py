@@ -1,7 +1,7 @@
 PLUGIN_NAME = "Deezer cover art"
 PLUGIN_AUTHOR = "Fabio Forni <livingsilver94>"
 PLUGIN_DESCRIPTION = "Fetch cover arts from Deezer"
-PLUGIN_VERSION = '1.1.1'
+PLUGIN_VERSION = '1.2'
 PLUGIN_API_VERSIONS = ['2.5']
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
@@ -21,13 +21,13 @@ from .options import Ui_Form
 
 __version__ = PLUGIN_VERSION
 
-MIN_SIMILARITY_THRESHOLD = 0.65
+DEFAULT_SIMILARITY_THRESHOLD = 0.6
 
 
-def is_similar(str1: str, str2: str) -> bool:
+def is_similar(str1: str, str2: str, min_similarity: float = DEFAULT_SIMILARITY_THRESHOLD) -> bool:
     if str1 in str2:
         return True
-    return astrcmp(str1, str2) >= MIN_SIMILARITY_THRESHOLD
+    return astrcmp(str1, str2) >= min_similarity
 
 
 def is_deezer_url(url: str) -> bool:
@@ -37,16 +37,21 @@ def is_deezer_url(url: str) -> bool:
 class OptionsPage(providers.ProviderOptions):
     NAME = 'Deezer'
     TITLE = 'Deezer'
-    options = [config.TextOption('setting', 'deezerart_size', obj.CoverSize.BIG.value)]
+    options = [
+        config.TextOption('setting', 'deezerart_size', obj.CoverSize.BIG.value),
+        config.FloatOption('setting', 'deezerart_min_similarity', DEFAULT_SIMILARITY_THRESHOLD),
+    ]
     _options_ui = Ui_Form
 
     def load(self):
         for s in obj.CoverSize:
             self.ui.size.addItem(str(s.name).title(), userData=s.value)
         self.ui.size.setCurrentIndex(self.ui.size.findData(config.setting['deezerart_size']))
+        self.ui.min_similarity.setValue(int(config.setting["deezerart_min_similarity"] * 100))
 
     def save(self):
         config.setting['deezerart_size'] = self.ui.size.currentData()
+        config.setting['deezerart_min_similarity'] = float(self.ui.min_similarity.value()) / 100.0
 
 
 class Provider(providers.CoverArtProvider):
@@ -120,13 +125,14 @@ class Provider(providers.CoverArtProvider):
                 return
             artist = self._artist()
             album = self.metadata['album']
+            min_similarity = config.setting['deezerart_min_similarity']
             for result in results:
                 if not isinstance(result, obj.Track):
                     continue
-                if not is_similar(artist, result.artist.name):
+                if not is_similar(artist, result.artist.name, min_similarity):
                     self.log_debug('artist similarity below threshold: %r ~ %r', artist, result.artist.title)
                     continue
-                if not is_similar(album, result.album.title):
+                if not is_similar(album, result.album.title, min_similarity):
                     self.log_debug('album similarity below threshold: %r ~ %r', album, result.album.title)
                     continue
                 cover_url = result.album.cover_url(obj.CoverSize(config.setting['deezerart_size']))
