@@ -82,8 +82,8 @@ class Provider(providers.CoverArtProvider):
     def error(self, msg):
         super().error(self._log_prefix + msg)
 
-    def log_debug(self, msg: Any):
-        picard.log.debug('%s%s', self._log_prefix, msg)
+    def log_debug(self, msg: Any, *args):
+        picard.log.debug(self._log_prefix + msg, *args)
 
     def _url_callback(self, url: str):
         if is_deezer_url(url):
@@ -123,7 +123,11 @@ class Provider(providers.CoverArtProvider):
             for result in results:
                 if not isinstance(result, obj.Track):
                     continue
-                if not is_similar(artist, result.artist.name) or not is_similar(album, result.album.title):
+                if not is_similar(artist, result.artist.name):
+                    self.log_debug('artist similarity below threshold: %r ~ %r', artist, result.artist.title)
+                    continue
+                if not is_similar(album, result.album.title):
+                    self.log_debug('album similarity below threshold: %r ~ %r', album, result.album.title)
                     continue
                 cover_url = result.album.cover_url(obj.CoverSize(config.setting['deezerart_size']))
                 self.queue_put(CoverArtImage(cover_url))
