@@ -6,7 +6,6 @@ PLUGIN_API_VERSIONS = ['2.5']
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 
-from difflib import SequenceMatcher
 from typing import Any, List, Optional
 from urllib.parse import urlsplit
 
@@ -14,6 +13,7 @@ import picard
 from picard import config
 from picard.coverart import providers
 from picard.coverart.image import CoverArtImage
+from picard.util.astrcmp import astrcmp
 from PyQt5 import QtNetwork as QtNet
 
 from .deezer import Client, SearchOptions, obj
@@ -21,12 +21,13 @@ from .options import Ui_Form
 
 __version__ = PLUGIN_VERSION
 
+MIN_SIMILARITY_THRESHOLD = 0.65
+
 
 def is_similar(str1: str, str2: str) -> bool:
     if str1 in str2:
         return True
-    # Python doc considers a ratio equal to 0.6 a good match.
-    return SequenceMatcher(None, str1, str2).quick_ratio() >= 0.65
+    return astrcmp(str1, str2) >= MIN_SIMILARITY_THRESHOLD
 
 
 def is_deezer_url(url: str) -> bool:
