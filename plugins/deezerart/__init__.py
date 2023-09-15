@@ -1,12 +1,11 @@
 PLUGIN_NAME = "Deezer cover art"
 PLUGIN_AUTHOR = "Fabio Forni <livingsilver94>"
 PLUGIN_DESCRIPTION = "Fetch cover arts from Deezer"
-PLUGIN_VERSION = '1.1.1'
+PLUGIN_VERSION = '1.2'
 PLUGIN_API_VERSIONS = ['2.5']
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
 
-from difflib import SequenceMatcher
 from typing import Any, List, Optional
 from urllib.parse import urlsplit
 
@@ -14,6 +13,7 @@ import picard
 from picard import config
 from picard.coverart import providers
 from picard.coverart.image import CoverArtImage
+from picard.util.astrcmp import astrcmp
 from PyQt5 import QtNetwork as QtNet
 
 from .deezer import Client, SearchOptions, obj
@@ -21,12 +21,13 @@ from .options import Ui_Form
 
 __version__ = PLUGIN_VERSION
 
+DEFAULT_SIMILARITY_THRESHOLD = 0.6
 
-def is_similar(str1: str, str2: str) -> bool:
+
+def is_similar(str1: str, str2: str, min_similarity: float = DEFAULT_SIMILARITY_THRESHOLD) -> bool:
     if str1 in str2:
         return True
-    # Python doc considers a ratio equal to 0.6 a good match.
-    return SequenceMatcher(None, str1, str2).quick_ratio() >= 0.65
+    return astrcmp(str1, str2) >= min_similarity
 
 
 def is_deezer_url(url: str) -> bool:
@@ -36,16 +37,21 @@ def is_deezer_url(url: str) -> bool:
 class OptionsPage(providers.ProviderOptions):
     NAME = 'Deezer'
     TITLE = 'Deezer'
-    options = [config.TextOption('setting', 'deezerart_size', obj.CoverSize.BIG.value)]
+    options = [
+        config.TextOption('setting', 'deezerart_size', obj.CoverSize.BIG.value),
+        config.FloatOption('setting', 'deezerart_min_similarity', DEFAULT_SIMILARITY_THRESHOLD),
+    ]
     _options_ui = Ui_Form
 
     def load(self):
         for s in obj.CoverSize:
             self.ui.size.addItem(str(s.name).title(), userData=s.value)
         self.ui.size.setCurrentIndex(self.ui.size.findData(config.setting['deezerart_size']))
+        self.ui.min_similarity.setValue(int(config.setting["deezerart_min_similarity"] * 100))
 
     def save(self):
         config.setting['deezerart_size'] = self.ui.size.currentData()
+        config.setting['deezerart_min_similarity'] = float(self.ui.min_similarity.value()) / 100.0
 
 
 class Provider(providers.CoverArtProvider):
@@ -81,8 +87,8 @@ class Provider(providers.CoverArtProvider):
     def error(self, msg):
         super().error(self._log_prefix + msg)
 
-    def log_debug(self, msg: Any):
-        picard.log.debug('%s%s', self._log_prefix, msg)
+    def log_debug(self, msg: Any, *args):
+        picard.log.debug(self._log_prefix + msg, *args)
 
     def _url_callback(self, url: str):
         if is_deezer_url(url):
@@ -119,10 +125,15 @@ class Provider(providers.CoverArtProvider):
                 return
             artist = self._artist()
             album = self.metadata['album']
+            min_similarity = config.setting['deezerart_min_similarity']
             for result in results:
                 if not isinstance(result, obj.Track):
                     continue
-                if not is_similar(artist, result.artist.name) or not is_similar(album, result.album.title):
+                if not is_similar(artist, result.artist.name, min_similarity):
+                    self.log_debug('artist similarity below threshold: %r ~ %r', artist, result.artist.title)
+                    continue
+                if not is_similar(album, result.album.title, min_similarity):
+                    self.log_debug('album similarity below threshold: %r ~ %r', album, result.album.title)
                     continue
                 cover_url = result.album.cover_url(obj.CoverSize(config.setting['deezerart_size']))
                 self.queue_put(CoverArtImage(cover_url))
