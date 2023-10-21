@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2022 Bob Swift (rdswift)
+# Copyright (C) 2022-2023 Bob Swift (rdswift)
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -28,8 +28,8 @@ plugin is configured.
 <br /><br />
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/genre_mapper/docs/README.md">user guide</a> on GitHub for more information.
 '''
-PLUGIN_VERSION = '0.4'
-PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3', '2.6', '2.7', '2.8']
+PLUGIN_VERSION = '0.5'
+PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3', '2.6', '2.7', '2.8', '2.9']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 
@@ -56,6 +56,7 @@ from picard.ui.options import (
 
 pairs_split = re.compile(r"\r\n|\n\r|\n").split
 
+OPT_GENRE_SEPARATOR = 'join_genres'
 OPT_MATCH_ENABLED = 'genre_mapper_enabled'
 OPT_MATCH_PAIRS = 'genre_mapper_replacement_pairs'
 OPT_MATCH_FIRST = 'genre_mapper_apply_first_match_only'
@@ -148,8 +149,9 @@ def track_genre_mapper(album, metadata, *args):
     if 'genre' not in metadata or not metadata['genre']:
         log.debug("%s: No genres found for: \"%s\"", PLUGIN_NAME, metadata['title'],)
         return
+    genre_joiner = config.setting[OPT_GENRE_SEPARATOR] if config.setting[OPT_GENRE_SEPARATOR] else MULTI_VALUED_JOINER
     genres = set()
-    metadata_genres = str(metadata['genre']).split(MULTI_VALUED_JOINER)
+    metadata_genres = str(metadata['genre']).split(genre_joiner)
     for genre in metadata_genres:
         for (original, replacement) in GenreMappingPairs.pairs:
             if genre and re.search(original, genre, re.IGNORECASE):
