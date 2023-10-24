@@ -39,7 +39,7 @@ Based on code from Andrew Cook, Sambhav Kothari
 
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "2.2.2"
+PLUGIN_VERSION = "2.2.3"
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7"]
 
 # Plugin configuration
@@ -80,7 +80,7 @@ from picard.ui.options import (
 from picard.webservice import ratecontrol
 from picard.plugins.acousticbrainz.ui_options_acousticbrainz_tags import Ui_AcousticBrainzOptionsPage
 
-ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 250)
+ratecontrol.set_minimum_delay((ACOUSTICBRAINZ_HOST, ACOUSTICBRAINZ_PORT), 1000)
 
 # Constants
 # =============================================================================
