@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2018-2022 Bob Swift (rdswift)
+# Copyright (C) 2018-2023 Bob Swift (rdswift)
 # Copyright (C) 2023 Ruud van Asseldonk (ruuda)
 #
 # This program is free software; you can redistribute it and/or
@@ -31,8 +31,8 @@ this plugin.
 <br /><br />
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md">user guide</a> on GitHub for more information.
 '''
-PLUGIN_VERSION = '0.8.2'
-PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.7']
+PLUGIN_VERSION = '0.9'
+PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.7', '2.9', '2.10']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
@@ -53,17 +53,21 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
     if 'artist-credit' in source_metadata:
         # Initialize variables to default values
         sort_pri_artist = ''
+        sort_pri_artist_cred = ''
         std_artist = ''
         cred_artist = ''
         sort_artist = ''
+        cred_sort_artist = ''
         legal_artist = ''
         additional_std_artist = ''
         additional_cred_artist = ''
         additional_sort_artist = ''
+        additional_cred_sort_artist = ''
         additional_legal_artist = ''
         std_artist_list = []
         cred_artist_list = []
         sort_artist_list = []
+        cred_sort_artist_list = []
         legal_artist_list = []
         artist_count = 0
         artist_ids = []
@@ -72,8 +76,9 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
         for artist_credit in source_metadata['artist-credit']:
             # Initialize temporary variables for each loop.
             temp_std_name = ''
-            temp_cred_name = ''
             temp_sort_name = ''
+            temp_cred_name = ''
+            temp_cred_sort_name = ''
             temp_legal_name = ''
             temp_legal_sort_name = ''
             temp_phrase = ''
@@ -101,6 +106,7 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                     metadata_error(album_id, 'artist-credit.artist.name', source_type)
                 if 'sort-name' in artist_credit['artist']:
                     temp_sort_name = artist_credit['artist']['sort-name']
+                    temp_cred_sort_name = temp_sort_name
                 else:
                     metadata_error(album_id, 'artist-credit.artist.sort-name', source_type)
                 if 'type' in artist_credit['artist']:
@@ -115,6 +121,9 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                                     temp_legal_name = item['name']
                                 if 'sort-name' in item:
                                     temp_legal_sort_name = item['sort-name']
+                        if 'type-id' in item and item['type-id'] == '894afba6-2816-3c24-8072-eadb66bd04bc':
+                            if 'name' in item and 'sort-name' in item and str(item['name']).lower() == temp_cred_name.lower():
+                                temp_cred_sort_name = item['sort-name']
                 tag_list = []
                 if config.setting['max_genres']:
                     for tag_type in ['user-genres', 'genres', 'user-tags', 'tags']:
@@ -129,6 +138,7 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
             std_artist += temp_std_name + temp_phrase
             cred_artist += temp_cred_name + temp_phrase
             sort_artist += temp_sort_name + temp_phrase
+            cred_sort_artist += temp_cred_sort_name + temp_phrase
             artist_types.append(temp_type if temp_type else 'unknown',)
             artist_join_phrases.append(temp_phrase if temp_phrase else '\u200B',)
             if temp_legal_name:
@@ -141,10 +151,12 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                 legal_artist_list.append('n/a',)
             if temp_std_name:
                 std_artist_list.append(temp_std_name,)
-            if temp_cred_name:
-                cred_artist_list.append(temp_cred_name,)
             if temp_sort_name:
                 sort_artist_list.append(temp_sort_name,)
+            if temp_cred_name:
+                cred_artist_list.append(temp_cred_name,)
+            if temp_cred_sort_name:
+                cred_sort_artist_list.append(temp_cred_sort_name,)
             if temp_id:
                 artist_ids.append(temp_id,)
             if artist_count < 1:
@@ -153,9 +165,11 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                 destination_metadata['~artists_{0}_primary_std'.format(source_type,)] = temp_std_name
                 destination_metadata['~artists_{0}_primary_cred'.format(source_type,)] = temp_cred_name
                 destination_metadata['~artists_{0}_primary_sort'.format(source_type,)] = temp_sort_name
+                destination_metadata['~artists_{0}_primary_cred_sort'.format(source_type,)] = temp_cred_sort_name
                 destination_metadata['~artists_{0}_primary_legal'.format(source_type,)] = temp_legal_name
                 destination_metadata['~artists_{0}_primary_sort_legal'.format(source_type,)] = temp_legal_sort_name
                 sort_pri_artist += temp_sort_name + temp_phrase
+                sort_pri_artist_cred += temp_cred_sort_name + temp_phrase
                 if tag_list and source_type == 'album':
                     destination_metadata['~artists_{0}_primary_tags'.format(source_type,)] = tag_list
             else:
@@ -167,13 +181,20 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                     additional_legal_artist += temp_legal_name + temp_phrase
                 else:
                     additional_legal_artist += temp_std_name + temp_phrase
-            artist_count += 1
+                if temp_cred_sort_name:
+                    additional_cred_sort_artist += temp_cred_sort_name + temp_phrase
+                    sort_pri_artist_cred += temp_cred_sort_name + temp_phrase
+                else:
+                    additional_cred_sort_artist += temp_sort_name + temp_phrase
+                    sort_pri_artist_cred += temp_sort_name + temp_phrase
+        artist_count += 1
     else:
         # No valid metadata found.  Log as error.
         metadata_error(album_id, 'artist-credit', source_type)
     additional_std_artist_list = std_artist_list[1:]
     additional_cred_artist_list = cred_artist_list[1:]
     additional_sort_artist_list = sort_artist_list[1:]
+    additional_cred_sort_artist_list = cred_sort_artist_list[1:]
     additional_legal_artist_list = legal_artist_list[1:]
     additional_artist_ids = artist_ids[1:]
     if additional_artist_ids:
@@ -184,6 +205,8 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
         destination_metadata['~artists_{0}_additional_cred'.format(source_type,)] = additional_cred_artist
     if additional_sort_artist:
         destination_metadata['~artists_{0}_additional_sort'.format(source_type,)] = additional_sort_artist
+    if additional_cred_sort_artist:
+        destination_metadata['~artists_{0}_additional_cred_sort'.format(source_type,)] = additional_cred_sort_artist
     if additional_legal_artist:
         destination_metadata['~artists_{0}_additional_legal'.format(source_type,)] = additional_legal_artist
     if additional_std_artist_list:
@@ -192,12 +215,16 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
         destination_metadata['~artists_{0}_additional_cred_multi'.format(source_type,)] = additional_cred_artist_list
     if additional_sort_artist_list:
         destination_metadata['~artists_{0}_additional_sort_multi'.format(source_type,)] = additional_sort_artist_list
+    if additional_cred_sort_artist_list:
+        destination_metadata['~artists_{0}_additional_cred_sort_multi'.format(source_type,)] = additional_cred_sort_artist_list
     if additional_legal_artist_list:
         destination_metadata['~artists_{0}_additional_legal_multi'.format(source_type,)] = additional_legal_artist_list
     if std_artist:
         destination_metadata['~artists_{0}_all_std'.format(source_type,)] = std_artist
     if cred_artist:
         destination_metadata['~artists_{0}_all_cred'.format(source_type,)] = cred_artist
+    if cred_sort_artist:
+        destination_metadata['~artists_{0}_all_cred_sort'.format(source_type,)] = cred_sort_artist
     if sort_artist:
         destination_metadata['~artists_{0}_all_sort'.format(source_type,)] = sort_artist
     if legal_artist:
@@ -208,6 +235,8 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
         destination_metadata['~artists_{0}_all_cred_multi'.format(source_type,)] = cred_artist_list
     if sort_artist_list:
         destination_metadata['~artists_{0}_all_sort_multi'.format(source_type,)] = sort_artist_list
+    if cred_sort_artist_list:
+        destination_metadata['~artists_{0}_all_cred_sort_multi'.format(source_type,)] = cred_sort_artist_list
     if legal_artist_list:
         destination_metadata['~artists_{0}_all_legal_multi'.format(source_type,)] = legal_artist_list
     if sort_pri_artist:
