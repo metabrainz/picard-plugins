@@ -46,6 +46,10 @@ from picard.metadata import (register_album_metadata_processor,
 from picard.plugin import PluginPriority
 
 
+ID_ALIASES_ARTIST_NAME = '894afba6-2816-3c24-8072-eadb66bd04bc'
+ID_ALIASES_LEGAL_NAME = 'd4dcd0c0-b341-3612-a332-c0ce797b25cf'
+
+
 def process_artists(album_id, source_metadata, destination_metadata, source_type):
     # Test for valid metadata node.
     # The 'artist-credit' key should always be there.
@@ -115,13 +119,13 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                     metadata_error(album_id, 'artist-credit.artist.type', source_type)
                 if 'aliases' in artist_credit['artist']:
                     for item in artist_credit['artist']['aliases']:
-                        if 'type-id' in item and item['type-id'] =='d4dcd0c0-b341-3612-a332-c0ce797b25cf':
+                        if 'type-id' in item and item['type-id'] == ID_ALIASES_LEGAL_NAME:
                             if 'ended' in item and not item['ended']:
                                 if 'name' in item:
                                     temp_legal_name = item['name']
                                 if 'sort-name' in item:
                                     temp_legal_sort_name = item['sort-name']
-                        if 'type-id' in item and item['type-id'] == '894afba6-2816-3c24-8072-eadb66bd04bc':
+                        if 'type-id' in item and item['type-id'] == ID_ALIASES_ARTIST_NAME:
                             if 'name' in item and 'sort-name' in item and str(item['name']).lower() == temp_cred_name.lower():
                                 temp_cred_sort_name = item['sort-name']
                 tag_list = []
@@ -261,7 +265,7 @@ def make_track_vars(album, album_metadata, track_metadata, release_metadata):
 
 def metadata_error(album_id, metadata_element, metadata_group):
     log.error("{0}: {1!r}: Missing '{2}' in {3} metadata.".format(
-            PLUGIN_NAME, album_id, metadata_element, metadata_group,))
+        PLUGIN_NAME, album_id, metadata_element, metadata_group,))
 
 
 # Register the plugin to run at a LOW priority so that other plugins that
