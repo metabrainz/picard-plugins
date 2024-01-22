@@ -16,4 +16,7 @@ def load_tests(loader, tests, ignore):
 
     from plugins.key_wheel_converter import key_wheel_converter
     tests.addTests(doctest.DocTestSuite(key_wheel_converter))
+
+    from plugins import enhanced_titles
+    tests.addTests(doctest.DocTestSuite(enhanced_titles))
     return tests
