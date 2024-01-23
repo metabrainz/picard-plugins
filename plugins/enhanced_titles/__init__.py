@@ -25,6 +25,10 @@ included. Languages are provided with ISO 639-3 codes: eng, spa, ita, fra, deu, 
 
 Tagging and checking aliases can be disabled in the plugin's options page, found
 under "plugins". Checking aliases will slow down processing.
+
+If you wish to add your own language or to change the words that are not capitalized,
+please feel free to code the changes and submit a pull request along with links to web
+pages that give definitive language-specific title-case rules.
 """
 PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["2.10"]
@@ -51,29 +55,31 @@ CHECK_ALBUM = "et_check_album_aliases"
 CHECK_TRACK = "et_check_track_aliases"
 
 _articles = {
-    "eng" : ["the", "a", "an"],
-    "spa" : ["el", "los", "la", "las", "lo", "un", "unos", "una", "unas"],
-    "ita" : ["il", "l'", "la", "i", "gli", "le", "un", "uno", "una", "un'"],
-    "fra" : ["le", "la", "les", "un", "une", "des", "l'"],
-    "deu" : ["der", "den", "die", "das", "dem", "des", "den"],
-    "por" : ["o", "os", "a", "as", "um", "uns", "uma", "umas"]
+    "eng": ("the", "a", "an"),
+    "spa": ("el", "los", "la", "las", "lo", "un", "unos", "una", "unas"),
+    "ita": ("il", "l'", "la", "i", "gli", "le", "un", "uno", "una", "un'"),
+    "fra": ("le", "la", "les", "un", "une", "des", "l'"),
+    "deu": ("der", "den", "die", "das", "dem", "des", "den"),
+    "por": ("o", "os", "a", "as", "um", "uns", "uma", "umas")
 }
-_articles[""] = [value for values in _articles.values() for value in values]
+_articles[""] = tuple(value for values in _articles.values() for value in values)
+_articles_langs = set(_articles)
 
-# Prepositions and conjunctions with 3 letters or less.
+# Prepositions and conjunctions with 3 letters or fewer.
+# These will stay in lower case when doing title case.
 _other_minor_words = {
-    "eng" : ["so", "yet", "as", "at", "by", "for", "in", "of", "off", "on", "per",
-            "to", "up", "via", "and", "as", "but", "for", "if", "nor", "or"],
-    "spa" : ["mas", "que", "en", "con", "por", "de", "y", "e", "o", "u", "si", "ni"],
-    "ita" : ["di", "a", "da", "in", "con", "su", "per", "tra", "fra", "e", "o", "ma", "se"],
-    "fra" : ["à", "de", "en", "par", "sur", "et", "ou", "que", "si"],
-    "deu" : ["bis", "für", "um", "an", "auf", "in", "vor", "aus", "bei", "mit",
-            "von", "zu", "la", "so", "daß", "als", "ob", "ehe"],
-    "por" : ["dem", "em", "por", "ao", "à", "aos", "às", "do", "da", "dos", "das",
+    "eng": ("so", "yet", "as", "at", "by", "for", "in", "of", "off", "on", "per",
+            "to", "up", "via", "and", "as", "but", "for", "if", "nor", "or", "en", "via", "vs"),
+    "spa": ("mas", "que", "en", "con", "por", "de", "y", "e", "o", "u", "si", "ni"),
+    "ita": ("di", "a", "da", "in", "con", "su", "per", "tra", "fra", "e", "o", "ma", "se"),
+    "fra": ("à", "de", "en", "par", "sur", "et", "ou", "que", "si"),
+    "deu": ("bis", "für", "um", "an", "auf", "in", "vor", "aus", "bei", "mit",
+            "von", "zu", "la", "so", "daß", "als", "ob", "ehe"),
+    "por": ("dem", "em", "por", "ao", "à", "aos", "às", "do", "da", "dos", "das",
             "no", "na", "nos", "nas", "num", "dum", "e", "mas", "até", "em", "ou",
-            "que", "se", "por"]
+            "que", "se", "por")
 }
-_other_minor_words[""] = [value for values in _other_minor_words.values() for value in values]
+_other_minor_words[""] = tuple(value for values in _other_minor_words.values() for value in values)
 
 
 class ReleaseGroupHelper(MBAPIHelper):
@@ -106,20 +112,21 @@ class SortTagger:
             (str): The sort name of the first useful alias it finds. None if
                    none are found.
 
-        For example, "The Beatles" has alias "Le Double Blanc" with sort name
-        "Double Blanc, Le", so it's not considered. But it also has alias
+        For example, the album "The Beatles" has alias "Le Double Blanc" with
+        sort name "Double Blanc, Le", so it's not considered. But it also has alias
         "The Beatles" with sort name "Beatles, The", so this one is chosen.
         Another example, "The Continuing Story of Bungalow Bill" has an alias
         with the sort name equal to the title, this is not considered because
         it makes more sense to swap the prefix.
         """
+        name_casefold = name.casefold()
         for alias in aliases:
             sortname = alias["sort-name"]
-            if (alias["name"].casefold() == name.casefold() and
-                    not sortname.casefold() == name.casefold()):
-                log.info("Enhanced Titles: sort name found for \"" + name + "\", \"" + sortname + "\".")
+            if (alias["name"].casefold() == name_casefold and
+                    not sortname.casefold() == name_casefold):
+                log.info('Enhanced Titles: sort name found for "%s", "%s".', name, sortname)
                 return sortname
-        log.info("Enhanced Titles: no proper sort name found for \"" + name + "\".")
+        log.info('Enhanced Titles: no proper sort name found for "%s".', name)
         return None
 
     def _response_handler(self, document, reply, error, metadata = None, field = None):
@@ -130,7 +137,7 @@ class SortTagger:
             field (str): Either "title" or "album", depending on what is being
                          updated.
         """
-        sortname = ""
+        sortname = None
         try:
             if document:
                 if error:
@@ -138,34 +145,31 @@ class SortTagger:
                 if document["aliases"]:
                     sortname = self._select_alias(document["aliases"], metadata[field])
                 else:
-                    log.info("Enhanced Titles: no aliases found for \"" + metadata[field] + "\".")
+                    log.info('Enhanced Titles: no aliases found for "%s".', metadata[field])
         finally:
+            sortfield = field + "sort"
             if sortname:
-                sortfield = field + "sort"
                 metadata[sortfield] = sortname
             else:
-                self._swapprefix(metadata, field)
+                metadata[sortfield] = self._swapprefix(metadata, field)
 
     def _swapprefix(self, metadata, field):
-        """Swaps the prefix of the title based on the album/track language."
+        """Swaps the prefix of the title based on the album/track language.
 
         If no language information is found, then it uses all languages available.
         Otherwise, if none of the languages are available, it just copies the title.
-        Otherwise it uses exclusively the languages that are also available.
+        Otherwise, it uses exclusively the languages that are also available.
         """
-        sortfield = field + "sort"
-        languages = [metadata["language"], metadata["_releaselanguage"]]
-        languages = [language for language in languages if language]
+        languages = (metadata["language"], metadata["_releaselanguage"])
+        languages = set(language for language in languages if language)
         if not languages:
-            prefixes = _articles[""] + [article.capitalize() for article in _articles[""]]
-            metadata[sortfield] = func_swapprefix(None, metadata[field], *prefixes)
-        else:
-            languages = [language for language in languages if language in _articles.keys()]
-            if not languages:
-                metadata[sortfield] = metadata[field]
-            else:
-                prefixes = lang_functions.find_prefixes(languages)
-                metadata[sortfield] = func_swapprefix(None, metadata[field], *prefixes)
+            prefixes = lang_functions.find_prefixes(languages)
+            return func_swapprefix(None, metadata[field], *prefixes)
+        languages = languages.intersection(_articles_langs)
+        if not languages:
+            return metadata[field]
+        prefixes = lang_functions.find_prefixes(languages)
+        return func_swapprefix(None, metadata[field], *prefixes)
 
     def set_track_titlesort(self, album, metadata, track, release):
         """Sets the track's titlesort field.
@@ -179,7 +183,7 @@ class SortTagger:
                     inc = ["aliases"]
                 )
             else:
-                self._swapprefix(metadata, "title")
+                metadata["titlesort"] = self._swapprefix(metadata, "title")
 
     def set_album_titlesort(self, album, metadata, release):
         """Sets the album's albumsort field.
@@ -193,7 +197,7 @@ class SortTagger:
                     inc = ["aliases"]
                 )
             else:
-                self._swapprefix(metadata, "album")
+                metadata["albumsort"] = self._swapprefix(metadata, "album")
 
 
 class LangFunctions:
@@ -203,19 +207,28 @@ class LangFunctions:
     they're used at least once.
     """
 
-    prefixes_lists = {}
-    titles_lists = {}
+    prefixes_cache = {}
+    minor_words_cache = {}
+
+    def __init__(self):
+        all_articles = set(_articles[""] + tuple(article.capitalize() for article in _articles[""]))
+        all_minor_words = set(_articles[""] + _other_minor_words[""])
+        self.prefixes_cache[""] = all_articles
+        self.minor_words_cache[""] = all_minor_words
 
     def _format_languages(self, languages):
-        languages = [lang.lower()[:3] for lang in languages]
-        languages = [lang for lang in languages if lang in _articles.keys()]
-        return tuple(languages)
+        """Filters out the languages that are not available.
+
+        It returns a tuple to be used as key for the two cache dictionaries.
+        """
+        languages = set(lang[:3].lower() for lang in languages)
+        return tuple(languages.intersection(_articles_langs))
 
     def _create_prefixes_list(self, languages = None, is_title = False):
         """Creates a list of all the prefixes or minor words for all the given languages.
 
         Args:
-            languages (list): All the languages to be considered.
+            languages (set): All the languages to be considered.
             is_title (bool): If true, only articles are included, with a lower case
                              and a capitalized copy for each. This is because the
                              swapprefix and delprefix functions are case sensitive.
@@ -227,14 +240,14 @@ class LangFunctions:
 
         The available languages are saved with ISO 639-3 codes.
         """
-        prefixes = set()
+        prefixes = []
         for language in languages:
-            prefixes.update(_articles[language])
+            prefixes.extend(_articles[language])
             if is_title:
-                prefixes.update(_other_minor_words[language])
+                prefixes.extend(_other_minor_words[language])
             else:
-                prefixes.update([article.capitalize() for article in _articles[language]])
-        return prefixes
+                prefixes.extend([article.capitalize() for article in _articles[language]])
+        return set(prefixes)
 
     def _title_case(self, text, lower_case_words):
         """Returns the text in titlecase.
@@ -249,14 +262,14 @@ class LangFunctions:
         words = re.split(r"([\w']+)", text.strip().lower().replace("’", "'"))
         words = [word for word in words if word]
         for word in words:
-            if "'" in word: # Apply the rule described above
+            if "'" in word:  # Apply the rule described above
                 split = word.split("'")
                 if split[0] + "'" in lower_case_words:
                     split[1] = split[1].capitalize()
                 else:
                     split[0] = split[0].capitalize()
                 word = "'".join(split)
-            elif not word in lower_case_words:
+            elif word not in lower_case_words:
                 word = word.capitalize()
             new_text.append(word)
         if new_text:
@@ -272,12 +285,12 @@ class LangFunctions:
         to avoid recreating the same list twice.
         """
         if not languages or "" in languages:
-            return set(_articles[""] + [article.capitalize() for article in _articles[""]])
+            return self.prefixes_cache[""]
         combination = self._format_languages(languages)
-        if combination in self.prefixes_lists:
-            return self.prefixes_lists[combination]
+        if combination in self.prefixes_cache:
+            return self.prefixes_cache[combination]
         prefixes = self._create_prefixes_list(combination)
-        self.prefixes_lists[combination] = prefixes
+        self.prefixes_cache[combination] = prefixes
         return prefixes
 
     def find_minor_words(self, languages):
@@ -287,22 +300,23 @@ class LangFunctions:
         to avoid recreating the same list twice.
         """
         if not languages or "" in languages:
-            return set(_articles[""] + _other_minor_words[""])
+            return self.minor_words_cache[""]
         combination = self._format_languages(languages)
-        if combination in self.titles_lists:
-            return self.titles_lists[combination]
+        if combination in self.minor_words_cache:
+            return self.minor_words_cache[combination]
         minor_words = self._create_prefixes_list(combination, True)
-        self.titles_lists[combination] = minor_words
+        self.minor_words_cache[combination] = minor_words
         return minor_words
 
     swapprefix_lang_documentation = N_(
         """`$swapprefix_lang(text,language1,language2,...)`
 
-    Moves the prefix to the end of the text. It uses a list prefixes
-    taken from the specified languages.
-    Multiple languages can be added as seperate parameters.
-    If none are provided, it uses all the available ones.
+Moves the prefix to the end of the text. It uses a list prefixes
+taken from the specified languages.
+Multiple languages can be added as seperate parameters.
+If none are provided, it uses all the available ones.
         """)
+
     def swapprefix_lang(self, parser, text, *languages):
         """
         >>> lf = LangFunctions()
@@ -320,16 +334,17 @@ class LangFunctions:
         'the'
         """
         prefixes = self.find_prefixes(languages)
-        return func_swapprefix(parser, text, *prefixes) if text else ""
+        return func_swapprefix(parser, text, *prefixes)
 
     delprefix_lang_documentation = N_(
         """`$delprefix_lang(text,language1,language2,...)`
 
-    Deletes the prefix from the text. It uses a list prefixes
-    taken from the specified languages.
-    Multiple languages can be added as seperate parameters.
-    If none are provided, it uses all the available ones.
+Deletes the prefix from the text. It uses a list prefixes
+taken from the specified languages.
+Multiple languages can be added as seperate parameters.
+If none are provided, it uses all the available ones.
         """)
+
     def delprefix_lang(self, parser, text, *languages):
         """
         >>> lf = LangFunctions()
@@ -347,15 +362,16 @@ class LangFunctions:
         'the'
         """
         prefixes = self.find_prefixes(languages)
-        return func_delprefix(parser, text, *prefixes) if text else ""
+        return func_delprefix(parser, text, *prefixes)
 
     title_lang_documentation = N_(
         """`$title_lang(text,language1,language2,...)`
 
-    Makes the text title case based on the minor words of the specified languages.
-    Multiple languages can be added as seperate parameters.
-    If none are provided, it uses all the available ones.
+Makes the text title case based on the minor words of the specified languages.
+Multiple languages can be added as separate parameters.
+If none are provided, it uses all the available ones.
         """)
+
     def title_lang(self, parser, text, *languages):
         """
         >>> lf = LangFunctions()
@@ -383,7 +399,7 @@ class LangFunctions:
         if text.upper() == text and config.setting[KEEP_ALLCAPS]:
             return text
         minor_words = self.find_minor_words(languages)
-        return self._title_case(text, minor_words) if text else ""
+        return self._title_case(text, minor_words)
 
 
 class EnhancedTitlesOptions(OptionsPage):
