@@ -62,8 +62,6 @@ _articles = {
     "deu": ("der", "den", "die", "das", "dem", "des", "den"),
     "por": ("o", "os", "a", "as", "um", "uns", "uma", "umas")
 }
-_articles[""] = tuple(value for values in _articles.values() for value in values)
-_articles_langs = set(_articles)
 
 # Prepositions and conjunctions with 3 letters or fewer.
 # These will stay in lower case when doing title case.
@@ -79,11 +77,22 @@ _other_minor_words = {
             "no", "na", "nos", "nas", "num", "dum", "e", "mas", "até", "em", "ou",
             "que", "se", "por")
 }
-_other_minor_words[""] = tuple(value for values in _other_minor_words.values() for value in values)
+
+
+def flatten_values(dictionary):
+    l = list()
+    for v in dictionary.values():
+        l += v
+    return tuple(l)
+
+
+_articles_langs = set(_articles)
+_all_articles = flatten_values(_articles)
+_all_other_minor_words = flatten_values(_other_minor_words)
 
 
 class ReleaseGroupHelper(MBAPIHelper):
-    """API Helper to retreive release group information.
+    """API Helper to retrieve release group information.
     """
 
     def get_release_group_by_id(self, release_id, handler, inc = None):
@@ -211,8 +220,8 @@ class LangFunctions:
     minor_words_cache = {}
 
     def __init__(self):
-        all_articles = set(_articles[""] + tuple(article.capitalize() for article in _articles[""]))
-        all_minor_words = set(_articles[""] + _other_minor_words[""])
+        all_articles = set(_all_articles + tuple(article.capitalize() for article in _all_articles))
+        all_minor_words = set(_all_articles + _all_other_minor_words)
         self.prefixes_cache[""] = all_articles
         self.minor_words_cache[""] = all_minor_words
 
