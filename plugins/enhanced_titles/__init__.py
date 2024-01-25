@@ -169,13 +169,8 @@ class SortTagger:
         Otherwise, if none of the languages are available, it just copies the title.
         Otherwise, it uses exclusively the languages that are also available.
         """
-        languages = (metadata["language"], metadata["_releaselanguage"])
-        languages = set(language for language in languages if language)
-        if not languages:
-            prefixes = lang_functions.find_prefixes(languages)
-            return func_swapprefix(None, metadata[field], *prefixes)
-        languages = languages.intersection(_articles_langs)
-        if not languages:
+        languages = lang_functions.find_languages(metadata)
+        if languages and "" in languages:
             return metadata[field]
         prefixes = lang_functions.find_prefixes(languages)
         return func_swapprefix(None, metadata[field], *prefixes)
@@ -287,6 +282,21 @@ class LangFunctions:
         else:
             return ""
 
+    def find_languages(self, metadata):
+        """Finds the languages from the metadata.
+
+        Returns None if no language information is found.
+        Returns a set with only an empty string if the languages found are not available.
+        """
+        languages = (metadata["language"], metadata["_releaselanguage"])
+        languages = set(language for language in languages if language)
+        if not languages:
+            return None
+        languages = languages.intersection(_articles_langs)
+        if not languages:
+            return {""}
+        return languages
+
     def find_prefixes(self, languages):
         """Returns the list of prefixes for the given languages.
 
@@ -342,6 +352,8 @@ If none are provided, it uses all the available ones.
         >>> lf.swapprefix_lang(None, "the")
         'the'
         """
+        if parser and not languages:
+            languages = self.find_languages(parser.context)
         prefixes = self.find_prefixes(languages)
         return func_swapprefix(parser, text, *prefixes)
 
@@ -370,6 +382,8 @@ If none are provided, it uses all the available ones.
         >>> lf.delprefix_lang(None, "the")
         'the'
         """
+        if parser and not languages:
+            languages = self.find_languages(parser.context)
         prefixes = self.find_prefixes(languages)
         return func_delprefix(parser, text, *prefixes)
 
@@ -407,6 +421,8 @@ If none are provided, it uses all the available ones.
         """
         if text.upper() == text and config.setting[KEEP_ALLCAPS]:
             return text
+        if parser and not languages:
+            languages = self.find_languages(parser.context)
         minor_words = self.find_minor_words(languages)
         return self._title_case(text, minor_words)
 
