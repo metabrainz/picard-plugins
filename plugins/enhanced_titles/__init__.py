@@ -55,27 +55,27 @@ CHECK_ALBUM = "et_check_album_aliases"
 CHECK_TRACK = "et_check_track_aliases"
 
 _articles = {
-    "eng": ("the", "a", "an"),
-    "spa": ("el", "los", "la", "las", "lo", "un", "unos", "una", "unas"),
-    "ita": ("il", "l'", "la", "i", "gli", "le", "un", "uno", "una", "un'"),
-    "fra": ("le", "la", "les", "un", "une", "des", "l'"),
-    "deu": ("der", "den", "die", "das", "dem", "des", "den"),
-    "por": ("o", "os", "a", "as", "um", "uns", "uma", "umas")
+    "eng": {"the", "a", "an"},
+    "spa": {"el", "los", "la", "las", "lo", "un", "unos", "una", "unas"},
+    "ita": {"il", "l'", "la", "i", "gli", "le", "un", "uno", "una", "un'"},
+    "fra": {"le", "la", "les", "un", "une", "des", "l'"},
+    "deu": {"der", "den", "die", "das", "dem", "des", "den"},
+    "por": {"o", "os", "a", "as", "um", "uns", "uma", "umas"}
 }
 
 # Prepositions and conjunctions with 3 letters or fewer.
 # These will stay in lower case when doing title case.
 _other_minor_words = {
-    "eng": ("so", "yet", "as", "at", "by", "for", "in", "of", "off", "on", "per",
-            "to", "up", "via", "and", "as", "but", "for", "if", "nor", "or", "en", "via", "vs"),
-    "spa": ("mas", "que", "en", "con", "por", "de", "y", "e", "o", "u", "si", "ni"),
-    "ita": ("di", "a", "da", "in", "con", "su", "per", "tra", "fra", "e", "o", "ma", "se"),
-    "fra": ("à", "de", "en", "par", "sur", "et", "ou", "que", "si"),
-    "deu": ("bis", "für", "um", "an", "auf", "in", "vor", "aus", "bei", "mit",
-            "von", "zu", "la", "so", "daß", "als", "ob", "ehe"),
-    "por": ("dem", "em", "por", "ao", "à", "aos", "às", "do", "da", "dos", "das",
+    "eng": {"so", "yet", "as", "at", "by", "for", "in", "of", "off", "on", "per",
+            "to", "up", "via", "and", "as", "but", "for", "if", "nor", "or", "en", "via", "vs"},
+    "spa": {"mas", "que", "en", "con", "por", "de", "y", "e", "o", "u", "si", "ni"},
+    "ita": {"di", "a", "da", "in", "con", "su", "per", "tra", "fra", "e", "o", "ma", "se"},
+    "fra": {"à", "de", "en", "par", "sur", "et", "ou", "que", "si"},
+    "deu": {"bis", "für", "um", "an", "auf", "in", "vor", "aus", "bei", "mit",
+            "von", "zu", "la", "so", "daß", "als", "ob", "ehe"},
+    "por": {"dem", "em", "por", "ao", "à", "aos", "às", "do", "da", "dos", "das",
             "no", "na", "nos", "nas", "num", "dum", "e", "mas", "até", "em", "ou",
-            "que", "se", "por")
+            "que", "se", "por"}
 }
 
 
@@ -83,7 +83,7 @@ def flatten_values(dictionary):
     l = list()
     for v in dictionary.values():
         l += v
-    return tuple(l)
+    return set(l)
 
 
 _articles_langs = set(_articles)
@@ -165,12 +165,12 @@ class SortTagger:
     def _swapprefix(self, metadata, field):
         """Swaps the prefix of the title based on the album/track language.
 
-        If no language information is found, then it uses all languages available.
-        Otherwise, if none of the languages are available, it just copies the title.
+        If none of the languages are available, it just copies the title.
+        Otherwise, if no language information is found, then it uses all languages available.
         Otherwise, it uses exclusively the languages that are also available.
         """
         languages = lang_functions.find_languages(metadata)
-        if languages and "" in languages:
+        if not languages:  # None of the languages found are available.
             return metadata[field]
         prefixes = lang_functions.find_prefixes(languages)
         return func_swapprefix(None, metadata[field], *prefixes)
@@ -215,8 +215,8 @@ class LangFunctions:
     minor_words_cache = {}
 
     def __init__(self):
-        all_articles = set(_all_articles + tuple(article.capitalize() for article in _all_articles))
-        all_minor_words = set(_all_articles + _all_other_minor_words)
+        all_articles = set(_all_articles | set(article.capitalize() for article in _all_articles))
+        all_minor_words = set(_all_articles | _all_other_minor_words)
         self.prefixes_cache[""] = all_articles
         self.minor_words_cache[""] = all_minor_words
 
@@ -285,16 +285,16 @@ class LangFunctions:
     def find_languages(self, metadata):
         """Finds the languages from the metadata.
 
-        Returns None if no language information is found.
-        Returns a set with only an empty string if the languages found are not available.
+        Returns a set with only an empty string if no language information is found.
+        Returns None if the languages found are not available.
         """
         languages = (metadata["language"], metadata["_releaselanguage"])
         languages = set(language for language in languages if language)
         if not languages:
-            return None
+            return {""}  # No language information is found.
         languages = languages.intersection(_articles_langs)
         if not languages:
-            return {""}
+            return None  # None of the languages found are available.
         return languages
 
     def find_prefixes(self, languages):
