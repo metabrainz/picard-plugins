@@ -31,8 +31,8 @@ this plugin.
 <br /><br />
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/additional_artists_variables/docs/README.md">user guide</a> on GitHub for more information.
 '''
-PLUGIN_VERSION = '0.9'
-PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.7', '2.9', '2.10']
+PLUGIN_VERSION = '1.0'
+PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.7', '2.9', '2.10', '2.11']
 PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
@@ -191,7 +191,7 @@ def process_artists(album_id, source_metadata, destination_metadata, source_type
                 else:
                     additional_cred_sort_artist += temp_sort_name + temp_phrase
                     sort_pri_artist_cred += temp_sort_name + temp_phrase
-        artist_count += 1
+            artist_count += 1
     else:
         # No valid metadata found.  Log as error.
         metadata_error(album_id, 'artist-credit', source_type)
