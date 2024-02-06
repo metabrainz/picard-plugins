@@ -11,7 +11,7 @@ PLUGIN_DESCRIPTION = '''
 Query wikidata to get genre tags.
 <br/><br/>
 Since genres can be gathered from multiple sources and the genre tag may be overwritten,
-we also set a hidden variable _wikidata_genre to the same values for use in scripts.
+we also set a hidden variable _genre_wikidata to the same values for use in scripts.
 '''
 PLUGIN_VERSION = '1.4.6'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
@@ -124,7 +124,7 @@ class Wikidata:
             new_genre = set(metadata.getall("genre"))
             new_genre.update(genre_list)
             #sort the new genre list so that they don't appear as new entries (not a change) next time
-            metadata["genre"] = metadata["~wikidata_genre"] = self.genre_delimiter.join(sorted(new_genre))
+            metadata["genre"] = metadata["~genre_wikidata"] = self.genre_delimiter.join(sorted(new_genre))
             return
 
         # pending requests are handled by adding the metadata object to a
@@ -233,7 +233,7 @@ class Wikidata:
                     genres = [g for gs in genres for g in gs.split(self.genre_delimiter)]
                 genres += genre_list
                 # eliminate duplicates and sort to ensure consistency
-                genres = metadata["~wikidata_genre"] = sorted(set(genres))
+                genres = metadata["~genre_wikidata"] = sorted(set(genres))
                 log.info('WIKIDATA: Setting metadata genre for %s: %s', metadata['musicbrainz_trackid'], genres)
                 if self.genre_delimiter:
                     metadata["genre"] = self.genre_delimiter.join(genres)
