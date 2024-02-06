@@ -9,6 +9,7 @@ PLUGIN_NAME = 'Wikidata Genre'
 PLUGIN_AUTHOR = 'Daniel Sobey, Sambhav Kothari, Sophist-UK'
 PLUGIN_DESCRIPTION = '''
 Query wikidata to get genre tags.
+<br/><br/>
 Since genres can be gathered from multiple sources and the genre tag may be overwritten,
 we also set a hidden variable _wikidata_genre to the same values for use in scripts.
 '''
@@ -42,8 +43,7 @@ def parse_ignored_tags(ignore_tags_setting):
             try:
                 tag = re.compile(tag[1:-1])
             except re.error:
-                log.error(
-                    'Error parsing ignored tag "%s"', tag, exc_info=True)
+                log.error('Error compiling regex ignore-tag "%s"', tag, exc_info=True)
         ignore_tags.append(tag)
     return ignore_tags
 
@@ -149,11 +149,14 @@ class Wikidata:
     def musicbrainz_release_lookup(self, item_id, metadata, response, reply, error):
         found = False
         if error:
-            log.warning('WIKIDATA: Error retrieving release group %s', item_id)
+            errormsg = 'WIKIDATA: Network error getting release group data: %s' % item_id
+            log.warning(errormsg)
+            self.finalise_request(item_id, errormsg)
             return
 
         if 'metadata' not in response.children:
             log.warning('WIKIDATA: No wikidata metadata found for release group %s', item_id)
+            self.finalise_request(item_id, errormsg)
             return
 
         if 'release_group' in response.metadata[0].children and self.use_release_group_genres:
@@ -182,16 +185,9 @@ class Wikidata:
                         self.process_wikidata(Wikidata.WORK, wikidata_url, item_id)
 
         if not found:
-            log.info('WIKIDATA: No wikidata url found for item_id: %s', item_id)
+            log.debug('WIKIDATA: No wikidata url found for mbid: %s', item_id)
 
-        album = self.itemAlbums[item_id]
-        album._requests -= 1
-        if not album._requests:
-            self.itemAlbums = {k: v for k, v in self.itemAlbums.items() if v != album}
-            album._finalize_loading(None)
-        if not self.itemAlbums:
-            self.requests.clear()
-            log.info('WIKIDATA: Finished (A)')
+        self.finalise_request(item_id)
 
     def process_wikidata(self, genre_source_type, wikidata_url, item_id):
         album = self.itemAlbums[item_id]
@@ -205,7 +201,9 @@ class Wikidata:
 
     def parse_wikidata_response(self, item, item_id, genre_source_type, response, reply, error):
         if error:
-            log.warning('WIKIDATA: error getting data from wikidata.org')
+            errormsg = 'WIKIDATA: Network error getting genre data: %s' % item_id
+            log.warning(errormsg)
+            self.finalise_request(item_id, errormsg)
             return
         if 'RDF' not in response.children:
             return
@@ -226,7 +224,7 @@ class Wikidata:
                     ):
                         if item_id not in self.cache:
                             self.cache[item_id] = []
-                        log.debug('WIKIDATA: NOT setting Artist-sourced genre for %s: %s', metadata['musicbrainz_trackid'], genre_list)
+                        log.debug('WIKIDATA: Not setting Artist-sourced genre for %s: %s', metadata['musicbrainz_trackid'], genre_list)
                         continue
                     log.debug('WIKIDATA: Adding Artist-sourced genre to %s: %s', metadata['musicbrainz_trackid'], genre_list)
 
@@ -234,32 +232,25 @@ class Wikidata:
                 if self.genre_delimiter:
                     genres = [g for gs in genres for g in gs.split(self.genre_delimiter)]
                 genres += genre_list
-                log.info('WIKIDATA: Setting metadata genre for %s: %s', metadata['musicbrainz_trackid'], genres)
                 # eliminate duplicates and sort to ensure consistency
                 genres = metadata["~wikidata_genre"] = sorted(set(genres))
+                log.info('WIKIDATA: Setting metadata genre for %s: %s', metadata['musicbrainz_trackid'], genres)
                 if self.genre_delimiter:
                     metadata["genre"] = self.genre_delimiter.join(genres)
                 else:
                     metadata["genre"] = genres
         else:
-            log.info('WIKIDATA: Genres not found in wikidata response for %s', item_id)
+            log.info('WIKIDATA: Genres not found in genre response for %s', item_id)
 
-        album = self.itemAlbums[item_id]
-        album._requests -= 1
-        if not album._requests:
-            self.itemAlbums = {k: v for k, v in self.itemAlbums.items() if v != album}
-            album._finalize_loading(None)
-        if not self.itemAlbums:
-            self.requests.clear()
+        self.finalise_request(item_id)
 
     def parse_wikidata_nodes(self, item, nodes):
-        genre_list = []
+        genre_entities = []
         for node in nodes:
             if 'about' not in node.attribs:
                 continue
             if node.attribs.get('about') != 'http://www.wikidata.org/entity/%s' % item:
                 continue
-            genre_entries = []
             for key, val in list(node.children.items()):
                 if key == 'P136':
                     for i in val:
@@ -270,23 +261,41 @@ class Wikidata:
                                 continue
                             genre_id = tmp_split[4]
                             log.debug('WIKIDATA: Genre id found: %s', genre_id)
-                            genre_entries.append(tmp)
-            for tmp in genre_entries:
-                if tmp != node.attribs.get('about'):
-                    continue
-                name = node.children.get('name')
-                if not names:
-                    log.warning('WIKIDATA: Response does not contain a name field')
-                    continue
-                for title in names:
-                    if title.attribs.get('lang') == 'en':
-                        genre = title.text.title()
-                        if not matches_ignored(self.ignore_these_genres_list, genre):
-                            genre_list.append(genre)
-                            log.info('WIKIDATA: Genre ALLOWED: %s', genre)
-                        else:
-                            log.info('WIKIDATA: Genre IGNORED: %s', genre)
+                            genre_entities.append(tmp)
+
+        if not genre_entities:
+            return genre_entities
+
+        genre_list = []
+        for node in nodes:
+            if 'about' not in node.attribs or node.attribs.get('about') not in genre_entities:
+                continue
+
+            names = node.children.get('name')
+            if not names:
+                log.warning('WIKIDATA: Genre response node does not contain a name field: %s', node.attribs.get('about'))
+                continue
+            for title in names:
+                if title.attribs.get('lang') == 'en':
+                    genre = title.text.title()
+                    if not matches_ignored(self.ignore_these_genres_list, genre):
+                        genre_list.append(genre)
+                        log.debug('WIKIDATA: Genre ALLOWED: %s', genre)
+                    else:
+                        log.debug('WIKIDATA: Genre IGNORED: %s', genre)
         return genre_list
+
+    def finalise_request(self, item_id, info_error=''):
+        album = self.itemAlbums[item_id]
+        if info_error:
+            album.error_append(info_error)
+        album._requests -= 1
+        if not album._requests:
+            self.itemAlbums = {k: v for k, v in self.itemAlbums.items() if v != album}
+            album._finalize_loading(None)
+        if not self.itemAlbums:
+            self.requests.clear()
+            log.info('WIKIDATA: Idle')
 
     def process_track(self, album, metadata, track, release):
         self.update_settings()
@@ -296,22 +305,25 @@ class Wikidata:
         log.info('WIKIDATA: Processing Track %s...', metadata['musicbrainz_trackid'])
         if self.use_release_group_genres:
             for release_group in metadata.getall('musicbrainz_releasegroupid'):
-                log.debug('WIKIDATA: Looking up release group metadata for %s', release_group)
+                log.info('WIKIDATA: Looking up release group for %s', release_group)
                 self.process_request(metadata, album, release_group, item_type='release-group')
 
+        artists = []
         if self.use_artist_genres:
             for artist in metadata.getall('musicbrainz_albumartistid'):
-                log.debug('WIKIDATA: Processing release artist %s', artist)
+                artists.append(artist)
+                log.info('WIKIDATA: Looking up release artist %s', artist)
                 self.process_request(metadata, album, artist, item_type='artist')
 
-        if self.use_artist_genres:
             for artist in metadata.getall('musicbrainz_artistid'):
-                log.debug('WIKIDATA: Processing track artist %s', artist)
-                self.process_request(metadata, album, artist, item_type='artist')
+                if artist not in artists: # avoid duplicates
+                    artists.append(artist)
+                    log.info('WIKIDATA: Looking up track artist %s', artist)
+                    self.process_request(metadata, album, artist, item_type='artist')
 
         if self.use_work_genres:
             for workid in metadata.getall('musicbrainz_workid'):
-                log.debug('WIKIDATA: Processing work artist %s', workid)
+                log.info('WIKIDATA: Looking up work %s', workid)
                 self.process_request(metadata, album, workid, item_type='work')
 
     def update_settings(self):
