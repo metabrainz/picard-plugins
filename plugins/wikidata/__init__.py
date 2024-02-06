@@ -12,7 +12,7 @@ Query wikidata to get genre tags.
 Since genres can be gathered from multiple sources and the genre tag may be overwritten,
 we also set a hidden variable _wikidata_genre to the same values for use in scripts.
 '''
-PLUGIN_VERSION = '1.5.0'
+PLUGIN_VERSION = '1.4.6'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = 'WTFPL'
 PLUGIN_LICENSE_URL = 'http://www.wtfpl.net/'
