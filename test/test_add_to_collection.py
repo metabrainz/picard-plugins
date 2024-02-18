@@ -6,7 +6,7 @@ from picard.collection import Collection, user_collections
 from picard.file import File
 from picard.file import _file_post_save_processors as post_save_processors
 from picard.ui.options import _pages as option_pages
-from plugin_test_case import PluginTestCase
+from test.plugin_test_case import PluginTestCase
 
 
 class TestAddToCollection(PluginTestCase):
