@@ -28,7 +28,6 @@ import os
 import shutil
 import sys
 import unittest
-from os import PathLike
 from tempfile import mkdtemp, mkstemp
 from types import ModuleType
 from typing import Any, Callable, Optional
@@ -38,7 +37,7 @@ import picard
 from picard import config, log
 from picard.i18n import setup_gettext
 from picard.plugin import _PLUGIN_MODULE_PREFIX, _unregister_module_extensions
-from picard.pluginmanager import PluginManager, plugin_dirs
+from picard.pluginmanager import PluginManager
 from picard.releasegroup import ReleaseGroup
 from PyQt5 import QtCore
 

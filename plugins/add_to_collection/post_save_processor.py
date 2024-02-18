@@ -9,7 +9,7 @@ from picard.plugins.add_to_collection.override_module import override_module
 def post_save_processor(file: File) -> None:
     collection_id = settings.collection_id()
     if not collection_id:
-        log.error(f"cannot find collection ID setting")
+        log.error("cannot find collection ID setting")
         return
     collection: Collection = user_collections.get(collection_id)
     if not collection:
