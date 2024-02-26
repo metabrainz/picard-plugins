@@ -24,7 +24,7 @@ PLUGIN_VERSION = "0.1"
 PLUGIN_API_VERSIONS = ["2.10", "2.11"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_USER_GUIDE_URL = "https://github.com/twodoorcoupe/picard-plugins/tree/user_guides/user_guides/post_tagging_actions/guide.md"
+PLUGIN_USER_GUIDE_URL = "https://github.com/metabrainz/picard-plugins/tree/2.0/plugins/post_tagging_actions/docs/guide.md"
 
 from picard.album import Album
 from picard.track import Track
@@ -46,14 +46,14 @@ from concurrent import futures
 from os import path
 import re
 import shlex
-import subprocess
+import subprocess  # nosec B404
 
 # Additional special variables.
 TRACK_SPECIAL_VARIABLES = {
     "filepath": lambda file: file,
-    "folderpath": lambda file: path.dirname(file),
+    "folderpath": lambda file: path.dirname(file),  # pylint: disable=unnecessary-lambda
     "filename": lambda file: path.splitext(path.basename(file))[0],
-    "filename_ext": lambda file: path.basename(file),
+    "filename_ext": lambda file: path.basename(file),  # pylint: disable=unnecessary-lambda
     "directory": lambda file: path.basename(path.dirname(file))
 }
 ALBUM_SPECIAL_VARIABLES = {
@@ -67,12 +67,14 @@ ALBUM_SPECIAL_VARIABLES = {
 
 # Settings.
 CANCEL = "pta_cancel"
+MAX_WORKERS = "pta_max_workers"
 OPTIONS = ["pta_command", "pta_wait_for_exit", "pta_execute_for_tracks", "pta_refresh_tags"]
 
 Options = namedtuple("Options", ("variables", *[option[4:] for option in OPTIONS]))
 Action = namedtuple("Action", ("commands", "album", "options"))
 PriorityAction = namedtuple("PriorityAction", ("priority", "counter", "action"))
 action_queue = PriorityQueue()
+variables_pattern = re.compile(r'%.*?%')
 
 
 class ActionLoader:
@@ -91,9 +93,8 @@ class ActionLoader:
     def _create_options(self, command, *other_options):
         """Finds the variables in the command and adds the options to the action options list.
         """
-        variables = [variable[1:-1] for variable in re.findall(r'%.*?%', command)]
-        variables = [parser.normalize_tagname(variable) for variable in variables]
-        command = re.sub(r'%.*?%', '{}', command)
+        variables = [parser.normalize_tagname(variable[1:-1]) for variable in variables_pattern.findall(command)]
+        command = variables_pattern.sub('{}', command)
         options = Options(variables, command, *other_options)
         self.action_options.append(options)
 
@@ -149,10 +150,10 @@ class ActionLoader:
         This gets called when the plugin is loaded or when the user saves the options.
         """
         self.action_options = []
-        loaded_options = zip(*[config.setting[name] for name in OPTIONS])
-        for options in loaded_options:
-            command = options[0]
-            other_options = [eval(option) for option in options[1:]]
+        option_tuples = zip(*[config.setting[name] for name in OPTIONS])
+        for option_tuple in option_tuples:
+            command = option_tuple[0]
+            other_options = [eval(option) for option in option_tuple[1:]]  # nosec B307
             self._create_options(command, *other_options)
 
 
@@ -166,7 +167,7 @@ class ActionRunner:
     """
 
     def __init__(self):
-        self.action_thread_pool = futures.ThreadPoolExecutor()
+        self.action_thread_pool = futures.ThreadPoolExecutor(config.setting[MAX_WORKERS])
         self.refresh_tags_pool = futures.ThreadPoolExecutor(1)
         self.worker = Thread(target = self._execute)
         self.worker.start()
@@ -186,7 +187,12 @@ class ActionRunner:
     def _run_process(self, command):
         """Runs the process and waits for it to finish.
         """
-        process = subprocess.Popen(command, text = True, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+        process = subprocess.Popen(
+            command,
+            text = True,
+            stdout = subprocess.PIPE,
+            stderr = subprocess.PIPE
+        )  # nosec B603
         answer = process.communicate()
         if answer[0]:
             log.info("Action output:\n%s", answer[0])
@@ -201,12 +207,17 @@ class ActionRunner:
         """
         while True:
             priority_action = action_queue.get()
+            QObject.tagger.window.set_statusbar_message(
+                N_("Post Tagging Actions: number of pending requests is %(pending_requests)d"),
+                {"pending_requests": action_queue.qsize()},
+                timeout = 3000
+            )
+
             if priority_action.priority == -1:
                 break
             next_action = priority_action.action
             commands = next_action.commands
             future_objects = {self.action_thread_pool.submit(self._run_process, command) for command in commands}
-
             if next_action.options.wait_for_exit:
                 futures.wait(future_objects, return_when = futures.ALL_COMPLETED)
             if next_action.options.refresh_tags:
@@ -259,7 +270,11 @@ class PostTaggingActionsOptions(OptionsPage):
     PARENT = "plugins"
 
     action_options = [config.ListOption("setting", name, []) for name in OPTIONS]
-    options = [config.BoolOption("setting", CANCEL, True), *action_options]
+    options = [
+        config.BoolOption("setting", CANCEL, True),
+        config.IntOption("setting", MAX_WORKERS, 4),
+        *action_options
+    ]
 
     def __init__(self, parent = None):
         super(PostTaggingActionsOptions, self).__init__(parent)
@@ -350,6 +365,7 @@ class PostTaggingActionsOptions(OptionsPage):
                 widget = QtWidgets.QTableWidgetItem(values[column])
                 self.ui.table.setItem(row, column, widget)
         self.ui.cancel.setChecked(config.setting[CANCEL])
+        self.ui.max_workers.setValue(config.setting[MAX_WORKERS])
 
     def save(self):
         """Saves the actions table items in the settings.
@@ -362,6 +378,7 @@ class PostTaggingActionsOptions(OptionsPage):
                 settings[column].append(setting)
             config.setting[OPTIONS[column]] = settings[column]
         config.setting[CANCEL] = self.ui.cancel.isChecked()
+        config.setting[MAX_WORKERS] = self.ui.max_workers.value()
         action_loader.load_actions()
 
 
@@ -370,4 +387,7 @@ action_runner = ActionRunner()
 register_album_action(ExecuteAlbumActions())
 register_track_action(ExecuteTrackActions())
 register_options_page(PostTaggingActionsOptions)
+
+# This is used to register functions that run when the application is being closed.
+# action_runner.stop makes the background threads stop.
 QObject.tagger.register_cleanup(action_runner.stop)

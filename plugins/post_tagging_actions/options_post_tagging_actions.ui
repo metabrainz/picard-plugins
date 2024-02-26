@@ -32,9 +32,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
+        <y>-70</y>
         <width>606</width>
-        <height>451</height>
+        <height>502</height>
        </rect>
       </property>
       <layout class="QVBoxLayout">
@@ -249,9 +249,41 @@
            </widget>
           </item>
           <item>
+           <widget class="QWidget" name="widget_4" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QSpinBox" name="max_workers">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>64</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="toolTip">
+                <string>Sets the number of background threads executing the actions</string>
+               </property>
+               <property name="text">
+                <string>   Maximum number of worker threads (Requires Picard restart)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hover over each item to know more, or take a peek at the user guide &lt;a href=&quot;https://github.com/twodoorcoupe/picard-plugins/tree/user_guides/user_guides/post_tagging_actions/guide.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#3584e4;&quot;&gt;here.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hover over each item to know more, or take a peek at the user guide &lt;a href=&quot;https://github.com/metabrainz/picard-plugins/tree/2.0/plugins/post_tagging_actions/docs/guide.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#3584e4;&quot;&gt;here.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="openExternalLinks">
              <bool>true</bool>
