@@ -43,7 +43,7 @@ from collections import namedtuple
 from queue import PriorityQueue
 from threading import Thread
 from concurrent import futures
-from os import path
+from os import path, cpu_count
 import re
 import shlex
 import subprocess  # nosec B404
@@ -172,6 +172,10 @@ class ActionRunner:
         self.worker = Thread(target = self._execute)
         self.worker.start()
 
+        # This is used to register functions that run when the application is being closed.
+        # action_runner.stop makes the background threads stop.
+        QObject.tagger.register_cleanup(self.stop)
+
     def _refresh_tags(self, future_objects, album):
         """Reloads tags from the album's files and refreshes the album.
 
@@ -207,17 +211,12 @@ class ActionRunner:
         """
         while True:
             priority_action = action_queue.get()
-            QObject.tagger.window.set_statusbar_message(
-                N_("Post Tagging Actions: number of pending requests is %(pending_requests)d"),
-                {"pending_requests": action_queue.qsize()},
-                timeout = 3000
-            )
-
             if priority_action.priority == -1:
                 break
             next_action = priority_action.action
             commands = next_action.commands
             future_objects = {self.action_thread_pool.submit(self._run_process, command) for command in commands}
+
             if next_action.options.wait_for_exit:
                 futures.wait(future_objects, return_when = futures.ALL_COMPLETED)
             if next_action.options.refresh_tags:
@@ -272,7 +271,7 @@ class PostTaggingActionsOptions(OptionsPage):
     action_options = [config.ListOption("setting", name, []) for name in OPTIONS]
     options = [
         config.BoolOption("setting", CANCEL, True),
-        config.IntOption("setting", MAX_WORKERS, 4),
+        config.IntOption("setting", MAX_WORKERS, min(32, cpu_count() + 4)),
         *action_options
     ]
 
@@ -387,7 +386,3 @@ action_runner = ActionRunner()
 register_album_action(ExecuteAlbumActions())
 register_track_action(ExecuteTrackActions())
 register_options_page(PostTaggingActionsOptions)
-
-# This is used to register functions that run when the application is being closed.
-# action_runner.stop makes the background threads stop.
-QObject.tagger.register_cleanup(action_runner.stop)
