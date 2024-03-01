@@ -72,7 +72,7 @@ ALBUM_SPECIAL_VARIABLES = {
 # Settings.
 CANCEL = "pta_cancel"
 MAX_WORKERS = "pta_max_workers"
-OPTIONS = ["pta_command", "pta_wait_for_exit", "pta_execute_for_tracks", "pta_refresh_tags"]
+OPTIONS = ("pta_command", "pta_wait_for_exit", "pta_execute_for_tracks", "pta_refresh_tags")
 
 Options = namedtuple("Options", ("variables", *[option[4:] for option in OPTIONS]))
 Action = namedtuple("Action", ("commands", "album", "options"))
