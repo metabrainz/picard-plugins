@@ -30,23 +30,27 @@ from picard.album import Album
 from picard.track import Track
 from picard.ui.options import OptionsPage, register_options_page
 from picard.ui.itemviews import BaseAction, register_album_action, register_track_action
+from picard.ui import mainwindow
 from picard import log, config
 from picard.const import sys
 from picard.util import thread
 from picard.script import parser
 
 from .options_post_tagging_actions import Ui_PostTaggingActions
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import QObject
+from .actions_status import Ui_ActionsStatus
+from PyQt5 import QtCore, QtWidgets, QtGui
 
 from collections import namedtuple
 from queue import PriorityQueue
-from threading import Thread
+from threading import Thread, Lock
 from concurrent import futures
 from os import path, cpu_count
 import re
 import shlex
 import subprocess  # nosec B404
+import time
+
+WIDGET_UPDATE_INTERVAL = 0.5
 
 # Additional special variables.
 TRACK_SPECIAL_VARIABLES = {
@@ -164,17 +168,48 @@ class ActionRunner:
         action_thread_pool (ThreadPoolExecutor): Pool used to run processes with the subprocess module.
         refresh_tags_pool (ThreadPoolExecutor): Pool used to reload tags from files and refresh albums.
         worker (Thread): Worker thread that picks actions from the execution queue.
+        update_widget (Thread): Thread that updates the number of pending actions in the status bar.
     """
 
     def __init__(self):
         self.action_thread_pool = futures.ThreadPoolExecutor(config.setting[MAX_WORKERS])
         self.refresh_tags_pool = futures.ThreadPoolExecutor(1)
         self.worker = Thread(target = self._execute)
+        self.update_widget = Thread(target = self._update_widget)
         self.worker.start()
 
+        self.keep_updating = True
+        self.currently_executing = 0
+        self.currently_executing_lock = Lock()
+        self.status_widget = ActionsStatus()
+
         # This is used to register functions that run when the application is being closed.
-        # action_runner.stop makes the background threads stop.
-        QObject.tagger.register_cleanup(self.stop)
+        # The stop function makes the background threads return.
+        tagger = QtCore.QCoreApplication.instance()
+        tagger.register_cleanup(self.stop)
+
+        # This checks whether the tagger has already created the main window.
+        # It should happen only when the plugin is installed through the options menu,
+        # otherwise the plugins are loaded before the main window is created.
+        if hasattr(tagger, "window"):
+            self._create_widget(tagger.window)
+        else:
+            # This is used to register functions that run after the main window has finished loading.
+            mainwindow.register_ui_init(self._create_widget)
+
+    def _create_widget(self, window):
+        """Adds the pending actions widget to the right of the other icons in the statusbar.
+        """
+        window.statusBar().insertPermanentWidget(1, self.status_widget)
+        self.update_widget.start()
+
+    def _update_widget(self):
+        """Updates the number of pending actions in the status bar at regular intervals.
+        """
+        while self.keep_updating:
+            number_of_actions = action_queue.qsize() + self.currently_executing
+            thread.to_main(self.status_widget.update_actions_count, number_of_actions)
+            time.sleep(WIDGET_UPDATE_INTERVAL)
 
     def _refresh_tags(self, future_objects, album):
         """Reloads tags from the album's files and refreshes the album.
@@ -203,6 +238,13 @@ class ActionRunner:
         if answer[1]:
             log.error("Action error:\n%s", answer[1])
 
+    def _update_executing_count(self, future_objects):
+        """Decrements the count of executing actions once the given action finishes.
+        """
+        futures.wait(future_objects, return_when = futures.ALL_COMPLETED)
+        with self.currently_executing_lock:
+            self.currently_executing -= 1
+
     def _execute(self):
         """Takes actions from the execution queue and runs them.
 
@@ -213,6 +255,8 @@ class ActionRunner:
             priority_action = action_queue.get()
             if priority_action.priority == -1:
                 break
+            with self.currently_executing_lock:
+                self.currently_executing += 1
             next_action = priority_action.action
             commands = next_action.commands
             future_objects = {self.action_thread_pool.submit(self._run_process, command) for command in commands}
@@ -221,6 +265,7 @@ class ActionRunner:
                 futures.wait(future_objects, return_when = futures.ALL_COMPLETED)
             if next_action.options.refresh_tags:
                 self.refresh_tags_pool.submit(self._refresh_tags, future_objects, next_action.album)
+            self.refresh_tags_pool.submit(self._update_executing_count, future_objects)
             action_queue.task_done()
 
         self.action_thread_pool.shutdown(wait = False, cancel_futures = True)
@@ -235,6 +280,8 @@ class ActionRunner:
         if not config.setting[CANCEL]:
             action_queue.join()
         action_queue.put(PriorityAction(-1, -1, None))
+        self.keep_updating = False
+        self.update_widget.join()
         self.worker.join()
 
 
@@ -379,6 +426,29 @@ class PostTaggingActionsOptions(OptionsPage):
         config.setting[CANCEL] = self.ui.cancel.isChecked()
         config.setting[MAX_WORKERS] = self.ui.max_workers.value()
         action_loader.load_actions()
+
+
+class ActionsStatus(QtWidgets.QWidget, Ui_ActionsStatus):
+    """An icon and a label that displays the number of pending actions.
+
+    The widget is only visible when there are pending actions. This is placed
+    in the statusbar to the left of the other icons.
+    """
+
+    def __init__(self):
+        QtWidgets.QWidget.__init__(self)
+        Ui_ActionsStatus.__init__(self)
+        self.setupUi(self)
+        self.hide()
+
+        # Creates the icon to the right of the label.
+        size = QtCore.QSize(16, 16)
+        icon = QtGui.QIcon(":/images/16x16/applications-system.png")
+        self.label.setPixmap(icon.pixmap(size))
+
+    def update_actions_count(self, count):
+        self.actions_count.setText(f"{count}")
+        self.setVisible(count > 0)
 
 
 action_loader = ActionLoader()
