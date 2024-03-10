@@ -16,7 +16,7 @@ def post_save_processor(file: File) -> None:
         log.error(f"cannot find collection with id {collection_id}")
         return
     release_id = file.metadata["musicbrainz_albumid"]
-    if release_id not in collection.releases:
+    if release_id and release_id not in collection.releases:
         log.debug("Adding release %r to %r", release_id, collection.name)
         collection.add_releases(set([release_id]), callback=lambda: None)
 

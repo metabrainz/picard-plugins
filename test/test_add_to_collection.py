@@ -1,12 +1,13 @@
 import os
 from itertools import chain
+from test.plugin_test_case import PluginTestCase
+from typing import Union
 from unittest.mock import ANY, patch
 
 from picard.collection import Collection, user_collections
 from picard.file import File
 from picard.file import _file_post_save_processors as post_save_processors
 from picard.ui.options import _pages as option_pages
-from test.plugin_test_case import PluginTestCase
 
 
 class TestAddToCollection(PluginTestCase):
@@ -25,10 +26,11 @@ class TestAddToCollection(PluginTestCase):
             "Add to Collection", "add_to_collection"
         )
 
-    def create_file(self, file_name: str, album_id: str) -> File:
+    def create_file(self, file_name: str, album_id: Union[str, None] = None) -> File:
         file_path = os.path.join(self.tmp_directory, file_name)
         file = File(file_path)
-        file.metadata["musicbrainz_albumid"] = album_id
+        if album_id:
+            file.metadata["musicbrainz_albumid"] = album_id
         self.tagger.files[file_path] = file
         return file
 
@@ -116,6 +118,21 @@ class TestAddToCollection(PluginTestCase):
         )
 
         file = self.create_file(file_name="test.mp3", album_id="test_album_id")
+        with patch("picard.collection.Collection.add_releases") as add_releases:
+            file.save()
+            add_releases.assert_not_called()
+
+    def test_no_release(self) -> None:
+        self.install_plugin()
+
+        self.set_config_values(
+            setting={
+                **self.SAVE_FILE_SETTINGS,
+                "add_to_collection_id": "test_collection_id",
+            }
+        )
+
+        file = self.create_file(file_name="test.mp3")
         with patch("picard.collection.Collection.add_releases") as add_releases:
             file.save()
             add_releases.assert_not_called()
