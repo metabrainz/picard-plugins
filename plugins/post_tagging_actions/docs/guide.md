@@ -7,7 +7,7 @@ To run the actions,
 - Then highlight all the items you want the actions to run for.
 - Right click, go to plugins, then click "Run Actions for highlighted albums/tracks".
 ### Adding an action
-In the options page, you will find "Post Tagging Actions" under "Plguins". You will be greeted by this:
+In the options page, you will find "Post Tagging Actions" under "Plugins". You will be greeted by this:
 
 ![options](options.png)
 

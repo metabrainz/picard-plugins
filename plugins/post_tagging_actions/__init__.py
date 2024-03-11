@@ -281,7 +281,8 @@ class ActionRunner:
             action_queue.join()
         action_queue.put(PriorityAction(-1, -1, None))
         self.keep_updating = False
-        self.update_widget.join()
+        if self.update_widget.is_alive():
+            self.update_widget.join()
         self.worker.join()
 
 
