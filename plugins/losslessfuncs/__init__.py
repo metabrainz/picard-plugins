@@ -25,8 +25,8 @@ PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
 
-LOSSLESS_EXTENSIONS = ['flac', 'oggflac', 'ape', 'ofr', 'tak', 'wv', 'tta',
-                       'aiff', 'aif', 'wav']
+LOSSLESS_EXTENSIONS = {'flac', 'oggflac', 'ape', 'ofr', 'tak', 'wv', 'tta',
+                       'aiff', 'aif', 'wav'}
 
 from picard.script import register_script_function
 
