@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2014, 2017, 2021 Philipp Wolfer
+# Copyright (C) 2014, 2017, 2021, 2023-2024 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,8 +19,8 @@
 PLUGIN_NAME = 'Tagger script functions $is_lossless() and $is_lossy()'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Tagger script functions to detect if a file is lossless or lossy'
-PLUGIN_VERSION = "0.2"
-PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6"]
+PLUGIN_VERSION = "0.3"
+PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "2.9", "2.10", "2.11"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -41,20 +41,21 @@ def is_lossless(parser):
         return "1"
     elif parser.context['~extension'] == 'm4a':
         # Mutagen < 1.26 fails to detect the bitrate for Apple Lossless Audio Codec.
-        if not parser.context['~bitrate'] or parser.context['~bitrate'] > 1000:
+        if not parser.context['~bitrate']:
             return "1"
         else:
-            return ""
+            try:
+                bitrate = float(parser.context['~bitrate'])
+                return "1" if bitrate > 1000 else ""
+            except (TypeError, ValueError):
+                return ""
     else:
         return ""
 
 
 def is_lossy(parser):
     """Returns true, if the file processed is a lossy audio format."""
-    if is_lossless(parser) == "1":
-        return ""
-    else:
-        return "1"
+    return "" if is_lossless(parser) == "1" else "1"
 
 
 register_script_function(is_lossless)
