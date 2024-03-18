@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PostTaggingActions</class>
+ <widget class="QWidget" name="PostTaggingActions">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>638</width>
+    <height>450</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>100</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>-70</y>
+        <width>606</width>
+        <height>502</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout">
+       <item>
+        <widget class="QWidget" name="action_widget" native="true">
+         <layout class="QVBoxLayout" name="_2">
+          <item>
+           <widget class="QWidget" name="widget_2" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Insert action</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="add_file_path">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="toolTip">
+                <string>Add a file path to the command line.</string>
+               </property>
+               <property name="text">
+                <string>Add file</string>
+               </property>
+               <property name="checkable">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="action"/>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="wait">
+            <property name="toolTip">
+             <string>If checked, the next action runs immediately.</string>
+            </property>
+            <property name="text">
+             <string> Wait for process to finish</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="refresh">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, the album will &amp;quot;refresh&amp;quot; after this action finishes.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string> Refresh tags after process finishes</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_3" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <widget class="QRadioButton" name="albums">
+               <property name="toolTip">
+                <string>Makes the action execute once for each album tagged.</string>
+               </property>
+               <property name="text">
+                <string>Execute for albums</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="tracks">
+               <property name="toolTip">
+                <string>Makes the action run once for each track tagged.</string>
+               </property>
+               <property name="text">
+                <string>Execute for tracks</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="table_commands" native="true">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QWidget" name="widget" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QPushButton" name="add_action">
+               <property name="toolTip">
+                <string>Add the action at the bottom of the queue.</string>
+               </property>
+               <property name="text">
+                <string>Add action</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="remove_action">
+               <property name="toolTip">
+                <string>Remove the selected action.</string>
+               </property>
+               <property name="text">
+                <string>Remove action</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignRight">
+           <widget class="QWidget" name="widget" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout_4">
+             <item>
+              <widget class="QToolButton" name="up">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::UpArrow</enum>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="down">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="arrowType">
+                <enum>Qt::DownArrow</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QTableWidget" name="table">
+         <property name="toolTip">
+          <string>Actions at the top of the list run first. Use the buttons on the right to reorder the selected action.</string>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <attribute name="horizontalHeaderDefaultSectionSize">
+          <number>150</number>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>Action</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>   Wait for exit   </string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>   Execute for tracks   </string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>   Refresh tags   </string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="frame">
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QCheckBox" name="cancel">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If &lt;span style=&quot; font-weight:700;&quot;&gt;not &lt;/span&gt;checked, when Picard is closed, it will wait for the actions to finish in the background.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Cancel actions in the queue when Picard is closed</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_4" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QSpinBox" name="max_workers">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimum">
+                <number>1</number>
+               </property>
+               <property name="maximum">
+                <number>64</number>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_2">
+               <property name="toolTip">
+                <string>Sets the number of background threads executing the actions</string>
+               </property>
+               <property name="text">
+                <string>   Maximum number of worker threads (Requires Picard restart)</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Hover over each item to know more, or take a peek at the user guide &lt;a href=&quot;https://github.com/metabrainz/picard-plugins/tree/2.0/plugins/post_tagging_actions/docs/guide.md&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#3584e4;&quot;&gt;here.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="openExternalLinks">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
