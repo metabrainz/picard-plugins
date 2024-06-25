@@ -46,7 +46,15 @@ class Client:
             except json.JSONDecodeError:
                 callback([], error)
             else:
-                callback([obj.parse_json(dct) for dct in parsed_doc['data']], error)
+                result = []
+                error = None
+                if 'data' in parsed_doc:
+                    result = [obj.parse_json(dct) for dct in parsed_doc['data']]
+                elif 'error' in parsed_doc:
+                    error = parsed_doc['error'].get('message', 'Deezer responded with an unknown error')
+                else:
+                    error = 'Deezer returned an unexpected response'
+                callback(result, error)
 
         self._get(path,
                   queryargs={'q': str(options)},
