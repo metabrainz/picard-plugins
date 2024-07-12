@@ -1,7 +1,7 @@
 PLUGIN_NAME = "Deezer cover art"
 PLUGIN_AUTHOR = "Fabio Forni <livingsilver94>"
 PLUGIN_DESCRIPTION = "Fetch cover arts from Deezer"
-PLUGIN_VERSION = '1.2.1'
+PLUGIN_VERSION = '1.2.2'
 PLUGIN_API_VERSIONS = ['2.5']
 PLUGIN_LICENSE = "GPL-3.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.html"
@@ -130,7 +130,7 @@ class Provider(providers.CoverArtProvider):
                 if not isinstance(result, obj.Track):
                     continue
                 if not is_similar(artist, result.artist.name, min_similarity):
-                    self.log_debug('artist similarity below threshold: %r ~ %r', artist, result.artist.title)
+                    self.log_debug('artist similarity below threshold: %r ~ %r', artist, result.artist.name)
                     continue
                 if not is_similar(album, result.album.title, min_similarity):
                     self.log_debug('album similarity below threshold: %r ~ %r', album, result.album.title)
