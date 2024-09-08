@@ -30,11 +30,12 @@ The following file formats are supported:
 
 This plugin is based on the original ReplayGain plugin by Philipp Wolfer and Sophist.
 '''
-PLUGIN_VERSION = "1.6"
+PLUGIN_VERSION = "1.7"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
+from enum import IntEnum
 from functools import partial
 import subprocess  # nosec: B404
 import shutil
@@ -80,9 +81,6 @@ CLIP_MODE_MAP = (
     "a"
 )
 
-OPUS_MODE_STANDARD = 0
-OPUS_MODE_R128 = 1
-
 SUPPORTED_FORMATS = (
     AiffFile,
     ASFFile,
@@ -123,6 +121,13 @@ TAGS = (
     "r128_track_gain"
 )
 
+
+class OpusMode(IntEnum):
+    STANDARD = 0
+    R128 = 1
+    BOTH = 2
+
+
 # Make sure the rsgain executable exists
 def rsgain_found(rsgain_command, window):
     if not os.path.exists(rsgain_command) and shutil.which(rsgain_command) is None:
@@ -161,18 +166,18 @@ def format_r128(result, config):
         gain += float(-23 - config.setting["target_loudness"])
     return str(int(round(gain * 256.0)))
 
-def update_metadata(metadata, track_result, album_result, is_nat, r128_tags):
+def update_metadata(metadata, track_result, album_result, is_nat, opus_mode):
     for tag in TAGS:
         metadata.delete(tag)
 
     # Opus R128 tags
-    if r128_tags:
+    if opus_mode in (OpusMode.R128, OpusMode.BOTH):
         metadata.set("r128_track_gain", format_r128(track_result, config))
         if album_result is not None:
             metadata.set("r128_album_gain", format_r128(album_result, config))
 
     # Standard ReplayGain tags
-    else:
+    if opus_mode in (OpusMode.STANDARD, OpusMode.BOTH):
         metadata.set("replaygain_track_gain", track_result["gain"] + " dB")
         metadata.set("replaygain_track_peak", track_result["peak"])
         if config.setting["album_tags"]:
@@ -251,7 +256,11 @@ def calculate_replaygain(tracks, options):
         results.append(result)
 
     # Update track metadata with results
-    opus_r128 = config.setting["opus_mode"] == OPUS_MODE_R128
+    if isinstance(file, OggOpusFile):
+        opus_mode = config.setting["opus_mode"]
+    else:
+        opus_mode = OpusMode.STANDARD
+
     for i, track in enumerate(valid_tracks):
         for file in track.files:
             update_metadata(
@@ -259,7 +268,7 @@ def calculate_replaygain(tracks, options):
                 results[i],
                 album_result,
                 isinstance(track, NonAlbumTrack),
-                opus_r128 and isinstance(file, OggOpusFile)
+                opus_mode
             )
 
 
@@ -366,7 +375,7 @@ class ReplayGain2OptionsPage(OptionsPage):
         IntOption("setting", "target_loudness", -18),
         IntOption("setting", "clip_mode", CLIP_MODE_POSITIVE),
         IntOption("setting", "max_peak", 0),
-        IntOption("setting", "opus_mode", OPUS_MODE_STANDARD),
+        IntOption("setting", "opus_mode", OpusMode.STANDARD),
         BoolOption("setting", "opus_m23", False)
     ]
 
@@ -381,7 +390,8 @@ class ReplayGain2OptionsPage(OptionsPage):
         ])
         self.ui.opus_mode.addItems([
             "Write standard ReplayGain tags",
-            "Write R128_*_GAIN tags"
+            "Write R128_*_GAIN tags",
+            "Write both standard and R128 tags"
         ])
         self.ui.rsgain_command_browse.clicked.connect(self.rsgain_command_browse)
 
