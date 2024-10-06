@@ -30,7 +30,7 @@ The following file formats are supported:
 
 This plugin is based on the original ReplayGain plugin by Philipp Wolfer and Sophist.
 '''
-PLUGIN_VERSION = "1.7"
+PLUGIN_VERSION = "1.7.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -199,7 +199,7 @@ def calculate_replaygain(tracks, options):
         if not track.files:
             continue
         file = track.files[0]
-        if not type(file) in SUPPORTED_FORMATS:
+        if not isinstanceany(file, SUPPORTED_FORMATS):
             raise Exception(f"ReplayGain 2.0: File '{file.filename}' is of unsupported format")
         files.append(file.filename)
         valid_tracks.append(track)
@@ -270,6 +270,10 @@ def calculate_replaygain(tracks, options):
                 isinstance(track, NonAlbumTrack),
                 opus_mode
             )
+
+
+def isinstanceany(obj, types):
+    return any(isinstance(obj, t) for t in types)
 
 
 class ScanTracks(BaseAction):
