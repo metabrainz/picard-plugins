@@ -44,6 +44,8 @@ The cleaned outcome will be like:
 <li> -- totaltracks: 5 -- </li>
 </ul>
 This is automatic once the album is loaded. Users wouldn't be aware of the existence of data tracks and silence tracks.
+<br />
+Examples: releases of MBID 9cd9e81a-2dab-46d0-988e-bb486ddc1b05 and 9c0b5a23-ca6e-4b4e-be2f-98280cf56c88
 <br /><br />
 Its difference with a similar-purpose script of <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/persistent_variables/docs/README.md#example-5">Persistent Variables</a> is that this plugin can skip any number of data tracks on any positions, and that the hidden variables %_absolutetracknumber% and %_totalalbumtracks% will also be fixed.
 <br /><br />
@@ -61,7 +63,6 @@ from picard.plugin import PluginPriority
 
 def remove_datatracks_from_release(album, metadata, release):
     try:
-        log.info("{0}: Infomation: {1}".format(PLUGIN_NAME, "Removing data tracks / silence tracks from release "+release['title'],))
         for disc in release['media']:
             # Assuming that MusicBrainz includes a pregap track in the tracklist only if it's an audio track, so that pregap tracks (if exist) will never be a data track.
             datatrack_positions = []
@@ -81,22 +82,22 @@ def remove_datatracks_from_release(album, metadata, release):
                     datatrack_positions.append(track['position'])
                     del disc['tracks'][i]
             disc['track-count'] = len(disc['tracks'])
-            if len(datatrack_positions) != 0:
-                log.info("{0}: Infomation: {1}".format(PLUGIN_NAME, "Removed data tracks / silence tracks of positions: "+str(sorted(datatrack_positions)),))
             for track in disc['tracks']:
                 position = track['position']
                 number_to_skip = len([p for p in datatrack_positions if p < position])
                 track['position'] = position - number_to_skip
+            if len(datatrack_positions) > 0:
+                log.info("[Info] Removed {0} data / silence tracks, original positions: {1}".format(len(datatrack_positions), sorted(datatrack_positions)))
             # Assuming that after the remove_datatracks_from_release function call, MusicBrainz Picard will infer / calculate the metadata %tracknumber% %totaltracks% %_absolutetracknumber% %_totalalbumtracks% from track['position'] fields of the modified release Object, that nothing else is needed to care about.
     except Exception as ex:
-        log.error("{0}: Error: {1}".format(PLUGIN_NAME, ex,))
+        log.error("[Error] {0}".format(ex))
 
 def doublecheck_metadata(album, metadata, track, release):
     try:
         if metadata['~datatrack']:
-            log.warning("{0}: Warning: {1}".format(PLUGIN_NAME, "Track "+metadata['tracknumber']+" "+metadata['title']+" is marked as a data track by its metadata %_datatrack%, but its naming doesn't follow the [data] - [data track] rule. Please manually decide whether it is a data track and fix tracknumbers.",))
+            log.warning("[Warning] Track {0} {1} is marked as a data track by its metadata %_datatrack%, but its naming doesn't follow the [data] - [data track] rule. Please manually decide whether it is a data track and fix tracknumbers.".format(metadata['tracknumber'], metadata['title']))
     except Exception as ex:
-        log.error("{0}: Error: {1}".format(PLUGIN_NAME, ex,))
+        log.error("[Error] {0}".format(ex))
 
 
 register_album_metadata_processor(remove_datatracks_from_release, priority=PluginPriority.HIGH)
