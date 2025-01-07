@@ -81,7 +81,7 @@ def remove_datatracks_from_release(album, metadata, release):
                     datatrack_positions.append(track['position'])
                     del disc['tracks'][i]
             disc['track-count'] = len(disc['tracks'])
-            if len(datatrack_positions) is not 0:
+            if len(datatrack_positions) != 0:
                 log.info("{0}: Infomation: {1}".format(PLUGIN_NAME, "Removed data tracks / silence tracks of positions: "+str(sorted(datatrack_positions)),))
             for track in disc['tracks']:
                 position = track['position']
