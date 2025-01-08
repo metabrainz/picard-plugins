@@ -22,7 +22,7 @@ PLUGIN_AUTHOR = 'cerenkov (crnkv)'
 PLUGIN_DESCRIPTION = '''
 Skip and remove all data tracks and special silence tracks once the album is loaded. Also shift and fix the track numbers.
 <br />
-This plugin intends to present the track list in line with digital music platforms or CD ripper (re-)distributors. For example:
+This plugin intends to present the track list in line with online digital music platforms or CD ripper (re-)distributors. For example:
 <ul>
 <li>Track #00: [pregap] audio track        -> No change. Maintain track number #00</li>
 <li>Track #01: [data track]                -> Remove</li>
@@ -61,27 +61,46 @@ from picard.metadata import (register_album_metadata_processor, register_track_m
 from picard.plugin import PluginPriority
 
 
+# This is a data track if:
+# Track Title / Recording Title is [data track], or Track Artist / Recording Artist is [data]
+# Bonus: also skip when Track Title / Recording Title is [silence]
+# See: https://github.com/metabrainz/picard/blob/master/picard/track.py#L315 for the method '_customize_metadata(self)'
+def isDataTrack(track):
+    return track.get('title', '') == '[data track]' \
+           or track.get('recording', {}).get('title', '') == '[data track]' \
+           or track.get('artist-credit', [{}])[0].get('artist', {}).get('name', '') == '[data]' \
+           or track.get('recording', {}).get('artist-credit', [{}])[0].get('artist', {}).get('name', '') == '[data]' \
+           or track.get('title', '') == '[silence]' \
+           or track.get('recording', {}).get('title', '') == '[silence]'
+
 def remove_datatracks_from_release(album, metadata, release):
     try:
         for disc in release['media']:
-            # Assuming that MusicBrainz includes a pregap track in the tracklist only if it's an audio track, so that pregap tracks (if exist) will never be a data track.
             datatrack_positions = []
+
+            # Examine the pregap track, assuming its position is 0
+            if isDataTrack(disc.get('pregap', {})):
+                del disc['pregap'];
+
+            # Remove the 'data-tracks' node (never seen in real album releases, not sure about its structure)
+            # Its impact on the track positions in the 'tracks' node is unverified
+            # See: https://github.com/metabrainz/picard/blob/master/picard/album.py#L447 for the method '_load_tracks(self)'
+            if 'data-tracks' in disc:
+                for track in disc['data-tracks']:
+                    if 'position' in track:
+                        datatrack_positions.append(track['position'])
+                del disc['data-tracks']
+
+            # Examine each track under the 'tracks' node
             for i in reversed(range(len(disc['tracks']))):
                 track = disc['tracks'][i]
-                # This is a data track if:
-                # Track Title / Recording Title is [data track], or Track Artist / Recording Artist is [data]
-                # Bonus: also skip when Track Title / Recording Title is [silence]
-                if track['title'] == '[data track]' \
-                   or track['recording']['title'] == '[data track]' \
-                   or track['artist-credit'][0]['artist']['name'] == '[data]' \
-                   or track['recording']['artist-credit'][0]['artist']['name'] == '[data]' \
-                   or track['title'] == '[silence]' \
-                   or track['recording']['title'] == '[silence]' :
+                if isDataTrack(track):
                     # The track['number'] field usually conforms with the %_musicbrainz_tracknumber% metadata, which can be vinyl numbering (A1, A2…). This is not to be used.
-                    # Assuming that the track['position'] field coincides with the usual %tracknumber% metadata, which are integers starting from 1, even when a pregap track exists in the medium (which is in the disc['pregap'] field with a disc['pregap']['position'] field equal to 0).
+                    # Assuming that the track['position'] field coincides with the usual %tracknumber% metadata, which are integers starting from 1, even when a pregap track exists in the medium.
                     datatrack_positions.append(track['position'])
                     del disc['tracks'][i]
-            disc['track-count'] = len(disc['tracks'])
+
+            disc['track-count'] = len(disc['tracks']) # pregap doesn't count as seen in real album releases
             for track in disc['tracks']:
                 position = track['position']
                 number_to_skip = len([p for p in datatrack_positions if p < position])
@@ -92,14 +111,5 @@ def remove_datatracks_from_release(album, metadata, release):
     except Exception as ex:
         log.error("[Error] {0}".format(ex))
 
-def doublecheck_metadata(album, metadata, track, release):
-    try:
-        if metadata['~datatrack']:
-            log.warning("[Warning] Track {0} {1} is marked as a data track by its metadata %_datatrack%, but its naming doesn't follow the [data] - [data track] rule. Please manually decide whether it is a data track and fix tracknumbers.".format(metadata['tracknumber'], metadata['title']))
-    except Exception as ex:
-        log.error("[Error] {0}".format(ex))
-
-
 register_album_metadata_processor(remove_datatracks_from_release, priority=PluginPriority.HIGH)
-register_track_metadata_processor(doublecheck_metadata, priority=PluginPriority.HIGH)
 
