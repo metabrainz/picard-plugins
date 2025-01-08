@@ -57,7 +57,7 @@ PLUGIN_LICENSE = 'GPL-2.0-or-later'
 PLUGIN_LICENSE_URL = 'https://www.gnu.org/licenses/gpl-2.0.html'
 
 from picard import log
-from picard.metadata import (register_album_metadata_processor, register_track_metadata_processor)
+from picard.metadata import register_album_metadata_processor
 from picard.plugin import PluginPriority
 
 
