@@ -17,10 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
-PLUGIN_NAME = 'Skip Data Tracks and Fix Track Numbers'
+PLUGIN_NAME = 'Remove [data track]s'
 PLUGIN_AUTHOR = 'cerenkov (crnkv)'
 PLUGIN_DESCRIPTION = '''
-Skip and remove all data tracks and special silence tracks once the album is loaded. Also shift and fix the track numbers.
+Skip and remove all [data track]s and [silence] tracks once the album is loaded. Also shift and fix the track numbers.
 <br />
 This plugin intends to present the track list in line with online digital music platforms or CD ripper (re-)distributors. For example:
 <ul>
@@ -34,7 +34,7 @@ This plugin intends to present the track list in line with online digital music 
 <li>Track #07: hidden audio track          -> Change track number to #04</li>
 <li> -- totaltracks: 8 -- </li>
 </ul>
-The cleaned outcome will be like:
+The result will be like:
 <ul>
 <li>Track #00: [pregap] audio track</li>
 <li>Track #01: audio track</li>
@@ -43,11 +43,11 @@ The cleaned outcome will be like:
 <li>Track #04: hidden audio track</li>
 <li> -- totaltracks: 5 -- </li>
 </ul>
-This is automatic once the album is loaded. Users wouldn't be aware of the existence of data tracks and silence tracks.
+This is automatic once the album is loaded. Users wouldn't be aware of the existence of [data track]s and [silence] tracks.
 <br />
 Examples: releases of MBID 9cd9e81a-2dab-46d0-988e-bb486ddc1b05 and 9c0b5a23-ca6e-4b4e-be2f-98280cf56c88
 <br /><br />
-Its difference with a similar-purpose script of <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/persistent_variables/docs/README.md#example-5">Persistent Variables</a> is that this plugin can skip any number of data tracks on any positions, and that the hidden variables %_absolutetracknumber% and %_totalalbumtracks% will also be fixed.
+Its difference with a similar-purpose script of <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/persistent_variables/docs/README.md#example-5">Persistent Variables</a> is that this plugin can skip any number of [data track]s on any positions, and that the hidden variables %_absolutetracknumber% and %_totalalbumtracks% will also be fixed.
 <br /><br />
 More information on special purpose track titles: <a href="https://musicbrainz.org/doc/Style/Unknown_and_untitled/Special_purpose_track_title">https://musicbrainz.org/doc/Style/Unknown_and_untitled/Special_purpose_track_title</a>
 '''
@@ -100,7 +100,7 @@ def remove_datatracks_from_release(album, metadata, release):
                     datatrack_positions.append(track['position'])
                     del disc['tracks'][i]
 
-            disc['track-count'] = len(disc['tracks']) # pregap doesn't count as seen in real album releases
+            disc['track-count'] = len(disc['tracks']) # pregap doesn't count (as seen in real album releases)
             for track in disc['tracks']:
                 position = track['position']
                 number_to_skip = len([p for p in datatrack_positions if p < position])
