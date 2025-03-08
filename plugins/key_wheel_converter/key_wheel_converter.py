@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
+"""Key Wheel Converter Plugin
+"""
 #
-# Copyright (C) 2022 Bob Swift (rdswift)
+# Copyright (C) 2022-2025 Bob Swift (rdswift)
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -25,24 +27,42 @@ PLUGIN_AUTHOR = 'Bob Swift'
 PLUGIN_DESCRIPTION = '''
 Adds functions to convert between 'standard', 'camelot', 'open key' and 'traktor' key formats.
 '''
-PLUGIN_VERSION = '1.1'
-PLUGIN_API_VERSIONS = ['2.3', '2.4', '2.6', '2.7']
+PLUGIN_VERSION = '1.2'
+PLUGIN_API_VERSIONS = ['2.3', '2.4', '2.6', '2.7', '2.13']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
 
 import re
 
-# pylint: disable=E0402     (import-error)
-from picard import log
-from picard.script import register_script_function
+
+try:
+    from picard import log
+except ModuleNotFoundError:
+    class log():
+        """Mocked logger for testing
+        """
+        # pylint: disable=invalid-name
+        # pylint: disable=too-few-public-methods
+        @staticmethod
+        def debug(*args, **kwargs):
+            """Mocked degug logger
+            """
+            return
+try:
+    from picard.script import register_script_function
+except ModuleNotFoundError:
+    def register_script_function(*args, **kwargs):
+        """Mocked function for testing
+        """
+        return
 
 
-# pylint: disable=R0903     (too-few-public-methods)
 class KeyMap():
     """
         Class to hold the mapping dictionary.  The dictionary is
         stored as a class variable so that it is only generated once.
     """
+    # pylint: disable=too-few-public-methods
 
     # Circle of Fifths reference:
     # https://www.circleoffifths.com
@@ -127,6 +147,7 @@ def _matcher(text, out_type):
     Returns:
         str: Value mapped to the key for the specified output type
     """
+    # pylint: disable=consider-using-f-string
     match_text = _parse_input(text)
     if match_text not in KeyMap.keys:
         log.debug("{0}: Unable to match key: '{1}'".format(PLUGIN_NAME, text,))
@@ -144,6 +165,7 @@ def _parse_input(text):
     Returns:
         str: Argument converted to supported key format (if possible)
     """
+    # pylint: disable=too-many-return-statements
 
     text = text.strip()
     if not text:
@@ -161,7 +183,8 @@ def _parse_input(text):
             _char = text[-1:].lower().replace('m', 'A').replace('d', 'B')
             return "{0}{1}".format(_num, _char,)
 
-    if re.match("[a-g][#bB♭]?[mM]?$", text):
+    # if re.match("[a-gA-G][#bB♭]?[mM]?$", text):
+    if re.match("[a-gA-G][#Bb]?[mM]?$", text):
         # Matches Traktor key format.  Fix capitalization for lookup.
         temp = text[0:1].upper() + text[1:].replace('♭', 'b').lower()
         # Handle cases where there are multiple entries for the item
@@ -215,6 +238,8 @@ def key2camelot(parser, text):
     '1A'
     >>> key2camelot(None, '1A ')
     '1A'
+    >>> key2camelot(None, 'ABm')
+    '1A'
     >>> key2camelot(None, '')
     ''
     >>> key2camelot(None, 'A-Flat Minor x')
@@ -238,11 +263,32 @@ def key2camelot(parser, text):
     >>> key2camelot(None, '1x')
     ''
 
+    >>> key2camelot(None, 'A#')
+    '6B'
+    >>> key2camelot(None, 'A#M')
+    '3A'
+    >>> key2camelot(None, 'C#')
+    '3B'
+    >>> key2camelot(None, 'C#M')
+    '12A'
+    >>> key2camelot(None, 'D#')
+    '5B'
+    >>> key2camelot(None, 'D#M')
+    '2A'
+    >>> key2camelot(None, 'F#M')
+    '11A'
+    >>> key2camelot(None, 'G#')
+    '4B'
+    >>> key2camelot(None, 'G#M')
+    '1A'
+
     >>> key2camelot(None, 'c')
     '8B'
     >>> key2camelot(None, 'dB')
     '3B'
     >>> key2camelot(None, 'd#M')
+    '2A'
+    >>> key2camelot(None, 'D#M')
     '2A'
     """
     return _matcher(text, 'camelot')
@@ -445,15 +491,19 @@ def key2traktor(parser, text):
     'Db'
     >>> key2traktor(None, 'gBM')
     'Gbm'
-    >>> key2traktor(None, 'g♭M')
+    >>> key2traktor(None, 'gbM')
     'Gbm'
+    >>> key2traktor(None, 'g♭M')
+    ''
     >>> key2traktor(None, '')
     ''
     """
     return _matcher(text, 'traktor')
 
 
-register_script_function(key2camelot, name='key2camelot',
+register_script_function(
+    key2camelot,
+    name='key2camelot',
     documentation="""`$key2camelot(key)`
 
 Returns the key string `key` in camelot key format.
@@ -464,7 +514,9 @@ The `key` argument can be entered in any of the supported formats, such as
 is not recognized as one of the standard keys in the supported formats, then
 an empty string will be returned.""")
 
-register_script_function(key2openkey, name='key2openkey',
+register_script_function(
+    key2openkey,
+    name='key2openkey',
     documentation="""`$key2openkey(key)`
 
 Returns the key string `key` in open key format.
@@ -475,7 +527,9 @@ The `key` argument can be entered in any of the supported formats, such as
 is not recognized as one of the standard keys in the supported formats, then
 an empty string will be returned.""")
 
-register_script_function(key2standard, name='key2standard',
+register_script_function(
+    key2standard,
+    name='key2standard',
     documentation="""`$key2standard(key[,symbols])`
 
 Returns the key string `key` in standard key format.  If the optional argument
@@ -488,7 +542,9 @@ The `key` argument can be entered in any of the supported formats, such as
 is not recognized as one of the standard keys in the supported formats, then
 an empty string will be returned.""")
 
-register_script_function(key2traktor, name='key2traktor',
+register_script_function(
+    key2traktor,
+    name='key2traktor',
     documentation="""`$key2traktor(key)`
 
 Returns the key string `key` in traktor key format.
