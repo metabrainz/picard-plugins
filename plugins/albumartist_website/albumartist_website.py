@@ -4,7 +4,7 @@ PLUGIN_NAME = 'Album Artist Website'
 PLUGIN_AUTHOR = 'Sophist, Sambhav Kothari, Philipp Wolfer'
 PLUGIN_DESCRIPTION = '''Add's the album artist(s) Official Homepage(s)
 (if they are defined in the MusicBrainz database).'''
-PLUGIN_VERSION = '1.1'
+PLUGIN_VERSION = '1.2'
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -128,8 +128,11 @@ class AlbumArtistWebsite:
             log.debug("%s: %r: Examining: %r", PLUGIN_NAME, artistId, relation)
             if 'type' in relation.attribs and relation.type == 'official homepage':
                 if 'target' in relation.children and len(relation.target) > 0:
-                    log.debug("%s: Adding artist url: %s", PLUGIN_NAME, relation.target[0].text)
-                    urls.append(relation.target[0].text)
+                    if not 'ended' in relation.children or relation.ended[0].text != 'true':
+                        log.debug("%s: Adding artist url: %s", PLUGIN_NAME, relation.target[0].text)
+                        urls.append(relation.target[0].text)
+                    else:
+                        log.debug("%s: Artist url has ended: %s", PLUGIN_NAME, relation.target[0].text)
                 else:
                     log.debug("%s: No url in relation: %r", PLUGIN_NAME, relation)
 
