@@ -8,9 +8,9 @@ This plugin depends on the ReplayGain utility [rsgain](https://github.com/comple
 are required to install rsgain and set its path in the plugin settings before use.
 
 #### Usage
-Select one or more tracks or albums, then right click and select Plugin->Calculate ReplayGain. The plugin
-will calculate ReplayGain information for the selected items and display the results in the metadata
-window. Click the save button to write the tags to file.
+Select one or more tracks, albums, or clusters then right click and select Plugin->Calculate ReplayGain.
+The plugin will calculate ReplayGain information for the selected items and display the results in the
+metadata window. Click the save button to write the tags to file.
 
 The following file formats are supported:
 
@@ -30,7 +30,7 @@ The following file formats are supported:
 
 This plugin is based on the original ReplayGain plugin by Philipp Wolfer and Sophist.
 '''
-PLUGIN_VERSION = "1.7.1"
+PLUGIN_VERSION = "1.8"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -63,11 +63,13 @@ from picard.formats import (
 )
 from picard.album import Album
 from picard.track import Track, NonAlbumTrack
+from picard.file import File
+from picard.cluster import Cluster
 from picard.util import thread
 from picard.ui.options import register_options_page, OptionsPage
 from picard.config import TextOption, BoolOption, IntOption, config
 from picard.ui.itemviews import (BaseAction, register_track_action,
-                                 register_album_action)
+                                 register_album_action, register_cluster_action)
 from picard.plugins.replaygain2.ui_options_replaygain2 import Ui_ReplayGain2OptionsPage
 
 
@@ -190,19 +192,25 @@ def update_metadata(metadata, track_result, album_result, is_nat, opus_mode):
         if config.setting["reference_loudness"]:
             metadata.set("replaygain_reference_loudness", f"{float(config.setting['target_loudness']):.2f} LUFS")
 
-def calculate_replaygain(tracks, options):
+def calculate_replaygain(input_objs, options):
 
     # Make sure files are of supported type, build file list
     files = list()
-    valid_tracks = list()
-    for track in tracks:
-        if not track.files:
-            continue
-        file = track.files[0]
+    valid_list = list()
+    for obj in input_objs:
+        if isinstance(obj, Track):
+            if not obj.files:
+                continue
+            file = obj.files[0]
+        elif isinstance(obj, File):
+            file = obj
+        else:
+            raise Exception(f"ReplayGain 2.0: Object {obj} is not a Track or File")
+
         if not isinstanceany(file, SUPPORTED_FORMATS):
             raise Exception(f"ReplayGain 2.0: File '{file.filename}' is of unsupported format")
         files.append(file.filename)
-        valid_tracks.append(track)
+        valid_list.append(obj)
 
     call = [config.setting["rsgain_command"]] + options + files
     for item in call:
@@ -236,7 +244,7 @@ def calculate_replaygain(tracks, options):
     # Make sure the number of rows in the output is what we expected
     if (len(lines) !=
         1                            # Table header
-        + len(valid_tracks)          # 1 row per track
+        + len(valid_list)            # 1 row per track
         + 1 if album_tags else 0):   # Album result
         raise Exception(f"ReplayGain 2.0: Unexpected output from rsgain: {lines}")
     lines.pop(0) # Don't care about the table header
@@ -256,18 +264,23 @@ def calculate_replaygain(tracks, options):
         results.append(result)
 
     # Update track metadata with results
-    if isinstance(file, OggOpusFile):
-        opus_mode = config.setting["opus_mode"]
-    else:
-        opus_mode = OpusMode.STANDARD
+    for i, item in enumerate(valid_list):
+        if isinstance(item, Track):
+            filelist = item.files
+        else: # is a file
+            filelist = [item]
 
-    for i, track in enumerate(valid_tracks):
-        for file in track.files:
+        for file in filelist:
+            if isinstance(file, OggOpusFile):
+                opus_mode = config.setting["opus_mode"]
+            else:
+                opus_mode = OpusMode.STANDARD
+
             update_metadata(
                 file.metadata,
                 results[i],
                 album_result,
-                isinstance(track, NonAlbumTrack),
+                isinstance(item, NonAlbumTrack),
                 opus_mode
             )
 
@@ -275,6 +288,38 @@ def calculate_replaygain(tracks, options):
 def isinstanceany(obj, types):
     return any(isinstance(obj, t) for t in types)
 
+
+class ScanCluster(BaseAction):
+    NAME = "Calculate Cluster Replay&Gain as Album..."
+
+    def callback(self, objs):
+        if not rsgain_found(self.config.setting["rsgain_command"], self.tagger.window):
+            return
+        clusters = list(filter(lambda o: isinstance(o, Cluster), objs))
+
+        self.options = build_options(self.config)
+        num_clusters = len(clusters)
+        if num_clusters == 1:
+            self.tagger.window.set_statusbar_message(
+                'Calculating ReplayGain for %s...', clusters[0].metadata['album']
+            )
+        else:
+            self.tagger.window.set_statusbar_message(
+                'Calculating ReplayGain for %i clusters...', num_clusters
+            )
+        for cluster in clusters:
+            thread.run_task(
+                partial(calculate_replaygain, cluster.files, self.options),
+                partial(self._replaygain_callback, cluster.files)
+            )
+
+    def _replaygain_callback(self, files, result=None, error=None):
+        if error is None:
+            for file in files:
+                file.update()
+            self.tagger.window.set_statusbar_message('ReplayGain successfully calculated.')
+        else:
+            self.tagger.window.set_statusbar_message('Could not calculate ReplayGain.')
 
 class ScanTracks(BaseAction):
     NAME = "Calculate Replay&Gain..."
@@ -430,4 +475,5 @@ class ReplayGain2OptionsPage(OptionsPage):
 
 register_track_action(ScanTracks())
 register_album_action(ScanAlbums())
+register_cluster_action(ScanCluster())
 register_options_page(ReplayGain2OptionsPage)
