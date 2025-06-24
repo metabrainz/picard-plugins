@@ -17,6 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 
+# For Python 3.8 compatibility
+from __future__ import annotations
+
 PLUGIN_NAME = 'MOD files'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = (
@@ -25,7 +28,7 @@ PLUGIN_DESCRIPTION = (
     'There is limited support for writing the title tag as track name for '
     'some formats.'
 )
-PLUGIN_VERSION = "0.2"
+PLUGIN_VERSION = "0.2.1"
 PLUGIN_API_VERSIONS = ["2.8"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
