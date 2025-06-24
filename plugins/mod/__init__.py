@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2022 Philipp Wolfer
+# Copyright (C) 2022, 2025 Philipp Wolfer
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -25,12 +25,12 @@ PLUGIN_DESCRIPTION = (
     'There is limited support for writing the title tag as track name for '
     'some formats.'
 )
-PLUGIN_VERSION = "0.1"
+PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["2.8"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
-from dataclasses import dataclass
+from collections import namedtuple
 from enum import Enum
 from io import RawIOBase
 import struct
@@ -49,13 +49,7 @@ class FieldAccess(Enum):
     READ_WRITE = 1
 
 
-@dataclass
-class StaticField:
-    name: str
-    offset: int
-    length: int
-    access: FieldAccess
-    fillchar: str = ' '
+StaticField = namedtuple('StaticField', 'name offset length access fillchar', defaults=(' ',))
 
 
 class MagicBytes(bytes):
