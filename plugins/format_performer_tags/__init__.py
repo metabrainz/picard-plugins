@@ -27,7 +27,7 @@ each of the tracks.  The format of the resulting tags can be customized
 in the option settings page.
 '''
 
-PLUGIN_VERSION = "0.8.1"
+PLUGIN_VERSION = "0.8.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -354,6 +354,6 @@ class FormatPerformerTagsOptionsPage(OptionsPage):
         return "\n".join(examples)
 
 
-# Register the plugin to run at a HIGH priority.
-register_track_metadata_processor(format_performer_tags, priority=PluginPriority.HIGH)
+# Register the plugin to run at a LOW priority.
+register_track_metadata_processor(format_performer_tags, priority=PluginPriority.LOW)
 register_options_page(FormatPerformerTagsOptionsPage)
