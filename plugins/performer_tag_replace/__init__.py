@@ -160,6 +160,7 @@ class PerformerTagReplaceOptionsPage(OptionsPage):
         config.setting["performer_tag_replace_performers"] = self.ui.performer_tag_replace_performers.isChecked()
 
 
-# Register the plugin to run at a LOW priority.
+# Register the plugin to run at a priority slightly higher than NORMAL to help ensure that
+# the replacements are applied before most other metadata processing plugins are executed.
 register_track_metadata_processor(performer_tag_replace, priority=10)
 register_options_page(PerformerTagReplaceOptionsPage)
