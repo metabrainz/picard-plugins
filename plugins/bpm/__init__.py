@@ -73,10 +73,10 @@ class FileBPM(BaseAction):
         if self._close:
             return
         file.metadata["bpm"] = str(round(calculated_bpm, 1))
-        file.update()
 
     def _calculate_bpm_callback(self, file, result=None, error=None):
         if not error:
+            file.update()
             self.tagger.window.set_statusbar_message(
                 N_('BPM for "%(filename)s" successfully calculated.'),
                 {'filename': file.filename}
