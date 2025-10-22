@@ -5,7 +5,7 @@ Remove Release Title OST Indicator Plugin for MusicBrainz Picard.
 Removes soundtrack-related information from album titles using regex.
 """
 
-__version__ = "2.0.0"
+__version__ = "2.1.0"
 
 PLUGIN_NAME = "Remove release title OST indicator"
 PLUGIN_AUTHOR = "nrth3rnlb"
