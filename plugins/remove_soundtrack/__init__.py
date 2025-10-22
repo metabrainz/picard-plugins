@@ -1,4 +1,5 @@
-"""# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+
 """
 Remove Soundtrack Plugin for MusicBrainz Picard.
 Removes soundtrack-related information from album titles using regex.
