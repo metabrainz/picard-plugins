@@ -1,31 +1,27 @@
-# -*- coding: utf-8 -*-
+"""# -*- coding: utf-8 -*-
 """
 Remove Soundtrack Plugin for MusicBrainz Picard.
 Removes soundtrack-related information from album titles using regex.
 Supports custom patterns, whitelist, test field, and multi-step undo via the plugin settings.
 
-Undo-Funktion: 
+Undo-Funktion:
 - Für Regex und Whitelist werden jeweils die letzten 5 Änderungen gespeichert (Undo-Stack, FIFO).
 - Beim Klick auf 'Undo' springt das jeweilige Feld einen Schritt zurück (maximal 5 rückwärts).
 - Die Stacks werden im Optionsdialog als Attribute verwaltet.
 - Dokumentation: Siehe Klasse RemoveSoundtrackOptionsPage und Methoden push_undo_stack, pop_undo_stack.
 """
-from PyQt5.QtCore import QCoreApplication
 
 __version__ = "1.3.0"
 
-PLUGIN_NAME = QCoreApplication.translate("RemoveSoundtrackOptionsPage", "Remove Soundtrack")
+PLUGIN_NAME = "Remove Soundtrack"
 PLUGIN_AUTHOR = "nrth3rnlb"
-PLUGIN_DESCRIPTION = QCoreApplication.translate(
-    "RemoveSoundtrackOptionsPage",
-    """
-<b>Remove Soundtrack</b> removes soundtrack-related information (e.g., "OST", "Soundtrack") from album titles.<br>
-Supports custom regex patterns, a whitelist, a test field, and multi-step undo via the plugin settings.<br>
-Regular expressions are a powerful tool. They can therefore also cause serious damage.<br>
-Use <a href="https://regex101.com/">regex101.com</a> to test your pattern.<br>
-Use at your own risk.<br>
+PLUGIN_DESCRIPTION = """
+Remove Soundtrack removes soundtrack-related information (e.g., "OST", "Soundtrack") from album titles.
+Supports custom regex patterns, a whitelist, a test field, and multi-step undo via the plugin settings.
+Regular expressions are a powerful tool. They can therefore also cause serious damage.
+Use https://regex101.com/ to test your pattern.
+Use at your own risk.
 """
-)
 PLUGIN_VERSION = __version__
 PLUGIN_API_VERSIONS = ["2.0", "2.1", "2.2", "2.3"]
 PLUGIN_LICENSE = "GPL-2.0"
@@ -51,7 +47,7 @@ class RemoveSoundtrackOptionsPage(OptionsPage):
         pop_undo_stack: Holt letzten Wert, entfernt es aus dem Stack.
     """
     NAME = "remove_soundtrack"
-    TITLE = QCoreApplication.translate("RemoveSoundtrackOptionsPage", "Remove Soundtrack")
+    TITLE = "Remove Soundtrack"
     PARENT = "plugins"
 
     DEFAULT_REGEX = r'(\s*(?:(?::|-|–|—|\(|\[)\s*)?(?:Original|Album|Movie|Motion|Picture|Soundtrack|Score|OST|Music|Edition|Inspired|by|from|the|TV|Series|Video|Game|Film|Show)+(?:\)|\])?\s*)+$'
@@ -185,16 +181,13 @@ class RemoveSoundtrackOptionsPage(OptionsPage):
             return True
         except re.error as e:
             self.ui.regex_pattern.setStyleSheet("background-color: #ffcccc;")
-            self.regex_error_label.setText(QCoreApplication.translate(
-                "RemoveSoundtrackOptionsPage",
-                "Regex error: {err}"
-            ).format(err=str(e)))
+            self.regex_error_label.setText(f"Regex error: {e}")
             self.regex_error_label.setVisible(True)
             return False
 
     def update_test_output(self):
         """
-        Wendet die aktuelle Regex/Whitelist/Einstellung auf das Testfeld an und zeigt das Ergebnis.
+        Applies the current regex/whitelist/setting to the test input and shows the result.
         """
         album_title = self.ui.test_input.text().strip()
         regex = self.ui.regex_pattern.toPlainText()
@@ -203,22 +196,15 @@ class RemoveSoundtrackOptionsPage(OptionsPage):
         whitelist_titles = [line.strip().lower() for line in whitelist.splitlines() if line.strip()]
         # Whitelist check
         if album_title.lower() in whitelist_titles:
-            self.ui.test_output.setText(QCoreApplication.translate(
-                "RemoveSoundtrackOptionsPage",
-                "Whitelisted – will not be changed!"
-            ))
+            self.ui.test_output.setText("Whitelisted – will not be changed!")
             return
-        # "Soundtrack"-Typ simulieren
-        is_soundtrack = True if not only_soundtrack else True  # Testfeld nimmt immer an, es wäre ein Soundtrack
-        if not only_soundtrack or is_soundtrack:
+        # Assume test input is treated as a soundtrack for preview purposes
+        if not only_soundtrack or True:
             try:
                 new_title = re.sub(regex, '', album_title, flags=re.IGNORECASE).strip()
                 self.ui.test_output.setText(new_title)
             except Exception as e:
-                self.ui.test_output.setText(QCoreApplication.translate(
-                    "RemoveSoundtrackOptionsPage",
-                    "Regex error: {err}"
-                ).format(err=str(e)))
+                self.ui.test_output.setText(f"Regex error: {e}")
         else:
             self.ui.test_output.setText(album_title)
 
