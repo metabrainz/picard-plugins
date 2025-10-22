@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>500</height>
+    <width>620</width>
+    <height>720</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="vboxlayout">
@@ -47,31 +47,136 @@
       <property name="bottomMargin">
        <number>9</number>
       </property>
+      <!-- Regex Row -->
       <item>
-       <widget class="QLabel" name="regex_label">
-        <property name="font">
-         <font>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Regex pattern to remove soundtrack information:</string>
-        </property>
-       </widget>
+       <layout class="QHBoxLayout" name="regex_row">
+        <item>
+         <widget class="QLabel" name="regex_label">
+          <property name="font">
+           <font>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Regex pattern to remove soundtrack information:</string>
+          </property>
+          <property name="toolTip">
+           <string>Enter the regular expression pattern used to remove soundtrack information from album titles.</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="undo_regex_button">
+          <property name="text">
+           <string>Undo</string>
+          </property>
+          <property name="toolTip">
+           <string>Undo last regex change (up to 5 steps).</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QLabel" name="regex_hint">
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use &lt;a href=&quot;https://regex101.com/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#1f9b5d;&quot;&gt;regex101.com&lt;/span&gt;&lt;/a&gt; to test your pattern!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use &lt;a href="https://regex101.com/"&gt;&lt;span style=" text-decoration: underline; color:#1f9b5d;"&gt;regex101.com&lt;/span&gt;&lt;/a&gt; to test your pattern.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
-        <property name="openExternalLinks">
-         <bool>true</bool>
+        <property name="toolTip">
+         <string>External link for testing your regular expression pattern.</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QPlainTextEdit" name="regex_pattern"/>
+       <widget class="QPlainTextEdit" name="regex_pattern">
+        <property name="toolTip">
+         <string>Enter your own regular expression pattern here for removing soundtrack additions. The validity is checked as you type.</string>
+        </property>
+        <property name="maximumHeight">
+         <number>60</number>
+        </property>
+       </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="only_soundtrack_checkbox">
+        <property name="text">
+         <string>Only apply to soundtracks (releasetype)</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>If enabled, the pattern is only applied to albums marked as soundtracks (field 'releasetype'). If disabled, the pattern will be applied to all albums.</string>
+        </property>
+       </widget>
+      </item>
+      <!-- Whitelist Row -->
+      <item>
+       <layout class="QHBoxLayout" name="whitelist_row">
+        <item>
+         <widget class="QLabel" name="whitelist_label">
+          <property name="text">
+           <string>Whitelist (one album title per line, will never be changed):</string>
+          </property>
+          <property name="toolTip">
+           <string>Enter one album title per line. Titles in this list will never be changed by the plugin (case-insensitive, exact match).</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="undo_whitelist_button">
+          <property name="text">
+           <string>Undo</string>
+          </property>
+          <property name="toolTip">
+           <string>Undo last whitelist change (up to 5 steps).</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QPlainTextEdit" name="whitelist_text">
+        <property name="toolTip">
+         <string>Enter one album title per line. For example:&#10;Game Music Concert&#10;Another Album Name</string>
+        </property>
+        <property name="maximumHeight">
+         <number>80</number>
+        </property>
+       </widget>
+      </item>
+      <!-- Test Row -->
+      <item>
+       <widget class="QLabel" name="test_label">
+        <property name="text">
+         <string>Test your settings:</string>
+        </property>
+        <property name="toolTip">
+         <string>Enter an album title below to see the result after applying the current regex, whitelist, and options.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="test_input">
+        <property name="toolTip">
+         <string>Type an album title here to test your current settings.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="test_output">
+        <property name="text">
+         <string></string>
+        </property>
+        <property name="toolTip">
+         <string>This shows the result after applying your settings to the test input above.</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: #f3f4f8; border: 1px solid #c0c0c0; border-radius: 4px; min-height: 24px; margin-top: 5px; padding: 3px;</string>
+        </property>
+       </widget>
+      </item>
+      <!-- Reset Button Row -->
       <item>
        <layout class="QHBoxLayout" name="button_layout">
         <item>
@@ -91,6 +196,9 @@
          <widget class="QPushButton" name="reset_button">
           <property name="text">
            <string>Reset to Default</string>
+          </property>
+          <property name="toolTip">
+           <string>Resets the regex pattern to the default value.</string>
           </property>
          </widget>
         </item>
