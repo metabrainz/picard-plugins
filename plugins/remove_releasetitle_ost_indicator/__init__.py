@@ -38,7 +38,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     TITLE = "Remove Release Title OST Indicator"
     PARENT = "plugins"
 
-    DEFAULT_REGEX = r'(\s*(?:(?::|-|–|—|\(|\[)\s*)?(?:Original|Album|Movie|Motion|Picture|Soundtrack|Score|OST|Music|Edition|Inspired|by|from|the|TV|Series|Video|Game|Film|Show)+(?:\)|\])?\s*)+$'
+    DEFAULT_REGEX = r'(\s*(?:(?::|-|–|—|\(|\[)\s*)?(\b(?:Original|Album|Movie|Motion|Picture|Soundtrack|Score|OST|Music|Edition|Inspired|by|from|the|TV|Series|Video|Game|Film|Show)\b)+(?:\)|\])?\s*)+$'
     DEFAULT_WHITELIST = ""
     DEFAULT_UNDO_STACK_SIZE = 5
 
