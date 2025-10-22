@@ -32,7 +32,7 @@ Recording:
  https://critiquebrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "1.0.2"
+PLUGIN_VERSION = "1.0.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
@@ -59,7 +59,7 @@ def result_review(album, metadata, data, reply, error):
         if reviews:
             for review in reviews:
                 if "last_revision" in review:
-                    ident = (review["entity_type"].replace("_", "-") + "_review_" + review["published_on"] + "_" + review["user"]["display_name"] + "_" + review["language"]).lower()
+                    ident = review["entity_type"].replace("_", "-") + "_review_" + review["published_on"] + "_" + review["user"]["display_name"] + "_" + review["language"]
                     if review["last_revision"]["text"] is not None:
                         review_text = review["last_revision"]["text"] + "\n\nEine Bewertung mit " + str(review["last_revision"]["rating"]) + " von 5 Sternen veröffentlich durch " + review["user"]["display_name"] + " am " + review["published_on"] + " lizensiert unter " + review["full_name"] + ".";
                         if "comment:" + ident in metadata:
@@ -113,3 +113,4 @@ def process_recording(album, metadata, track, release):
 
 register_album_metadata_processor(process_releasegroup)
 register_track_metadata_processor(process_recording)
+
