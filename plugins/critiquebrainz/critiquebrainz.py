@@ -32,7 +32,7 @@ Recording:
  https://critiquebrainz.org/recording/93113326-93e9-409c-a3d6-5ec91864ba30'''
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
-PLUGIN_VERSION = "1.0.1"
+PLUGIN_VERSION = "1.0.2"
 PLUGIN_API_VERSIONS = ["2.0"]
 
 from functools import partial
