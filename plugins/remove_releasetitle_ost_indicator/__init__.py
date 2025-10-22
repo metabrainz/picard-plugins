@@ -1,23 +1,16 @@
 # -*- coding: utf-8 -*-
 
 """
-Remove Soundtrack Plugin for MusicBrainz Picard.
+Remove Release Title OST Indicator Plugin for MusicBrainz Picard.
 Removes soundtrack-related information from album titles using regex.
-Supports custom patterns, whitelist, test field, and multi-step undo via the plugin settings.
-
-Undo-Funktion:
-- Für Regex und Whitelist werden jeweils die letzten 5 Änderungen gespeichert (Undo-Stack, FIFO).
-- Beim Klick auf 'Undo' springt das jeweilige Feld einen Schritt zurück (maximal 5 rückwärts).
-- Die Stacks werden im Optionsdialog als Attribute verwaltet.
-- Dokumentation: Siehe Klasse RemoveSoundtrackOptionsPage und Methoden push_undo_stack, pop_undo_stack.
 """
 
-__version__ = "1.3.0"
+__version__ = "2.0.0"
 
-PLUGIN_NAME = "Remove Soundtrack"
+PLUGIN_NAME = "Remove release title OST indicator"
 PLUGIN_AUTHOR = "nrth3rnlb"
 PLUGIN_DESCRIPTION = """
-Remove Soundtrack removes soundtrack-related information (e.g., "OST", "Soundtrack") from album titles.
+The Plugin “Remove Release Title OST Indicator” removes soundtrack-related information (e.g., "OST", "Soundtrack") from album titles.
 Supports custom regex patterns, a whitelist, a test field, and multi-step undo via the plugin settings.
 Regular expressions are a powerful tool. They can therefore also cause serious damage.
 Use https://regex101.com/ to test your pattern.
@@ -31,78 +24,73 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 from picard.ui.options import register_options_page
 from picard.config import TextOption, BoolOption, config
 from picard.ui.options import OptionsPage
-from .ui_options_remove_soundtrack import Ui_RemoveSoundtrackOptionsPage
+from .ui_options_remove_releasetitle_ost_indicator import Ui_RemoveReleaseTitleOstIndicatorSettings
 
 from picard import log
 from picard.metadata import register_album_metadata_processor
 import re
 
-class RemoveSoundtrackOptionsPage(OptionsPage):
+class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     """
-    Options page for the Remove Soundtrack plugin.
-
-    Undo-Stack:
-        Für regex_pattern und whitelist_text wird jeweils ein Stack (List) geführt,
-        der die letzten 5 Änderungen speichert (FIFO, maximale Länge 5).
-        push_undo_stack: Fügt aktuellen Wert hinzu, kürzt ggf. den Stack.
-        pop_undo_stack: Holt letzten Wert, entfernt es aus dem Stack.
+    Options page for the Remove Release Title OST Indicator plugin.
     """
-    NAME = "remove_soundtrack"
-    TITLE = "Remove Soundtrack"
+    NAME = "remove_releasetitle_ost_indicator"
+    TITLE = "Remove Release Title OST Indicator"
     PARENT = "plugins"
 
     DEFAULT_REGEX = r'(\s*(?:(?::|-|–|—|\(|\[)\s*)?(?:Original|Album|Movie|Motion|Picture|Soundtrack|Score|OST|Music|Edition|Inspired|by|from|the|TV|Series|Video|Game|Film|Show)+(?:\)|\])?\s*)+$'
     DEFAULT_WHITELIST = ""
+    DEFAULT_UNDO_STACK_SIZE = 5
 
     options = [
-        TextOption("setting", "remove_soundtrack_regex", DEFAULT_REGEX),
-        BoolOption("setting", "remove_soundtrack_only_soundtrack", True),
-        TextOption("setting", "remove_soundtrack_whitelist", DEFAULT_WHITELIST),
+        TextOption("setting", "remove_releasetitle_ost_indicator_regex", DEFAULT_REGEX),
+        BoolOption("setting", "remove_releasetitle_ost_indicator_only_soundtrack", True),
+        TextOption("setting", "remove_releasetitle_ost_indicator_whitelist", DEFAULT_WHITELIST),
     ]
 
     def __init__(self, parent=None):
-        super(RemoveSoundtrackOptionsPage, self).__init__(parent)
-        self.ui = Ui_RemoveSoundtrackOptionsPage()
+        super(RemoveReleaseTitleOstIndicatorOptionsPage, self).__init__(parent)
+        self.ui = Ui_RemoveReleaseTitleOstIndicatorSettings()
         self.ui.setupUi(self)
 
-        # Undo-Stacks initialisieren
+        # Initialize undo stacks
         self.regex_undo_stack = []
         self.whitelist_undo_stack = []
 
-        # Fehlerlabel für Regex-Status
+        # Error label for regex status
         from PyQt5.QtWidgets import QLabel
         self.regex_error_label = QLabel(self)
         self.regex_error_label.setStyleSheet("color: red")
         self.regex_error_label.setVisible(False)
         self.ui.vboxlayout1.addWidget(self.regex_error_label)
 
-        # Undo-Buttons
+        # Undo buttons
         self.ui.undo_regex_button.clicked.connect(self.undo_regex)
         self.ui.undo_whitelist_button.clicked.connect(self.undo_whitelist)
 
-        # Testfeld-Logik
+        # Test field logic
         self.ui.test_input.textChanged.connect(self.update_test_output)
         self.ui.regex_pattern.textChanged.connect(self.update_test_output)
         self.ui.whitelist_text.textChanged.connect(self.update_test_output)
         self.ui.only_soundtrack_checkbox.stateChanged.connect(self.update_test_output)
 
-        # Reset-Button für Regex
+        # Reset button for Regex
         self.ui.reset_button.clicked.connect(self.reset_to_default)
 
-        # Regex-Validierung bei jeder Änderung + Undo-Stack
+        # Regex validation with every change + undo stack
         self.ui.regex_pattern.textChanged.connect(self.on_regex_changed)
         self.ui.whitelist_text.textChanged.connect(self.on_whitelist_changed)
 
     def push_undo_stack(self, stack, value):
-        # Fügt Wert an Stack an, maximal 5
+        # Appends value to stack
         if stack and stack[-1] == value:
             return
         stack.append(value)
-        if len(stack) > 5:
+        if len(stack) > self.DEFAULT_UNDO_STACK_SIZE:
             stack.pop(0)
 
     def pop_undo_stack(self, stack, current_value):
-        # Liefert letzten Wert, entfernt es aus Stack, falls vorhanden und nicht gleich aktuellem Wert
+        # Returns the last value, removes it from the stack if present and not equal to the current value
         if not stack:
             return current_value
         if stack and stack[-1] == current_value:
@@ -136,7 +124,7 @@ class RemoveSoundtrackOptionsPage(OptionsPage):
     def load(self):
         """Loads the current regex, whitelist or default and settings."""
         try:
-            current_regex = config.setting["remove_soundtrack_regex"]
+            current_regex = config.setting["remove_releasetitle_ost_indicator_regex"]
         except KeyError:
             current_regex = self.DEFAULT_REGEX
         self.ui.regex_pattern.setPlainText(current_regex)
@@ -144,13 +132,13 @@ class RemoveSoundtrackOptionsPage(OptionsPage):
         self.regex_undo_stack = [current_regex]
 
         try:
-            only_soundtrack = config.setting["remove_soundtrack_only_soundtrack"]
+            only_soundtrack = config.setting["remove_releasetitle_ost_indicator_only_soundtrack"]
         except KeyError:
             only_soundtrack = True
         self.ui.only_soundtrack_checkbox.setChecked(only_soundtrack)
 
         try:
-            whitelist = config.setting["remove_soundtrack_whitelist"]
+            whitelist = config.setting["remove_releasetitle_ost_indicator_whitelist"]
         except KeyError:
             whitelist = self.DEFAULT_WHITELIST
         self.ui.whitelist_text.setPlainText(whitelist)
@@ -164,9 +152,9 @@ class RemoveSoundtrackOptionsPage(OptionsPage):
         """Saves the current regex, whitelist to config, validates regex and saves checkbox."""
         pattern = self.ui.regex_pattern.toPlainText()
         if self.validate_regex_pattern():
-            config.setting["remove_soundtrack_regex"] = pattern
-            config.setting["remove_soundtrack_only_soundtrack"] = self.ui.only_soundtrack_checkbox.isChecked()
-            config.setting["remove_soundtrack_whitelist"] = self.ui.whitelist_text.toPlainText()
+            config.setting["remove_releasetitle_ost_indicator_regex"] = pattern
+            config.setting["remove_releasetitle_ost_indicator_only_soundtrack"] = self.ui.only_soundtrack_checkbox.isChecked()
+            config.setting["remove_releasetitle_ost_indicator_whitelist"] = self.ui.whitelist_text.toPlainText()
 
     def reset_to_default(self):
         """Resets the regex to the default pattern."""
@@ -209,16 +197,28 @@ class RemoveSoundtrackOptionsPage(OptionsPage):
         else:
             self.ui.test_output.setText(album_title)
 
-def remove_soundtrack(album, metadata, release):
-    regex = config.setting.get("remove_soundtrack_regex", RemoveSoundtrackOptionsPage.DEFAULT_REGEX)
-    only_soundtrack = config.setting.get("remove_soundtrack_only_soundtrack", True)
-    whitelist = config.setting.get("remove_soundtrack_whitelist", RemoveSoundtrackOptionsPage.DEFAULT_WHITELIST)
+def remove_releasetitle_ost_indicator(album, metadata, release):
+    try:
+        regex = config.setting["remove_releasetitle_ost_indicator_regex"]
+    except KeyError:
+        regex = RemoveReleaseTitleOstIndicatorOptionsPage.DEFAULT_REGEX
+
+    try:
+        only_soundtrack = config.setting["remove_releasetitle_ost_indicator_only_soundtrack"]
+    except KeyError:
+        only_soundtrack = True
+
+    try:
+        whitelist = config.setting["remove_releasetitle_ost_indicator_whitelist"]
+    except KeyError:
+        whitelist = RemoveReleaseTitleOstIndicatorOptionsPage.DEFAULT_WHITELIST
+
     whitelist_titles = [line.strip().lower() for line in whitelist.splitlines() if line.strip()]
-    log.debug("Remove Soundtrack: Using regex pattern %r, only_soundtrack=%r, whitelist=%r", regex, only_soundtrack, whitelist_titles)
+    log.debug(PLUGIN_NAME + ": Using regex pattern %r, only_soundtrack=%r, whitelist=%r", regex, only_soundtrack, whitelist_titles)
     if "album" in metadata:
         album_title = metadata["album"].strip()
         if album_title.lower() in whitelist_titles:
-            log.debug("Remove Soundtrack: Album '%s' is whitelisted, skipping removal", album_title)
+            log.debug(PLUGIN_NAME + ": Album '%s' is whitelisted, skipping removal", album_title)
             return
         if (
             not only_soundtrack or (
@@ -228,7 +228,6 @@ def remove_soundtrack(album, metadata, release):
             new_title = re.sub(regex, '', album_title, flags=re.IGNORECASE).strip()
             metadata["album"] = new_title
 
-log.debug(PLUGIN_NAME)
-
-register_options_page(RemoveSoundtrackOptionsPage)
-register_album_metadata_processor(remove_soundtrack)
+log.debug(PLUGIN_NAME + ": registration" )
+register_options_page(RemoveReleaseTitleOstIndicatorOptionsPage)
+register_album_metadata_processor(remove_releasetitle_ost_indicator)

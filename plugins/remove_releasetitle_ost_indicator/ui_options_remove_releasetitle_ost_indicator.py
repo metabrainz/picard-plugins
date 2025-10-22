@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'ui_options_remove_soundtrack.ui'
+# Form implementation generated from reading ui file 'ui_options_remove_releasetitle_ost_indicator.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
@@ -11,14 +11,14 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Ui_RemoveSoundtrackOptionsPage(object):
-    def setupUi(self, RemoveSoundtrackOptionsPage):
-        RemoveSoundtrackOptionsPage.setObjectName("RemoveSoundtrackOptionsPage")
-        RemoveSoundtrackOptionsPage.resize(620, 720)
-        self.gridLayout = QtWidgets.QGridLayout(RemoveSoundtrackOptionsPage)
+class Ui_RemoveReleaseTitleOstIndicatorSettings(object):
+    def setupUi(self, RemoveReleaseTitleOstIndicatorSettings):
+        RemoveReleaseTitleOstIndicatorSettings.setObjectName("RemoveReleaseTitleOstIndicatorSettings")
+        RemoveReleaseTitleOstIndicatorSettings.resize(620, 720)
+        self.gridLayout = QtWidgets.QGridLayout(RemoveReleaseTitleOstIndicatorSettings)
         self.gridLayout.setContentsMargins(9, 9, 9, 9)
         self.gridLayout.setObjectName("gridLayout")
-        self.regex_group = QtWidgets.QGroupBox(RemoveSoundtrackOptionsPage)
+        self.regex_group = QtWidgets.QGroupBox(RemoveReleaseTitleOstIndicatorSettings)
         self.regex_group.setObjectName("regex_group")
         self.vboxlayout1 = QtWidgets.QVBoxLayout(self.regex_group)
         self.vboxlayout1.setContentsMargins(9, 9, 9, 9)
@@ -106,32 +106,32 @@ class Ui_RemoveSoundtrackOptionsPage(object):
         self.vboxlayout1.addItem(spacerItem)
         self.gridLayout.addWidget(self.regex_group, 0, 0, 1, 1)
 
-        self.retranslateUi(RemoveSoundtrackOptionsPage)
-        QtCore.QMetaObject.connectSlotsByName(RemoveSoundtrackOptionsPage)
+        self.retranslateUi(RemoveReleaseTitleOstIndicatorSettings)
+        QtCore.QMetaObject.connectSlotsByName(RemoveReleaseTitleOstIndicatorSettings)
 
-    def retranslateUi(self, RemoveSoundtrackOptionsPage):
+    def retranslateUi(self, RemoveReleaseTitleOstIndicatorSettings):
         _translate = QtCore.QCoreApplication.translate
-        self.regex_group.setTitle(_translate("RemoveSoundtrackOptionsPage", "Remove Soundtrack Settings"))
-        self.regex_label.setToolTip(_translate("RemoveSoundtrackOptionsPage", "Enter the regular expression pattern used to remove soundtrack information from album titles."))
-        self.regex_label.setText(_translate("RemoveSoundtrackOptionsPage", "Regex pattern to remove soundtrack information:"))
-        self.only_soundtrack_checkbox.setToolTip(_translate("RemoveSoundtrackOptionsPage", "If enabled, the pattern is only applied to albums marked as soundtracks (field \'releasetype\'). If disabled, the pattern will be applied to all albums."))
-        self.only_soundtrack_checkbox.setText(_translate("RemoveSoundtrackOptionsPage", "Only apply to soundtracks (releasetype)"))
-        self.regex_hint.setToolTip(_translate("RemoveSoundtrackOptionsPage", "External link for testing your regular expression pattern."))
-        self.regex_hint.setText(_translate("RemoveSoundtrackOptionsPage", "<html><head/><body><p>Use <a href=\"https://regex101.com/\"><span style=\" text-decoration: underline; color:#1f9b5d;\">regex101.com</span></a> to test your pattern.</p></body></html>"))
-        self.regex_pattern.setToolTip(_translate("RemoveSoundtrackOptionsPage", "Enter your own regular expression pattern here for removing soundtrack additions. The validity is checked as you type."))
-        self.reset_button.setToolTip(_translate("RemoveSoundtrackOptionsPage", "Resets the regex pattern to the default value."))
-        self.reset_button.setText(_translate("RemoveSoundtrackOptionsPage", "Reset to Default"))
-        self.undo_regex_button.setToolTip(_translate("RemoveSoundtrackOptionsPage", "Undo last regex change (up to 5 steps)."))
-        self.undo_regex_button.setText(_translate("RemoveSoundtrackOptionsPage", "Undo"))
-        self.whitelist_label.setToolTip(_translate("RemoveSoundtrackOptionsPage", "Enter one album title per line. Titles in this list will never be changed by the plugin (case-insensitive, exact match)."))
-        self.whitelist_label.setText(_translate("RemoveSoundtrackOptionsPage", "Whitelist:"))
-        self.label.setText(_translate("RemoveSoundtrackOptionsPage", "One album title per line, will never be changed"))
-        self.whitelist_text.setToolTip(_translate("RemoveSoundtrackOptionsPage", "Enter one album title per line. For example:\n"
+        self.regex_group.setTitle(_translate("RemoveReleaseTitleOstIndicatorSettings", "Remove Release Title OST Indicator Settings"))
+        self.regex_label.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Enter the regular expression pattern used to remove soundtrack information from album titles."))
+        self.regex_label.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "Regex pattern for finding the OST indicator:"))
+        self.only_soundtrack_checkbox.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "If enabled, the pattern is only applied to albums marked as soundtracks (field \'releasetype\'). If disabled, the pattern will be applied to all albums."))
+        self.only_soundtrack_checkbox.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "Only apply to soundtracks (releasetype)"))
+        self.regex_hint.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "External link for testing your regular expression pattern."))
+        self.regex_hint.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "<html><head/><body><p>Use <a href=\"https://regex101.com/\"><span style=\" text-decoration: underline; color:#1f9b5d;\">regex101.com</span></a> to test your pattern.</p></body></html>"))
+        self.regex_pattern.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Enter your own regular expression pattern here for removing soundtrack additions. The validity is checked as you type."))
+        self.reset_button.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Resets the regex pattern to the default value."))
+        self.reset_button.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "Reset to Default"))
+        self.undo_regex_button.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Undo last regex change (up to 5 steps)."))
+        self.undo_regex_button.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "Undo"))
+        self.whitelist_label.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Enter one album title per line. Titles in this list will never be changed by the plugin (case-insensitive, exact match)."))
+        self.whitelist_label.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "Whitelist for release titles that are ignored:"))
+        self.label.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "One title per line"))
+        self.whitelist_text.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Enter one album title per line. For example:\n"
 "Game Music Concert\n"
 "Another Album Name"))
-        self.undo_whitelist_button.setToolTip(_translate("RemoveSoundtrackOptionsPage", "Undo last whitelist change (up to 5 steps)."))
-        self.undo_whitelist_button.setText(_translate("RemoveSoundtrackOptionsPage", "Undo"))
-        self.test_label.setToolTip(_translate("RemoveSoundtrackOptionsPage", "Enter an album title below to see the result after applying the current regex, whitelist, and options."))
-        self.test_label.setText(_translate("RemoveSoundtrackOptionsPage", "Test your settings:"))
-        self.test_input.setToolTip(_translate("RemoveSoundtrackOptionsPage", "Type an album title here to test your current settings."))
-        self.test_output.setToolTip(_translate("RemoveSoundtrackOptionsPage", "This shows the result after applying your settings to the test input above."))
+        self.undo_whitelist_button.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Undo last whitelist change (up to 5 steps)."))
+        self.undo_whitelist_button.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "Undo"))
+        self.test_label.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Enter an album title below to see the result after applying the current regex, whitelist, and options."))
+        self.test_label.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "Test your settings:"))
+        self.test_input.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Type an album title here to test your current settings."))
+        self.test_output.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "This shows the result after applying your settings to the test input above."))

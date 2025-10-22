@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RemoveSoundtrackOptionsPage</class>
- <widget class="QWidget" name="RemoveSoundtrackOptionsPage">
+ <class>RemoveReleaseTitleOstIndicatorSettings</class>
+ <widget class="QWidget" name="RemoveReleaseTitleOstIndicatorSettings">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -26,7 +26,7 @@
    <item row="0" column="0">
     <widget class="QGroupBox" name="regex_group">
      <property name="title">
-      <string>Remove Soundtrack Settings</string>
+      <string>Remove Release Title OST Indicator Settings</string>
      </property>
      <layout class="QVBoxLayout" name="vboxlayout1">
       <property name="spacing">
@@ -57,7 +57,7 @@
            <string>Enter the regular expression pattern used to remove soundtrack information from album titles.</string>
           </property>
           <property name="text">
-           <string>Regex pattern to remove soundtrack information:</string>
+           <string>Regex pattern for finding the OST indicator:</string>
           </property>
          </widget>
         </item>
@@ -140,7 +140,7 @@
            <string>Enter one album title per line. Titles in this list will never be changed by the plugin (case-insensitive, exact match).</string>
           </property>
           <property name="text">
-           <string>Whitelist:</string>
+           <string>Whitelist for release titles that are ignored:</string>
           </property>
          </widget>
         </item>
@@ -149,7 +149,7 @@
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>One album title per line, will never be changed</string>
+         <string>One title per line</string>
         </property>
        </widget>
       </item>
