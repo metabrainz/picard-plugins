@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ShelvesConfigPage</class>
+ <widget class="QWidget" name="ShelvesConfigPage">
+  <property name="windowTitle">
+   <string>Shelves Configuration</string>
+  </property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <item>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
+     </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item alignment="Qt::AlignTop">
+        <widget class="QGroupBox" name="shelves_group">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Shelf Management</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="shelves_description">
+            <property name="text">
+             <string>Manage your virtual shelves.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QListWidget" name="shelf_list">
+               <property name="enabled">
+                <bool>true</bool>
+               </property>
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="alternatingRowColors">
+                <bool>true</bool>
+               </property>
+               <property name="selectionMode">
+                <enum>QAbstractItemView::SingleSelection</enum>
+               </property>
+               <property name="sortingEnabled">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+             <item alignment="Qt::AlignRight|Qt::AlignTop">
+              <widget class="QWidget" name="widget_2" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_6">
+                <item>
+                 <widget class="QPushButton" name="b_scan_4_shelves">
+                  <property name="toolTip">
+                   <string>Automatically detect shelves from your music library directory</string>
+                  </property>
+                  <property name="text">
+                   <string>Scan Music Directory</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="b_remove_shelf">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="text">
+                   <string>Remove Selected</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="b_add_shelf">
+                  <property name="text">
+                   <string>Add Shelf...</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QGroupBox" name="workflow_group">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Workflow</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <item>
+           <widget class="QLabel" name="l_workflow_description">
+            <property name="text">
+             <string>When enabled, the workflow sets the album’s shelf automatically by the transition configuration. Manual changes override it.</string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="workflow_enabled">
+            <property name="text">
+             <string>Use workflow</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="workflow_transitions">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="title">
+             <string>Configuration of the transition</string>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <widget class="QLabel" name="l_workflow_stage_1">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>from shelf </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="workflow_stage_1">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="l_workflow_stage_2">
+               <property name="text">
+                <string>to shelf</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="workflow_stage_2">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QGroupBox" name="naming_script">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>230</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>Naming Script</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <widget class="QLabel" name="l_script_info">
+            <property name="text">
+             <string>Use the following code in your file naming script to use the shelves.</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPlainTextEdit" name="naming_script_code">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>80</height>
+             </size>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
