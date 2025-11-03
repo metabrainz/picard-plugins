@@ -5,7 +5,11 @@ Title Cleaner OST Plugin for MusicBrainz Picard.
 Removes soundtrack-related information from album titles using regex.
 """
 
-__version__ = "1.2.0"
+__version__ = "1.2.1"
+
+OST_WHITELIST = "title_cleaner_ost_whitelist"
+ONLY_SOUNDTRACK = "title_cleaner_ost_only_soundtrack"
+OST_REGEX = "title_cleaner_ost_regex"
 
 PLUGIN_NAME = "Title Cleaner OST"
 PLUGIN_AUTHOR = "nrth3rnlb"
@@ -45,9 +49,9 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
 
 
     options = [
-        TextOption("setting", "title_cleaner_ost_regex", DEFAULT_REGEX),
-        BoolOption("setting", "title_cleaner_ost_only_soundtrack", True),
-        TextOption("setting", "title_cleaner_ost_whitelist", DEFAULT_WHITELIST),
+        TextOption("setting", OST_REGEX, DEFAULT_REGEX),
+        BoolOption("setting", ONLY_SOUNDTRACK, True),
+        TextOption("setting", OST_WHITELIST, DEFAULT_WHITELIST),
     ]
 
     def __init__(self, parent=None):
@@ -84,14 +88,14 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     def load(self):
         """Loads the current regex, whitelist or default and settings."""
         try:
-            current_regex = config.setting["title_cleaner_ost_regex"]
+            current_regex = config.setting[OST_REGEX] # type: ignore[index]
         except KeyError:
             current_regex = self.DEFAULT_REGEX
         self.ui.regex_pattern.setPlainText(current_regex)
         self.validate_regex_pattern()
 
         try:
-            only_soundtrack = config.setting["title_cleaner_ost_only_soundtrack"]
+            only_soundtrack = config.setting[ONLY_SOUNDTRACK] # type: ignore[index]
         except KeyError:
             only_soundtrack = True
         self.ui.only_soundtrack_checkbox.setChecked(only_soundtrack)
@@ -102,7 +106,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
             self.ui.only_applies_to.clear()
 
         try:
-            whitelist = config.setting["title_cleaner_ost_whitelist"]
+            whitelist = config.setting[OST_WHITELIST] # type: ignore[index]
         except KeyError:
             whitelist = self.DEFAULT_WHITELIST
         self.ui.whitelist_text.setPlainText(whitelist)
@@ -114,18 +118,19 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
 
     def save(self):
         """Saves the current regex, whitelist to config, validates regex, and saves checkbox."""
-        pattern = self.ui.regex_pattern.toPlainText()
+        pattern: str = self.ui.regex_pattern.toPlainText()
         # Try to compile the regex again on save with graceful fallback
         try:
             re.compile(pattern, flags=re.IGNORECASE)
-            config.setting["title_cleaner_ost_regex"] = pattern
-            config.setting["title_cleaner_ost_only_soundtrack"] = self.ui.only_soundtrack_checkbox.isChecked()
-            config.setting["title_cleaner_ost_whitelist"] = self.ui.whitelist_text.toPlainText()
+
+            config.setting[OST_REGEX] = pattern # type: ignore[index]
+            config.setting[ONLY_SOUNDTRACK] = self.ui.only_soundtrack_checkbox.isChecked() # type: ignore[index]
+            config.setting[OST_WHITELIST] = self.ui.whitelist_text.toPlainText() # type: ignore[index]
         except re.error as e:
             log.error(PLUGIN_NAME + ": Failed to save regex pattern: %s", e)
             # Fall back to not saving invalid regex
-            config.setting["remove_releasetitle_ost_indicator_only_soundtrack"] = self.ui.only_soundtrack_checkbox.isChecked()
-            config.setting["remove_releasetitle_ost_indicator_whitelist"] = self.ui.whitelist_text.toPlainText()
+            config.setting[ONLY_SOUNDTRACK] = self.ui.only_soundtrack_checkbox.isChecked()  # type: ignore[index]
+            config.setting[OST_WHITELIST] = self.ui.whitelist_text.toPlainText() # type: ignore[index]
 
     def reset_to_default(self):
         """Resets the regex to the default pattern."""
@@ -191,17 +196,17 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
 
 def title_cleaner_ost(album, metadata, release):
     try:
-        regex = config.setting["title_cleaner_ost_regex"]
+        regex = config.setting[OST_REGEX]  # type: ignore[index]
     except KeyError:
         regex = RemoveReleaseTitleOstIndicatorOptionsPage.DEFAULT_REGEX
 
     try:
-        only_soundtrack = config.setting["title_cleaner_ost_only_soundtrack"]
+        only_soundtrack = config.setting[ONLY_SOUNDTRACK]  # type: ignore[index]
     except KeyError:
         only_soundtrack = True
 
     try:
-        whitelist = config.setting["title_cleaner_ost_whitelist"]
+        whitelist = config.setting[OST_WHITELIST]  # type: ignore[index]
     except KeyError:
         whitelist = RemoveReleaseTitleOstIndicatorOptionsPage.DEFAULT_WHITELIST
 
