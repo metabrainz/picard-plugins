@@ -67,7 +67,6 @@ class ShelvesOptionsPage(_ShelvesOptionsPageBase):
 
 class SetShelfAction(_SetShelfActionBase):
     """Wrapper class for SetShelfAction to ensure proper plugin registration."""
-    pass
 
 
 class DetermineShelfAction(_DetermineShelfActionBase):
