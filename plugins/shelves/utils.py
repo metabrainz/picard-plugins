@@ -139,7 +139,7 @@ def get_shelf_from_path(path: str, base_path: Optional[str] = None) -> str:
                 "%s: Path '%s' is not under base directory '%s', setting shelf to '%s'",
                 PLUGIN_NAME,
                 path,
-                base_path,workflow_stage_1
+                base_path, workflow_stage_1
             )
             return workflow_stage_1
 
