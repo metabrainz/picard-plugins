@@ -104,15 +104,26 @@ def get_shelf_from_path(path: str, base_path: Optional[str] = None) -> str:
     Returns:
     	Extracted shelf	name or "Standard" as fallback
     """
+
+    try:
+        workflow_stage_1 = config.setting[ShelfConstants.CONFIG_WORKFLOW_STAGE_1_KEY]  # type: ignore[index]
+    except KeyError:
+        workflow_stage_1 = ShelfConstants.DEFAULT_INCOMING_SHELF
+    try:
+        workflow_stage_2 = config.setting[ShelfConstants.CONFIG_WORKFLOW_STAGE_2_KEY]  # type: ignore[index]
+    except KeyError:
+        workflow_stage_2 = ShelfConstants.DEFAULT_SHELF
+
+
     if base_path is None:
         try:
             base_path = config.setting["move_files_to"]  # type: ignore[index]
         except KeyError:
             log.warning(
-                "%s: No base path configured in Picard settings, using fallback detection",
-                PLUGIN_NAME,
+                "%s: No base path configured in Picard settings, set shelf to '%s'",
+                PLUGIN_NAME, workflow_stage_1
             )
-            return _get_shelf_from_path_fallback(path)
+            return workflow_stage_1
 
     try:
         log.debug("%s: Extracting shelf from path: %s", PLUGIN_NAME, path)
@@ -125,19 +136,19 @@ def get_shelf_from_path(path: str, base_path: Optional[str] = None) -> str:
             relative = path_obj.relative_to(base_obj)
         except ValueError:
             log.debug(
-                "%s: Path '%s' is not under base directory '%s'",
+                "%s: Path '%s' is not under base directory '%s', setting shelf to '%s'",
                 PLUGIN_NAME,
                 path,
-                base_path,
+                base_path,workflow_stage_1
             )
-            return _get_shelf_from_path_fallback(path)
+            return workflow_stage_1
 
         # The first directory component is the shelf
         parts = relative.parts
         if not parts or parts[0] == path_obj.name:
             # File is directly in the base directory
-            log.debug("%s: File is in base directory, no shelf", PLUGIN_NAME)
-            return ShelfConstants.DEFAULT_SHELF
+            log.debug("%s: File is in base directory, setting shelf to '%s'", PLUGIN_NAME, workflow_stage_2)
+            return workflow_stage_2
 
         shelf_name = parts[0]
         log.debug("%s: Found potential shelf: %s", PLUGIN_NAME, shelf_name)
@@ -150,9 +161,9 @@ def get_shelf_from_path(path: str, base_path: Optional[str] = None) -> str:
                 PLUGIN_NAME,
                 shelf_name,
                 reason,
-                ShelfConstants.DEFAULT_SHELF,
+                workflow_stage_2,
             )
-            return ShelfConstants.DEFAULT_SHELF
+            return workflow_stage_2
 
         log.debug("%s: Confirmed shelf: %s", PLUGIN_NAME, shelf_name)
         return shelf_name
@@ -161,36 +172,4 @@ def get_shelf_from_path(path: str, base_path: Optional[str] = None) -> str:
         log.error(
             "%s: Error extracting shelf from path '%s': %s", PLUGIN_NAME, path, e
         )
-        return ShelfConstants.DEFAULT_SHELF
-
-
-def _get_shelf_from_path_fallback(path: str) -> str:
-    """
-    Fallback method to extract shelf when a base path is not configured.
-    Args:
-        path: Full file path
-    Returns:
-        Best-guess shelf name or "Standard"
-    """
-    try:
-        parts = [p for p in Path(path).parts if p]
-        if len(parts) >= 3:
-            # Assume: [..., ShelfName, Artist, Album, file]
-            shelf_name = parts[-4] if len(parts) >= 4 else parts[-3]
-
-            is_likely, reason = is_likely_shelf_name(shelf_name)
-            if is_likely:
-                log.debug("%s: Fallback detected shelf: %s", PLUGIN_NAME, shelf_name)
-                return shelf_name
-            else:
-                log.debug(
-                    "%s: Fallback shelf '%s' looks suspicious: %s",
-                    PLUGIN_NAME,
-                    shelf_name,
-                    reason,
-                )
-
-    except (IndexError, ValueError):
-        pass
-
-    return ShelfConstants.DEFAULT_SHELF
+        return workflow_stage_2

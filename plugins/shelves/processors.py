@@ -62,6 +62,45 @@ def file_post_load_processor(file: Any, shelf_manager: Any) -> None:
         log.error("%s: Error in file processor: %s", PLUGIN_NAME, e)
         log.error("%s: Traceback: %s", PLUGIN_NAME, traceback.format_exc())
 
+def file_post_addition_to_track_processor(track, file, shelf_manager: Any) -> None:
+    """
+    Process a file after it has been added to a track.
+    :param track:
+    :param file:
+    :param shelf_manager:
+    :return:
+    """
+    try:
+
+        log.debug("%s: (file_post_addition_to_track_processor) Processing file: %s", PLUGIN_NAME, file.filename)
+        shelf = get_shelf_from_path(file.filename)
+
+        add_known_shelf(shelf)
+        log.debug("%s: Set shelf '%s' for: %s", PLUGIN_NAME, shelf, file.filename)
+
+        album_id = file.metadata.get(ShelfConstants.MUSICBRAINZ_ALBUMID)
+        if album_id:
+            shelf_manager.vote_for_shelf(album_id, shelf)
+            file.metadata[ShelfConstants.TAG_KEY] = shelf
+            track.metadata[ShelfConstants.TAG_KEY] = shelf
+
+    except (KeyError, AttributeError, ValueError) as e:
+        log.error("%s: Error in file processor: %s", PLUGIN_NAME, e)
+        log.error("%s: Traceback: %s", PLUGIN_NAME, traceback.format_exc())
+
+def file_post_removal_from_track_processor(track, file, shelf_manager: Any) -> None:
+    """
+    Process a file after it has been removed from a track.
+    :param track:
+    :param file:
+    :param shelf_manager:
+    :return:
+    """
+    log.debug("%s: (file_post_removal_from_track_processor) Processing file: %s", PLUGIN_NAME, file.filename)
+    album_id = file.metadata.get(ShelfConstants.MUSICBRAINZ_ALBUMID)
+    if album_id:
+        shelf_manager.clear_album(album_id)
+
 
 def set_shelf_in_metadata(
         _album: Any, metadata: Dict[str, Any], _track: Any, _release: Any, shelf_manager: Any
@@ -83,6 +122,6 @@ def set_shelf_in_metadata(
     log.debug("%s: set_shelf_in_metadata '%s'", PLUGIN_NAME, album_id)
 
     shelf_name = shelf_manager.get_album_shelf(album_id)
-    if shelf_name:
+    if shelf_name is not None:
         metadata[ShelfConstants.TAG_KEY] = shelf_name
         log.debug("%s: Set shelf '%s' on track", PLUGIN_NAME, shelf_name)

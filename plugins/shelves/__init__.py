@@ -8,14 +8,13 @@ allowing music files to be organised by top-level folders.
 """
 from __future__ import annotations
 
-
-
-__version__ = "1.3.1"
+__version__ = "1.4.1"
 
 from typing import Any, Dict
 
 from picard import log
-from picard.file import register_file_post_load_processor, register_file_post_save_processor
+from picard.file import register_file_post_load_processor, register_file_post_save_processor, \
+    register_file_post_addition_to_track_processor, register_file_post_removal_from_track_processor
 from picard.metadata import register_track_metadata_processor
 from picard.script import register_script_function
 from picard.ui.itemviews import register_album_action
@@ -27,6 +26,8 @@ from .options import ShelvesOptionsPage as _ShelvesOptionsPageBase
 from .processors import (
     file_post_load_processor,
     file_post_save_processor,
+    file_post_addition_to_track_processor,
+    file_post_removal_from_track_processor,
     set_shelf_in_metadata,
 )
 from .script_functions import func_shelf as _func_shelf_base
@@ -54,7 +55,6 @@ PLUGIN_API_VERSIONS = ["2.7", "2.8"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 PLUGIN_USER_GUIDE_URL = "https://github.com/nrth3rnlb/picard-plugin-shelves"
-
 
 # Global shelf manager instance
 shelf_manager = ShelfManager()
@@ -88,6 +88,10 @@ def _file_post_load_processor_wrapper(file: Any) -> None:
     """Wrapper for file_post_load_processor."""
     file_post_load_processor(file, shelf_manager)
 
+def _file_post_addition_to_track_processor(track, file: Any) -> None:
+    """Wrapper for file_post_addition_to_track_processor."""
+    file_post_addition_to_track_processor(track, file, shelf_manager)
+
 
 def _file_post_save_processor_wrapper(file: Any) -> None:
     """Wrapper for file_post_save_processor."""
@@ -95,18 +99,25 @@ def _file_post_save_processor_wrapper(file: Any) -> None:
 
 
 def _set_shelf_in_metadata_wrapper(
-    album: Any, metadata: Dict[str, Any], track: Any, release: Any
+        album: Any, metadata: Dict[str, Any], track: Any, release: Any
 ) -> None:
     """Wrapper for set_shelf_in_metadata."""
     set_shelf_in_metadata(album, metadata, track, release, shelf_manager)  # noqa: F841
 
+def _file_post_removal_from_track_processor(track, file: Any) -> None:
+    """Wrapper for file_post_removal_from_track_processor."""
+    file_post_removal_from_track_processor(track, file, shelf_manager)
 
-# Registration
+
 log.debug("%s: Registering plugin components", PLUGIN_NAME)
+
+# Register metadata processors
+register_track_metadata_processor(_set_shelf_in_metadata_wrapper)
 
 # Register file processors
 register_file_post_load_processor(_file_post_load_processor_wrapper)
-register_file_post_save_processor(_file_post_save_processor_wrapper)
+register_file_post_addition_to_track_processor(_file_post_addition_to_track_processor)
+register_file_post_removal_from_track_processor(_file_post_removal_from_track_processor)
 
 # Register context menu actions
 register_album_action(SetShelfAction())
@@ -115,11 +126,7 @@ register_album_action(DetermineShelfAction())
 # Register options page
 register_options_page(ShelvesOptionsPage)
 
-# Register metadata processor
-register_track_metadata_processor(_set_shelf_in_metadata_wrapper)
-
 # Register a script function for use in file naming
 register_script_function(func_shelf, "shelf")
 
 log.info("%s v%s loaded successfully", PLUGIN_NAME, __version__)
-

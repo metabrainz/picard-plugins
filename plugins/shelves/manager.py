@@ -57,7 +57,7 @@ class ShelfManager:
 
         self._shelves_by_album[album_id] = winner
 
-    def get_album_shelf(self, album_id: str) -> str:
+    def get_album_shelf(self, album_id: str) -> str | None:
         """
         Retrieve the shelf name for an album.
         Args:
@@ -67,7 +67,9 @@ class ShelfManager:
         """
         if self._shelves_by_album.get(album_id) is not None:
             return self._shelves_by_album.get(album_id)
-        return DEFAULT_SHELVES[ShelfConstants.CONFIG_WORKFLOW_STAGE_1_KEY]
+        log.warning("%s: The shelf of the album %s could not be identified with certainty.", PLUGIN_NAME, album_id)
+
+        return None
 
     def clear_album(self, album_id: str) -> None:
         """

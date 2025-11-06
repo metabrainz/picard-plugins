@@ -221,6 +221,7 @@ class DetermineShelfAction(BaseAction):
         # Update object metadata if present
         # Note: Using first file's shelf; ShelfManager voting will resolve conflicts
         if hasattr(obj, "metadata") and first_shelf:
+            log.debug("%s: Update object metadata with %s", PLUGIN_NAME, first_shelf)
             obj.metadata[ShelfConstants.TAG_KEY] = first_shelf
 
     def _revote_shelf_recursive(self, obj: Any) -> None:
