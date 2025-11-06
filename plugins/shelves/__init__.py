@@ -102,7 +102,7 @@ def _set_shelf_in_metadata_wrapper(
         album: Any, metadata: Dict[str, Any], track: Any, release: Any
 ) -> None:
     """Wrapper for set_shelf_in_metadata."""
-    set_shelf_in_metadata(album, metadata, track, release, shelf_manager)  # noqa: F841
+    set_shelf_in_metadata(album, metadata, track, release, shelf_manager)
 
 def _file_post_removal_from_track_processor(track, file: Any) -> None:
     """Wrapper for file_post_removal_from_track_processor."""
