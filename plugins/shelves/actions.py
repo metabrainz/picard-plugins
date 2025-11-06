@@ -35,7 +35,7 @@ class SetShelfAction(BaseAction):
         Handle the action callback.
 
         Args:
-        objs: Selected objects in Picard
+            objs: Selected objects in Picard
         """
         log.debug("%s: SetShelfAction called with %d objects", PLUGIN_NAME, len(objs))
 
