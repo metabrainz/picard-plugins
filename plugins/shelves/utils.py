@@ -98,11 +98,11 @@ def get_shelf_from_path(path: str, base_path: Optional[str] = None) -> str:
     This uses Picard's configured base directory to determine which top-level folder represents the shelf.
 
     Args:
-    	path: Full file path
-    	base_path: Optional base path override (uses Picard config if not provided)
+        path: Full file path
+        base_path: Optional base path override (uses Picard config if not provided)
 
     Returns:
-    	Extracted shelf	name or "Standard" as fallback
+        Extracted shelf name or "Standard" as fallback
     """
 
     try:
