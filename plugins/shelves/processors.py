@@ -23,7 +23,7 @@ def file_post_save_processor(file: Any, shelf_manager: Any) -> None:
     """
     Process a file after Picard has saved it.
     
-    Args:a
+    Args:
         file: Picard file object
         shelf_manager: ShelfManager instance
     """
