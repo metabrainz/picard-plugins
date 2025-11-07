@@ -296,12 +296,14 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
         # Create a preview string of selected characters
         preview_str = " ".join(selected_keys)
 
-        # I'm unsure whether this might make sense after all.
-        # Therefore, commented out.
-        # preview_limit = 20  # Max length of the character preview
-        # if len(preview_str) > preview_limit:
-        #     # Truncate the string if it's too long
-        #     preview_str = preview_str[:preview_limit].rsplit(' ', 1)[0] + "…"
+        # Truncate the preview string if it's too long
+        preview_limit = 20  # Max length of the character preview
+        if len(preview_str) > preview_limit:
+            # Truncate the string at the last space before the limit, if possible
+            truncated = preview_str[:preview_limit]
+            if ' ' in truncated:
+                truncated = truncated.rsplit(' ', 1)[0]
+            preview_str = truncated + "…"
 
         button.setText(f"{preview_str}")
 
