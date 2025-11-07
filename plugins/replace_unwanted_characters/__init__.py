@@ -340,7 +340,14 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
 
             # Update button text and state
             use_default_widget = self.per_tag_table.cellWidget(row, 1)
-            use_default = isinstance(use_default_widget, QtWidgets.QCheckBox) and use_default_widget.isChecked()
+            # Extract QCheckBox from the container widget
+            use_default = False
+            if use_default_widget is not None and isinstance(use_default_widget, QtWidgets.QWidget):
+                layout = use_default_widget.layout()
+                if layout is not None and layout.count() > 0:
+                    checkbox = layout.itemAt(0).widget()
+                    if isinstance(checkbox, QtWidgets.QCheckBox):
+                        use_default = checkbox.isChecked()
             if use_default:
                 self._per_tag_selection[tag] = new_keys_set
 
