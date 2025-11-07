@@ -373,18 +373,6 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
 
         return on_toggled
 
-    def _make_list_item_changed_handler(self, tag, list_w):
-        def on_item_changed(item):
-            # update selection set for this tag only if list is enabled (not use-default)
-            if list_w.isEnabled():
-                checked = {list_w.item(i).text() for i in range(list_w.count()) if
-                           list_w.item(i).checkState() == QtCore.Qt.Checked}
-                self._per_tag_selection[tag] = set(checked)
-                # also update saved selection so toggling Use Default later restores this
-                self._per_tag_saved[tag] = set(checked)
-
-        return on_item_changed
-
     # ---------- load / save ----------
     def load(self):
         config = self.config.setting
