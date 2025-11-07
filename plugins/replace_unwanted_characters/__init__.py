@@ -316,6 +316,20 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
         button.setText(f"{preview_str}")
 
     def _make_mapping_button_handler(self, tag, button):
+        """
+        Factory method that creates a handler function for the mapping button of a specific tag.
+
+        The returned handler, when invoked (typically by a button click), opens a dialog allowing
+        the user to select which character mappings to apply for the given tag. It updates the
+        internal selection state and the button's display text accordingly.
+
+        Args:
+            tag (str): The tag for which the mapping is being edited.
+            button (QPushButton): The button that triggers the mapping dialog.
+
+        Returns:
+            function: A closure to be connected as a slot for the button's clicked signal.
+        """
         def on_button_clicked():
             all_keys = self._current_default_keys()
             current_selection = self._per_tag_selection.get(tag, set())
