@@ -380,6 +380,22 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
                 self._update_mapping_button_text(button, tag, new_keys)
 
     def _make_use_default_handler(self, tag, button, chk):
+        """
+        Creates a handler function for the 'use default' checkbox for a given tag.
+
+        When the checkbox is toggled, this handler updates the per-tag selection state:
+        - If checked, saves the current selection, selects all available keys, and disables the mapping button.
+        - If unchecked, restores the saved selection and enables the mapping button.
+        The handler also updates the button text to reflect the current selection.
+
+        Args:
+            tag (str): The tag associated with the checkbox and button.
+            button (QPushButton): The button used to edit the mapping for the tag.
+            chk (QCheckBox): The checkbox widget that triggers this handler.
+
+        Returns:
+            function: A function to be connected to the checkbox's toggled signal.
+        """
         def on_toggled(checked):
             all_keys = self._current_default_keys()
             if checked:
