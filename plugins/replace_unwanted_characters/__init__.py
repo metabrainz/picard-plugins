@@ -290,7 +290,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
         num_selected = len(selected_keys)
 
         if num_selected == 0:
-            button.setText(f"none selected")
+            button.setText("none selected")
             return
 
         # Create a preview string of selected characters
