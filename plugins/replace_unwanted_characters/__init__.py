@@ -286,6 +286,14 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
             btn.setEnabled(not chk.isChecked())
 
     def _update_mapping_button_text(self, button, tag, all_keys):
+        """
+        Update the text of the mapping button to reflect the current selection of mapped characters for a given tag.
+
+        Args:
+            button (QPushButton): The button whose text will be updated.
+            tag (str): The tag for which the mapping is being displayed.
+            all_keys (Iterable[str]): The list of all possible mapping keys.
+        """
         selected_keys = sorted(list(self._per_tag_selection.get(tag, set())))
         num_selected = len(selected_keys)
 
