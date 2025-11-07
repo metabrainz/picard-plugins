@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+    <class>ReplaceUnwantedCharactersConfig</class>
+    <widget class="QWidget" name="ReplaceUnwantedCharactersConfig">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>796</width>
+                <height>908</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>Replace Unwanted Characters Settings</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+            <item>
+                <widget class="QWidget" name="widget_3" native="true">
+                    <layout class="QHBoxLayout" name="horizontalLayout_3">
+                        <item>
+                            <widget class="QGroupBox" name="group_filter_tags">
+                                <property name="title">
+                                    <string>Affected Tags</string>
+                                </property>
+                                <layout class="QVBoxLayout" name="layout_filter_tags">
+                                    <item>
+                                        <widget class="QWidget" name="widget" native="true">
+                                            <layout class="QHBoxLayout" name="horizontalLayout">
+                                                <item>
+                                                    <widget class="QTableWidget" name="filter_tags_table">
+                                                        <property name="alternatingRowColors">
+                                                            <bool>true</bool>
+                                                        </property>
+                                                        <property name="selectionBehavior">
+                                                            <enum>QAbstractItemView::SelectRows</enum>
+                                                        </property>
+                                                        <property name="sortingEnabled">
+                                                            <bool>true</bool>
+                                                        </property>
+                                                        <property name="rowCount">
+                                                            <number>0</number>
+                                                        </property>
+                                                        <property name="columnCount">
+                                                            <number>1</number>
+                                                        </property>
+                                                        <column>
+                                                            <property name="text">
+                                                                <string>Tag</string>
+                                                            </property>
+                                                        </column>
+                                                    </widget>
+                                                </item>
+                                                <item>
+                                                    <layout class="QVBoxLayout" name="verticalLayout_2">
+                                                        <item>
+                                                            <spacer name="verticalSpacer_2">
+                                                                <property name="orientation">
+                                                                    <enum>Qt::Vertical</enum>
+                                                                </property>
+                                                                <property name="sizeHint" stdset="0">
+                                                                    <size>
+                                                                        <width>20</width>
+                                                                        <height>40</height>
+                                                                    </size>
+                                                                </property>
+                                                            </spacer>
+                                                        </item>
+                                                        <item>
+                                                            <widget class="QPushButton" name="remove_filter_tag_button">
+                                                                <property name="text">
+                                                                    <string>Remove Selected</string>
+                                                                </property>
+                                                            </widget>
+                                                        </item>
+                                                        <item>
+                                                            <widget class="QPushButton" name="add_filter_tag_button">
+                                                                <property name="text">
+                                                                    <string>Add Tag</string>
+                                                                </property>
+                                                            </widget>
+                                                        </item>
+                                                    </layout>
+                                                </item>
+                                            </layout>
+                                        </widget>
+                                    </item>
+                                </layout>
+                            </widget>
+                        </item>
+                        <item>
+                            <widget class="QGroupBox" name="group_default_mapping">
+                                <property name="title">
+                                    <string>Default Replacements</string>
+                                </property>
+                                <layout class="QVBoxLayout" name="layout_default_mapping">
+                                    <item>
+                                        <widget class="QWidget" name="widget_2" native="true">
+                                            <layout class="QHBoxLayout" name="horizontalLayout_2">
+                                                <item>
+                                                    <widget class="QTableWidget" name="replacement_table">
+                                                        <property name="sizePolicy">
+                                                            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                                                                <horstretch>0</horstretch>
+                                                                <verstretch>0</verstretch>
+                                                            </sizepolicy>
+                                                        </property>
+                                                        <property name="alternatingRowColors">
+                                                            <bool>true</bool>
+                                                        </property>
+                                                        <property name="sortingEnabled">
+                                                            <bool>true</bool>
+                                                        </property>
+                                                        <property name="rowCount">
+                                                            <number>0</number>
+                                                        </property>
+                                                        <property name="columnCount">
+                                                            <number>2</number>
+                                                        </property>
+                                                        <column>
+                                                            <property name="text">
+                                                                <string>Search</string>
+                                                            </property>
+                                                        </column>
+                                                        <column>
+                                                            <property name="text">
+                                                                <string>Replace</string>
+                                                            </property>
+                                                        </column>
+                                                    </widget>
+                                                </item>
+                                                <item>
+                                                    <layout class="QVBoxLayout" name="verticalLayout_3">
+                                                        <item>
+                                                            <spacer name="verticalSpacer">
+                                                                <property name="orientation">
+                                                                    <enum>Qt::Vertical</enum>
+                                                                </property>
+                                                                <property name="sizeHint" stdset="0">
+                                                                    <size>
+                                                                        <width>20</width>
+                                                                        <height>40</height>
+                                                                    </size>
+                                                                </property>
+                                                            </spacer>
+                                                        </item>
+                                                        <item>
+                                                            <widget class="QPushButton" name="remove_row_button">
+                                                                <property name="text">
+                                                                    <string>Remove Selected</string>
+                                                                </property>
+                                                            </widget>
+                                                        </item>
+                                                        <item>
+                                                            <widget class="QPushButton" name="add_row_button">
+                                                                <property name="text">
+                                                                    <string>Add Mapping</string>
+                                                                </property>
+                                                            </widget>
+                                                        </item>
+                                                    </layout>
+                                                </item>
+                                            </layout>
+                                        </widget>
+                                    </item>
+                                </layout>
+                            </widget>
+                        </item>
+                    </layout>
+                </widget>
+            </item>
+            <item>
+                <widget class="QGroupBox" name="group_per_tag">
+                    <property name="title">
+                        <string>Per-Tag Mappings</string>
+                    </property>
+                    <layout class="QVBoxLayout" name="layout_per_tag">
+                        <item>
+                            <widget class="QTableWidget" name="per_tag_table">
+                                <property name="alternatingRowColors">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="selectionBehavior">
+                                    <enum>QAbstractItemView::SelectRows</enum>
+                                </property>
+                                <property name="sortingEnabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="rowCount">
+                                    <number>0</number>
+                                </property>
+                                <property name="columnCount">
+                                    <number>3</number>
+                                </property>
+                                <column>
+                                    <property name="text">
+                                        <string>Tag</string>
+                                    </property>
+                                </column>
+                                <column>
+                                    <property name="text">
+                                        <string>Use Default</string>
+                                    </property>
+                                </column>
+                                <column>
+                                    <property name="text">
+                                        <string>Active Mapping</string>
+                                    </property>
+                                </column>
+                            </widget>
+                        </item>
+                    </layout>
+                </widget>
+            </item>
+        </layout>
+    </widget>
+    <resources/>
+    <connections/>
+</ui>
