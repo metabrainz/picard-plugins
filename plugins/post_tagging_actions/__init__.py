@@ -226,17 +226,20 @@ class ActionRunner:
     def _run_process(self, command):
         """Runs the process and waits for it to finish.
         """
-        process = subprocess.Popen(
-            command,
-            text = True,
-            stdout = subprocess.PIPE,
-            stderr = subprocess.PIPE
-        )  # nosec B603
-        answer = process.communicate()
-        if answer[0]:
-            log.info("Action output:\n%s", answer[0])
-        if answer[1]:
-            log.error("Action error:\n%s", answer[1])
+        try:
+            process = subprocess.Popen(
+                command,
+                text = True,
+                stdout = subprocess.PIPE,
+                stderr = subprocess.PIPE
+            )  # nosec B603
+            answer = process.communicate()
+            if answer[0]:
+                log.info("Action output:\n%s", answer[0])
+            if answer[1]:
+                log.error("Action error:\n%s", answer[1])
+        except Exception as e:
+            log.error("Error while running command: %s - %s", command, e, exc_info=True)
 
     def _update_executing_count(self, future_objects):
         """Decrements the count of executing actions once the given action finishes.
