@@ -38,20 +38,9 @@ PLUGIN_DESCRIPTION = '''
 def get_config_settings():
     """Load settings from config: returns (filter_tags, default_table, per_tag_tables)"""
 
-    try:
-        filter_tags = config.setting["replace_unwanted_characters_filter_tags"]
-    except KeyError:
-        filter_tags = DEFAULT_TAGS
-
-    try:
-        default_table = config.setting["replace_unwanted_characters_char_table"]
-    except KeyError:
-        default_table = DEFAULT_CHAR_MAPPING
-
-    try:
-        per_tag_tables = config.setting["replace_unwanted_characters_per_tag_tables"]
-    except KeyError:
-        per_tag_tables = {}
+    filter_tags = config.setting["replace_unwanted_characters_filter_tags"]
+    default_table = config.setting["replace_unwanted_characters_char_table"]
+    per_tag_tables = config.setting["replace_unwanted_characters_per_tag_tables"]
 
     return filter_tags, default_table, per_tag_tables
 
@@ -95,10 +84,7 @@ def replace_unwanted_characters(tagger, metadata, *args):
 
 def script_replace_unwanted(parser, value):
     # Tagger function: use configured default mapping
-    try:
-        default_table = config.setting["replace_unwanted_characters_char_table"]
-    except KeyError:
-        default_table = DEFAULT_CHAR_MAPPING
+    default_table = config.setting["replace_unwanted_characters_char_table"]
 
     if isinstance(value, list):
         return _replace_with_table(value, default_table)
@@ -311,10 +297,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
         # convert available keys to a set for containment checks
         all_keys = set(self._current_default_keys())
 
-        try:
-            per_tag_saved = self.config.setting["replace_unwanted_characters_per_tag_tables"]
-        except KeyError:
-            per_tag_saved = {}
+        per_tag_saved = self.config.setting["replace_unwanted_characters_per_tag_tables"]
 
         for tag in tags:
             row = self.per_tag_table.rowCount()
@@ -408,10 +391,6 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
         Shows an indicator when 'Use Default' is active.
         """
         log.debug(f"{PLUGIN_NAME}: Updating mapping button text for tag '{tag}'")
-        # # If using default, show a default indicator
-        # if self._is_use_default_for_tag(tag):
-        #     button.setText(f"{len(all_keys)} selected (default)")
-        #     return
 
         selected_keys = sorted(list(self._per_tag_selection.get(tag, set())))
         log.debug(f"{PLUGIN_NAME}: Selected keys for tag '{tag}': {selected_keys}")
@@ -486,10 +465,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
     # ---------- load / save ----------
     def load(self):
         # Load filter tags
-        try:
-            filter_tags = self.config.setting["replace_unwanted_characters_filter_tags"]
-        except KeyError:
-            filter_tags = DEFAULT_TAGS
+        filter_tags = self.config.setting["replace_unwanted_characters_filter_tags"]
 
         # Populate filter_tags_table if present in UI
         if hasattr(self, "filter_tags_table"):
@@ -499,11 +475,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
                 self.filter_tags_table.insertRow(row)
                 self.filter_tags_table.setItem(row, 0, QtWidgets.QTableWidgetItem(tag))
 
-        # Load default replacement table
-        try:
-            char_table = self.config.setting["replace_unwanted_characters_char_table"]
-        except KeyError:
-            char_table = DEFAULT_CHAR_MAPPING
+        char_table = self.config.setting["replace_unwanted_characters_char_table"]
 
         if hasattr(self, "replacement_table"):
             self.replacement_table.setRowCount(0)
@@ -514,12 +486,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
                 self.replacement_table.setItem(row, 1, QtWidgets.QTableWidgetItem(replace))
 
         # Load per-tag tables (optional)
-        try:
-            per_tag = self.config.setting["replace_unwanted_characters_per_tag_tables"]
-        except KeyError:
-            per_tag = {}
-
-        log.debug(f"{PLUGIN_NAME}: Loaded per-tag tables from config: {per_tag}")
+        per_tag = self.config.setting["replace_unwanted_characters_per_tag_tables"]
 
         # Initialize in-memory selection dicts from config (per_tag maps tag -> list of enabled keys or dict)
         self._per_tag_selection = {}
