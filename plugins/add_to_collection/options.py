@@ -30,7 +30,7 @@ class AddToCollectionOptionsPage(OptionsPage):
     def set_collection_name(self, value: str) -> None:
         self.ui.collection_name.clear()
         collection: Collection
-        for collection in user_collections.values():
+        for collection in sorted(user_collections.values(), key=lambda c: c.name.lower()):
             self.ui.collection_name.addItem(collection.name, collection.id)
         idx = self.ui.collection_name.findData(value)
         if idx != -1:
