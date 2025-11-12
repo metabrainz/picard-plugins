@@ -5,11 +5,8 @@ Title Cleaner OST Plugin for MusicBrainz Picard.
 Removes soundtrack-related information from album titles using regex.
 """
 
-__version__ = "1.3.0"
+__version__ = "1.3.1"
 
-from typing import Any
-
-import picard.log
 from PyQt5.QtWidgets import QCheckBox
 
 PLUGIN_NAME = "Title Cleaner OST"
@@ -29,7 +26,6 @@ PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 import re
 import unicodedata
 
-import copy
 from typing import List, Dict, Any
 
 from picard import config, log
@@ -159,10 +155,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
                 self.ui.chk_all_release_types.setText(option.get("text", self.ui.chk_all_release_types.text()))
                 self.ui.chk_all_release_types.setToolTip(option.get("tooltip", self.ui.chk_all_release_types.toolTip()))
                 self.ui.chk_all_release_types.setChecked(bool(option.get("enabled", False)))
-                try:
-                    self.ui.chk_all_release_types.stateChanged.disconnect(self.update_release_type_chks)
-                except Exception:
-                    pass
                 self.ui.chk_all_release_types.stateChanged.connect(self.update_release_type_chks)
                 continue
 
