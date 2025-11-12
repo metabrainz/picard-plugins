@@ -5,7 +5,7 @@ Title Cleaner OST Plugin for MusicBrainz Picard.
 Removes soundtrack-related information from album titles using regex.
 """
 
-__version__ = "1.2.1"
+__version__ = "1.3.0"
 
 from typing import Any
 
@@ -237,6 +237,8 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
             self.compiled_regex = re.compile(pattern, flags=re.IGNORECASE)
             self.ui.regex_pattern.setStyleSheet("")
             self.ui.regex_error_message.setVisible(False)
+
+            return True
         except re.error as e:
             log.debug(PLUGIN_NAME + ": Regex validation error: %s", e)
             self.compiled_regex = None
@@ -244,15 +246,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
             self.ui.regex_error_message.setText(f"Regex error: {e}")
             self.ui.regex_error_message.setVisible(True)
             return False
-
-        return True
-
-    # def update_only_applies_to(self):
-    #     only_soundtrack = self.ui.only_soundtrack_checkbox.isChecked()
-    #     if only_soundtrack:
-    #         self.ui.only_applies_to.setText("soundtracks")
-    #     else:
-    #         self.ui.only_applies_to.setText(self.DEFAULT_APPLIES_TO)
 
     def update_run_button_state(self):
         """Enables or disables the 'Run Update' button based on live updates checkbox."""
@@ -266,7 +259,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         if not self.update_test_output_forced and not self.ui.enable_live_updates.isChecked():
             return
 
-        #
         self.update_test_output_forced = False
 
         album_title = self.ui.test_input.text().strip()
@@ -331,7 +323,12 @@ def title_cleaner_ost(album, metadata, release):
             log.debug(PLUGIN_NAME + ": Album '%s' is whitelisted, skipping removal", album_title)
             return
 
-        if only_soundtrack and "releasetype" in metadata and "soundtrack" in metadata["releasetype"]:
+        # Determine if we should process this album
+        is_soundtrack = "releasetype" in metadata and "soundtrack" in metadata["releasetype"]
+        # Process if: all albums allowed OR it is a soundtrack
+        should_process = is_soundtrack or not only_soundtrack
+
+        if should_process:
             try:
                 compiled_regex = re.compile(regex, flags=re.IGNORECASE)
                 new_title = compiled_regex.sub('', album_title)
