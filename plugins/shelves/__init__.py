@@ -11,7 +11,7 @@ from __future__ import annotations
 from typing import Any, Dict
 
 from picard import log
-from picard.file import register_file_post_load_processor, register_file_post_save_processor, \
+from picard.file import register_file_post_load_processor, \
     register_file_post_addition_to_track_processor, register_file_post_removal_from_track_processor
 from picard.metadata import register_track_metadata_processor
 from picard.script import register_script_function
