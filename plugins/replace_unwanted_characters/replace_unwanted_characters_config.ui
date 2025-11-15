@@ -210,20 +210,32 @@
              <property name="text">
               <string>Is Active</string>
              </property>
+             <property name="toolTip">
+              <string>Enable/disable the replacement rule.</string>
+             </property>
             </column>
             <column>
              <property name="text">
               <string>Tag</string>
+             </property>
+             <property name="toolTip">
+              <string>The name of the tag to which the replacement will be applied.</string>
              </property>
             </column>
             <column>
              <property name="text">
               <string>Use Default</string>
              </property>
+             <property name="toolTip">
+              <string>Use all defined replacements.</string>
+             </property>
             </column>
             <column>
              <property name="text">
               <string>Active Mapping</string>
+             </property>
+             <property name="toolTip">
+              <string>The replacements to be applied for the tag.</string>
              </property>
             </column>
            </widget>
