@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'title_cleaner_ost_config.ui'
+# Form implementation generated from reading ui file 'title_cleaner_ost/title_cleaner_ost_config.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.11
 #
@@ -22,7 +22,7 @@ class Ui_RemoveReleaseTitleOstIndicatorSettings(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 694, 780))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 681, 961))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
@@ -35,19 +35,37 @@ class Ui_RemoveReleaseTitleOstIndicatorSettings(object):
         self.regex_pattern = QtWidgets.QPlainTextEdit(self.regex_group)
         self.regex_pattern.setObjectName("regex_pattern")
         self.vboxlayout1.addWidget(self.regex_pattern)
-        self.reset_button = QtWidgets.QPushButton(self.regex_group)
-        self.reset_button.setObjectName("reset_button")
-        self.vboxlayout1.addWidget(self.reset_button)
         self.regex_error_message = QtWidgets.QLabel(self.regex_group)
         self.regex_error_message.setMinimumSize(QtCore.QSize(0, 30))
         self.regex_error_message.setStyleSheet("color: red;")
         self.regex_error_message.setFrameShape(QtWidgets.QFrame.Panel)
         self.regex_error_message.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.regex_error_message.setText("")
         self.regex_error_message.setTextFormat(QtCore.Qt.PlainText)
         self.regex_error_message.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextBrowserInteraction|QtCore.Qt.TextSelectableByKeyboard|QtCore.Qt.TextSelectableByMouse)
         self.regex_error_message.setObjectName("regex_error_message")
         self.vboxlayout1.addWidget(self.regex_error_message)
+        self.regex_help = QtWidgets.QLabel(self.regex_group)
+        self.regex_help.setMinimumSize(QtCore.QSize(0, 30))
+        self.regex_help.setVisible(True)
+        self.regex_help.setFrameShape(QtWidgets.QFrame.Panel)
+        self.regex_help.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.regex_help.setTextFormat(QtCore.Qt.MarkdownText)
+        self.regex_help.setWordWrap(True)
+        self.regex_help.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextBrowserInteraction|QtCore.Qt.TextSelectableByKeyboard|QtCore.Qt.TextSelectableByMouse)
+        self.regex_help.setObjectName("regex_help")
+        self.vboxlayout1.addWidget(self.regex_help)
+        self.widget = QtWidgets.QWidget(self.regex_group)
+        self.widget.setObjectName("widget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.widget)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.reset_button = QtWidgets.QPushButton(self.widget)
+        self.reset_button.setObjectName("reset_button")
+        self.horizontalLayout.addWidget(self.reset_button)
+        self.toggle_regex_help = QtWidgets.QToolButton(self.widget)
+        self.toggle_regex_help.setCheckable(True)
+        self.toggle_regex_help.setObjectName("toggle_regex_help")
+        self.horizontalLayout.addWidget(self.toggle_regex_help)
+        self.vboxlayout1.addWidget(self.widget)
         self.verticalLayout_2.addWidget(self.regex_group)
         self.groupBox_3 = QtWidgets.QGroupBox(self.scrollAreaWidgetContents)
         self.groupBox_3.setObjectName("groupBox_3")
@@ -122,6 +140,7 @@ class Ui_RemoveReleaseTitleOstIndicatorSettings(object):
         self.verticalLayout.addWidget(self.scrollArea)
 
         self.retranslateUi(RemoveReleaseTitleOstIndicatorSettings)
+        self.toggle_regex_help.toggled['bool'].connect(self.regex_help.setVisible) # type: ignore
         QtCore.QMetaObject.connectSlotsByName(RemoveReleaseTitleOstIndicatorSettings)
 
     def retranslateUi(self, RemoveReleaseTitleOstIndicatorSettings):
@@ -129,8 +148,12 @@ class Ui_RemoveReleaseTitleOstIndicatorSettings(object):
         RemoveReleaseTitleOstIndicatorSettings.setWindowTitle(_translate("RemoveReleaseTitleOstIndicatorSettings", "Title Cleaner OST"))
         self.regex_group.setTitle(_translate("RemoveReleaseTitleOstIndicatorSettings", "Regex pattern for finding the OST indicator"))
         self.regex_pattern.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Enter your own regular expression pattern here for removing soundtrack additions. The validity is checked as you type."))
+        self.regex_error_message.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "Error messages"))
+        self.regex_help.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "RegEx Explanation"))
         self.reset_button.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Resets the regex pattern to the default value."))
         self.reset_button.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "Reset to Default"))
+        self.toggle_regex_help.setToolTip(_translate("RemoveReleaseTitleOstIndicatorSettings", "Shows/Hides the RegEx Explanation for the Default RegEx"))
+        self.toggle_regex_help.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "RegEx Explanation"))
         self.groupBox_3.setTitle(_translate("RemoveReleaseTitleOstIndicatorSettings", "Release types to be applied"))
         self.groupBox.setTitle(_translate("RemoveReleaseTitleOstIndicatorSettings", "Whitelist for ignored release titles"))
         self.label.setText(_translate("RemoveReleaseTitleOstIndicatorSettings", "One title per line"))

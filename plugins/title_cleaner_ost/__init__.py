@@ -5,7 +5,7 @@ Title Cleaner OST Plugin for MusicBrainz Picard.
 Removes soundtrack-related information from album titles using regex.
 """
 
-__version__ = "1.3.1"
+__version__ = "1.3.2"
 
 from PyQt5.QtWidgets import QCheckBox
 
@@ -28,6 +28,8 @@ import unicodedata
 
 from typing import List, Dict, Any
 
+from PyQt5.QtCore import Qt
+
 from picard import config, log
 from picard.config import BoolOption, TextOption, ListOption, IntOption
 from picard.metadata import register_album_metadata_processor
@@ -37,8 +39,9 @@ from picard.ui.options import OptionsCheckError
 
 from .ui_title_cleaner_ost_config import Ui_RemoveReleaseTitleOstIndicatorSettings
 
+# No longer used, but kept for config compatibility
+# ONLY_SOUNDTRACK = "title_cleaner_ost_only_soundtrack"
 OST_WHITELIST = "title_cleaner_ost_whitelist"
-ONLY_SOUNDTRACK = "title_cleaner_ost_only_soundtrack"
 OST_REGEX = "title_cleaner_ost_regex"
 LIVE_UPDATES = "title_cleaner_ost_live_updates"
 APPLY_OPTIONS = "title_cleaner_ost_apply_options"
@@ -57,7 +60,21 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     TITLE = "Title Cleaner OST"
     PARENT = "plugins"
 
-    DEFAULT_REGEX = r'(\s*(?:(?::|-|–|—|\(|\[)\s*)?(\b(?:Original|Album|Movie|Motion|Picture|Soundtrack|Score|OST|Music|Edition|Inspired|by|from|the|TV|Series|Video|Game|Film|Show)\b)+(?:\)|\])?\s*)+$'
+
+    REGEX_DESCRIPTION_MD = """
+**Regex explanation (end‑based removal; re.IGNORECASE):**
+
+- Aim: Removes one or more phrases like "Original ... Soundtrack" at the end of the string,
+  including any preceding separator.
+- Separators (optional, incl. spaces): ` : | ： | ∶ | - | – | — | ( | [ `
+- Keywords (as whole words, one or more): `Original|Album|Movie|Motion|Picture|Soundtrack|Score|OST|Music|Edition|Inspired|by|from|the|TV|Series|Video|Game|Film|Show`
+- Optional closing bracket: `)` or `]`
+- Repeats until the end of the string `(…)+$`
+- Example: "Title∶ Music From the Original Soundtrack" » "Title"
+- Note: After replacement, multiple spaces are collapsed and leading/trailing whitespace is trimmed.
+""".lstrip("\n")
+
+    DEFAULT_REGEX = r'(\s*(?:(?::|：|∶|-|–|—|\(|\[)\s*)?(\b(?:Original|Album|Movie|Motion|Picture|Soundtrack|Score|OST|Music|Edition|Inspired|by|from|the|TV|Series|Video|Game|Film|Show)\b)+(?:\)|\])?\s*)+$'
     DEFAULT_WHITELIST = ""
 
     APPLY_OPTIONS_SCHEMA_VERSION = 1
@@ -82,7 +99,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
 
     options = [
         TextOption("setting", OST_REGEX, DEFAULT_REGEX),
-        BoolOption("setting", ONLY_SOUNDTRACK, True),
         TextOption("setting", OST_WHITELIST, DEFAULT_WHITELIST),
         BoolOption("setting", LIVE_UPDATES, False),
         ListOption("setting", APPLY_OPTIONS, DEFAULT_APPLY_OPTIONS),
@@ -95,9 +111,18 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         self.ui = Ui_RemoveReleaseTitleOstIndicatorSettings()
         self.ui.setupUi(self)
 
+        markdown_fmt = getattr(Qt, "MarkdownText", Qt.PlainText)
+        self.ui.regex_help.setTextFormat(markdown_fmt)
+        self.ui.regex_help.setWordWrap(True)
+        self.ui.regex_help.setTextInteractionFlags(
+            Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse
+        )
+
         # Compiled regex cache for preview
         self.compiled_regex = None
 
+        self.ui.regex_help.setVisible(False)
+        self.ui.regex_help.setText(self.REGEX_DESCRIPTION_MD)
 
         # Test field logic
         self.ui.test_input.textChanged.connect(self.update_test_output)
@@ -119,6 +144,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         self.ui.chk_all_release_types.stateChanged.connect(self.update_release_type_chks)
 
         self.update_test_output_forced = False
+
 
     def update_release_type_chks(self):
         """Updates the state of release type checkboxes."""
@@ -150,7 +176,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         options = get_setting_with_default(APPLY_OPTIONS, self.DEFAULT_APPLY_OPTIONS)
 
         for option in options:
-            log.debug(PLUGIN_NAME + ": Processing option for releasetype '%s'", option.get("releasetype"))
+            log.debug("%s: Processing option for releasetype '%s'", PLUGIN_NAME, option.get("releasetype"))
             if option.get("releasetype") == "all":
                 self.ui.chk_all_release_types.setText(option.get("text", self.ui.chk_all_release_types.text()))
                 self.ui.chk_all_release_types.setToolTip(option.get("tooltip", self.ui.chk_all_release_types.toolTip()))
@@ -284,20 +310,10 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
             self.ui.test_output.setText("Invalid regex pattern")
 
 def title_cleaner_ost(album, metadata, release):
-    try:
-        regex = config.setting[OST_REGEX]  # type: ignore[index]
-    except KeyError:
-        regex = RemoveReleaseTitleOstIndicatorOptionsPage.DEFAULT_REGEX
-
-    try:
-        only_soundtrack = config.setting[ONLY_SOUNDTRACK]  # type: ignore[index]
-    except KeyError:
-        only_soundtrack = True
-
-    try:
-        whitelist = config.setting[OST_WHITELIST]  # type: ignore[index]
-    except KeyError:
-        whitelist = RemoveReleaseTitleOstIndicatorOptionsPage.DEFAULT_WHITELIST
+    log.debug("%s: title_cleaner_ost called for album '%s'", PLUGIN_NAME, metadata.get("album", "<no album>"))
+    regex = config.setting[OST_REGEX]  # type: ignore[index]
+    whitelist = config.setting[OST_WHITELIST]  # type: ignore[index]
+    apply_options = config.setting[APPLY_OPTIONS]  # type: ignore[index]
 
     # Normalise whitelist titles using Unicode NFC normalization
     whitelist_titles = [
@@ -305,20 +321,44 @@ def title_cleaner_ost(album, metadata, release):
         for line in whitelist.splitlines() if line.strip()
     ]
 
-    log.debug(PLUGIN_NAME + ": Using regex pattern %r, only_soundtrack=%r, whitelist=%r", regex, only_soundtrack, whitelist_titles)
+    # Example apply_options structure:
+    # {
+    #     "releasetype": "soundtrack",
+    #     "text": "Soundtracks",
+    #     "tooltip": "The pattern is only applied to albums with release type soundtrack.",
+    #     "enabled": True,
+    #     "condition": {"tag": "releasetype", "value": "soundtrack"}
+    # }
+    # Determine if we should process this album based on release type
+    should_process: bool = False
+
+    try:
+        for option in apply_options:
+            if option.get("enabled"):
+                if option.get("releasetype") == "all":
+                    log.debug("%s: Applying to all release types", PLUGIN_NAME)
+                    should_process = True
+                    continue
+                elif option.get("condition").get("tag") in metadata and option.get("condition").get("value") in metadata[option.get("condition").get("tag")]:
+                    log.debug("%s: Applying to release type '%s'", PLUGIN_NAME, option.get("condition").get("value"))
+                    should_process = True
+                    continue
+    except AttributeError as e:
+        log.error("%s: Error processing apply options: %s", PLUGIN_NAME, e)
+
+    if not should_process:
+        log.debug("%s: No matching releasetype found", PLUGIN_NAME)
+        return
+
+    log.debug("%s: Processing album title with regex '%s'", PLUGIN_NAME, regex)
 
     if "album" in metadata:
         album_title = metadata["album"].strip()
         normalized_title = unicodedata.normalize('NFC', album_title).lower()
 
         if normalized_title in whitelist_titles:
-            log.debug(PLUGIN_NAME + ": Album '%s' is whitelisted, skipping removal", album_title)
+            log.debug("%s: Album '%s' is whitelisted, skipping removal", PLUGIN_NAME, album_title)
             return
-
-        # Determine if we should process this album
-        is_soundtrack = "releasetype" in metadata and "soundtrack" in metadata["releasetype"]
-        # Process if: all albums allowed OR it is a soundtrack
-        should_process = is_soundtrack or not only_soundtrack
 
         if should_process:
             try:
@@ -327,10 +367,10 @@ def title_cleaner_ost(album, metadata, release):
                 # Normalise whitespace and strip leading/trailing whitespace
                 new_title = ' '.join(new_title.split()).strip()
                 metadata["album"] = new_title
-                log.debug(PLUGIN_NAME + ": Changed album title from '%s' to '%s'", album_title, new_title)
+                log.debug("%s: Changed album title from '%s' to '%s'", PLUGIN_NAME, album_title, new_title)
             except re.error as e:
-                log.error(PLUGIN_NAME + ": Regex application error: %s", e)
+                log.error("%s: Regex application error: %s", PLUGIN_NAME, e)
 
-log.debug(PLUGIN_NAME + ": registration" )
+log.debug("%s: registration", PLUGIN_NAME)
 register_options_page(RemoveReleaseTitleOstIndicatorOptionsPage)
 register_album_metadata_processor(title_cleaner_ost)

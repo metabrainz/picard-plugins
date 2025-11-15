@@ -36,8 +36,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>694</width>
-        <height>780</height>
+        <width>681</width>
+        <height>961</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -70,16 +70,6 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="reset_button">
-            <property name="toolTip">
-             <string>Resets the regex pattern to the default value.</string>
-            </property>
-            <property name="text">
-             <string>Reset to Default</string>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QLabel" name="regex_error_message">
             <property name="minimumSize">
              <size>
@@ -97,7 +87,7 @@
              <enum>QFrame::Sunken</enum>
             </property>
             <property name="text">
-             <string/>
+             <string>Error messages</string>
             </property>
             <property name="textFormat">
              <enum>Qt::PlainText</enum>
@@ -105,6 +95,66 @@
             <property name="textInteractionFlags">
              <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
             </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="regex_help">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="visible">
+             <bool>true</bool>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Panel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+            <property name="text">
+             <string>RegEx Explanation</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::MarkdownText</enum>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QPushButton" name="reset_button">
+               <property name="toolTip">
+                <string>Resets the regex pattern to the default value.</string>
+               </property>
+               <property name="text">
+                <string>Reset to Default</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="toggle_regex_help">
+               <property name="toolTip">
+                <string>Shows/Hides the RegEx Explanation for the Default RegEx</string>
+               </property>
+               <property name="text">
+                <string>RegEx Explanation</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -271,5 +321,22 @@ Another Album Name</string>
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>toggle_regex_help</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>regex_help</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>107</x>
+     <y>283</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
