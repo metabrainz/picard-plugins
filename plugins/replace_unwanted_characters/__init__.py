@@ -6,9 +6,11 @@ from picard import metadata
 from picard.script import register_script_function
 from picard.ui.options import register_options_page
 
+from .constants import CONFIG_NAME_FILTER_TAGS, CONFIG_NAME_PER_TAG_TABLES, CONFIG_NAME_CHAR_TABLE
+
 PLUGIN_NAME = "Replace Unwanted Characters"
 PLUGIN_AUTHOR = "nrth3rnlb"
-PLUGIN_VERSION = "1.1.3"
+PLUGIN_VERSION = "1.0"
 PLUGIN_API_VERSIONS = ["2.7", "2.8"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -38,9 +40,9 @@ class ReplaceUnwantedCharactersOptionsPage(_ReplaceUnwantedCharactersOptionsPage
 def get_config_settings():
     """Load settings from config: returns (filter_tags, default_table, per_tag_tables)"""
 
-    filter_tags = config.setting["replace_unwanted_characters_filter_tags"]
-    default_table = config.setting["replace_unwanted_characters_char_table"]
-    per_tag_tables = config.setting["replace_unwanted_characters_per_tag_tables"]
+    filter_tags = config.setting[CONFIG_NAME_FILTER_TAGS]
+    default_table = config.setting[CONFIG_NAME_CHAR_TABLE]
+    per_tag_tables = config.setting[CONFIG_NAME_PER_TAG_TABLES]
 
     return filter_tags, default_table, per_tag_tables
 
@@ -84,7 +86,7 @@ def replace_unwanted_characters(tagger, metadata, *args):
 
 def script_replace_unwanted(parser, value):
     # Tagger function: use configured default mapping
-    default_table = config.setting["replace_unwanted_characters_char_table"]
+    default_table = config.setting[CONFIG_NAME_CHAR_TABLE]
 
     if isinstance(value, list):
         return _replace_with_table(value, default_table)
@@ -103,11 +105,15 @@ class MultiSelectDialog(QtWidgets.QDialog):
         self.list_widget = QtWidgets.QListWidget()
         for item_text in items:
             item = QtWidgets.QListWidgetItem(item_text)
+
+            # noinspection PyUnresolvedReferences
             item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
             is_checked = item_text in selected_items
+            # noinspection PyUnresolvedReferences
             item.setCheckState(QtCore.Qt.Checked if is_checked else QtCore.Qt.Unchecked)
             self.list_widget.addItem(item)
 
+        # noinspection PyUnresolvedReferences
         self.buttons = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel,
             QtCore.Qt.Horizontal, self)
@@ -123,6 +129,7 @@ class MultiSelectDialog(QtWidgets.QDialog):
         selected = set()
         for i in range(self.list_widget.count()):
             item = self.list_widget.item(i)
+            # noinspection PyUnresolvedReferences
             if item.checkState() == QtCore.Qt.Checked:
                 selected.add(item.text())
         return selected
