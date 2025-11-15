@@ -8,8 +8,6 @@ allowing music files to be organised by top-level folders.
 """
 from __future__ import annotations
 
-__version__ = "1.4.1"
-
 from typing import Any, Dict
 
 from picard import log
@@ -50,7 +48,7 @@ Think of your music library as a physical library with different shelves — one
 - **Script function `$shelf()`** for file naming integration
 - **Visual script preview** in settings shows your file naming snippet
 """
-PLUGIN_VERSION = __version__
+PLUGIN_VERSION = "1.0"
 PLUGIN_API_VERSIONS = ["2.7", "2.8"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
