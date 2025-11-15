@@ -43,7 +43,6 @@ LIVE_UPDATES = "title_cleaner_ost_live_updates"
 APPLY_OPTIONS = "title_cleaner_ost_apply_options"
 SCHEMA_VERSION = "title_cleaner_ost_schema_version"
 
-
 def get_setting_with_default(key, default) -> Any:
     """Helper to get a setting with a default fallback."""
     return config.setting[key] if key in config.setting else default
@@ -56,6 +55,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     ui: Ui_RemoveReleaseTitleOstIndicatorSettings
     TITLE = "Title Cleaner OST"
     PARENT = "plugins"
+
 
     REGEX_DESCRIPTION_MD = """
 **Regex explanation (end‑based removal; re.IGNORECASE):**
@@ -91,6 +91,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
             "condition": {"tag": "releasetype", "value": "soundtrack"}
         }
     ]
+
 
     options = [
         TextOption("setting", OST_REGEX, DEFAULT_REGEX),
@@ -139,6 +140,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         self.ui.chk_all_release_types.stateChanged.connect(self.update_release_type_chks)
 
         self.update_test_output_forced = False
+
 
     def update_release_type_chks(self):
         """Updates the state of release type checkboxes."""
@@ -196,7 +198,8 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         self.ui.test_input.setText("")
         self.ui.test_output.setText("")
 
-     def save(self):
+
+    def save(self):
         """Saves the configuration settings (no migration)."""
         if not self.validate_regex_pattern():
             raise OptionsCheckError(
