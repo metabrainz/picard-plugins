@@ -37,8 +37,6 @@ from picard.ui.options import OptionsCheckError
 
 from .ui_title_cleaner_ost_config import Ui_RemoveReleaseTitleOstIndicatorSettings
 
-# No longer used, but kept for config compatibility
-# ONLY_SOUNDTRACK = "title_cleaner_ost_only_soundtrack"
 OST_WHITELIST = "title_cleaner_ost_whitelist"
 OST_REGEX = "title_cleaner_ost_regex"
 LIVE_UPDATES = "title_cleaner_ost_live_updates"
