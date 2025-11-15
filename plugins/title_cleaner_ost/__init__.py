@@ -92,7 +92,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         }
     ]
 
-
     options = [
         TextOption("setting", OST_REGEX, DEFAULT_REGEX),
         TextOption("setting", OST_WHITELIST, DEFAULT_WHITELIST),
@@ -140,7 +139,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         self.ui.chk_all_release_types.stateChanged.connect(self.update_release_type_chks)
 
         self.update_test_output_forced = False
-
 
     def update_release_type_chks(self):
         """Updates the state of release type checkboxes."""
@@ -198,8 +196,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         self.ui.test_input.setText("")
         self.ui.test_output.setText("")
 
-
-    def save(self):
+     def save(self):
         """Saves the configuration settings (no migration)."""
         if not self.validate_regex_pattern():
             raise OptionsCheckError(
