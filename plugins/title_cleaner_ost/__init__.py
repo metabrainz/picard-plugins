@@ -57,7 +57,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     TITLE = "Title Cleaner OST"
     PARENT = "plugins"
 
-
     REGEX_DESCRIPTION_MD = """
 **Regex explanation (end‑based removal; re.IGNORECASE):**
 
