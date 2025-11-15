@@ -126,5 +126,3 @@ register_options_page(ShelvesOptionsPage)
 
 # Register a script function for use in file naming
 register_script_function(func_shelf, "shelf")
-
-log.info("%s v%s loaded successfully", PLUGIN_NAME, __version__)
