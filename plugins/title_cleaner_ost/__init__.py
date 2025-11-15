@@ -41,7 +41,7 @@ OST_WHITELIST = "title_cleaner_ost_whitelist"
 OST_REGEX = "title_cleaner_ost_regex"
 LIVE_UPDATES = "title_cleaner_ost_live_updates"
 APPLY_OPTIONS = "title_cleaner_ost_apply_options"
-SCHEMA_VERSION = "title_cleaner_ost_schema_version"
+
 
 def get_setting_with_default(key, default) -> Any:
     """Helper to get a setting with a default fallback."""
@@ -98,8 +98,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         TextOption("setting", OST_WHITELIST, DEFAULT_WHITELIST),
         BoolOption("setting", LIVE_UPDATES, False),
         ListOption("setting", APPLY_OPTIONS, DEFAULT_APPLY_OPTIONS),
-        IntOption("setting", SCHEMA_VERSION, APPLY_OPTIONS_SCHEMA_VERSION),
-
     ]
 
     def __init__(self, parent=None):
