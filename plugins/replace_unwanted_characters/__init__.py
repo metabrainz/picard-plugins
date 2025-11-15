@@ -6,7 +6,7 @@ from picard import metadata
 from picard.script import register_script_function
 from picard.ui.options import register_options_page
 
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 
 PLUGIN_NAME = "Replace Unwanted Characters"
 PLUGIN_AUTHOR = "nrth3rnlb"
