@@ -114,7 +114,6 @@ def get_shelf_from_path(path: str, base_path: Optional[str] = None) -> str:
     except KeyError:
         workflow_stage_2 = ShelfConstants.DEFAULT_SHELF
 
-
     if base_path is None:
         try:
             base_path = config.setting["move_files_to"]  # type: ignore[index]
