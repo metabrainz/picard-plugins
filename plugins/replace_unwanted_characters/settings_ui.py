@@ -8,7 +8,8 @@ from picard.config import Option
 from picard.ui.options import OptionsPage
 
 from . import PLUGIN_NAME
-from .constants import DEFAULT_TAGS, DEFAULT_CHAR_MAPPING
+from .constants import DEFAULT_TAGS, DEFAULT_CHAR_MAPPING, CONFIG_NAME_FILTER_TAGS, CONFIG_NAME_CHAR_TABLE, \
+    CONFIG_NAME_PER_TAG_TABLES
 
 class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
     NAME = "replace_unwanted_characters"
@@ -16,11 +17,11 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
     PARENT = "plugins"
 
     options = [
-        Option("setting", "replace_unwanted_characters_filter_tags",
+        Option("setting", CONFIG_NAME_FILTER_TAGS,
                DEFAULT_TAGS),
-        Option("setting", "replace_unwanted_characters_char_table",
+        Option("setting", CONFIG_NAME_CHAR_TABLE,
                DEFAULT_CHAR_MAPPING),
-        Option("setting", "replace_unwanted_characters_per_tag_tables",
+        Option("setting", CONFIG_NAME_PER_TAG_TABLES,
                {}),
     ]
 
@@ -175,7 +176,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
         # convert available keys to a set for containment checks
         all_keys = set(self._current_default_keys())
 
-        per_tag_saved = self.config.setting["replace_unwanted_characters_per_tag_tables"]
+        per_tag_saved = self.config.setting[CONFIG_NAME_PER_TAG_TABLES]
 
         for tag in tags:
             row = self.per_tag_table.rowCount()
@@ -346,7 +347,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
     # ---------- load / save ----------
     def load(self):
         # Load filter tags
-        filter_tags = self.config.setting["replace_unwanted_characters_filter_tags"]
+        filter_tags = self.config.setting[CONFIG_NAME_FILTER_TAGS]
 
         # Populate filter_tags_table if present in UI
         if hasattr(self, "filter_tags_table"):
@@ -356,7 +357,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
                 self.filter_tags_table.insertRow(row)
                 self.filter_tags_table.setItem(row, 0, QtWidgets.QTableWidgetItem(tag))
 
-        char_table = self.config.setting["replace_unwanted_characters_char_table"]
+        char_table = self.config.setting[CONFIG_NAME_CHAR_TABLE]
 
         if hasattr(self, "replacement_table"):
             self.replacement_table.setRowCount(0)
@@ -367,7 +368,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
                 self.replacement_table.setItem(row, 1, QtWidgets.QTableWidgetItem(replace))
 
         # Load per-tag tables (optional)
-        per_tag = self.config.setting["replace_unwanted_characters_per_tag_tables"]
+        per_tag = self.config.setting[CONFIG_NAME_PER_TAG_TABLES]
 
         # Initialize in-memory selection dicts from config (per_tag maps tag -> list of enabled keys or dict)
         self._per_tag_selection = {}
@@ -397,7 +398,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
 
     def _save_filter_tags(self):
         filter_tags = self._get_configured_filter_tags()
-        self.config.setting["replace_unwanted_characters_filter_tags"] = filter_tags
+        self.config.setting[CONFIG_NAME_FILTER_TAGS] = filter_tags
 
     def _get_configured_filter_tags(self) -> List[str]:
         filter_tags = []
@@ -419,7 +420,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
                     replace = replace_item.text()
                     if search:
                         char_table[search] = replace
-        self.config.setting["replace_unwanted_characters_char_table"] = char_table
+        self.config.setting[CONFIG_NAME_CHAR_TABLE] = char_table
 
     def _save_per_tag_tables(self):
         per_tag_tables = {}
@@ -447,7 +448,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
                     f"{PLUGIN_NAME}: Saving per-tag table for tag '{tag}': use_default={use_default}, "
                     f"active={is_active}, keys={selected_keys}")
 
-        self.config.setting["replace_unwanted_characters_per_tag_tables"] = per_tag_tables
+        self.config.setting[CONFIG_NAME_PER_TAG_TABLES] = per_tag_tables
 
     def _get_checkbox_from_cell(self, row: int, column: int) -> Optional[QtWidgets.QCheckBox]:
         """
