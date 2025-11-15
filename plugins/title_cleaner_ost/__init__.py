@@ -43,6 +43,7 @@ LIVE_UPDATES = "title_cleaner_ost_live_updates"
 APPLY_OPTIONS = "title_cleaner_ost_apply_options"
 SCHEMA_VERSION = "title_cleaner_ost_schema_version"
 
+
 def get_setting_with_default(key, default) -> Any:
     """Helper to get a setting with a default fallback."""
     return config.setting[key] if key in config.setting else default
