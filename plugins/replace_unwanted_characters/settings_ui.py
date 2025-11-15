@@ -1,4 +1,5 @@
 import os
+from typing import List, Optional
 
 from PyQt5 import uic, QtWidgets, QtCore
 from PyQt5.QtWidgets import QHeaderView
@@ -168,12 +169,7 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
         if not hasattr(self, "per_tag_table"):
             return
 
-        tags = []
-        if hasattr(self, "filter_tags_table"):
-            for row in range(self.filter_tags_table.rowCount()):
-                item = self.filter_tags_table.item(row, 0)
-                if item and item.text().strip():
-                    tags.append(item.text().strip())
+        tags = self._get_configured_filter_tags()
 
         self.per_tag_table.setRowCount(0)
         # convert available keys to a set for containment checks
@@ -395,18 +391,24 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
         self.rebuild_per_tag_table()
 
     def save(self):
-        # Save filter tags
+        self._save_filter_tags()
+        self._save_replacement_table()
+        self._save_per_tag_tables()
+
+    def _save_filter_tags(self):
+        filter_tags = self._get_configured_filter_tags()
+        self.config.setting["replace_unwanted_characters_filter_tags"] = filter_tags
+
+    def _get_configured_filter_tags(self) -> List[str]:
         filter_tags = []
         if hasattr(self, "filter_tags_table"):
             for row in range(self.filter_tags_table.rowCount()):
                 item = self.filter_tags_table.item(row, 0)
-                if item:
-                    t = item.text().strip()
-                    if t:
-                        filter_tags.append(t)
-        self.config.setting["replace_unwanted_characters_filter_tags"] = filter_tags
+                if item and item.text().strip():
+                    filter_tags.append(item.text().strip())
+        return filter_tags
 
-        # Save default replacement table
+    def _save_replacement_table(self):
         char_table = {}
         if hasattr(self, "replacement_table"):
             for row in range(self.replacement_table.rowCount()):
@@ -419,44 +421,26 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
                         char_table[search] = replace
         self.config.setting["replace_unwanted_characters_char_table"] = char_table
 
-        # Save per-tag tables (store dict with keys + active flag for explicit settings)
+    def _save_per_tag_tables(self):
         per_tag_tables = {}
         if hasattr(self, "per_tag_table"):
             for row in range(self.per_tag_table.rowCount()):
-                # Layout: col 0 = Is Active widget, col 1 = tag item, col 2 = Use Default widget, col 3 = Mapping button
-
-                # read active checkbox from column 0
-                active_container = self.per_tag_table.cellWidget(row, 0)
-                active_chk = None
-                if active_container and isinstance(active_container, QtWidgets.QWidget):
-                    layout = active_container.layout()
-                    if layout and layout.count() > 0:
-                        widget = layout.itemAt(0).widget()
-                        if isinstance(widget, QtWidgets.QCheckBox):
-                            active_chk = widget
-
-                # The name of the tag is in column 1
+                active_chk = self._get_checkbox_from_cell(row, 0)
                 tag_item = self.per_tag_table.item(row, 1)
-
-                # read use default checkbox from column 2
-                use_default_container = self.per_tag_table.cellWidget(row, 2)
-                use_default_chk = None
-                if use_default_container and isinstance(use_default_container, QtWidgets.QWidget):
-                    layout = use_default_container.layout()
-                    if layout and layout.count() > 0:
-                        widget = layout.itemAt(0).widget()
-                        if isinstance(widget, QtWidgets.QCheckBox):
-                            use_default_chk = widget
+                use_default_chk = self._get_checkbox_from_cell(row, 2)
 
                 if not tag_item:
                     continue
+
                 tag = tag_item.text()
                 use_default = isinstance(use_default_chk, QtWidgets.QCheckBox) and use_default_chk.isChecked()
                 is_active = isinstance(active_chk, QtWidgets.QCheckBox) and active_chk.isChecked()
 
                 selected_keys = self._per_tag_selection.get(tag, set())
                 per_tag_tables[tag] = {
-                    "keys": list(selected_keys), "active": bool(is_active), "default": bool(use_default)
+                    "keys": list(selected_keys),
+                    "active": bool(is_active),
+                    "default": bool(use_default)
                 }
 
                 log.debug(
@@ -464,6 +448,24 @@ class ReplaceUnwantedCharactersOptionsPage(OptionsPage):
                     f"active={is_active}, keys={selected_keys}")
 
         self.config.setting["replace_unwanted_characters_per_tag_tables"] = per_tag_tables
+
+    def _get_checkbox_from_cell(self, row: int, column: int) -> Optional[QtWidgets.QCheckBox]:
+        """
+        Helper to get the QCheckBox from a per_tag_table cell.
+        Args:
+            row: The row index.
+            column: The column index.
+        Returns:
+            The checkbox widget if found, else None.
+        """
+        container = self.per_tag_table.cellWidget(row, column)
+        if container and isinstance(container, QtWidgets.QWidget):
+            layout = container.layout()
+            if layout and layout.count() > 0:
+                widget = layout.itemAt(0).widget()
+                if isinstance(widget, QtWidgets.QCheckBox):
+                    return widget
+        return None
 
 class MultiSelectDialog(QtWidgets.QDialog):
     """A dialog for selecting multiple items from a list."""
