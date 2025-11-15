@@ -69,8 +69,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     DEFAULT_REGEX = r'(\s*(?:(?::|：|∶|-|–|—|\(|\[)\s*)?(\b(?:Original|Album|Movie|Motion|Picture|Soundtrack|Score|OST|Music|Edition|Inspired|by|from|the|TV|Series|Video|Game|Film|Show)\b)+(?:\)|\])?\s*)+$'
     DEFAULT_WHITELIST = ""
 
-    APPLY_OPTIONS_SCHEMA_VERSION = 1
-
     DEFAULT_APPLY_OPTIONS: List[Dict[str, Any]] = [
         {
             "releasetype": "all",
