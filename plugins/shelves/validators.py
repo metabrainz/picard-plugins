@@ -28,15 +28,16 @@ def validate_shelf_name(name: str) -> Tuple[bool, Optional[str]]:
     if found_invalid:
         return False, f"Contains invalid characters: {', '.join(found_invalid)}"
 
+
+    if name in [".", ".."]:
+        return False, "Cannot use '.' or '..' as shelf name"
+
     if name.startswith(".") or name.endswith("."):
         return (
             True,
             "Warning: Names starting or ending with '.' may cause issues "
             "on some systems",
         )
-
-    if name in [".", ".."]:
-        return False, "Cannot use '.' or '..' as shelf name"
 
     return True, None
 
