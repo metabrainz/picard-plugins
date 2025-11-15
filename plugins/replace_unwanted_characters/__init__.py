@@ -6,11 +6,9 @@ from picard import metadata
 from picard.script import register_script_function
 from picard.ui.options import register_options_page
 
-__version__ = '1.1.2'
-
 PLUGIN_NAME = "Replace Unwanted Characters"
 PLUGIN_AUTHOR = "nrth3rnlb"
-PLUGIN_VERSION = __version__
+PLUGIN_VERSION = "1.1.3"
 PLUGIN_API_VERSIONS = ["2.7", "2.8"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
