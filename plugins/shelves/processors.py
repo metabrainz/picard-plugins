@@ -65,10 +65,11 @@ def file_post_load_processor(file: Any, shelf_manager: Any) -> None:
 def file_post_addition_to_track_processor(track, file, shelf_manager: Any) -> None:
     """
     Process a file after it has been added to a track.
-    :param track:
-    :param file:
-    :param shelf_manager:
-    :return:
+
+    Args:
+        track: Track object
+        file: Picard file object
+        shelf_manager: ShelfManager instance
     """
     try:
 
