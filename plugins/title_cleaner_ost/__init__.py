@@ -43,10 +43,6 @@ LIVE_UPDATES = "title_cleaner_ost_live_updates"
 APPLY_OPTIONS = "title_cleaner_ost_apply_options"
 
 
-def get_setting_with_default(key, default) -> Any:
-    """Helper to get a setting with a default fallback."""
-    return config.setting[key] if key in config.setting else default
-
 class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     """
     Options page for the Title Cleaner OST plugin.
@@ -73,6 +69,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     DEFAULT_REGEX = r'(\s*(?:(?::|：|∶|-|–|—|\(|\[)\s*)?(\b(?:Original|Album|Movie|Motion|Picture|Soundtrack|Score|OST|Music|Edition|Inspired|by|from|the|TV|Series|Video|Game|Film|Show)\b)+(?:\)|\])?\s*)+$'
     DEFAULT_WHITELIST = ""
 
+    APPLY_OPTIONS_SCHEMA_VERSION = 1
 
     DEFAULT_APPLY_OPTIONS: List[Dict[str, Any]] = [
         {
@@ -166,7 +163,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
                     w.setParent(None)
 
         # Read options directly (no migration)
-        options = get_setting_with_default(APPLY_OPTIONS, self.DEFAULT_APPLY_OPTIONS)
+        options = config.setting[APPLY_OPTIONS]
 
         for option in options:
             log.debug("%s: Processing option for releasetype '%s'", PLUGIN_NAME, option.get("releasetype"))
@@ -186,10 +183,10 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         self.update_release_type_chks()
 
         # Load other settings
-        self.ui.regex_pattern.setPlainText(get_setting_with_default(OST_REGEX, self.DEFAULT_REGEX))
+        self.ui.regex_pattern.setPlainText(config.setting[OST_REGEX]
         self.validate_regex_pattern()
-        self.ui.whitelist_text.setPlainText(get_setting_with_default(OST_WHITELIST, self.DEFAULT_WHITELIST))
-        self.ui.enable_live_updates.setChecked(get_setting_with_default(LIVE_UPDATES, False))
+        self.ui.whitelist_text.setPlainText(config.setting[OST_WHITELIST]
+        self.ui.enable_live_updates.setChecked(config.setting[LIVE_UPDATES]
         self.ui.run_update.setEnabled(not self.ui.enable_live_updates.isChecked())
 
         self.ui.test_input.setText("")
@@ -204,7 +201,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
                 "The regex pattern you have entered is invalid. Please correct it before saving."
             )
 
-        original_options = get_setting_with_default(APPLY_OPTIONS, self.DEFAULT_APPLY_OPTIONS)
+        original_options = config.setting[APPLY_OPTIONS]
         saved_apply_options = []
 
         layout = self.ui.gridLayout_2
