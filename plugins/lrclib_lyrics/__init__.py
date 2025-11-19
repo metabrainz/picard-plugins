@@ -167,7 +167,7 @@ class LrclibLyricsOptions(OptionsPage):
     TITLE = "Lrclib Lyrics"
     PARENT = "plugins"
 
-    __default_naming = "%filename%.lrc"
+    __default_naming = f"%folderpath%{os.sep}%filename%.lrc"
 
     options = [
         config.BoolOption("setting", ADD_UNSYNCED_LYRICS, True),
