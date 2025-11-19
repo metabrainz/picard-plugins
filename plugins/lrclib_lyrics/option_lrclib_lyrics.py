@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/andreas/Projects/picard-plugins/plugins/lrclib_lyrics/option_lrclib_lyrics.ui'
+# Form implementation generated from reading ui file 'option_lrclib_lyrics.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.10
 #
