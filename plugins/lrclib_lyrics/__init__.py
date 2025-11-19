@@ -19,7 +19,7 @@ Fetches lyrics from lrclib.net
 
 Also allows to export lyrics to an .lrc file or import them from one.
 """
-PLUGIN_VERSION = "0.1"
+PLUGIN_VERSION = "0.2"
 PLUGIN_API_VERSIONS = ["2.12"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
