@@ -19,7 +19,7 @@ Fetches lyrics from lrclib.net
 
 Also allows to export lyrics to an .lrc file or import them from one.
 """
-PLUGIN_VERSION = "0.1"
+PLUGIN_VERSION = "0.3"
 PLUGIN_API_VERSIONS = ["2.12"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -46,6 +46,7 @@ ADD_UNSYNCED_LYRICS = "add_unsynced_lyrics"
 ADD_SYNCED_LYRICS = "add_synced_lyrics"
 NEVER_REPLACE_LYRICS = "never_replace_lyrics"
 LRC_FILENAME = "exported_lrc_filename"
+LRC_AS_SIDECAR = "lrc_as_sidecar"
 EXPORT_LRC = "exported_lrc"
 NEVER_REPLACE_LRC = "never_replace_lrc"
 
@@ -111,6 +112,12 @@ def response_handler(metadata, document, reply, error):
 
 def get_lrc_file_name(file):
     filename = f"{tags_pattern.sub('{}', config.setting[LRC_FILENAME])}"
+    # If sidecar option is selected, override any pattern
+    if config.setting[LRC_AS_SIDECAR]:
+        filename = f"{os.path.splitext(file.filename)[0]}.lrc"
+        log.debug(f"LRC sidecar filename for {file.metadata['title']}: {filename}")
+        return filename
+    # Otherwise, parse the pattern
     tags = tags_pattern.findall(config.setting[LRC_FILENAME])
     values = []
     for tag in tags:
@@ -167,12 +174,15 @@ class LrclibLyricsOptions(OptionsPage):
     TITLE = "Lrclib Lyrics"
     PARENT = "plugins"
 
+    # By default, use a path for the LRC file in the same folder as
+    # the music file so as not to store the LRC files "somewhere"
     __default_naming = f"%folderpath%{os.sep}%filename%.lrc"
 
     options = [
         config.BoolOption("setting", ADD_UNSYNCED_LYRICS, True),
         config.BoolOption("setting", ADD_SYNCED_LYRICS, False),
         config.BoolOption("setting", NEVER_REPLACE_LYRICS, False),
+        config.BoolOption("setting", LRC_AS_SIDECAR, True),
         config.TextOption("setting", LRC_FILENAME, __default_naming),
         config.BoolOption("setting", EXPORT_LRC, False),
         config.BoolOption("setting", NEVER_REPLACE_LRC, False),
@@ -188,16 +198,27 @@ class LrclibLyricsOptions(OptionsPage):
         self.ui.syncedlyrics.setChecked(config.setting[ADD_SYNCED_LYRICS])
         self.ui.replace_embedded.setChecked(config.setting[NEVER_REPLACE_LYRICS])
         self.ui.lrc_name.setText(config.setting[LRC_FILENAME])
+        self.ui.lrc_as_sidecar.setChecked(config.setting[LRC_AS_SIDECAR])
         self.ui.export_lyrics.setChecked(config.setting[EXPORT_LRC])
         self.ui.replace_exported.setChecked(config.setting[NEVER_REPLACE_LRC])
+
+        # Initialize the LRC filename field state
+        self.update_lrc_name_field_state()
+        # Connect the sidecar checkbox to update the filename field state
+        self.ui.lrc_as_sidecar.toggled.connect(lambda: self.update_lrc_name_field_state())
 
     def save(self):
         config.setting[ADD_UNSYNCED_LYRICS] = self.ui.lyrics.isChecked()
         config.setting[ADD_SYNCED_LYRICS] = self.ui.syncedlyrics.isChecked()
         config.setting[NEVER_REPLACE_LYRICS] = self.ui.replace_embedded.isChecked()
         config.setting[LRC_FILENAME] = self.ui.lrc_name.text()
+        config.setting[LRC_AS_SIDECAR] = self.ui.lrc_as_sidecar.isChecked()
         config.setting[EXPORT_LRC] = self.ui.export_lyrics.isChecked()
         config.setting[NEVER_REPLACE_LRC] = self.ui.replace_exported.isChecked()
+
+    def update_lrc_name_field_state(self):
+        """Enable or disable the LRC filename field based on the sidecar option."""
+        self.ui.lrc_name.setEnabled(not self.ui.lrc_as_sidecar.isChecked())
 
 
 ratecontrol.set_minimum_delay_for_url(URL, REQUESTS_DELAY)
