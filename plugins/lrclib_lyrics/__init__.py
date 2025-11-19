@@ -205,7 +205,7 @@ class LrclibLyricsOptions(OptionsPage):
         # Initialize the LRC filename field state
         self.update_lrc_name_field_state()
         # Connect the sidecar checkbox to update the filename field state
-        self.ui.lrc_as_sidecar.toggled.connect(lambda: self.update_lrc_name_field_state())
+        self.ui.lrc_as_sidecar.toggled.connect(self.update_lrc_name_field_state())
 
     def save(self):
         config.setting[ADD_UNSYNCED_LYRICS] = self.ui.lyrics.isChecked()
