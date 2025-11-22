@@ -4,7 +4,9 @@
 Title Cleaner OST Plugin for MusicBrainz Picard.
 Removes soundtrack-related information from album titles using regex.
 """
+import os
 
+from PyQt5 import uic
 from PyQt5.QtWidgets import QCheckBox
 
 PLUGIN_NAME = "Title Cleaner OST"
@@ -35,8 +37,6 @@ from picard.ui.options import OptionsPage
 from picard.ui.options import register_options_page
 from picard.ui.options import OptionsCheckError
 
-from .ui_title_cleaner_ost_config import Ui_RemoveReleaseTitleOstIndicatorSettings
-
 # No longer used, but kept for config compatibility
 # ONLY_SOUNDTRACK = "title_cleaner_ost_only_soundtrack"
 OST_WHITELIST = "title_cleaner_ost_whitelist"
@@ -54,7 +54,6 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     Options page for the Title Cleaner OST plugin.
     """
     NAME = "title_cleaner_ost"
-    ui: Ui_RemoveReleaseTitleOstIndicatorSettings
     TITLE = "Title Cleaner OST"
     PARENT = "plugins"
 
@@ -105,51 +104,51 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     ]
 
     def __init__(self, parent=None):
-        super(RemoveReleaseTitleOstIndicatorOptionsPage, self).__init__(parent)
-        self.ui = Ui_RemoveReleaseTitleOstIndicatorSettings()
-        self.ui.setupUi(self)
+        super().__init__(parent)
+        ui_file = os.path.join(os.path.dirname(__file__), 'title_cleaner_ost_config.ui')
+        uic.loadUi(ui_file, self)
 
         markdown_fmt = getattr(Qt, "MarkdownText", Qt.PlainText)
-        self.ui.regex_help.setTextFormat(markdown_fmt)
-        self.ui.regex_help.setWordWrap(True)
-        self.ui.regex_help.setTextInteractionFlags(
+        self.regex_help.setTextFormat(markdown_fmt)
+        self.regex_help.setWordWrap(True)
+        self.regex_help.setTextInteractionFlags(
             Qt.TextSelectableByMouse | Qt.LinksAccessibleByMouse
         )
 
         # Compiled regex cache for preview
         self.compiled_regex = None
 
-        self.ui.regex_help.setVisible(False)
-        self.ui.regex_help.setText(self.REGEX_DESCRIPTION_MD)
+        self.regex_help.setVisible(False)
+        self.regex_help.setText(self.REGEX_DESCRIPTION_MD)
 
         # Test field logic
-        self.ui.test_input.textChanged.connect(self.update_test_output)
-        self.ui.regex_pattern.textChanged.connect(self.update_test_output)
-        self.ui.whitelist_text.textChanged.connect(self.update_test_output)
-        self.ui.enable_live_updates.stateChanged.connect(self.update_test_output)
-        self.ui.enable_live_updates.stateChanged.connect(self.update_run_button_state)
+        self.test_input.textChanged.connect(self.update_test_output)
+        self.regex_pattern.textChanged.connect(self.update_test_output)
+        self.whitelist_text.textChanged.connect(self.update_test_output)
+        self.enable_live_updates.stateChanged.connect(self.update_test_output)
+        self.enable_live_updates.stateChanged.connect(self.update_run_button_state)
 
         # Reset button for Regex
-        self.ui.reset_button.clicked.connect(self.reset_regex_to_default)
+        self.reset_button.clicked.connect(self.reset_regex_to_default)
 
         # Regex validation with every change
-        self.ui.regex_pattern.textChanged.connect(self.on_regex_changed)
+        self.regex_pattern.textChanged.connect(self.on_regex_changed)
 
         # Run Update button
-        self.ui.run_update.clicked.connect(self.force_update_test_output)
+        self.run_update.clicked.connect(self.force_update_test_output)
 
         # Release type checkboxes logic
-        self.ui.chk_all_release_types.stateChanged.connect(self.update_release_type_chks)
+        self.chk_all_release_types.stateChanged.connect(self.update_release_type_chks)
 
         self.update_test_output_forced = False
 
 
     def update_release_type_chks(self):
         """Updates the state of release type checkboxes."""
-        deactivate_selection_option = self.ui.chk_all_release_types.isChecked()
-        for i in range(self.ui.gridLayout_2.count()):
+        deactivate_selection_option = self.chk_all_release_types.isChecked()
+        for i in range(self.gridLayout_2.count()):
             if i > 0:  # Skip the first checkbox (All Release Types)
-                self.ui.gridLayout_2.itemAt(i).widget().setDisabled(deactivate_selection_option)
+                self.gridLayout_2.itemAt(i).widget().setDisabled(deactivate_selection_option)
 
     def force_update_test_output(self):
         """Forces an update of the test output when the 'Run Update' button is clicked."""
@@ -162,7 +161,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
     def load(self):
         """Loads the regex, whitelist, and checkbox state from config into the UI."""
         # Clear dynamic checkboxes (keep the first "all" checkbox)
-        layout = self.ui.gridLayout_2
+        layout = self.gridLayout_2
         while layout.count() > 1:
             item = layout.takeAt(layout.count() - 1)
             if item:
@@ -176,29 +175,29 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         for option in options:
             log.debug("%s: Processing option for releasetype '%s'", PLUGIN_NAME, option.get("releasetype"))
             if option.get("releasetype") == "all":
-                self.ui.chk_all_release_types.setText(option.get("text", self.ui.chk_all_release_types.text()))
-                self.ui.chk_all_release_types.setToolTip(option.get("tooltip", self.ui.chk_all_release_types.toolTip()))
-                self.ui.chk_all_release_types.setChecked(bool(option.get("enabled", False)))
-                self.ui.chk_all_release_types.stateChanged.connect(self.update_release_type_chks)
+                self.chk_all_release_types.setText(option.get("text", self.chk_all_release_types.text()))
+                self.chk_all_release_types.setToolTip(option.get("tooltip", self.chk_all_release_types.toolTip()))
+                self.chk_all_release_types.setChecked(bool(option.get("enabled", False)))
+                self.chk_all_release_types.stateChanged.connect(self.update_release_type_chks)
                 continue
 
             chk = QCheckBox(option.get("releasetype", ""))
             chk.setText(option.get("text", ""))
             chk.setToolTip(option.get("tooltip", ""))
             chk.setChecked(bool(option.get("enabled", False)))
-            self.ui.gridLayout_2.addWidget(chk)
+            self.gridLayout_2.addWidget(chk)
 
         self.update_release_type_chks()
 
         # Load other settings
-        self.ui.regex_pattern.setPlainText(get_setting_with_default(OST_REGEX, self.DEFAULT_REGEX))
+        self.regex_pattern.setPlainText(get_setting_with_default(OST_REGEX, self.DEFAULT_REGEX))
         self.validate_regex_pattern()
-        self.ui.whitelist_text.setPlainText(get_setting_with_default(OST_WHITELIST, self.DEFAULT_WHITELIST))
-        self.ui.enable_live_updates.setChecked(get_setting_with_default(LIVE_UPDATES, False))
-        self.ui.run_update.setEnabled(not self.ui.enable_live_updates.isChecked())
+        self.whitelist_text.setPlainText(get_setting_with_default(OST_WHITELIST, self.DEFAULT_WHITELIST))
+        self.enable_live_updates.setChecked(get_setting_with_default(LIVE_UPDATES, False))
+        self.run_update.setEnabled(not self.enable_live_updates.isChecked())
 
-        self.ui.test_input.setText("")
-        self.ui.test_output.setText("")
+        self.test_input.setText("")
+        self.test_output.setText("")
 
 
     def save(self):
@@ -212,12 +211,12 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         original_options = get_setting_with_default(APPLY_OPTIONS, self.DEFAULT_APPLY_OPTIONS)
         saved_apply_options = []
 
-        layout = self.ui.gridLayout_2
+        layout = self.gridLayout_2
         layout_index = 1  # itemAt(0) is the "All Release Types" checkbox
 
         for option in original_options:
             if option.get("releasetype") == "all":
-                checked = bool(self.ui.chk_all_release_types.isChecked())
+                checked = bool(self.chk_all_release_types.isChecked())
             else:
                 item = layout.itemAt(layout_index)
                 if item is None or item.widget() is None:
@@ -237,48 +236,48 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
         config.setting[APPLY_OPTIONS] = saved_apply_options
 
         # Save other settings
-        config.setting[OST_REGEX] = self.ui.regex_pattern.toPlainText()  # type: ignore[index]
-        config.setting[OST_WHITELIST] = self.ui.whitelist_text.toPlainText()  # type: ignore[index]
-        config.setting[LIVE_UPDATES] = self.ui.enable_live_updates.isChecked()  # type: ignore[index]
+        config.setting[OST_REGEX] = self.regex_pattern.toPlainText()  # type: ignore[index]
+        config.setting[OST_WHITELIST] = self.whitelist_text.toPlainText()  # type: ignore[index]
+        config.setting[LIVE_UPDATES] = self.enable_live_updates.isChecked()  # type: ignore[index]
 
 
     def reset_regex_to_default(self):
         """Resets the regex to the default pattern."""
-        self.ui.regex_pattern.setPlainText(self.DEFAULT_REGEX)
+        self.regex_pattern.setPlainText(self.DEFAULT_REGEX)
 
     def validate_regex_pattern(self) -> bool:
         """Validates the regex pattern, compiles it for caching, and updates UI accordingly."""
-        pattern = self.ui.regex_pattern.toPlainText()
+        pattern = self.regex_pattern.toPlainText()
         try:
             self.compiled_regex = re.compile(pattern, flags=re.IGNORECASE)
-            self.ui.regex_pattern.setStyleSheet("")
-            self.ui.regex_error_message.setVisible(False)
+            self.regex_pattern.setStyleSheet("")
+            self.regex_error_message.setVisible(False)
 
             return True
         except re.error as e:
             log.debug(PLUGIN_NAME + ": Regex validation error: %s", e)
             self.compiled_regex = None
-            self.ui.regex_pattern.setStyleSheet("background-color: #ffcccc;")
-            self.ui.regex_error_message.setText(f"Regex error: {e}")
-            self.ui.regex_error_message.setVisible(True)
+            self.regex_pattern.setStyleSheet("background-color: #ffcccc;")
+            self.regex_error_message.setText(f"Regex error: {e}")
+            self.regex_error_message.setVisible(True)
             return False
 
     def update_run_button_state(self):
         """Enables or disables the 'Run Update' button based on live updates checkbox."""
-        self.ui.run_update.setEnabled(not self.ui.enable_live_updates.isChecked())
+        self.run_update.setEnabled(not self.enable_live_updates.isChecked())
 
     def update_test_output(self):
         """
         Applies the current regex/whitelist/setting to the test input and shows the result.
         Always shows a preview but indicates when only_soundtrack is enabled.
         """
-        if not self.update_test_output_forced and not self.ui.enable_live_updates.isChecked():
+        if not self.update_test_output_forced and not self.enable_live_updates.isChecked():
             return
 
         self.update_test_output_forced = False
 
-        album_title = self.ui.test_input.text().strip()
-        whitelist = self.ui.whitelist_text.toPlainText()
+        album_title = self.test_input.text().strip()
+        whitelist = self.whitelist_text.toPlainText()
 
         # Normalise whitelist titles using Unicode NFC normalization
         whitelist_titles = [
@@ -291,7 +290,7 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
 
         # Whitelist check
         if normalized_title in whitelist_titles:
-            self.ui.test_output.setText("Whitelisted – will not be changed!")
+            self.test_output.setText("Whitelisted – will not be changed!")
             return
 
         # Always allow preview but use compiled regex if available
@@ -300,12 +299,12 @@ class RemoveReleaseTitleOstIndicatorOptionsPage(OptionsPage):
                 new_title = self.compiled_regex.sub('', album_title)
                 # Normalise whitespace and strip leading/trailing whitespace
                 new_title = ' '.join(new_title.split()).strip()
-                self.ui.test_output.setText(new_title)
+                self.test_output.setText(new_title)
             except Exception as e:
                 log.debug(PLUGIN_NAME + ": Preview error: %s", e)
-                self.ui.test_output.setText(f"Regex error: {e}")
+                self.test_output.setText(f"Regex error: {e}")
         else:
-            self.ui.test_output.setText("Invalid regex pattern")
+            self.test_output.setText("Invalid regex pattern")
 
 def title_cleaner_ost(album, metadata, release):
     log.debug("%s: title_cleaner_ost called for album '%s'", PLUGIN_NAME, metadata.get("album", "<no album>"))
