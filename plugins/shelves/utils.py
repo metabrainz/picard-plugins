@@ -19,7 +19,6 @@ class ShelfUtils:
     Utility functions for shelf management.
     Call set_shelf_manager() during plugin initialization to set the ShelfManager instance.
     """
-
     @staticmethod
     def _determine_shelf_recursive(path, known_shelves, base_path):
         """
@@ -81,6 +80,7 @@ class ShelfUtils:
                 "%s: Error extracting shelf from path '%s': %s", PLUGIN_NAME, path, e
             )
             return workflow_stage_2
+
 
     @staticmethod
     def validate_shelf_name(name: str) -> Tuple[bool, Optional[str]]:

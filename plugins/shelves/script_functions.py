@@ -12,7 +12,9 @@ from picard import config, log
 
 from .constants import ShelfConstants
 
+
 PLUGIN_NAME = "Shelves"
+
 
 def func_shelf(parser: Any) -> str:
     """

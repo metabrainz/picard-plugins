@@ -6,6 +6,7 @@ Constants for the Shelves plugin.
 
 from __future__ import annotations
 
+
 class ShelfConstants:
     """Central constants for the Shelves plugin."""
     # noinspection SpellCheckingInspection
@@ -36,6 +37,7 @@ class ShelfConstants:
 
     # Album indicators that suggest a name is not a shelf
     ALBUM_INDICATORS = ["Vol.", "Volume", "Disc", "CD", "Part"]
+
 
 # Default configuration values
 DEFAULT_SHELVES = {

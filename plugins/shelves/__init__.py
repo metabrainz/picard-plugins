@@ -25,8 +25,7 @@ from picard.ui.options import register_options_page
 PLUGIN_NAME = "Shelves"
 PLUGIN_AUTHOR = "nrth3rnlb"
 PLUGIN_DESCRIPTION = """
-The **Shelves** plugin adds virtual shelf management to MusicBrainz Picard, allowing you to organise your music files 
-by top-level folders (shelves) in your music library.
+The **Shelves** plugin adds virtual shelf management to MusicBrainz Picard, allowing you to organise your music files by top-level folders (shelves) in your music library.
 
 Think of your music library as a physical library with different shelves — one for your standard collection, one for incoming/unprocessed music, one for Christmas music, etc.
 
@@ -44,7 +43,6 @@ PLUGIN_VERSION = "1.6.1"
 PLUGIN_API_VERSIONS = ["2.0"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
-PLUGIN_USER_GUIDE_URL = "https://github.com/nrth3rnlb/picard-plugin-shelves"
 
 from .utils import ShelfUtils
 
@@ -179,6 +177,7 @@ def func_shelf(parser: Any) -> str:
     """Wrapper for func_shelf to ensure proper plugin registration."""
     return _func_shelf_base(parser)
 
+
 # Wrapper functions that pass shelf_manager to processors
 def _file_post_load_processor_wrapper(file: Any) -> None:
     """Wrapper for file_post_load_processor."""
@@ -188,9 +187,11 @@ def _file_post_addition_to_track_processor(track, file: Any) -> None:
     """Wrapper for file_post_addition_to_track_processor."""
     file_post_addition_to_track_processor(track, file)
 
+
 def _file_post_save_processor_wrapper(file: Any) -> None:
     """Wrapper for file_post_save_processor."""
     file_post_save_processor(file)
+
 
 def _set_shelf_in_metadata_wrapper(
         album: Any, metadata: Dict[str, Any], track: Any, release: Any
@@ -201,6 +202,7 @@ def _set_shelf_in_metadata_wrapper(
 def _file_post_removal_from_track_processor(track, file: Any) -> None:
     """Wrapper for file_post_removal_from_track_processor."""
     file_post_removal_from_track_processor(track, file)
+
 
 log.debug("%s: Registering plugin components", PLUGIN_NAME)
 

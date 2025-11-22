@@ -156,6 +156,7 @@ class SetShelfNameDialog(QDialog):
         else:
             self.validation_label.setText("")
 
+
 class DetermineShelfAction(BaseAction):
     """
     Context menu action: Determine shelf from storage location.

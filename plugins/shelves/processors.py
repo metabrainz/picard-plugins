@@ -105,6 +105,7 @@ def file_post_removal_from_track_processor(track, file) -> None:
     if album_id:
         clear_album(album_id)
 
+
 def set_shelf_in_metadata(
         _album: Any, metadata: Dict[str, Any], _track: Any, _release: Any
 ) -> None:

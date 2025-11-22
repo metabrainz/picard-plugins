@@ -76,6 +76,7 @@ class ShelvesOptionsPage(OptionsPage):
 
         self.tabWidget.setCurrentIndex(1)
 
+
     def load(self) -> None:
         """Load already known shelves from config."""
         shelves = sorted(ShelfUtils.get_known_shelves())
@@ -85,7 +86,7 @@ class ShelvesOptionsPage(OptionsPage):
         self.workflow_transitions.setEnabled(self.workflow_enabled.isChecked())
         self._rebuild_workflow_dropdowns()
         self.workflow_enabled.setChecked(
-            self.config.setting[ShelfConstants.CONFIG_WORKFLOW_ENABLED_KEY])  # type: ignore[index]
+                self.config.setting[ShelfConstants.CONFIG_WORKFLOW_ENABLED_KEY])  # type: ignore[index]
         # Update preview with current values
         snippet = self.get_rename_snippet()
         self.naming_script_code.setPlainText(snippet)
@@ -242,6 +243,7 @@ $set(_shelffolder,$if($not($eq(%_shelffolder%,)),%_shelffolder%/))
 
 %_shelffolder%
 $if2(%albumartist%,%artist%)/%album%/%title%"""
+
 
     def on_shelf_list_selection_changed(self) -> None:
         """ Enable / disable the remove button based on selection. """
