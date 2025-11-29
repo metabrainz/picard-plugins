@@ -24,7 +24,7 @@ Adds a right click option on a cluster to look up album information using a sear
 
 Adds a right click option on an album or track to look up cover art for the selected album or title.
 '''
-PLUGIN_VERSION = '2.1.0'
+PLUGIN_VERSION = '2.1.1'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
