@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
+<ui version="4.0" idbasedtr="true">
+    <author>nrth3rnlb</author>
  <class>RemoveReleaseTitleOstIndicatorSettings</class>
  <widget class="QWidget" name="RemoveReleaseTitleOstIndicatorSettings">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>714</width>
-    <height>800</height>
+       <width>1102</width>
+       <height>1236</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -35,18 +36,18 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>681</width>
-        <height>961</height>
+           <y>0</y>
+           <width>1082</width>
+           <height>1216</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QGroupBox" name="regex_group">
+           <widget class="QGroupBox" name="regex_containers">
          <property name="title">
           <string>Regex pattern for finding the OST indicator</string>
          </property>
-         <layout class="QVBoxLayout" name="vboxlayout1">
+               <layout class="QVBoxLayout" name="regex_containers_layout">
           <property name="spacing">
            <number>2</number>
           </property>
@@ -62,23 +63,53 @@
           <property name="bottomMargin">
            <number>9</number>
           </property>
-          <item>
-           <widget class="QPlainTextEdit" name="regex_pattern">
-            <property name="toolTip">
-             <string>Enter your own regular expression pattern here for removing soundtrack additions. The validity is checked as you type.</string>
-            </property>
+               </layout>
            </widget>
-          </item>
+       </item>
           <item>
-           <widget class="QLabel" name="regex_error_message">
+              <widget class="QGroupBox" name="groupBox_2">
+                  <property name="title">
+                      <string>Test your settings</string>
+                  </property>
+                  <layout class="QVBoxLayout" name="verticalLayout_4">
+                      <item>
+                          <widget class="QLabel" name="label_4">
+                              <property name="text">
+                                  <string>The test with</string>
+                              </property>
+                          </widget>
+                      </item>
+                      <item>
+                          <widget class="QLineEdit" name="test_input">
+                              <property name="toolTip">
+                                  <string>Type an album title here to test your current settings.</string>
+                              </property>
+                          </widget>
+                      </item>
+                      <item>
+                          <widget class="QLabel" name="label_3">
+                              <property name="text">
+                                  <string>yields the following result</string>
+                              </property>
+                          </widget>
+                      </item>
+                      <item alignment="Qt::AlignTop">
+                          <widget class="QLabel" name="test_output">
+                              <property name="sizePolicy">
+                                  <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+                                      <horstretch>0</horstretch>
+                                      <verstretch>0</verstretch>
+                                  </sizepolicy>
+                              </property>
             <property name="minimumSize">
              <size>
               <width>0</width>
               <height>30</height>
              </size>
             </property>
-            <property name="styleSheet">
-             <string notr="true">color: red;</string>
+                              <property name="toolTip">
+                                  <string>This shows the result after applying your settings to the test input above.
+                                  </string>
             </property>
             <property name="frameShape">
              <enum>QFrame::Panel</enum>
@@ -87,74 +118,30 @@
              <enum>QFrame::Sunken</enum>
             </property>
             <property name="text">
-             <string>Error messages</string>
+                <string/>
             </property>
-            <property name="textFormat">
-             <enum>Qt::PlainText</enum>
+                              <property name="textInteractionFlags">
+                                  <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
             </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="regex_help">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="visible">
-             <bool>true</bool>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Panel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
-            </property>
-            <property name="text">
-             <string>RegEx Explanation</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::MarkdownText</enum>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QWidget" name="widget" native="true">
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QPushButton" name="reset_button">
-               <property name="toolTip">
-                <string>Resets the regex pattern to the default value.</string>
-               </property>
-               <property name="text">
-                <string>Reset to Default</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QToolButton" name="toggle_regex_help">
-               <property name="toolTip">
-                <string>Shows/Hides the RegEx Explanation for the Default RegEx</string>
-               </property>
-               <property name="text">
-                <string>RegEx Explanation</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
+                          </widget>
+                      </item>
+                      <item>
+                          <widget class="QPushButton" name="run_update">
+                              <property name="text">
+                                  <string>Run Test</string>
+                              </property>
+                          </widget>
+                      </item>
+                      <item>
+                          <widget class="QCheckBox" name="enable_live_updates">
+                              <property name="toolTip">
+                                  <string>Picard may freeze if instant updates are enabled. In this case, live updates
+                                      should be disabled.
+                                  </string>
+                              </property>
+                              <property name="text">
+                                  <string>Enable immediate updating of test results</string>
+                              </property>
            </widget>
           </item>
          </layout>
@@ -192,7 +179,7 @@
           <item>
            <widget class="QPlainTextEdit" name="whitelist_text">
             <property name="toolTip">
-             <string>Enter one album title per line. For example:
+                <string>Enter one album title per line. For example,
 Game Music Concert
 Another Album Name</string>
             </property>
@@ -202,117 +189,17 @@ Another Album Name</string>
         </widget>
        </item>
        <item>
-        <widget class="QGroupBox" name="groupBox_2">
-         <property name="title">
-          <string>Test your settings</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_4">
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>The test with</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="test_input">
-            <property name="toolTip">
-             <string>Type an album title here to test your current settings.</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>yields the following result</string>
-            </property>
-           </widget>
-          </item>
-          <item alignment="Qt::AlignTop">
-           <widget class="QLabel" name="test_output">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>This shows the result after applying your settings to the test input above.</string>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Panel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_2">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>and applies to the following release types</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="only_applies_to">
-            <property name="minimumSize">
-             <size>
-              <width>0</width>
-              <height>30</height>
-             </size>
-            </property>
-            <property name="frameShape">
-             <enum>QFrame::Panel</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Sunken</enum>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="run_update">
-            <property name="text">
-             <string>Run Test</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="enable_live_updates">
-            <property name="toolTip">
-             <string>Picard may freeze if instant updates are enabled. In this case, live updates should be disabled.</string>
-            </property>
-            <property name="text">
-             <string>Enable immediate updating of test results</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
+           <spacer name="verticalSpacer">
+               <property name="orientation">
+                   <enum>Qt::Vertical</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                   <size>
+                       <width>20</width>
+                       <height>40</height>
+                   </size>
+               </property>
+           </spacer>
        </item>
       </layout>
      </widget>
@@ -320,23 +207,24 @@ Another Album Name</string>
    </item>
   </layout>
  </widget>
- <resources/>
- <connections>
-  <connection>
-   <sender>toggle_regex_help</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>regex_help</receiver>
-   <slot>setVisible(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>107</x>
-     <y>283</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>20</x>
-     <y>20</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+    <layoutdefault spacing="6" margin="9"/>
+    <resources/>
+    <connections/>
+    <designerdata>
+        <property name="gridDeltaX">
+            <number>10</number>
+        </property>
+        <property name="gridDeltaY">
+            <number>10</number>
+        </property>
+        <property name="gridSnapX">
+            <bool>true</bool>
+        </property>
+        <property name="gridSnapY">
+            <bool>true</bool>
+        </property>
+        <property name="gridVisible">
+            <bool>true</bool>
+        </property>
+    </designerdata>
 </ui>
