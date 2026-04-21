@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2020-2021 Bob Swift (rdswift)
+# Copyright (C) 2020-2021, 2026 Bob Swift (rdswift)
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ Adds a right click option on a cluster to look up album information using a sear
 
 Adds a right click option on an album or track to look up cover art for the selected album or title.
 '''
-PLUGIN_VERSION = '2.1.0'
+PLUGIN_VERSION = '2.1.1'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
@@ -244,7 +244,7 @@ class SearchEngineLookupOptionsPage(OptionsPage):
             list_item.setCheckState(QtCore.Qt.Checked)
 
     def add_provider(self):
-        provider_id = uuid4()
+        provider_id = str(uuid4())
         self.edit_provider_dialog(provider_id)
 
     def edit_provider(self):
