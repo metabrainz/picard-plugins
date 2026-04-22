@@ -2,6 +2,9 @@
 
 This repository hosts plugins for [MusicBrainz Picard](https://picard.musicbrainz.org/). If you're a plugin author and would like to include your plugin here, simply open a pull request.
 
+> [!NOTE]
+> This repository is for Picard v1 and v2 plugins only. Plugins for Picard v3 are managed through the [Picard Plugins Registry](https://github.com/metabrainz/picard-plugins-registry).
+
 Note that new plugins being added to the repository should be under the GNU General Public License version 2 ("GPL") or a license compatible with it. See https://www.gnu.org/licenses/license-list.html for a list of compatible licenses.
 
 ## Development Notes
