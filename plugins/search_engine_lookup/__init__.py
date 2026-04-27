@@ -216,6 +216,10 @@ class SearchEngineLookupOptionsPage(OptionsPage):
         self.ui.pb_edit.clicked.connect(self.edit_provider)
         self.ui.pb_delete.clicked.connect(self.delete_provider)
         self.ui.pb_test.clicked.connect(self.test_provider)
+        self.ui.le_additional_words.textChanged.connect(self.additional_words_changed)
+
+    def additional_words_changed(self, text):
+        self.additional_words = text
 
     def load(self):
         # Settings for search engine providers
