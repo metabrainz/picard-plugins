@@ -28,8 +28,6 @@ import os
 import subprocess
 import sys
 import tempfile
-import xml.etree.ElementTree as ET
-
 from picard import config, log
 from picard.config import BoolOption, TextOption
 from picard.file import File
@@ -37,34 +35,26 @@ from picard.formats import register_format
 from picard.metadata import Metadata
 from picard.ui.options import register_options_page, OptionsPage
 
-try:
-	from PyQt6.QtWidgets import (
-		QCheckBox,
-		QFileDialog,
-		QFormLayout,
-		QHBoxLayout,
-		QLabel,
-		QLineEdit,
-		QPushButton,
-		QVBoxLayout,
-	)
-	from PyQt6.QtCore import Qt
+from PyQt5.QtWidgets import (
+	QCheckBox,
+	QFileDialog,
+	QFormLayout,
+	QHBoxLayout,
+	QLabel,
+	QLineEdit,
+	QPushButton,
+	QVBoxLayout,
+)
+from PyQt5.QtCore import (
+	QBuffer,
+	QFile,
+	QIODevice,
+	QXmlStreamReader,
+	QXmlStreamWriter,
+	Qt,
+)
 
-	_AlignTop = Qt.AlignmentFlag.AlignTop
-except ImportError:
-	from PyQt5.QtWidgets import (
-		QCheckBox,
-		QFileDialog,
-		QFormLayout,
-		QHBoxLayout,
-		QLabel,
-		QLineEdit,
-		QPushButton,
-		QVBoxLayout,
-	)
-	from PyQt5.QtCore import Qt
-
-	_AlignTop = Qt.AlignTop
+_AlignTop = Qt.AlignTop
 
 
 # ---------------------------------------------------------------------------
@@ -198,16 +188,11 @@ def _get_tooldir():
 # ---------------------------------------------------------------------------
 
 
-def _add_simple(parent, name, value):
-	simple = ET.SubElement(parent, "Simple")
-	ET.SubElement(simple, "Name").text = name
-	ET.SubElement(simple, "String").text = str(value)
-
-
-def _xml_doc(root):
-	return '<?xml version="1.0" encoding="UTF-8"?>\n' + ET.tostring(
-		root, encoding="unicode"
-	)
+def _write_simple(w, name, value):
+	w.writeStartElement("Simple")
+	w.writeTextElement("Name", name)
+	w.writeTextElement("String", str(value))
+	w.writeEndElement()
 
 
 def _tags_xml(metadata):
@@ -230,44 +215,57 @@ def _tags_xml(metadata):
 	on global tags (e.g. "ALBUM/TITLE"), which breaks Kodi's exact-match lookup.
 	TargetTypeValue is still written for spec-compliant readers.
 	"""
-	root = ET.Element("Tags")
+	buf = QBuffer()
+	buf.open(QIODevice.WriteOnly)
+	w = QXmlStreamWriter(buf)
+	w.setAutoFormatting(True)
+	w.writeStartDocument()
+
+	w.writeStartElement("Tags")
 
 	# --- Level 50: album ---
-	alb = ET.SubElement(root, "Tag")
-	alb_targets = ET.SubElement(alb, "Targets")
-	ET.SubElement(alb_targets, "TargetTypeValue").text = "50"
+	w.writeStartElement("Tag")
+	w.writeStartElement("Targets")
+	w.writeTextElement("TargetTypeValue", "50")
+	w.writeEndElement()  # Targets
 	for picard_name, mkv_name in _ALBUM_TAGS.items():
 		for value in metadata.getall(picard_name):
 			if value:
-				_add_simple(alb, mkv_name, value)
+				_write_simple(w, mkv_name, value)
 	for value in metadata.getall("totaltracks"):
 		if value:
-			_add_simple(alb, "TOTAL_PARTS", value)
+			_write_simple(w, "TOTAL_PARTS", value)
 	# Kodi compat aliases: no level-30 equivalents so they persist in fctx->metadata
 	for value in metadata.getall("album"):
 		if value:
-			_add_simple(alb, "ALBUM", value)
+			_write_simple(w, "ALBUM", value)
 	for value in metadata.getall("albumartist"):
 		if value:
-			_add_simple(alb, "ALBUM_ARTIST", value)
+			_write_simple(w, "ALBUM_ARTIST", value)
 	_date_field = "originaldate" if config.setting["mkv_use_original_date"] else "date"
 	for value in metadata.getall(_date_field):
 		if value:
-			_add_simple(alb, "DATE", value)
+			_write_simple(w, "DATE", value)
+	w.writeEndElement()  # Tag (album)
 
 	# --- Level 30: track ---
-	trk = ET.SubElement(root, "Tag")
-	trk_targets = ET.SubElement(trk, "Targets")
-	ET.SubElement(trk_targets, "TargetTypeValue").text = "30"
+	w.writeStartElement("Tag")
+	w.writeStartElement("Targets")
+	w.writeTextElement("TargetTypeValue", "30")
+	w.writeEndElement()  # Targets
 	for picard_name, mkv_name in _TRACK_TAGS.items():
 		for value in metadata.getall(picard_name):
 			if value:
-				_add_simple(trk, mkv_name, value)
+				_write_simple(w, mkv_name, value)
 	for value in metadata.getall("tracknumber"):
 		if value:
-			_add_simple(trk, "PART_NUMBER", value)
+			_write_simple(w, "PART_NUMBER", value)
+	w.writeEndElement()  # Tag (track)
 
-	return _xml_doc(root)
+	w.writeEndElement()  # Tags
+	w.writeEndDocument()
+	buf.close()
+	return bytes(buf.data()).decode("utf-8")
 
 
 # ---------------------------------------------------------------------------
@@ -277,54 +275,94 @@ def _tags_xml(metadata):
 
 def _parse_tags_xml(xml_path, metadata):
 	"""Read a Matroska tags XML file and populate a Metadata object."""
-	try:
-		tree = ET.parse(xml_path)
-	except ET.ParseError as e:
-		log.warning("MkvPlugin: failed to parse tags XML %r: %s", xml_path, e)
+	f = QFile(xml_path)
+	if not f.open(QIODevice.ReadOnly):
+		log.warning("MkvPlugin: failed to open tags XML %r", xml_path)
 		return
 
-	root = tree.getroot()
-	for tag in root.findall("Tag"):
-		targets = tag.find("Targets")
-		target_type_value = (
-			50  # spec default (Matroska spec: TargetTypeValue defaults to 50)
-		)
-		if targets is not None:
-			ttv_el = targets.find("TargetTypeValue")
-			if ttv_el is not None and ttv_el.text:
+	reader = QXmlStreamReader(f)
+	target_type_value = 50
+	in_tag = False
+	in_targets = False
+	in_ttv = False
+	in_simple = False
+	in_name = False
+	in_string = False
+	ttv_text = ""
+	simple_name = ""
+	simple_value = ""
+
+	while not reader.atEnd():
+		token = reader.readNext()
+		if token == QXmlStreamReader.StartElement:
+			el = reader.name()
+			if el == "Tag":
+				in_tag = True
+				target_type_value = 50
+			elif el == "Targets" and in_tag:
+				in_targets = True
+			elif el == "TargetTypeValue" and in_targets:
+				in_ttv = True
+				ttv_text = ""
+			elif el == "Simple" and in_tag:
+				in_simple = True
+				simple_name = ""
+				simple_value = ""
+			elif el == "Name" and in_simple:
+				in_name = True
+			elif el == "String" and in_simple:
+				in_string = True
+		elif token == QXmlStreamReader.EndElement:
+			el = reader.name()
+			if el == "Tag":
+				in_tag = False
+			elif el == "Targets":
+				in_targets = False
+			elif el == "TargetTypeValue":
+				in_ttv = False
 				try:
-					target_type_value = int(ttv_el.text)
+					target_type_value = int(ttv_text)
 				except ValueError:
 					pass
-
-		is_album_level = target_type_value >= 50
-
-		for simple in tag.findall("Simple"):
-			name_el = simple.find("Name")
-			string_el = simple.find("String")
-			if name_el is None or string_el is None:
-				continue
-			mkv_name = (name_el.text or "").upper()
-			value = string_el.text or ""
-			if not value:
-				continue
-
-			if is_album_level:
-				if mkv_name == "TOTAL_PARTS":
-					metadata.add("totaltracks", value)
-				elif mkv_name in _R_ALBUM_TAGS:
-					metadata.add(_R_ALBUM_TAGS[mkv_name], value)
-			else:
-				if mkv_name == "PART_NUMBER":
-					# May be "3" or "3/12" — split if needed
-					if "/" in value:
-						parts = value.split("/", 1)
-						metadata.add("tracknumber", parts[0].strip())
-						metadata.add("totaltracks", parts[1].strip())
+			elif el == "Simple" and in_simple:
+				in_simple = False
+				mkv_name = simple_name.upper()
+				value = simple_value
+				if value:
+					if target_type_value >= 50:
+						if mkv_name == "TOTAL_PARTS":
+							metadata.add("totaltracks", value)
+						elif mkv_name in _R_ALBUM_TAGS:
+							metadata.add(_R_ALBUM_TAGS[mkv_name], value)
 					else:
-						metadata.add("tracknumber", value)
-				elif mkv_name in _R_TRACK_TAGS:
-					metadata.add(_R_TRACK_TAGS[mkv_name], value)
+						if mkv_name == "PART_NUMBER":
+							# May be "3" or "3/12" — split if needed
+							if "/" in value:
+								parts = value.split("/", 1)
+								metadata.add("tracknumber", parts[0].strip())
+								metadata.add("totaltracks", parts[1].strip())
+							else:
+								metadata.add("tracknumber", value)
+						elif mkv_name in _R_TRACK_TAGS:
+							metadata.add(_R_TRACK_TAGS[mkv_name], value)
+			elif el == "Name":
+				in_name = False
+			elif el == "String":
+				in_string = False
+		elif token == QXmlStreamReader.Characters:
+			text = reader.text()
+			if in_ttv:
+				ttv_text += text
+			elif in_name:
+				simple_name += text
+			elif in_string:
+				simple_value += text
+
+	f.close()
+	if reader.hasError():
+		log.warning(
+			"MkvPlugin: failed to parse tags XML %r: %s", xml_path, reader.errorString()
+		)
 
 
 # ---------------------------------------------------------------------------
