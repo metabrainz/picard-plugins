@@ -148,6 +148,16 @@ _R_TRACK_TAGS = {v: k for k, v in _TRACK_TAGS.items()}
 _R_ALBUM_TAGS = {v: k for k, v in _ALBUM_TAGS.items()}
 _R_DISC_TAGS = {v: k for k, v in _DISC_TAGS.items()}
 
+# All Picard internal tag names that this format can store.
+_SUPPORTED_TAGS = (
+    set(_TRACK_TAGS)
+    | set(_ALBUM_TAGS)
+    | set(_DISC_TAGS)
+    | set(_TRACK_SORT.values())   # titlesort, artistsort, composersort
+    | set(_ALBUM_SORT.values())   # albumsort, albumartistsort
+    | {"tracknumber", "totaltracks", "originalartist", "originaldate"}
+)
+
 
 # ---------------------------------------------------------------------------
 # Tool path helpers
@@ -465,6 +475,10 @@ class _MatroskaFileBase(File):
 	_load()  uses mkvmerge --identify for duration/codec info and mkvextract tags for existing tag values.
 	_save()  generates a Matroska tags XML and feeds it to mkvpropedit.
 	"""
+
+	@classmethod
+	def supports_tag(cls, name):
+		return name in _SUPPORTED_TAGS
 
 	def _load(self, filename):
 		log.debug("MkvPlugin: loading %r", filename)
