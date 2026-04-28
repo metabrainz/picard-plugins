@@ -91,8 +91,8 @@ _TRACK_TAGS = {
 	"license": "LICENSE",
 	"copyright": "COPYRIGHT",
 	# originalartist emitted as ORIGINAL/ARTIST nested structure
-	"musicbrainz_recordingid": "MUSICBRAINZ_TRACKID",
-	"musicbrainz_trackid": "MUSICBRAINZ_RELEASETRACKID",
+	"musicbrainz_recordingid": "MUSICBRAINZ_RECORDINGID",
+	"musicbrainz_trackid": "MUSICBRAINZ_TRACKID",
 	"musicbrainz_workid": "MUSICBRAINZ_WORKID",
 	"musicbrainz_artistid": "MUSICBRAINZ_ARTISTID",
 	"musicbrainz_composerid": "MUSICBRAINZ_COMPOSERID",
