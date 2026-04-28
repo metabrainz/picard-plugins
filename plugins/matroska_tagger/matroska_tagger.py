@@ -19,7 +19,10 @@ PLUGIN_API_VERSIONS = [
 	"2.12",
 	"2.13",
 ]
-PLUGIN_DESCRIPTION = "Adds support for reading and writing tags in Matroska (.mkv, .mka) files via MKVToolNix."
+PLUGIN_DESCRIPTION = (
+	"Adds support for reading and writing tags in Matroska (.mkv, .mka) files via MKVToolNix "
+	"(https://mkvtoolnix.download)."
+)
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
 
@@ -70,7 +73,7 @@ _TRACK_TAGS = {
 	"isrc": "ISRC",
 	"bpm": "BPM",
 	"key": "INITIAL_KEY",
-	"language": "LANGUAGE",
+	"language": "LANGUAGE",  # undocumented in spec but used by MP3Tag
 	"subtitle": "SUBTITLE",
 	"remixer": "REMIXED_BY",
 	"conductor": "CONDUCTOR",
@@ -80,17 +83,14 @@ _TRACK_TAGS = {
 	"mixer": "MIXED_BY",
 	"djmixer": "DJMIXED_BY",
 	"producer": "PRODUCER",
-	"work": "WORK",
 	"mood": "MOOD",
 	"artists": "ARTISTS",
 	"grouping": "GROUPING",
-	"titlesort": "TITLESORT",
-	"artistsort": "ARTISTSORT",
-	"composersort": "COMPOSERSORT",
+	# titlesort/artistsort/composersort emitted as SORT_WITH nested inside TITLE/ARTIST/COMPOSER
+	"website": "WEBSITE",
 	"license": "LICENSE",
 	"copyright": "COPYRIGHT",
-	"website": "URL_OFFICIAL_ARTIST",
-	"originalartist": "ORIGINALARTIST",
+	# originalartist emitted as ORIGINAL/ARTIST nested structure
 	"musicbrainz_recordingid": "MUSICBRAINZ_TRACKID",
 	"musicbrainz_trackid": "MUSICBRAINZ_RELEASETRACKID",
 	"musicbrainz_workid": "MUSICBRAINZ_WORKID",
@@ -102,6 +102,7 @@ _TRACK_TAGS = {
 	"replaygain_track_gain": "REPLAYGAIN_GAIN",
 	"replaygain_track_peak": "REPLAYGAIN_PEAK",
 	"replaygain_track_range": "REPLAYGAIN_TRACK_RANGE",
+	"genre": "GENRE",
 }
 
 # Picard internal name → Matroska tag name, for album-level tags (TargetTypeValue=50)
@@ -109,7 +110,6 @@ _ALBUM_TAGS = {
 	"album": "TITLE",
 	"albumartist": "ARTIST",
 	"date": "DATE_RELEASED",
-	"genre": "GENRE",
 	"label": "LABEL",
 	"catalognumber": "CATALOG_NUMBER",
 	"barcode": "BARCODE",
@@ -120,10 +120,7 @@ _ALBUM_TAGS = {
 	"releasetype": "RELEASE_TYPE",
 	"asin": "ASIN",
 	"compilation": "COMPILATION",
-	"discnumber": "DISC_NUMBER",
-	"totaldiscs": "DISC_TOTAL",
-	"albumsort": "ALBUMSORT",
-	"albumartistsort": "ALBUMARTISTSORT",
+	# albumsort/albumartistsort emitted as SORT_WITH nested inside TITLE/ARTIST
 	"musicbrainz_albumid": "MUSICBRAINZ_ALBUMID",
 	"musicbrainz_releasegroupid": "MUSICBRAINZ_RELEASEGROUPID",
 	"musicbrainz_albumartistid": "MUSICBRAINZ_ALBUMARTISTID",
@@ -135,9 +132,21 @@ _ALBUM_TAGS = {
 	"replaygain_reference_loudness": "REPLAYGAIN_REFERENCE_LOUDNESS",
 }
 
+# Picard internal name → Matroska tag name, for disc-level tags (TargetTypeValue=60)
+_DISC_TAGS = {
+	"discnumber": "PART_NUMBER",
+	"totaldiscs": "TOTAL_PARTS",
+}
+
+# Sort companions: maps the main Picard field to its sort field, per level.
+# These are emitted as SORT_WITH nested inside the parent Simple element.
+_TRACK_SORT = {"title": "titlesort", "artist": "artistsort", "composer": "composersort"}
+_ALBUM_SORT = {"album": "albumsort", "albumartist": "albumartistsort"}
+
 # Reverse maps for loading: Matroska tag name → Picard internal name (per level)
 _R_TRACK_TAGS = {v: k for k, v in _TRACK_TAGS.items()}
 _R_ALBUM_TAGS = {v: k for k, v in _ALBUM_TAGS.items()}
+_R_DISC_TAGS = {v: k for k, v in _DISC_TAGS.items()}
 
 
 # ---------------------------------------------------------------------------
@@ -195,14 +204,51 @@ def _write_simple(w, name, value):
 	w.writeEndElement()
 
 
-def _tags_xml(metadata):
-	"""Combined XML with level-50 (album) and level-30 (track) Tag blocks.
+def _write_simple_with_sort(w, name, value, sort_value=None):
+	"""Write a Simple element, with an optional nested SORT_WITH child."""
+	w.writeStartElement("Simple")
+	w.writeTextElement("Name", name)
+	w.writeTextElement("String", str(value))
+	if sort_value:
+		w.writeStartElement("Simple")
+		w.writeTextElement("Name", "SORT_WITH")
+		w.writeTextElement("String", str(sort_value))
+		w.writeEndElement()
+	w.writeEndElement()
 
-	Both blocks have no UID in their Targets, which is the spec-correct form for
+
+def _write_original_artist(w, value):
+	"""Write originalartist as a nested ORIGINAL/ARTIST structure per spec."""
+	w.writeStartElement("Simple")
+	w.writeTextElement("Name", "ORIGINAL")
+	w.writeStartElement("Simple")
+	w.writeTextElement("Name", "ARTIST")
+	w.writeTextElement("String", str(value))
+	w.writeEndElement()
+	w.writeEndElement()
+
+
+def _sort_field_for(mkv_name, target_type_value):
+	"""Return the Picard sort field for a SORT_WITH element nested under mkv_name."""
+	if target_type_value < 50:
+		return {
+			"TITLE": "titlesort",
+			"ARTIST": "artistsort",
+			"COMPOSER": "composersort",
+		}.get(mkv_name)
+	if target_type_value < 60:
+		return {"TITLE": "albumsort", "ARTIST": "albumartistsort"}.get(mkv_name)
+	return None
+
+
+def _tags_xml(metadata):
+	"""Combined XML with level-50 (album), level-60 (disc), and level-30 (track) Tag blocks.
+
+	All blocks have no UID in their Targets, which is the spec-correct form for
 	a single-track file.  mkvpropedit writes them via --tags global:, and FFmpeg
 	routes all no-UID tags to s->metadata regardless of TargetTypeValue.
 
-	Because the level-30 block is written second, level-30 TITLE/ARTIST overwrite
+	Because the level-30 block is written last, level-30 TITLE/ARTIST overwrite
 	the level-50 values in fctx->metadata — giving Kodi the track title and track
 	artist in its title/artist fields as desired.
 
@@ -211,7 +257,7 @@ def _tags_xml(metadata):
 	processing.  Kodi reads these case-insensitively and maps them to its album,
 	albumartist, and date fields respectively.
 
-	TargetType string is omitted from both blocks: FFmpeg uses it as a key prefix
+	TargetType string is omitted from all blocks: FFmpeg uses it as a key prefix
 	on global tags (e.g. "ALBUM/TITLE"), which breaks Kodi's exact-match lookup.
 	TargetTypeValue is still written for spec-compliant readers.
 	"""
@@ -229,9 +275,11 @@ def _tags_xml(metadata):
 	w.writeTextElement("TargetTypeValue", "50")
 	w.writeEndElement()  # Targets
 	for picard_name, mkv_name in _ALBUM_TAGS.items():
+		sort_key = _ALBUM_SORT.get(picard_name)
+		sort_val = metadata.get(sort_key, "") if sort_key else ""
 		for value in metadata.getall(picard_name):
 			if value:
-				_write_simple(w, mkv_name, value)
+				_write_simple_with_sort(w, mkv_name, value, sort_val or None)
 	for value in metadata.getall("totaltracks"):
 		if value:
 			_write_simple(w, "TOTAL_PARTS", value)
@@ -248,15 +296,34 @@ def _tags_xml(metadata):
 			_write_simple(w, "DATE", value)
 	w.writeEndElement()  # Tag (album)
 
+	# --- Level 60: disc (omitted when no disc data is present) ---
+	disc_num = metadata.get("discnumber", "")
+	total_discs = metadata.get("totaldiscs", "")
+	if disc_num or total_discs:
+		w.writeStartElement("Tag")
+		w.writeStartElement("Targets")
+		w.writeTextElement("TargetTypeValue", "60")
+		w.writeEndElement()  # Targets
+		if disc_num:
+			_write_simple(w, "PART_NUMBER", disc_num)
+		if total_discs:
+			_write_simple(w, "TOTAL_PARTS", total_discs)
+		w.writeEndElement()  # Tag (disc)
+
 	# --- Level 30: track ---
 	w.writeStartElement("Tag")
 	w.writeStartElement("Targets")
 	w.writeTextElement("TargetTypeValue", "30")
 	w.writeEndElement()  # Targets
 	for picard_name, mkv_name in _TRACK_TAGS.items():
+		sort_key = _TRACK_SORT.get(picard_name)
+		sort_val = metadata.get(sort_key, "") if sort_key else ""
 		for value in metadata.getall(picard_name):
 			if value:
-				_write_simple(w, mkv_name, value)
+				_write_simple_with_sort(w, mkv_name, value, sort_val or None)
+	for value in metadata.getall("originalartist"):
+		if value:
+			_write_original_artist(w, value)
 	for value in metadata.getall("tracknumber"):
 		if value:
 			_write_simple(w, "PART_NUMBER", value)
@@ -285,12 +352,9 @@ def _parse_tags_xml(xml_path, metadata):
 	in_tag = False
 	in_targets = False
 	in_ttv = False
-	in_simple = False
-	in_name = False
-	in_string = False
 	ttv_text = ""
-	simple_name = ""
-	simple_value = ""
+	# Stack of open Simple elements; each frame: {name, value, reading_name, reading_string}
+	simple_stack = []
 
 	while not reader.atEnd():
 		token = reader.readNext()
@@ -305,17 +369,23 @@ def _parse_tags_xml(xml_path, metadata):
 				in_ttv = True
 				ttv_text = ""
 			elif el == "Simple" and in_tag:
-				in_simple = True
-				simple_name = ""
-				simple_value = ""
-			elif el == "Name" and in_simple:
-				in_name = True
-			elif el == "String" and in_simple:
-				in_string = True
+				simple_stack.append(
+					{
+						"name": "",
+						"value": "",
+						"reading_name": False,
+						"reading_string": False,
+					}
+				)
+			elif el == "Name" and simple_stack:
+				simple_stack[-1]["reading_name"] = True
+			elif el == "String" and simple_stack:
+				simple_stack[-1]["reading_string"] = True
 		elif token == QXmlStreamReader.EndElement:
 			el = reader.name()
 			if el == "Tag":
 				in_tag = False
+				simple_stack.clear()
 			elif el == "Targets":
 				in_targets = False
 			elif el == "TargetTypeValue":
@@ -324,39 +394,57 @@ def _parse_tags_xml(xml_path, metadata):
 					target_type_value = int(ttv_text)
 				except ValueError:
 					pass
-			elif el == "Simple" and in_simple:
-				in_simple = False
-				mkv_name = simple_name.upper()
-				value = simple_value
-				if value:
-					if target_type_value >= 50:
-						if mkv_name == "TOTAL_PARTS":
-							metadata.add("totaltracks", value)
-						elif mkv_name in _R_ALBUM_TAGS:
-							metadata.add(_R_ALBUM_TAGS[mkv_name], value)
+			elif el == "Name" and simple_stack:
+				simple_stack[-1]["reading_name"] = False
+			elif el == "String" and simple_stack:
+				simple_stack[-1]["reading_string"] = False
+			elif el == "Simple" and simple_stack:
+				frame = simple_stack.pop()
+				mkv_name = frame["name"].upper()
+				value = frame["value"]
+
+				if simple_stack:
+					# Nested Simple: handle SORT_WITH and ORIGINAL/ARTIST
+					parent_name = simple_stack[-1]["name"].upper()
+					if mkv_name == "SORT_WITH" and value:
+						sort_field = _sort_field_for(parent_name, target_type_value)
+						if sort_field:
+							metadata.add(sort_field, value)
+					elif parent_name == "ORIGINAL" and mkv_name == "ARTIST" and value:
+						metadata.add("originalartist", value)
+				else:
+					# Top-level Simple
+					if target_type_value >= 60:
+						if value and mkv_name in _R_DISC_TAGS:
+							metadata.add(_R_DISC_TAGS[mkv_name], value)
+					elif target_type_value >= 50:
+						if value:
+							if mkv_name == "TOTAL_PARTS":
+								metadata.add("totaltracks", value)
+							elif mkv_name in _R_ALBUM_TAGS:
+								metadata.add(_R_ALBUM_TAGS[mkv_name], value)
 					else:
 						if mkv_name == "PART_NUMBER":
-							# May be "3" or "3/12" — split if needed
-							if "/" in value:
-								parts = value.split("/", 1)
-								metadata.add("tracknumber", parts[0].strip())
-								metadata.add("totaltracks", parts[1].strip())
-							else:
-								metadata.add("tracknumber", value)
-						elif mkv_name in _R_TRACK_TAGS:
+							if value:
+								if "/" in value:
+									parts = value.split("/", 1)
+									metadata.add("tracknumber", parts[0].strip())
+									metadata.add("totaltracks", parts[1].strip())
+								else:
+									metadata.add("tracknumber", value)
+						elif value and mkv_name in _R_TRACK_TAGS:
 							metadata.add(_R_TRACK_TAGS[mkv_name], value)
-			elif el == "Name":
-				in_name = False
-			elif el == "String":
-				in_string = False
+
 		elif token == QXmlStreamReader.Characters:
 			text = reader.text()
 			if in_ttv:
 				ttv_text += text
-			elif in_name:
-				simple_name += text
-			elif in_string:
-				simple_value += text
+			elif simple_stack:
+				frame = simple_stack[-1]
+				if frame["reading_name"]:
+					frame["name"] += text
+				elif frame["reading_string"]:
+					frame["value"] += text
 
 	f.close()
 	if reader.hasError():
@@ -374,8 +462,7 @@ class _MatroskaFileBase(File):
 	"""
 	Handles both reading and writing of Matroska tags via MKVToolNix.
 
-	_load()  uses mkvmerge --identify for duration/codec info and
-	                                 mkvextract tags for existing tag values.
+	_load()  uses mkvmerge --identify for duration/codec info and mkvextract tags for existing tag values.
 	_save()  generates a Matroska tags XML and feeds it to mkvpropedit.
 	"""
 
