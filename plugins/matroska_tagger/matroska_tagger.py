@@ -92,7 +92,7 @@ _TRACK_TAGS = {
 	"copyright": "COPYRIGHT",
 	# originalartist emitted as ORIGINAL/ARTIST nested structure
 	"musicbrainz_recordingid": "MUSICBRAINZ_RECORDINGID",
-	"musicbrainz_trackid": "MUSICBRAINZ_TRACKID",
+	"musicbrainz_trackid": "MUSICBRAINZ_RELEASETRACKID",
 	"musicbrainz_workid": "MUSICBRAINZ_WORKID",
 	"musicbrainz_artistid": "MUSICBRAINZ_ARTISTID",
 	"musicbrainz_composerid": "MUSICBRAINZ_COMPOSERID",
@@ -150,12 +150,12 @@ _R_DISC_TAGS = {v: k for k, v in _DISC_TAGS.items()}
 
 # All Picard internal tag names that this format can store.
 _SUPPORTED_TAGS = (
-    set(_TRACK_TAGS)
-    | set(_ALBUM_TAGS)
-    | set(_DISC_TAGS)
-    | set(_TRACK_SORT.values())   # titlesort, artistsort, composersort
-    | set(_ALBUM_SORT.values())   # albumsort, albumartistsort
-    | {"tracknumber", "totaltracks", "originalartist", "originaldate"}
+	set(_TRACK_TAGS)
+	| set(_ALBUM_TAGS)
+	| set(_DISC_TAGS)
+	| set(_TRACK_SORT.values())  # titlesort, artistsort, composersort
+	| set(_ALBUM_SORT.values())  # albumsort, albumartistsort
+	| {"tracknumber", "totaltracks", "originalartist", "originaldate"}
 )
 
 
