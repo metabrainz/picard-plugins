@@ -20,7 +20,7 @@
 PLUGIN_NAME = 'Haiku BFS Attributes'
 PLUGIN_AUTHOR = 'Philipp Wolfer'
 PLUGIN_DESCRIPTION = 'Save and load metadata to/from Haiku BFS attributes.'
-PLUGIN_VERSION = "1.2"
+PLUGIN_VERSION = "1.3"
 PLUGIN_API_VERSIONS = ["2.2", "2.3", "2.4", "2.5", "2.6"]
 PLUGIN_LICENSE = "GPL-2.0-or-later"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -42,7 +42,7 @@ from picard.file import (
     )
 from picard.util import thread
 
-if sys.platform == 'haiku1':
+if sys.platform[:5] == 'haiku':
 
     class AttrInfo(Structure):
         _fields_ = [
