@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2022-2024 Bob Swift (rdswift)
+# Copyright (C) 2022-2024, 2026 Bob Swift (rdswift)
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@ plugin is configured.
 <br /><br />
 Please see the <a href="https://github.com/rdswift/picard-plugins/blob/2.0_RDS_Plugins/plugins/genre_mapper/docs/README.md">user guide</a> on GitHub for more information.
 '''
-PLUGIN_VERSION = '0.6'
+PLUGIN_VERSION = '0.8'
 PLUGIN_API_VERSIONS = ['2.0', '2.1', '2.2', '2.3', '2.6', '2.7', '2.8', '2.9', '2.10', '2.11']
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.txt"
@@ -63,6 +63,38 @@ OPT_MATCH_FIRST = 'genre_mapper_apply_first_match_only'
 OPT_MATCH_REGEX = 'genre_mapper_use_regex'
 
 
+def make_re(map_string: str, full_match: bool = True) -> str:
+    """Convert a string with wildcards '*' and '?' to a regular expression.
+
+    Args:
+        map_string (str): String to convert
+        full_match (bool, optional): Add the '^' and '$' bookends to the
+        regular expression. Defaults to True.
+
+    Returns:
+        str: Regular expression.
+    """
+    re_string = str(map_string)
+
+    # Escape the regular expression special characters
+    re_string = re.escape(re_string)
+
+    # Replace the escaped wildcard characters with their regular expression equivalents
+    re_string = re_string.replace(r'\*', '.*').replace(r'\?', '.')
+
+    # Clean up any accidental '.*.*' that may have been created by replacing multiple '*' characters
+    re_string = re_string.replace('.*.*', '.*')
+
+    # Clean up hard spaces that may have been escaped by re.escape()
+    re_string = re_string.replace(r'\ ', ' ')
+
+    # If full_match is True, add the '^' and '$' bookends to the regular expression
+    if full_match:
+        re_string = '^' + re_string + '$'
+
+    return re_string
+
+
 class GenreMappingPairs():
     pairs = []
 
@@ -74,18 +106,6 @@ class GenreMappingPairs():
             log.warning("%s: Unable to read the '%s' setting.", PLUGIN_NAME, OPT_MATCH_PAIRS,)
             return
 
-        def _make_re(map_string):
-            # Replace period with temporary placeholder character (newline)
-            re_string = str(map_string).strip().replace('.', '\n')
-            # Convert wildcard characters to regular expression equivalents
-            re_string = re_string.replace('*', '.*').replace('?', '.')
-            # Escape carat and dollar sign for regular expression
-            re_string = re_string.replace('^', '\\^').replace('$', '\\$')
-            # Replace temporary placeholder characters with escaped periods
-            re_string = '^' + re_string.replace('\n', '\\.') + '$'
-            # Return regular expression with carat and dollar sign to force match condition on full string
-            return re_string
-
         cls.pairs = []
         for pair in pairs_split(config.setting[OPT_MATCH_PAIRS]):
             if "=" not in pair:
@@ -95,7 +115,7 @@ class GenreMappingPairs():
             if not original:
                 continue
             replacement = replacement.strip()
-            cls.pairs.append((original if config.setting[OPT_MATCH_REGEX] else _make_re(original), replacement))
+            cls.pairs.append((original if config.setting[OPT_MATCH_REGEX] else make_re(original), replacement))
             log.debug('%s: Add genre mapping pair: "%s" = "%s"', PLUGIN_NAME, original, replacement,)
         if not cls.pairs:
             log.debug("%s: No genre replacement maps defined.", PLUGIN_NAME,)
