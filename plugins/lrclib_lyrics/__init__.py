@@ -19,7 +19,7 @@ Fetches lyrics from lrclib.net
 
 Also allows to export lyrics to an .lrc file or import them from one.
 """
-PLUGIN_VERSION = "0.3"
+PLUGIN_VERSION = "0.4"
 PLUGIN_API_VERSIONS = ["2.12"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -205,7 +205,7 @@ class LrclibLyricsOptions(OptionsPage):
         # Initialize the LRC filename field state
         self.update_lrc_name_field_state()
         # Connect the sidecar checkbox to update the filename field state
-        self.ui.lrc_as_sidecar.toggled.connect(self.update_lrc_name_field_state())
+        self.ui.lrc_as_sidecar.toggled.connect(self.update_lrc_name_field_state)
 
     def save(self):
         config.setting[ADD_UNSYNCED_LYRICS] = self.ui.lyrics.isChecked()
