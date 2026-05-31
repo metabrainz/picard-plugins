@@ -7506,10 +7506,10 @@ class PartLevels():
         # replace any punctuation or numbers, with a space (to remove any
         # inconsistent punctuation and numbering) - (?u) specifies the
         # re.UNICODE flag in sub
-        clean_parent = re.sub("(?u)[\W]", ' ', parent)
+        clean_parent = re.sub(r"(?u)[\W]", ' ', parent)
         # now allow the spaces to be filled with up to 2 non-letters
-        pattern_parent = clean_parent.replace(" ", "\W{0,2}")
-        pattern_parent = "(^|.*?\s)(\W*" + pattern_parent + "\W?)(.*)"
+        pattern_parent = clean_parent.replace(" ", r"\W{0,2}")
+        pattern_parent = r"(^|.*?\s)(\W*" + pattern_parent + r"\W?)(.*)"
         # (removed previous alternative pattern for extend=true, owing to catastrophic backtracking)
         write_log(
                 release_id,
