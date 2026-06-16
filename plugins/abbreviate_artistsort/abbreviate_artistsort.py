@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 
 PLUGIN_NAME = "Abbreviate artist-sort"
-PLUGIN_AUTHOR = "Sophist"
+PLUGIN_AUTHOR = "Sophist, Sambhav Dixit"
 PLUGIN_DESCRIPTION = '''Abbreviate Artist-Sort and Album-Artist-Sort Tags.
 e.g. "Vivaldi, Antonio" becomes "Vivaldi, A."
 This is particularly useful for classical albums that can have a long list of artists.
@@ -80,7 +80,6 @@ _abbreviate_cache = {}
 
 
 def abbreviate_artistsort(tagger, metadata, track, release):
-
     for sortTag, unsortTag, sortTagNew in _abbreviate_tags:
         if not (sortTag in metadata and unsortTag in metadata):
             continue
@@ -99,7 +98,6 @@ def abbreviate_artistsort(tagger, metadata, track, release):
             new_unsort = ""
 
             while len(sort) > 0 and len(unsort) > 0:
-
                 if not _split in sort:
                     log.debug("  Ending without separator '%s' - moving '%s'." % (_split, sort))
                     new_sort += sort
@@ -119,23 +117,8 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                 new_unsort += unsort[0:len(unsort) - len(unsort.lstrip())]
                 unsort = unsort.lstrip()
 
-                # Sorted:   Stuff, ...
-                # Unsorted: Stuff, ...
-                temp = surname + _split
-                l = len(temp)
-                if unsort[:l] == temp:
-                    log.debug("  No forename - moving '%s'." % (surname))
-                    new_sort += temp
-                    new_unsort += temp
-                    sort = sort[l:]
-                    unsort = unsort[l:]
-                    continue
-
-                # Sorted:   Stuff; Surname, Forename(s)...
-                # Unsorted: Stuff; Forename(s) Surname...
-                # Move matching words plus white-space one by one
-                if unsort.find(' ' + surname) == -1:
-                    while surname.split(None, 1)[0] == unsort.split(None, 1)[0]:
+                if len(surname.split()) > 1:
+                    while len(sort) > 0 and len(unsort) > 0:
                         x = unsort.split(None, 1)[0]
                         log.debug("  Moving matching word '%s'." % (x))
                         new_sort += x
@@ -146,88 +129,51 @@ def abbreviate_artistsort(tagger, metadata, track, release):
                         surname = surname.lstrip()
                         new_unsort += unsort[0:len(unsort) - len(unsort.lstrip())]
                         unsort = unsort.lstrip()
+                else:
+                    log.debug("  Only one word found in the sorted name '%s'." % (sort))
+                    inits = ' '.join([x[0] + '.' for x in surname.split()])
+                    new_sort += surname + _split + inits
+                    sort = rest[len(surname):]
+                    new_sort += sort[0:len(sort) - len(sort[1:].lstrip())]
+                    sort = sort[1:].lstrip()
+                    new_unsort += surname
+                    unsort = unsort[len(surname):]
+                    new_unsort += unsort[0:len(unsort) - len(unsort.lstrip())]
+                    unsort = unsort.lstrip()
+                    new_unsort += surname
+                    unsort = unsort[len(surname):]
+                    new_unsort += unsort[0:len(unsort) - len(unsort[1:].lstrip())]
+                    unsort = unsort[1:].lstrip()
 
-                # If we still can't find surname then we are up a creek...
-                pos = unsort.find(' ' + surname)
-                if pos == -1:
-                    log.debug(
-                        _("%s: Track %s: Unable to abbreviate surname '%s' - not matched in unsorted %s: '%s'."),
-                        PLUGIN_NAME,
-                        metadata['tracknumber'],
-                        surname,
-                        unsortTag,
-                        unsort[i],
-                    )
-                    log.warning("  Could not match surname '%s' in remaining unsorted: %s" % (surname, unsort))
-                    break
+                    if surname != inits:
+                        log.debug(
+                            _("%s: Abbreviated surname (%s) to (%s) in '%s'."),
+                            PLUGIN_NAME,
+                            surname,
+                            inits,
+                            sortTag,
+                        )
+                        log.debug("Abbreviated (%s) to (%s)." % (surname, inits))
 
-                # Sorted:   Surname, Forename(s)...
-                # Unsorted: Forename(s) Surname...
-                forename = unsort[:pos]
-                if rest[:len(forename)] != forename:
-                    log.debug(
-                        _("%s: Track %s: Unable to abbreviate surname (%s) - forename (%s) not matched in unsorted %s: '%s'."),
-                        PLUGIN_NAME,
-                        metadata['tracknumber'],
-                        surname,
-                        forename,
-                        unsortTag,
-                        unsort[i],
-                    )
-                    log.warning("  Could not match forename (%s) for surname (%s) in remaining unsorted (%s):" % (forename, surname, unsort))
-                    break
-
-                inits = ' '.join([x[0] + '.' for x in forename.split()])
-
-                # Sorted:   Beatles, The...
-                # Unsorted: The Beatles...
-                if forename in _prefixes:
-                    inits = forename
-
-                new_sort += surname + _split + inits
-                sort = rest[len(forename):]
-                new_sort += sort[0:len(sort) - len(sort[1:].lstrip())]
-                sort = sort[1:].lstrip()
-                new_unsort += forename
-                unsort = unsort[len(forename):]
-                new_unsort += unsort[0:len(unsort) - len(unsort.lstrip())]
-                unsort = unsort.lstrip()
-                new_unsort += surname
-                unsort = unsort[len(surname):]
-                new_unsort += unsort[0:len(unsort) - len(unsort[1:].lstrip())]
-                unsort = unsort[1:].lstrip()
-
-                if forename != inits:
-                    log.debug(
-                        _("%s: Abbreviated surname (%s, %s) to (%s, %s) in '%s'."),
-                        PLUGIN_NAME,
-                        surname,
-                        forename,
-                        surname,
-                        inits,
-                        sortTag,
-                    )
-                    log.debug("Abbreviated (%s, %s) to (%s, %s)." % (surname, forename, surname, inits))
-            else:  # while loop ended without a break i.e. no errors
-                if unsorts[i] != new_unsort:
-                    log.error(
-                        _("%s: Track %s: Logic error - mangled %s from '%s' to '%s'."),
-                        PLUGIN_NAME,
-                        metadata['tracknumber'],
-                        unsortTag,
-                        unsorts[i],
-                        new_unsort,
-                    )
-                    log.warning("Error: Unsorted text for %s has changed from '%s' to '%s'!" % (unsortTag, unsorts[i], new_unsort))
-                _abbreviate_cache[sorts[i]] = new_sort
-                log.debug("  Abbreviated and cached (%s) as (%s)." % (sorts[i], new_sort))
-                if sorts[i] != new_sort:
-                    log.debug(_("%s: Abbreviated tag '%s' to '%s'."),
-                              PLUGIN_NAME,
-                              sorts[i],
-                              new_sort,
-                              )
-                    sorts[i] = new_sort
+            if unsorts[i] != new_unsort:
+                log.error(
+                    _("%s: Track %s: Logic error - mangled %s from '%s' to '%s'."),
+                    PLUGIN_NAME,
+                    metadata['tracknumber'],
+                    unsortTag,
+                    unsorts[i],
+                    new_unsort,
+                )
+                log.warning("Error: Unsorted text for %s has changed from '%s' to '%s'!" % (unsortTag, unsorts[i], new_unsort))
+            _abbreviate_cache[sorts[i]] = new_sort
+            log.debug("  Abbreviated and cached (%s) as (%s)." % (sorts[i], new_sort))
+            if sorts[i] != new_sort:
+                log.debug(_("%s: Abbreviated tag '%s' to '%s'."),
+                          PLUGIN_NAME,
+                          sorts[i],
+                          new_sort,
+                          )
+                sorts[i] = new_sort
         metadata[sortTagNew] = sorts
 
 register_track_metadata_processor(abbreviate_artistsort)
