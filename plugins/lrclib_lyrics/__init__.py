@@ -50,7 +50,23 @@ LRC_AS_SIDECAR = "lrc_as_sidecar"
 EXPORT_LRC = "exported_lrc"
 NEVER_REPLACE_LRC = "never_replace_lrc"
 
-lyrics_cache = {}
+
+class LyricsCache:
+    def __init__(self):
+        self.cache = {}
+
+    def set(self, metadata, lyrics, synced):
+        self.cache[self._key_from_metadata(metadata)] = (lyrics, synced)
+
+    def pop(self, metadata, default=None):
+        return self.cache.pop(self._key_from_metadata(metadata), default)
+
+    @staticmethod
+    def _key_from_metadata(metadata):
+        return (metadata["title"], metadata["artist"], metadata["album"], metadata["tracknumber"])
+
+
+lyrics_cache = LyricsCache()
 synced_lyrics_pattern = re.compile(r"(\[\d\d:\d\d\.\d\d\d]|<\d\d:\d\d\.\d\d\d>)")
 tags_pattern = re.compile(r"%(\w+)%")
 extra_file_variables = {
@@ -94,13 +110,13 @@ def response_handler(metadata, document, reply, error):
         unsynced_lyrics = document.get("plainLyrics")
         synced_lyrics = document.get("syncedLyrics")
         if unsynced_lyrics:
-            lyrics_cache[metadata["title"]] = unsynced_lyrics
+            lyrics_cache.set(metadata, unsynced_lyrics, False)
             if ((not config.setting[ADD_UNSYNCED_LYRICS]) or
                     (config.setting[NEVER_REPLACE_LYRICS] and metadata.get("lyrics"))):
                 return
             metadata["lyrics"] = unsynced_lyrics
         if synced_lyrics:
-            lyrics_cache[metadata["title"]] = synced_lyrics
+            lyrics_cache.set(metadata, synced_lyrics, True)
             # Support for the syncedlyrics tag is not available yet
             # if (not config.setting[ADD_SYNCED_LYRICS] or
             #         (config.setting[NEVER_REPLACE_LYRICS] and metadata.get("syncedlyrics"))):
@@ -132,7 +148,8 @@ def export_lrc_file(file):
     if config.setting[EXPORT_LRC]:
         metadata = file.metadata
         # If no lyrics were downloaded, try to export the lyrics already embedded
-        lyrics = lyrics_cache.pop(metadata["title"], metadata.get("lyrics"))
+        cache = lyrics_cache.pop(metadata, False)
+        lyrics = cache[0] if cache else metadata.get("lyrics")
         if lyrics:
             filename = get_lrc_file_name(file)
             if config.setting[NEVER_REPLACE_LRC] and os.path.exists(filename):
