@@ -19,7 +19,7 @@ Fetches lyrics from lrclib.net
 
 Also allows to export lyrics to an .lrc file or import them from one.
 """
-PLUGIN_VERSION = "0.4"
+PLUGIN_VERSION = "0.5"
 PLUGIN_API_VERSIONS = ["2.12"]
 PLUGIN_LICENSE = "GPL-2.0"
 PLUGIN_LICENSE_URL = "https://www.gnu.org/licenses/gpl-2.0.html"
@@ -46,6 +46,7 @@ ADD_UNSYNCED_LYRICS = "add_unsynced_lyrics"
 ADD_SYNCED_LYRICS = "add_synced_lyrics"
 NEVER_REPLACE_LYRICS = "never_replace_lyrics"
 LRC_FILENAME = "exported_lrc_filename"
+TXT_FILENAME = "exported_txt_filename"
 LRC_AS_SIDECAR = "lrc_as_sidecar"
 EXPORT_LRC = "exported_lrc"
 NEVER_REPLACE_LRC = "never_replace_lrc"
@@ -126,15 +127,17 @@ def response_handler(metadata, document, reply, error):
         log.debug(f"Could not fetch lyrics for {metadata['title']}")
 
 
-def get_lrc_file_name(file):
-    filename = f"{tags_pattern.sub('{}', config.setting[LRC_FILENAME])}"
+def get_lrc_file_name(file, synced):
+    conf_filename = config.setting[LRC_FILENAME if synced else TXT_FILENAME]
+    filename = f"{tags_pattern.sub('{}', conf_filename)}"
     # If sidecar option is selected, override any pattern
     if config.setting[LRC_AS_SIDECAR]:
-        filename = f"{os.path.splitext(file.filename)[0]}.lrc"
+        ext = "lrc" if synced else "txt"
+        filename = f"{os.path.splitext(file.filename)[0]}.{ext}"
         log.debug(f"LRC sidecar filename for {file.metadata['title']}: {filename}")
         return filename
     # Otherwise, parse the pattern
-    tags = tags_pattern.findall(config.setting[LRC_FILENAME])
+    tags = tags_pattern.findall(conf_filename)
     values = []
     for tag in tags:
         if tag in extra_file_variables:
@@ -149,9 +152,9 @@ def export_lrc_file(file):
         metadata = file.metadata
         # If no lyrics were downloaded, try to export the lyrics already embedded
         cache = lyrics_cache.pop(metadata, False)
-        lyrics = cache[0] if cache else metadata.get("lyrics")
+        lyrics, synced = cache if cache else (metadata.get("lyrics"), False)
         if lyrics:
-            filename = get_lrc_file_name(file)
+            filename = get_lrc_file_name(file, synced)
             if config.setting[NEVER_REPLACE_LRC] and os.path.exists(filename):
                 return
             try:
@@ -171,17 +174,24 @@ class ImportLrc(BaseAction):
         for track in objs:
             if isinstance(track, Track):
                 file = track.files[0]
-                filename = get_lrc_file_name(file)
-                try:
-                    with open(filename, 'r') as lyrics_file:
-                        lyrics = lyrics_file.read()
-                        if synced_lyrics_pattern.search(lyrics):
-                            # Support for syncedlyrics is not available yet
-                            # file.metadata["syncedlyrics"] = lyrics
-                            pass
-                        else:
-                            file.metadata["lyrics"] = lyrics
-                except FileNotFoundError:
+                found = False
+
+                for synced in [True, False]:
+                    try:
+                        with open(get_lrc_file_name(file, synced), 'r') as lyrics_file:
+                            lyrics = lyrics_file.read()
+                            if synced_lyrics_pattern.search(lyrics):
+                                # Support for syncedlyrics is not available yet
+                                # file.metadata["syncedlyrics"] = lyrics
+                                pass
+                            else:
+                                file.metadata["lyrics"] = lyrics
+                        found = True
+                        break
+                    except FileNotFoundError:
+                        pass
+
+                if not found:
                     log.debug(f"Could not find matching lrc file for {file.metadata['title']}")
 
 
@@ -193,14 +203,15 @@ class LrclibLyricsOptions(OptionsPage):
 
     # By default, use a path for the LRC file in the same folder as
     # the music file so as not to store the LRC files "somewhere"
-    __default_naming = f"%folderpath%{os.sep}%filename%.lrc"
+    __default_naming = f"%folderpath%{os.sep}%filename%"
 
     options = [
         config.BoolOption("setting", ADD_UNSYNCED_LYRICS, True),
         config.BoolOption("setting", ADD_SYNCED_LYRICS, False),
         config.BoolOption("setting", NEVER_REPLACE_LYRICS, False),
         config.BoolOption("setting", LRC_AS_SIDECAR, True),
-        config.TextOption("setting", LRC_FILENAME, __default_naming),
+        config.TextOption("setting", LRC_FILENAME, __default_naming + ".lrc"),
+        config.TextOption("setting", TXT_FILENAME, __default_naming + ".txt"),
         config.BoolOption("setting", EXPORT_LRC, False),
         config.BoolOption("setting", NEVER_REPLACE_LRC, False),
     ]
@@ -215,6 +226,7 @@ class LrclibLyricsOptions(OptionsPage):
         self.ui.syncedlyrics.setChecked(config.setting[ADD_SYNCED_LYRICS])
         self.ui.replace_embedded.setChecked(config.setting[NEVER_REPLACE_LYRICS])
         self.ui.lrc_name.setText(config.setting[LRC_FILENAME])
+        self.ui.txt_name.setText(config.setting[TXT_FILENAME])
         self.ui.lrc_as_sidecar.setChecked(config.setting[LRC_AS_SIDECAR])
         self.ui.export_lyrics.setChecked(config.setting[EXPORT_LRC])
         self.ui.replace_exported.setChecked(config.setting[NEVER_REPLACE_LRC])
@@ -229,13 +241,16 @@ class LrclibLyricsOptions(OptionsPage):
         config.setting[ADD_SYNCED_LYRICS] = self.ui.syncedlyrics.isChecked()
         config.setting[NEVER_REPLACE_LYRICS] = self.ui.replace_embedded.isChecked()
         config.setting[LRC_FILENAME] = self.ui.lrc_name.text()
+        config.setting[TXT_FILENAME] = self.ui.txt_name.text()
         config.setting[LRC_AS_SIDECAR] = self.ui.lrc_as_sidecar.isChecked()
         config.setting[EXPORT_LRC] = self.ui.export_lyrics.isChecked()
         config.setting[NEVER_REPLACE_LRC] = self.ui.replace_exported.isChecked()
 
     def update_lrc_name_field_state(self):
         """Enable or disable the LRC filename field based on the sidecar option."""
-        self.ui.lrc_name.setEnabled(not self.ui.lrc_as_sidecar.isChecked())
+        enable = not self.ui.lrc_as_sidecar.isChecked()
+        self.ui.lrc_name.setEnabled(enable)
+        self.ui.txt_name.setEnabled(enable)
 
 
 ratecontrol.set_minimum_delay_for_url(URL, REQUESTS_DELAY)
