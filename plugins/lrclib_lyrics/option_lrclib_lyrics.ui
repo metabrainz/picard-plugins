@@ -66,19 +66,29 @@
       <item>
        <widget class="QCheckBox" name="lrc_as_sidecar">
         <property name="text">
-         <string>Save the LRC file as a sidecar file to the audio file or</string>
+            <string>Save the LRC/TXT file as a sidecar file to the audio file or</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>use the following name pattern for lrc files:</string>
+         <string>use the following name pattern for synced files:</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QLineEdit" name="lrc_name"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>and the following name pattern for unsynced files:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="txt_name"/>
       </item>
       <item>
        <widget class="QCheckBox" name="replace_exported">
