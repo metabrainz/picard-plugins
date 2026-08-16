@@ -56,15 +56,15 @@ class LyricsCache:
     def __init__(self):
         self.cache = {}
 
-    def set(self, metadata, lyrics, synced):
-        self.cache[self._key_from_metadata(metadata)] = (lyrics, synced)
+    def set(self, orig_metadata, lyrics, synced):
+        self.cache[self._key_from_metadata(orig_metadata)] = (lyrics, synced)
 
-    def pop(self, metadata, default=None):
-        return self.cache.pop(self._key_from_metadata(metadata), default)
+    def pop(self, orig_metadata, default=None):
+        return self.cache.pop(self._key_from_metadata(orig_metadata), default)
 
     @staticmethod
-    def _key_from_metadata(metadata):
-        return (metadata["title"], metadata["artist"], metadata["album"], metadata["tracknumber"])
+    def _key_from_metadata(orig_metadata):
+        return (orig_metadata["~dirname"], orig_metadata["~filename"], orig_metadata["~extension"])
 
 
 lyrics_cache = LyricsCache()
@@ -96,7 +96,7 @@ def get_lyrics(track, file):
     }
     if metadata.get("album"):
         args["album_name"] = metadata["album"]
-    handler = partial(response_handler, metadata)
+    handler = partial(response_handler, metadata, file.orig_metadata)
     album.tagger.webservice.get_url(
         method="GET",
         handler=handler,
@@ -106,18 +106,18 @@ def get_lyrics(track, file):
     )
 
 
-def response_handler(metadata, document, reply, error):
+def response_handler(metadata, orig_metadata, document, reply, error):
     if document and not error:
         unsynced_lyrics = document.get("plainLyrics")
         synced_lyrics = document.get("syncedLyrics")
         if unsynced_lyrics:
-            lyrics_cache.set(metadata, unsynced_lyrics, False)
+            lyrics_cache.set(orig_metadata, unsynced_lyrics, False)
             if ((not config.setting[ADD_UNSYNCED_LYRICS]) or
                     (config.setting[NEVER_REPLACE_LYRICS] and metadata.get("lyrics"))):
                 return
             metadata["lyrics"] = unsynced_lyrics
         if synced_lyrics:
-            lyrics_cache.set(metadata, synced_lyrics, True)
+            lyrics_cache.set(orig_metadata, synced_lyrics, True)
             # Support for the syncedlyrics tag is not available yet
             # if (not config.setting[ADD_SYNCED_LYRICS] or
             #         (config.setting[NEVER_REPLACE_LYRICS] and metadata.get("syncedlyrics"))):
@@ -151,7 +151,7 @@ def export_lrc_file(file):
     if config.setting[EXPORT_LRC]:
         metadata = file.metadata
         # If no lyrics were downloaded, try to export the lyrics already embedded
-        cache = lyrics_cache.pop(metadata, False)
+        cache = lyrics_cache.pop(file.orig_metadata, default=False)
         lyrics, synced = cache if cache else (metadata.get("lyrics"), False)
         if lyrics:
             filename = get_lrc_file_name(file, synced)
