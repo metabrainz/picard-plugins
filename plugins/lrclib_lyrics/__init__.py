@@ -29,7 +29,12 @@ import re
 from functools import partial
 
 from picard import config, log
-from picard.file import register_file_post_save_processor, register_file_post_addition_to_track_processor
+from picard.album import register_album_post_removal_processor
+from picard.file import (
+    register_file_post_removal_from_track_processor,
+    register_file_post_save_processor,
+    register_file_post_addition_to_track_processor
+)
 from picard.track import Track
 from picard.ui.itemviews import BaseAction, register_track_action
 from picard.ui.options import OptionsPage, register_options_page
@@ -63,8 +68,8 @@ class LyricsCache:
             return
         self.cache[key] = (lyrics, synced)
 
-    def pop(self, orig_metadata, default=None):
-        return self.cache.pop(self._key_from_metadata(orig_metadata), default)
+    def pop(self, orig_metadata):
+        return self.cache.pop(self._key_from_metadata(orig_metadata), False) or None
 
     @staticmethod
     def _key_from_metadata(orig_metadata):
@@ -155,7 +160,7 @@ def export_lrc_file(file):
     if config.setting[EXPORT_LRC]:
         metadata = file.metadata
         # If no lyrics were downloaded, try to export the lyrics already embedded
-        cache = lyrics_cache.pop(file.orig_metadata, default=False)
+        cache = lyrics_cache.pop(file.orig_metadata)
         lyrics, synced = cache if cache else (metadata.get("lyrics"), False)
         if lyrics:
             filename = get_lrc_file_name(file, synced)
@@ -169,6 +174,11 @@ def export_lrc_file(file):
                 log.debug(f"Could not create the lrc file for {metadata['title']}")
         else:
             log.debug(f"Could not export any lyrics for {metadata['title']}")
+
+
+def remove_files_from_cache(files):
+    for file in files:
+        lyrics_cache.pop(file.orig_metadata)
 
 
 class ImportLrc(BaseAction):
@@ -260,5 +270,9 @@ class LrclibLyricsOptions(OptionsPage):
 ratecontrol.set_minimum_delay_for_url(URL, REQUESTS_DELAY)
 register_file_post_addition_to_track_processor(get_lyrics)
 register_file_post_save_processor(export_lrc_file)
+register_file_post_removal_from_track_processor(lambda _track, file: remove_files_from_cache([file]))
+register_album_post_removal_processor(
+    lambda album: remove_files_from_cache([file for track in album.tracks for file in track.files])
+)
 register_track_action(ImportLrc())
 register_options_page(LrclibLyricsOptions)
