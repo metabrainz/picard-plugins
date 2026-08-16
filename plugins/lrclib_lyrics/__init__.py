@@ -57,7 +57,11 @@ class LyricsCache:
         self.cache = {}
 
     def set(self, orig_metadata, lyrics, synced):
-        self.cache[self._key_from_metadata(orig_metadata)] = (lyrics, synced)
+        key = self._key_from_metadata(orig_metadata)
+        # do not overwrite synchronized lyrics with unsynchronized
+        if not synced and key in self.cache and self.cache[key][1]:
+            return
+        self.cache[key] = (lyrics, synced)
 
     def pop(self, orig_metadata, default=None):
         return self.cache.pop(self._key_from_metadata(orig_metadata), default)
